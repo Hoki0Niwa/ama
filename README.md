@@ -70,6 +70,8 @@ For now, this projects can only be compiled using `g++` that supports `c++ 20`. 
   - Run `bin/bench/bench.exe build.json 1 101 out.tsv` to play seeds 1 to 100.
   - Columns: seed, result (`fired` / `dead` / `nomove` / `timeout`), score of the first chain >= 78000 (0 if none), biggest chain score, biggest chain length, moves, frames, time in ms.
   - One game takes about 6 seconds on a 4-core machine, so 500 seeds for one weight file is roughly 50 minutes.
+  - Add a 6th argument to also save the field of every game, e.g. `bin/bench/bench.exe build.json 1 13 out.tsv 100 fields.txt`. For a fired game it is the complete chain with the triggering pair placed, otherwise the last position reached.
+  - `python3 bench/render.py -o shapes.svg before=fields_before.txt after=fields_after.txt` draws the saved fields side by side (one row per weight set, one column per seed) to compare the shapes built from the same queue. It only needs the Python standard library.
 
 NOTE: The source code for the `Puyo Puyo Champions Steam` isn't available to prevent cheating
 
