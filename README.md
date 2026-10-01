@@ -72,6 +72,11 @@ For now, this projects can only be compiled using `g++` that supports `c++ 20`. 
   - One game takes about 6 seconds on a 4-core machine, so 500 seeds for one weight file is roughly 50 minutes.
   - Add a 6th argument to also save the field of every game, e.g. `bin/bench/bench.exe build.json 1 13 out.tsv 100 fields.txt`. For a fired game it is the complete chain with the triggering pair placed, otherwise the last position reached.
   - `python3 bench/render.py -o shapes.svg before=fields_before.txt after=fields_after.txt` draws the saved fields side by side (one row per weight set, one column per seed) to compare the shapes built from the same queue. It only needs the Python standard library.
+- Run `make PEXT=true pvp` to build the PVP simulator. It plays two engines against each other with the same queue, counting time in the AI's own unit (one pair = 1, one chain link = 2), sending nuisance with 70 points per puyo, offsetting, all clear bonus and a loss when the 3rd column reaches the 12th row.
+  - `bin/pvp/pvp.exe --games 30 --seed 1 local local:other.json` matches two weight files of this build.
+  - `bin/pvp/pvp.exe --games 30 local "path/to/other/pvp.exe --engine path/to/other/config.json"` matches this build against another build of the AI: any command that speaks the JSON line protocol documented in `pvp/main.cpp` can be an engine, and `pvp --engine` serves that protocol for its own build. Build the simulator in both source trees to compare two versions.
+  - Each line of the output is one game: winner, reason (`death`, `garbage`, `no_move`, `max_moves`), length, moves, biggest chain and nuisance sent per side. `--verbose` also prints the final fields.
+  - Margin time and the real frame timing of the game are not simulated.
 
 NOTE: The source code for the `Puyo Puyo Champions Steam` isn't available to prevent cheating
 
