@@ -17,8 +17,9 @@
 // tears apart) and every chain link costs 2. Both players share the same queue, as in Puyo Puyo Tsu.
 // Nuisance is computed from the chain score with `target_point` points per puyo (70 in Tsu),
 // offset against the nuisance pending on the attacker, sent to the opponent when the chain ends and
-// dropped (at most 30 at a time) before the opponent's next pair. An all clear adds 30 puyos to the
-// next chain. A player loses when the 3rd column reaches the 12th row or no placement survives.
+// dropped (at most 30 at a time) after the next pair the opponent places without starting a chain,
+// so the opponent can still offset it with that pair. An all clear adds 30 puyos to the next chain.
+// A player loses when the 3rd column reaches the 12th row or no placement survives.
 //
 // An engine is either in-process (`local` or `local:config.json`) or any command line that runs the
 // JSON line protocol below, e.g. another build of this program started with `--engine`. This is how
@@ -38,6 +39,16 @@ constexpr i32 TARGET_POINT = 70;
 constexpr i32 ALL_CLEAR_BONUS = 30;
 constexpr i32 GARBAGE_DROP_MAX = 30;
 constexpr i32 QUEUE_VISIBLE = 3;
+
+// How the referee drives the AI's `trigger` and `stretch` arguments, which the game client normally sets:
+// the AI keeps stretching its chain while the field holds fewer than STRETCH_LIMIT puyos, then fires
+// as soon as a chain worth the trigger is available, and the trigger is lowered when the field gets
+// dangerously full so the AI fires what it has instead of overflowing
+constexpr i32 STRETCH_LIMIT = 48;
+constexpr i32 PANIC_LIMIT_1 = 60;
+constexpr i32 PANIC_TRIGGER_1 = 40000;
+constexpr i32 PANIC_LIMIT_2 = 66;
+constexpr i32 PANIC_TRIGGER_2 = 10000;
 
 // Loads the nested config.json into the 4 weight sets
 void load_configs(search::Configs& configs, const std::string& path)
@@ -579,9 +590,10 @@ struct Options
     i32 target_point = TARGET_POINT;
     i32 max_moves = 300;
     bool verbose = false;
+    std::string log;
 };
 
-GameResult play(Engine* engines[2], u32 seed, i32 first, const Options& options)
+GameResult play(Engine* engines[2], u32 seed, i32 first, const Options& options, std::ofstream& log)
 {
     auto queue = cell::create_queue(seed);
 
@@ -633,23 +645,7 @@ GameResult play(Engine* engines[2], u32 seed, i32 first, const Options& options)
             return finish(-1, "max_moves", now);
         }
 
-        // Nuisance drops before the next pair
         self.settle(now);
-
-        if (self.tray > 0) {
-            i32 drop = std::min(self.tray, GARBAGE_DROP_MAX);
-
-            self.field.drop_garbage(drop);
-            self.tray -= drop;
-            self.received += drop;
-            self.free_at += 1;
-            now = self.free_at;
-
-            if (self.field.get_height(2) > 11) {
-                return finish(o, "garbage", now);
-            }
-        }
-
         enemy.settle(now);
 
         // Builds the request
@@ -673,12 +669,35 @@ GameResult play(Engine* engines[2], u32 seed, i32 first, const Options& options)
         request.self = view(self, enemy);
         request.enemy = view(enemy, self);
         request.target_point = options.target_point;
+
+        i32 count = self.field.get_count();
+
         request.trigger = self.trigger;
-        request.stretch = true;
+        request.stretch = count < STRETCH_LIMIT;
+
+        if (count >= PANIC_LIMIT_2) {
+            request.trigger = std::min(request.trigger, PANIC_TRIGGER_2);
+        }
+        else if (count >= PANIC_LIMIT_1) {
+            request.trigger = std::min(request.trigger, PANIC_TRIGGER_1);
+        }
 
         auto reply = engines[p]->think(request);
 
         self.trigger = reply.trigger.value_or(ai::TRIGGER);
+
+        // Logs the decision as one JSON line per move
+        if (log.is_open()) {
+            json js = request_to_json(request);
+
+            js["game_seed"] = seed;
+            js["player"] = p == 0 ? "A" : "B";
+            js["tick"] = now;
+            js["move"] = self.moves + 1;
+            js["reply"] = reply_to_json(reply);
+
+            log << js.dump() << '\n';
+        }
 
         // Applies the placement
         auto pair = queue[self.queue_index % 128];
@@ -698,6 +717,19 @@ GameResult play(Engine* engines[2], u32 seed, i32 first, const Options& options)
 
         auto mask = self.field.pop();
         auto chain = chain::get_score(mask);
+
+        if (log.is_open() && chain.count > 0) {
+            json js;
+
+            js["game_seed"] = seed;
+            js["player"] = p == 0 ? "A" : "B";
+            js["tick"] = now;
+            js["move"] = self.moves;
+            js["chain"] = chain.count;
+            js["score"] = chain.score;
+
+            log << js.dump() << '\n';
+        }
 
         self.free_at = now + cost;
 
@@ -734,6 +766,24 @@ GameResult play(Engine* engines[2], u32 seed, i32 first, const Options& options)
         if (self.field.get_height(2) > 11) {
             return finish(o, "death", self.free_at);
         }
+
+        // Nuisance that has landed drops after a pair that didn't start a chain
+        if (chain.count == 0) {
+            self.settle(self.free_at);
+
+            if (self.tray > 0) {
+                i32 drop = std::min(self.tray, GARBAGE_DROP_MAX);
+
+                self.field.drop_garbage(drop);
+                self.tray -= drop;
+                self.received += drop;
+                self.free_at += 1;
+
+                if (self.field.get_height(2) > 11) {
+                    return finish(o, "garbage", self.free_at);
+                }
+            }
+        }
     }
 };
 
@@ -757,6 +807,12 @@ int match(const std::string& spec_a, const std::string& spec_b, const Options& o
     i32 wins[2] = { 0, 0 };
     i32 draws = 0;
 
+    std::ofstream log;
+
+    if (!options.log.empty()) {
+        log.open(options.log);
+    }
+
     printf("A: %s\nB: %s\n", engine_a->name().c_str(), engine_b->name().c_str());
     printf("games: %d, first seed: %u, target point: %d\n\n", options.games, options.seed, options.target_point);
     printf("game\tseed\twinner\treason\tticks\tmoves_A\tmoves_B\tchain_A\tchain_B\tsent_A\tsent_B\n");
@@ -766,7 +822,7 @@ int match(const std::string& spec_a, const std::string& spec_b, const Options& o
         i32 first = g % 2;
 
         auto t0 = std::chrono::steady_clock::now();
-        auto result = play(engines, seed, first, options);
+        auto result = play(engines, seed, first, options, log);
         auto secs = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - t0).count();
 
         const char* winner = result.winner == 0 ? "A" : (result.winner == 1 ? "B" : "draw");
@@ -839,6 +895,9 @@ int main(int argc, char** argv)
         else if (args[i] == "--verbose") {
             options.verbose = true;
         }
+        else if (args[i] == "--log") {
+            options.log = next();
+        }
         else {
             specs.push_back(args[i]);
         }
@@ -846,7 +905,7 @@ int main(int argc, char** argv)
 
     if (specs.size() != 2) {
         fprintf(stderr,
-            "usage: pvp [--games N] [--seed S] [--target P] [--max-moves M] [--verbose] <engine A> <engine B>\n"
+            "usage: pvp [--games N] [--seed S] [--target P] [--max-moves M] [--verbose] [--log moves.jsonl] <engine A> <engine B>\n"
             "       pvp --engine [config.json]\n"
             "an engine is `local`, `local:<config.json>` or a command line that speaks the engine protocol\n");
         return 1;

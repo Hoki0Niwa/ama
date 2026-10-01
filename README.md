@@ -75,7 +75,8 @@ For now, this projects can only be compiled using `g++` that supports `c++ 20`. 
 - Run `make PEXT=true pvp` to build the PVP simulator. It plays two engines against each other with the same queue, counting time in the AI's own unit (one pair = 1, one chain link = 2), sending nuisance with 70 points per puyo, offsetting, all clear bonus and a loss when the 3rd column reaches the 12th row.
   - `bin/pvp/pvp.exe --games 30 --seed 1 local local:other.json` matches two weight files of this build.
   - `bin/pvp/pvp.exe --games 30 local "path/to/other/pvp.exe --engine path/to/other/config.json"` matches this build against another build of the AI: any command that speaks the JSON line protocol documented in `pvp/main.cpp` can be an engine, and `pvp --engine` serves that protocol for its own build. Build the simulator in both source trees to compare two versions.
-  - Each line of the output is one game: winner, reason (`death`, `garbage`, `no_move`, `max_moves`), length, moves, biggest chain and nuisance sent per side. `--verbose` also prints the final fields.
+  - Each line of the output is one game: winner, reason (`death`, `garbage`, `no_move`, `max_moves`), length, moves, biggest chain and nuisance sent per side. `--verbose` also prints the final fields and `--log moves.jsonl` writes every request, reply and chain as JSON lines.
+  - The referee plays the role of the game client for the AI's `trigger` and `stretch` arguments: the AI stretches its chain while its field holds fewer than 48 puyos, then fires as soon as a chain worth the trigger is available, and the trigger is lowered at 60 and 66 puyos so the AI fires what it has instead of overflowing (see the constants in `pvp/main.cpp`).
   - Margin time and the real frame timing of the game are not simulated.
 
 NOTE: The source code for the `Puyo Puyo Champions Steam` isn't available to prevent cheating
