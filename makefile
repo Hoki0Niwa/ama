@@ -16,7 +16,7 @@ ifeq ($(PEXT), true)
 CXXFLAGS += -DPEXT
 endif
 
-SRC_AI = core/*.cpp ai/*.cpp ai/search/*.cpp
+SRC_AI = core/*.cpp ai/*.cpp ai/search/*.cpp ai/search/beam/*.cpp ai/search/dfs/*.cpp
 
 .PHONY: all puyop test clean makedir
 

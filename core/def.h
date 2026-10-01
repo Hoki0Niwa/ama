@@ -25,6 +25,7 @@
 #include <numeric>
 #include <stdalign.h>
 #include <functional>
+#include <iterator>
 
 using i8 = int8_t;
 using i16 = int16_t;

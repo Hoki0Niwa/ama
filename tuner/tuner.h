@@ -111,9 +111,9 @@ std::pair<beam::eval::Weight, beam::eval::Weight> randomize(beam::eval::Weight w
         { &w.waste, 10 }
     };
 
-    i32 param_delta[_countof(param)] = { 0 };
+    i32 param_delta[std::size(param)] = { 0 };
 
-    for (size_t i = 0; i < _countof(param); ++i) {
+    for (size_t i = 0; i < std::size(param); ++i) {
         i32 delta = param[i].second;
 
         i32 sign = (rand() % 2) * 2 - 1;
@@ -122,7 +122,7 @@ std::pair<beam::eval::Weight, beam::eval::Weight> randomize(beam::eval::Weight w
         param_delta[i] = value * sign;
     }
 
-    for (size_t i = 0; i < _countof(param); ++i) {
+    for (size_t i = 0; i < std::size(param); ++i) {
         *param[i].first += param_delta[i];
     }
 
@@ -130,7 +130,7 @@ std::pair<beam::eval::Weight, beam::eval::Weight> randomize(beam::eval::Weight w
 
     w = w_pre;
 
-    for (size_t i = 0; i < _countof(param); ++i) {
+    for (size_t i = 0; i < std::size(param); ++i) {
         *param[i].first -= param_delta[i];
     }
 
