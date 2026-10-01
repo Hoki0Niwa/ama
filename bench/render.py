@@ -127,17 +127,19 @@ def main():
     row_h = field_h + 2 * PAD
     title_h = 30 if args.title else 0
     header_h = 24
-    width = ROW_LABEL_W + len(seeds) * col_w
+    # Widens the label column for long weight set names (about 7.5 px per character at 13 px)
+    row_label_w = max(ROW_LABEL_W, int(7.5 * max(len(name) for name, _ in sets)) + 24)
+    width = row_label_w + len(seeds) * col_w
     height = title_h + header_h + len(sets) * row_h
 
     body = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" font-family="sans-serif">',
             f'<rect width="{width}" height="{height}" fill="white"/>']
 
     if args.title:
-        body.append(f'<text x="{ROW_LABEL_W}" y="20" font-size="16" fill="#111">{html.escape(args.title)}</text>')
+        body.append(f'<text x="{row_label_w}" y="20" font-size="16" fill="#111">{html.escape(args.title)}</text>')
 
     for ci, seed in enumerate(seeds):
-        x = ROW_LABEL_W + ci * col_w + PAD
+        x = row_label_w + ci * col_w + PAD
         body.append(f'<text x="{x}" y="{title_h + 16}" font-size="12" fill="#444">seed {seed}</text>')
 
     for ri, (name, games) in enumerate(sets):
@@ -145,7 +147,7 @@ def main():
         body.append(f'<text x="8" y="{y + LABEL_H + 60}" font-size="13" fill="#111">{html.escape(name)}</text>')
         for ci, seed in enumerate(seeds):
             game = games.get(seed)
-            x = ROW_LABEL_W + ci * col_w + PAD
+            x = row_label_w + ci * col_w + PAD
             if game is None:
                 body.append(f'<text x="{x}" y="{y + 14}" font-size="12" fill="#999">no data</text>')
                 continue
