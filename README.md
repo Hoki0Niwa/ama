@@ -65,6 +65,11 @@ For now, this projects can only be compiled using `g++` that supports `c++ 20`. 
 - Clone and `cd` to the repository.
 - Run `make PEXT=true puyop` to build the puyop client.
 - Get the binary in `bin`.
+- Run `make PEXT=true bench` to build the batch benchmark for comparing evaluation weights. It plays one game per seed with one flat weight set and appends one line per seed to a TSV file, so the same seed range can be run for several weight files and compared pairwise.
+  - Extract a weight profile from `config.json`, e.g. `python3 -c "import json;json.dump(json.load(open('config.json'))['build'],open('build.json','w'))"`
+  - Run `bin/bench/bench.exe build.json 1 101 out.tsv` to play seeds 1 to 100.
+  - Columns: seed, result (`fired` / `dead` / `nomove` / `timeout`), score of the first chain >= 78000 (0 if none), biggest chain score, biggest chain length, moves, frames, time in ms.
+  - One game takes about 6 seconds on a 4-core machine, so 500 seeds for one weight file is roughly 50 minutes.
 
 NOTE: The source code for the `Puyo Puyo Champions Steam` isn't available to prevent cheating
 
