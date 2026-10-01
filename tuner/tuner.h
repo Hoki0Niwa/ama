@@ -57,7 +57,6 @@ beam::eval::Weight constrain(beam::eval::Weight w)
     CONSTRAIN_NEGATIVE(shape)
     CONSTRAIN_NEGATIVE(well)
     CONSTRAIN_NEGATIVE(bump)
-    CONSTRAIN_POSITIVE(form)
     CONSTRAIN_CLAMP(link_2, 50, 200)
     CONSTRAIN_CLAMP(link_3, 150, 500)
     // CONSTRAIN_NEGATIVE(waste_14)
@@ -80,7 +79,6 @@ void move_toward(beam::eval::Weight& w, beam::eval::Weight target, i32 id)
     MOVE_TOWARD(shape, 0.1)
     MOVE_TOWARD(well, 0.1)
     MOVE_TOWARD(bump, 0.1)
-    MOVE_TOWARD(form, 0.1)
     MOVE_TOWARD(link_2, 0.1)
     MOVE_TOWARD(link_3, 0.1)
     MOVE_TOWARD(waste_14, 0.1)
@@ -104,7 +102,6 @@ std::pair<beam::eval::Weight, beam::eval::Weight> randomize(beam::eval::Weight w
         { &w.shape, 10 },
         { &w.well, 10 },
         { &w.bump, 10 },
-        // { &w.form, 20 },
         { &w.link_2, 10 },
         { &w.link_3, 10 },
         // { &w.waste_14, 20 },

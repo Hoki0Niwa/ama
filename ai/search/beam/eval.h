@@ -6,7 +6,6 @@
 using json = nlohmann::json;
 
 #include "node.h"
-#include "form.h"
 #include "quiet.h"
 
 namespace beam
@@ -25,7 +24,6 @@ struct Weight
     i32 shape = 0;
     i32 well = 0;
     i32 bump = 0;
-    i32 form = 0;
     i32 link_2 = 0;
     i32 link_3 = 0;
     i32 waste_14 = 0;
@@ -44,7 +42,6 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Weight,
     shape,
     well,
     bump,
-    form,
     link_2,
     link_3,
     waste_14,
