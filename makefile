@@ -18,7 +18,7 @@ endif
 
 SRC_AI = core/*.cpp ai/*.cpp ai/search/*.cpp ai/search/beam/*.cpp ai/search/dfs/*.cpp
 
-.PHONY: all puyop test clean makedir
+.PHONY: all puyop test tuner bench clean makedir
 
 all: puyop
 
@@ -31,6 +31,9 @@ tuner: makedir
 test: makedir
 	@$(CXX) $(CXXFLAGS) $(SRC_AI) test/*.cpp -o bin/test/test.exe
 
+bench: makedir
+	@$(CXX) $(CXXFLAGS) $(SRC_AI) bench/*.cpp -o bin/bench/bench.exe
+
 clean: makedir
 	@rm -rf bin
 	@make makedir
@@ -40,5 +43,6 @@ makedir:
 	@mkdir -p bin/puyop
 	@mkdir -p bin/test
 	@mkdir -p bin/tuner/data
+	@mkdir -p bin/bench
 
 .DEFAULT_GOAL := puyop
