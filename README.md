@@ -32,6 +32,7 @@ Ama is an AI created to play Puyo Puyo Tsu 1P and PVP. This project aims to beco
   - Quiescence search
   - Transposition table
     - Value-preferred with aging replacement scheme
+  - Searches from every visible pair (the one in hand and the next 2), sampling the rest of the queue
 - Evaluation
   - Chain detection
   - Chain extension
@@ -39,6 +40,9 @@ Ama is an AI created to play Puyo Puyo Tsu 1P and PVP. This project aims to beco
   - Field shape
   - Avoid tearing
   - Avoid wasting resources
+- Fire policy (`ai/fire.h`)
+  - Aims for `ai::TRIGGER` (130,000) and fires as soon as it is in hand
+  - Fires whatever is in hand from 74 puyos instead of risking death
 - Enemy reading
   - State machine
   - Build action
@@ -68,7 +72,8 @@ For now, this projects can only be compiled using `g++` that supports `c++ 20`. 
 - Run `make PEXT=true bench` to build the batch benchmark for comparing evaluation weights. It plays one game per seed with one flat weight set and appends one line per seed to a TSV file, so the same seed range can be run for several weight files and compared pairwise.
   - Extract a weight profile from `config.json`, e.g. `python3 -c "import json;json.dump(json.load(open('config.json'))['build'],open('build.json','w'))"`
   - Run `bin/bench/bench.exe build.json 1 101 out.tsv` to play seeds 1 to 100.
-  - Columns: seed, result (`fired` / `dead` / `nomove` / `timeout`), score of the first chain >= 78000 (0 if none), biggest chain score, biggest chain length, moves, frames, time in ms.
+  - Columns: seed, result (`fired` / `dead` / `nomove` / `timeout`), score of the first chain >= 78000 (0 if none), biggest chain score, biggest chain length, moves, frames, time in ms, longest search of the game in ms.
+  - The AI sees 3 pairs and plays through the fire policy, as in the game. `BEAM_WIDTH`, `BEAM_DEPTH` and `BEAM_TRIGGER` in the environment override the beam search configuration and `QUEUE_VISIBLE=2` shows it only 2 pairs, e.g. `BEAM_TRIGGER=95000 QUEUE_VISIBLE=2 bin/bench/bench.exe build.json 1 101 old.tsv` plays like the previous versions.
   - One game takes about 6 seconds on a 4-core machine, so 500 seeds for one weight file is roughly 50 minutes.
   - Add a 6th argument to also save the field of every game, e.g. `bin/bench/bench.exe build.json 1 13 out.tsv 100 fields.txt`. For a fired game it is the complete chain with the triggering pair placed, otherwise the last position reached.
   - `python3 bench/render.py -o shapes.svg before=fields_before.txt after=fields_after.txt` draws the saved fields side by side (one row per weight set, one column per seed) to compare the shapes built from the same queue. It only needs the Python standard library.
@@ -76,7 +81,7 @@ For now, this projects can only be compiled using `g++` that supports `c++ 20`. 
   - `bin/pvp/pvp.exe --games 30 --seed 1 local local:other.json` matches two weight files of this build.
   - `bin/pvp/pvp.exe --games 30 local "path/to/other/pvp.exe --engine path/to/other/config.json"` matches this build against another build of the AI: any command that speaks the JSON line protocol documented in `pvp/main.cpp` can be an engine, and `pvp --engine` serves that protocol for its own build. Build the simulator in both source trees to compare two versions.
   - Each line of the output is one game: winner, reason (`death`, `garbage`, `no_move`, `max_moves`), length, moves, biggest chain and nuisance sent per side. `--verbose` also prints the final fields and `--log moves.jsonl` writes every request, reply and chain as JSON lines.
-  - The referee plays the role of the game client for the AI's `trigger` and `stretch` arguments: the AI stretches its chain while its field holds fewer than 48 puyos, then fires as soon as a chain worth the trigger is available, and the trigger is lowered at 60 and 66 puyos so the AI fires what it has instead of overflowing (see the constants in `pvp/main.cpp`).
+  - The referee plays the role of the game client for the AI's `trigger` and `stretch` arguments: the AI stretches its chain while its field holds fewer than 60 puyos, then fires as soon as a chain worth the trigger is available, and the trigger is lowered at 70 and 74 puyos so the AI fires what it has instead of overflowing (see the constants in `pvp/main.cpp`). The AI's own fire policy handles the danger zone before these limits.
   - Margin time and the real frame timing of the game are not simulated.
 
 NOTE: The source code for the `Puyo Puyo Champions Steam` isn't available to prevent cheating

@@ -34,10 +34,11 @@ inline chain::Score get_score(beam::eval::Weight w, u32 seed)
     auto queue = cell::create_queue(seed);
 
     for (i32 i = 0; i < 50; ++i) {
-        cell::Queue q = {
-            queue[(i + 0) % 128],
-            queue[(i + 1) % 128]
-        };
+        cell::Queue q;
+
+        for (size_t k = 0; k < ai::QUEUE_VISIBLE; ++k) {
+            q.push_back(queue[(i + k) % 128]);
+        }
 
         auto ai = beam::search_multi(field, q, w);
 
@@ -46,6 +47,12 @@ inline chain::Score get_score(beam::eval::Weight w, u32 seed)
         }
 
         auto mv = ai.candidates.front();
+
+        auto decision = ai::fire::decide(field, q, ai, i32(beam::Configs().trigger));
+
+        if (decision.has_value()) {
+            mv.placement = decision->placement;
+        }
 
         field.drop_pair(mv.placement.x, mv.placement.r, q[0]);
 

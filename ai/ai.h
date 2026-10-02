@@ -3,11 +3,16 @@
 #include "search/search.h"
 #include "gaze.h"
 #include "path.h"
+#include "fire.h"
 
 namespace ai
 {
 
-constexpr i32 TRIGGER = 100000;
+// Chain score the AI aims for before firing
+constexpr i32 TRIGGER = 130000;
+
+// Pairs the game shows: the one in hand and the next 2
+constexpr size_t QUEUE_VISIBLE = 3;
 
 namespace style
 {
