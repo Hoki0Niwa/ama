@@ -38,16 +38,18 @@ namespace pvp
 constexpr i32 TARGET_POINT = 70;
 constexpr i32 ALL_CLEAR_BONUS = 30;
 constexpr i32 GARBAGE_DROP_MAX = 30;
-constexpr i32 QUEUE_VISIBLE = 3;
+constexpr i32 QUEUE_VISIBLE = i32(ai::QUEUE_VISIBLE);
 
 // How the referee drives the AI's `trigger` and `stretch` arguments, which the game client normally sets:
 // the AI keeps stretching its chain while the field holds fewer than STRETCH_LIMIT puyos, then fires
 // as soon as a chain worth the trigger is available, and the trigger is lowered when the field gets
 // dangerously full so the AI fires what it has instead of overflowing
-constexpr i32 STRETCH_LIMIT = 48;
-constexpr i32 PANIC_LIMIT_1 = 60;
-constexpr i32 PANIC_TRIGGER_1 = 40000;
-constexpr i32 PANIC_LIMIT_2 = 66;
+// A 16 chain, the smallest worth the trigger, needs about 64 puyos, so the limits leave room for it;
+// the AI's own fire policy (ai/fire.h) handles the danger zone before these kick in
+constexpr i32 STRETCH_LIMIT = 60;
+constexpr i32 PANIC_LIMIT_1 = 70;
+constexpr i32 PANIC_TRIGGER_1 = 78000;
+constexpr i32 PANIC_LIMIT_2 = 74;
 constexpr i32 PANIC_TRIGGER_2 = 10000;
 
 // Loads the nested config.json into the 4 weight sets
@@ -301,7 +303,7 @@ public:
 
         thread.search(
             request.self.field,
-            { request.self.queue[0], request.self.queue[1] },
+            request.self.queue,
             this->configs,
             request.trigger,
             request.stretch

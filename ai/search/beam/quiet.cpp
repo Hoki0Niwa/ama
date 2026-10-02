@@ -46,6 +46,7 @@ void search(
                     },
                     .x = x,
                     .key = need,
+                    .color = cell::Type(p),
                     .remain = plan
                 });
             }

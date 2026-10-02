@@ -51,9 +51,20 @@ Result build(
     // Builds with beam search if possible
     if (type == search::Type::BUILD) {
         if (!bsearch.build.candidates.empty()) {
+            // The fire policy may take over when the field is nearly full
+            auto decision = fire::decide(field, queue, bsearch.build, trigger);
+
+            if (decision.has_value()) {
+                return ai::Result {
+                    .placement = decision->placement,
+                    .eval = decision->eval,
+                    .update = Update()
+                };
+            }
+
             return ai::Result {
                 .placement = bsearch.build.candidates.front().placement,
-                .eval = i32(bsearch.build.candidates.front().score) / 6,
+                .eval = i32(bsearch.build.candidates.front().score / beam::BRANCH),
                 .update = Update()
             };
         }

@@ -7,7 +7,11 @@
 // - stops at the first chain >= 78000
 // Appends one line per seed to a TSV file:
 // seed, result (fired / dead / nomove / timeout), score of the first chain >= 78000 (0 if none),
-// biggest chain score, biggest chain length, moves played, frames spent, wall time in ms
+// biggest chain score, biggest chain length, moves played, frames spent, wall time in ms,
+// longest search of the game in ms
+// The AI sees ai::QUEUE_VISIBLE pairs and plays through the fire policy like the real client
+// BEAM_WIDTH, BEAM_DEPTH and BEAM_TRIGGER in the environment override the beam search configuration,
+// QUEUE_VISIBLE (2 or 3) the number of pairs shown to the AI
 // Optionally appends the field of each game to a snapshot file (see `write_snapshot`),
 // which `render.py` turns into an image to compare the shapes built with different weights
 // Writes the field as text, from the 14th row down to the 1st row, using the same characters as Field::print
@@ -38,6 +42,7 @@ int main(int argc, char** argv)
 {
     if (argc < 5) {
         fprintf(stderr, "usage: bench <weight.json> <seed_begin> <seed_end> <out.tsv> [max_moves=100] [snapshot.txt]\n");
+        fprintf(stderr, "environment: BEAM_WIDTH, BEAM_DEPTH, BEAM_TRIGGER override the beam search configuration, QUEUE_VISIBLE the pairs shown (2 or 3)\n");
         fprintf(stderr, "<weight.json> is one flat weight set, e.g. the \"build\" object of config.json\n");
         return 1;
     }
@@ -62,6 +67,28 @@ int main(int argc, char** argv)
 
     std::ofstream out(argv[4], std::ios::app);
 
+    // Beam search configuration, overridable from the environment for experiments
+    auto configs = beam::Configs();
+
+    if (getenv("BEAM_WIDTH") != nullptr) {
+        configs.width = size_t(atoi(getenv("BEAM_WIDTH")));
+    }
+
+    if (getenv("BEAM_DEPTH") != nullptr) {
+        configs.depth = size_t(atoi(getenv("BEAM_DEPTH")));
+    }
+
+    if (getenv("BEAM_TRIGGER") != nullptr) {
+        configs.trigger = size_t(atoi(getenv("BEAM_TRIGGER")));
+    }
+
+    // Pairs shown to the AI, to compare against fewer visible pairs
+    size_t visible = ai::QUEUE_VISIBLE;
+
+    if (getenv("QUEUE_VISIBLE") != nullptr) {
+        visible = std::clamp(size_t(atoi(getenv("QUEUE_VISIBLE"))), size_t(2), ai::QUEUE_VISIBLE);
+    }
+
     std::ofstream snapshot;
 
     if (argc > 6) {
@@ -78,6 +105,7 @@ int main(int argc, char** argv)
         i32 moves = 0;
         i32 frames = 0;
         const char* result = "timeout";
+        i64 ms_max = 0;
 
         // Field just before the last pop
         Field snap = field;
@@ -85,11 +113,17 @@ int main(int argc, char** argv)
         auto t0 = std::chrono::steady_clock::now();
 
         for (i32 i = 0; i < max_moves; ++i) {
-            cell::Queue q = { queue[(i + 0) % 128], queue[(i + 1) % 128] };
+            cell::Queue q;
+
+            for (size_t k = 0; k < visible; ++k) {
+                q.push_back(queue[(i + k) % 128]);
+            }
 
             snap = field;
 
-            auto ai = beam::search_multi(field, q, w);
+            auto t1 = std::chrono::steady_clock::now();
+
+            auto ai = beam::search_multi(field, q, w, configs);
 
             // No placement survives
             if (ai.candidates.empty()) {
@@ -98,6 +132,15 @@ int main(int argc, char** argv)
             }
 
             auto mv = ai.candidates.front();
+
+            // The fire policy may take over when the field is nearly full
+            auto decision = ai::fire::decide(field, q, ai, i32(configs.trigger));
+
+            if (decision.has_value()) {
+                mv.placement = decision->placement;
+            }
+
+            ms_max = std::max(ms_max, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t1).count());
 
             frames += field.get_drop_pair_frame(mv.placement.x, mv.placement.r);
             field.drop_pair(mv.placement.x, mv.placement.r, q[0]);
@@ -130,7 +173,7 @@ int main(int argc, char** argv)
         auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t0).count();
 
         out << seed << '\t' << result << '\t' << score << '\t' << max_score << '\t' << max_count
-            << '\t' << moves << '\t' << frames << '\t' << ms << '\n';
+            << '\t' << moves << '\t' << frames << '\t' << ms << '\t' << ms_max << '\n';
         out.flush();
 
         if (snapshot.is_open()) {
