@@ -19,6 +19,11 @@
 ## Overview
 Ama is an AI created to play Puyo Puyo Tsu 1P and PVP. This project aims to become the strongest Puyo Puyo entity. Currently, Ama can run on Puyo Puyo Champions Steam version.
 
+The engine includes the improvements developed in Ama Memory Bridge: configurable
+search size, tactical construction reuse, input paths, predicted fields and solo
+replies. See [ENGINE.md](ENGINE.md) for the Windows build, protocol extensions,
+tests and the boundary between this engine and the separate real-game client.
+
 ## Features
 - Field representation
   - Bitfield
@@ -65,7 +70,10 @@ Ama is an AI created to play Puyo Puyo Tsu 1P and PVP. This project aims to beco
     - Desparate return
 
 ## How to build
-For now, this projects can only be compiled using `g++` that supports `c++ 20`. Make sure that your cpu support `sse4` and `pext`.
+This project requires `g++` with C++20 support and an SSE4.1 CPU. Default release
+builds select BMI2/PEXT at runtime and fall back to software on unsupported CPUs.
+`PEXT=true` requires BMI2; `NATIVE=true` makes the build specific to the build CPU.
+- On Windows, run `.\build.ps1` to build `bin/pvp/pvp.exe`, then `python test/test_engine_protocol.py`.
 - Clone and `cd` to the repository.
 - Run `make PEXT=true puyop` to build the puyop client.
 - Get the binary in `bin`.

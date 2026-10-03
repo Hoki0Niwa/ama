@@ -11,7 +11,7 @@ Thread::Thread()
 
 // Starts the search thread
 // We search all the configuration weights provided
-bool Thread::search(Field field, cell::Queue queue, Configs configs, std::optional<i32> trigger, bool stretch)
+bool Thread::search(Field field, cell::Queue queue, Configs configs, std::optional<i32> trigger, bool stretch, size_t beam_width, size_t beam_depth)
 {
     if (this->thread != nullptr) {
         return false;
@@ -19,7 +19,7 @@ bool Thread::search(Field field, cell::Queue queue, Configs configs, std::option
 
     this->clear();
 
-    this->thread = new std::thread([&] (Field f, cell::Queue q, Configs w, std::optional<i32> t, bool s) {
+    this->thread = new std::thread([&] (Field f, cell::Queue q, Configs w, std::optional<i32> t, bool s, size_t bw, size_t bd) {
         auto r = Result();
 
         if (q.size() < 2) {
@@ -28,6 +28,8 @@ bool Thread::search(Field field, cell::Queue queue, Configs configs, std::option
         }
 
         auto beam_configs = beam::Configs();
+        beam_configs.width = bw;
+        beam_configs.depth = bd;
 
         if (t.has_value()) {
             beam_configs.trigger = t.value();
@@ -72,7 +74,7 @@ bool Thread::search(Field field, cell::Queue queue, Configs configs, std::option
         r.ac = dfs::build::search(f, q2, w.ac);
 
         this->results = r;
-    }, field, queue, configs, trigger, stretch);
+    }, field, queue, configs, trigger, stretch, beam_width, beam_depth);
 
     return true;
 };

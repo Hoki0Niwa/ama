@@ -1,4 +1,5 @@
 #include "../ai/ai.h"
+#include "../puyop/encode.h"
 #include <fstream>
 
 // Batch benchmark for comparing evaluation weights
@@ -12,6 +13,8 @@
 // The AI sees ai::QUEUE_VISIBLE pairs and plays through the fire policy like the real client
 // BEAM_WIDTH, BEAM_DEPTH and BEAM_TRIGGER in the environment override the beam search configuration,
 // QUEUE_VISIBLE (2 or 3) the number of pairs shown to the AI
+// Optionally appends one line per seed (seed, result, score, puyop.com URL that replays every move played)
+// to a URL file
 // Optionally appends the field of each game to a snapshot file (see `write_snapshot`),
 // which `render.py` turns into an image to compare the shapes built with different weights
 // Writes the field as text, from the 14th row down to the 1st row, using the same characters as Field::print
@@ -41,7 +44,7 @@ void write_snapshot(std::ofstream& out, u32 seed, const char* result, i32 score,
 int main(int argc, char** argv)
 {
     if (argc < 5) {
-        fprintf(stderr, "usage: bench <weight.json> <seed_begin> <seed_end> <out.tsv> [max_moves=100] [snapshot.txt]\n");
+        fprintf(stderr, "usage: bench <weight.json> <seed_begin> <seed_end> <out.tsv> [max_moves=100] [snapshot.txt] [urls.txt]\n");
         fprintf(stderr, "environment: BEAM_WIDTH, BEAM_DEPTH, BEAM_TRIGGER override the beam search configuration, QUEUE_VISIBLE the pairs shown (2 or 3)\n");
         fprintf(stderr, "<weight.json> is one flat weight set, e.g. the \"build\" object of config.json\n");
         return 1;
@@ -95,6 +98,12 @@ int main(int argc, char** argv)
         snapshot.open(argv[6], std::ios::app);
     }
 
+    std::ofstream urls;
+
+    if (argc > 7) {
+        urls.open(argv[7], std::ios::app);
+    }
+
     for (u32 seed = seed_begin; seed < seed_end; ++seed) {
         Field field;
         auto queue = cell::create_queue(seed);
@@ -103,6 +112,10 @@ int main(int argc, char** argv)
         i32 max_score = 0;
         i32 max_count = 0;
         i32 moves = 0;
+
+        // Every pair played with its placement, for the puyop URL
+        std::vector<cell::Pair> played_pairs;
+        std::vector<move::Placement> played;
         i32 frames = 0;
         const char* result = "timeout";
         i64 ms_max = 0;
@@ -142,6 +155,9 @@ int main(int argc, char** argv)
 
             ms_max = std::max(ms_max, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t1).count());
 
+            played_pairs.push_back(q[0]);
+            played.push_back(mv.placement);
+
             frames += field.get_drop_pair_frame(mv.placement.x, mv.placement.r);
             field.drop_pair(mv.placement.x, mv.placement.r, q[0]);
 
@@ -175,6 +191,11 @@ int main(int argc, char** argv)
         out << seed << '\t' << result << '\t' << score << '\t' << max_score << '\t' << max_count
             << '\t' << moves << '\t' << frames << '\t' << ms << '\t' << ms_max << '\n';
         out.flush();
+
+        if (urls.is_open()) {
+            urls << seed << '\t' << result << '\t' << score << '\t' << encode::get_encoded_URL(Field(), played_pairs, played) << '\n';
+            urls.flush();
+        }
 
         if (snapshot.is_open()) {
             write_snapshot(snapshot, seed, result, score, moves, snap);

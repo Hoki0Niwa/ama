@@ -9,11 +9,16 @@ endif
 ifeq ($(BUILD), debug)
 CXXFLAGS += -fdiagnostics-color=always -DUNICODE -std=c++20 -Wall -Og -pg -no-pie
 else
-CXXFLAGS += -DUNICODE -DNDEBUG -std=c++20 -O3 -msse4 -mbmi2 -flto $(CXXPROF) -march=native
+CXXFLAGS += -DUNICODE -DNDEBUG -std=c++20 -O3 -msse4.1 -flto $(CXXPROF)
 endif
 
 ifeq ($(PEXT), true)
-CXXFLAGS += -DPEXT
+CXXFLAGS += -DPEXT -mbmi2
+endif
+
+# The default selects BMI2 at runtime; NATIVE=true opts into a CPU-specific build.
+ifeq ($(NATIVE), true)
+CXXFLAGS += -march=native
 endif
 
 SRC_AI = core/*.cpp ai/*.cpp ai/search/*.cpp ai/search/beam/*.cpp ai/search/dfs/*.cpp

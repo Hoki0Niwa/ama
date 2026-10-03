@@ -1,10 +1,13 @@
 #include "../ai/ai.h"
+#include "../ai/path.h"
 #include <fstream>
 #include <sstream>
 #include <memory>
 
 #ifdef _WIN32
 #include <windows.h>
+#include <io.h>
+#include <fcntl.h>
 #else
 #include <unistd.h>
 #include <sys/wait.h>
@@ -38,7 +41,7 @@ namespace pvp
 constexpr i32 TARGET_POINT = 70;
 constexpr i32 ALL_CLEAR_BONUS = 30;
 constexpr i32 GARBAGE_DROP_MAX = 30;
-constexpr i32 QUEUE_VISIBLE = i32(ai::QUEUE_VISIBLE);
+constexpr i32 QUEUE_VISIBLE = 3;
 
 // How the referee drives the AI's `trigger` and `stretch` arguments, which the game client normally sets:
 // the AI keeps stretching its chain while the field holds fewer than STRETCH_LIMIT puyos, then fires
@@ -207,6 +210,13 @@ struct Request
     i32 target_point = TARGET_POINT;
     i32 trigger = ai::TRIGGER;
     bool stretch = true;
+    // Beam search size. The defaults are the original constants; a smaller beam trades a little depth for speed.
+    size_t beam_width = 250;
+    size_t beam_depth = 16;
+    size_t attack_pairs = ai::QUEUE_VISIBLE;      // pairs the one-player attack search looks through
+    bool reuse_search = false;
+    size_t search_prefix = 0;                    // prefetch: the trailing guessed pair may change
+    bool tactics_only = false;                  // defer an unprepared beam before the client releases DOWN
 };
 
 struct Reply
@@ -214,6 +224,8 @@ struct Reply
     move::Placement placement;
     i32 eval = 0;
     std::optional<i32> trigger = {};
+    std::vector<move::Placement> alternatives;
+    bool build_required = false;
 };
 
 json request_to_json(Request& request)
@@ -238,6 +250,12 @@ Request request_from_json(const json& js)
     request.target_point = js.at("target_point").get<i32>();
     request.trigger = js.at("trigger").get<i32>();
     request.stretch = js.at("stretch").get<bool>();
+    request.beam_width = js.value("beam_width", request.beam_width);
+    request.beam_depth = js.value("beam_depth", request.beam_depth);
+    request.attack_pairs = std::clamp(js.value("attack_pairs", request.attack_pairs), size_t(1), size_t(ai::QUEUE_VISIBLE));
+    request.reuse_search = js.value("reuse_search", false);
+    request.search_prefix = js.value("search_prefix", size_t(0));
+    request.tactics_only = js.value("tactics_only", false);
 
     return request;
 };
@@ -249,6 +267,12 @@ json reply_to_json(const Reply& reply)
     js["x"] = reply.placement.x;
     js["r"] = std::string(1, direction_to_char(reply.placement.r));
     js["eval"] = reply.eval;
+    if (!reply.alternatives.empty()) {
+        js["alternatives"] = json::array();
+        for (auto& p : reply.alternatives) {
+            js["alternatives"].push_back({{"x", p.x}, {"r", std::string(1, direction_to_char(p.r))}});
+        }
+    }
 
     if (reply.trigger.has_value()) {
         js["trigger"] = reply.trigger.value();
@@ -290,7 +314,13 @@ class LocalEngine : public Engine
 private:
     search::Configs configs;
     std::string config_path;
+    std::optional<Request> prepared_for;
+    search::Result prepared;
+    bool prepared_types[4] = {false, false, false, false};
+    struct BuildRequired {};
 public:
+    bool search_reused = false;
+    std::string build_search = "none";
     LocalEngine(const std::string& config_path) : config_path(config_path)
     {
         load_configs(this->configs, config_path);
@@ -298,28 +328,70 @@ public:
 public:
     Reply think(Request& request) override
     {
-        // The search normally runs while the previous pair is moving; here it runs synchronously
-        search::Thread thread;
+        // Keep construction separate from the opponent's animation and nuisance gauges.
+        // Re-evaluate tactics against the live request while retaining the early build.
+        auto matches = [&] {
+            if (!request.reuse_search || !prepared_for) return false;
+            auto& old = *prepared_for;
+            auto count = request.search_prefix ? request.search_prefix : request.self.queue.size();
+            return old.self.field == request.self.field
+                && old.self.queue.size() == request.self.queue.size()
+                && count <= request.self.queue.size()
+                && count >= std::min(size_t(2), request.self.queue.size())
+                && std::equal(request.self.queue.begin(), request.self.queue.begin() + count, old.self.queue.begin())
+                && old.trigger == request.trigger && old.stretch == request.stretch
+                && old.beam_width == request.beam_width && old.beam_depth == request.beam_depth;
+        };
+        search_reused = matches();
+        build_search = "none";
+        if (!search_reused) {
+            prepared_for = request;
+            prepared = search::Result();
+            std::fill(std::begin(prepared_types), std::end(prepared_types), false);
+        }
 
-        thread.search(
-            request.self.field,
-            request.self.queue,
-            this->configs,
-            request.trigger,
-            request.stretch
-        );
+        auto prepare = [&](search::Type type, search::Result& results) {
+            if (!prepared_types[type]) {
+                if (type == search::Type::BUILD) {
+                    if (request.tactics_only) throw BuildRequired();
+                    search::Thread thread;
+                    thread.search(request.self.field, request.self.queue, configs, request.trigger,
+                                  request.stretch, request.beam_width, request.beam_depth);
+                    prepared = thread.get().value_or(search::Result());
+                    std::fill(std::begin(prepared_types), std::end(prepared_types), true);
+                    build_search = "beam";
+                }
+                else {
+                    cell::Queue q2 = {request.self.queue[0], request.self.queue[1]};
+                    if (type == search::Type::FAST) {
+                        prepared.fast = dfs::build::search(request.self.field, q2, configs.fast);
+                        build_search = "fast";
+                    }
+                    else if (type == search::Type::AC) {
+                        prepared.ac = dfs::build::search(request.self.field, q2, configs.ac);
+                        build_search = "ac";
+                    }
+                    else {
+                        prepared.freestyle = dfs::build::search(request.self.field, q2, configs.freestyle);
+                        build_search = "freestyle";
+                    }
+                    prepared_types[type] = true;
+                }
+            }
+            results = prepared;
+        };
 
-        auto bsearch = thread.get().value_or(search::Result());
-
+        try {
         auto result = ai::think(
             request.self,
             request.enemy,
-            bsearch,
+            search::Result(),
             this->configs,
             request.target_point,
             ai::style::Data(),
             request.trigger,
-            request.stretch
+            request.stretch,
+            prepare
         );
 
         return Reply {
@@ -327,6 +399,83 @@ public:
             .eval = result.eval,
             .trigger = result.update.trigger
         };
+        }
+        catch (const BuildRequired&) {
+            // The caller must release DOWN before asking for this previously unnecessary beam.
+            return Reply { .placement = move::Placement(), .build_required = true };
+        }
+    };
+
+    // One-player thinking (challenge modes): there is no opponent to read, so none of the versus logic runs.
+    // It builds the way the 1P benchmark does (beam search over the visible pairs plus sampled futures,
+    // best expected chain first) and reports the best chain that can be fired right now within the three
+    // visible pairs. The caller decides when to fire: `fire` returns that chain's placement instead.
+    Reply think_solo(Request& request, bool fire, i32& attack_score, i32& attack_chain,
+                     std::optional<Reply>* fire_choice = nullptr)
+    {
+        attack_score = 0;
+        attack_chain = 0;
+
+        // The attack search takes the whole tree of its queue: only the pairs the game shows
+        cell::Queue shown(request.self.queue.begin(), request.self.queue.begin() + std::min(request.self.queue.size(), request.attack_pairs));
+        auto attacks = dfs::attack::search(request.self.field, shown);
+
+        bool has_attack = false;
+        dfs::attack::Data best_attack;
+        move::Placement best_attack_placement;
+
+        for (auto& candidate : attacks.candidates) {
+            if (candidate.attacks.empty()) {
+                continue;
+            }
+
+            if (!has_attack || dfs::attack::cmp_main(best_attack, candidate.attack_max)) {
+                has_attack = true;
+                best_attack = candidate.attack_max;
+                best_attack_placement = candidate.placement;
+            }
+        }
+
+        if (has_attack) {
+            attack_score = best_attack.score;
+            attack_chain = best_attack.count;
+        }
+
+        std::optional<Reply> firing;
+        if (has_attack) {
+            firing = Reply { .placement = best_attack_placement, .eval = best_attack.score, .trigger = {} };
+            std::stable_sort(attacks.candidates.begin(), attacks.candidates.end(), [](const auto& a, const auto& b) {
+                return dfs::attack::cmp_main(b.attack_max, a.attack_max);
+            });
+            for (auto& candidate : attacks.candidates) firing->alternatives.push_back(candidate.placement);
+            if (fire_choice) *fire_choice = firing;
+        }
+        if (fire && firing) {
+            return *firing;
+        }
+
+        beam::Configs beam_configs;
+        beam_configs.width = request.beam_width;
+        beam_configs.depth = request.beam_depth;
+
+        auto build = beam::search_multi(
+            request.self.field,
+            request.self.queue,
+            this->configs.build,
+            beam_configs
+        );
+
+        if (build.candidates.empty()) {
+            if (has_attack) {
+                return Reply { .placement = best_attack_placement, .eval = best_attack.score, .trigger = {} };
+            }
+
+            return Reply {};
+        }
+
+        Reply reply { .placement = build.candidates.front().placement, .eval = i32(build.candidates.front().score), .trigger = {} };
+        for (auto& candidate : build.candidates) reply.alternatives.push_back(candidate.placement);
+        return reply;
     };
 
     std::string name() override
@@ -493,10 +642,91 @@ int serve(const std::string& config_path)
             continue;
         }
 
-        auto request = request_from_json(json::parse(line));
-        auto reply = engine.think(request);
+        auto input = json::parse(line);
+        auto request = request_from_json(input);
+        bool solo = input.value("solo", false);
+        i32 attack_score = 0;
+        i32 attack_chain = 0;
+        const auto started = std::chrono::steady_clock::now();
+        std::optional<Reply> fire_choice;
+        auto reply = solo
+            ? engine.think_solo(request, input.value("fire", false), attack_score, attack_chain, &fire_choice)
+            : engine.think(request);
 
-        printf("%s\n", reply_to_json(reply).dump().c_str());
+        auto enrich = [&](const Reply& reply) {
+        auto output = reply_to_json(reply);
+        if (reply.build_required) {
+            output["build_required"] = true;
+            return output;
+        }
+        if (solo) {
+            output["solo"] = true;
+            output["attack_score"] = attack_score;
+            output["attack_chain"] = attack_chain;
+        }
+        if (input.value("include_path", false)) {
+            // Export the fork's own spawn-based route, without changing its AI.
+            // Finder::find appends DROP even for an unreachable target; distinguish
+            // that case explicitly instead of sending an accidental straight drop.
+            auto& field = request.self.field;
+            u8 heights[6];
+            field.get_heights(heights);
+            auto p = reply.placement;
+            bool valid = move::is_valid(heights, field.row14, p.x, p.r)
+                && !field.is_colliding_pair(2, 11, direction::Type::UP, heights);
+            path::Queue route;
+            if (valid && !(p.x == 2 && p.r == direction::Type::UP)) {
+                auto map = path::Finder::generate_placements(field, p, request.self.queue[0]);
+                route = map.get(p.x, p.r);
+                valid = !route.empty();
+            }
+            output["path"] = json::array();
+            output["path_origin"] = "spawn";
+            output["path_reachable"] = valid;
+            if (valid) {
+                route = path::Finder::get_queue_convert_m180(route);
+                route.push_back(path::Input::DROP);
+                for (auto key : route) {
+                    switch (key) {
+                    case path::Input::LEFT: output["path"].push_back("LEFT"); break;
+                    case path::Input::RIGHT: output["path"].push_back("RIGHT"); break;
+                    case path::Input::CW: output["path"].push_back("CW"); break;
+                    case path::Input::CCW: output["path"].push_back("CCW"); break;
+                    case path::Input::NONE: output["path"].push_back("NONE"); break;
+                    case path::Input::DROP: output["path"].push_back("DROP"); break;
+                    default: throw std::runtime_error("Unsupported path input");
+                    }
+                }
+            }
+        }
+        if (input.value("include_next", false)) {
+            // The field once this reply's placement has landed and every chain has resolved,
+            // so a caller can start thinking about the following pair while this one is still moving.
+            auto after = request.self.field;
+            u8 after_heights[6];
+            after.get_heights(after_heights);
+            auto q = reply.placement;
+            if (move::is_valid(after_heights, after.row14, q.x, q.r)) {
+                after.drop_pair(q.x, q.r, request.self.queue[0]);
+                auto mask = after.pop();
+                auto chain = chain::get_score(mask);
+                output["next_chain"] = chain.count;
+                output["next_score"] = chain.score;
+                output["next_all_clear"] = after.is_empty();
+                output["next_field"] = field_to_rows(after);
+            }
+        }
+        return output;
+        };
+        auto output = enrich(reply);
+        if (!solo) {
+            output["search_reusable"] = true;
+            output["search_reused"] = engine.search_reused;
+            output["build_search"] = engine.build_search;
+        }
+        if (fire_choice && !input.value("fire", false)) output["fire_reply"] = enrich(*fire_choice);
+        output["search_ms"] = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - started).count();
+        printf("%s\n", output.dump().c_str());
         fflush(stdout);
     }
 
