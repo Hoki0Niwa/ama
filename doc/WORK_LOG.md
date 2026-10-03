@@ -205,3 +205,39 @@
 ### 次の作業
 
 T0：`irregular-form` を `fever` にマージし、`AGENTS.md` の競合を解決してビルドとプロトコルテストを確認する。続いて T1 の `Piece` と `dropset` から実装に入る。
+
+## 2026-10-03：T0 irregular-form を fever にマージ
+
+### 依頼・目的
+
+ユーザーから `irregular-form` のマージ依頼。あわせて「そのまま作業すると irregular-form と混ざらないか」という懸念への対応。
+
+### 変更・決定
+
+- `origin/irregular-form`（`04bd647`）を `fever` にマージ（`d4bce4c`）。競合は `AGENTS.md` のみで、両方の内容を併記し、「ブランチの分離」節を追加した。
+- 分離の運用：マージは `irregular-form` → `fever` の一方向だけ。フィーバー固有のコードは新規ファイルに閉じ込める。既存ファイルの共通化は `irregular-form` に先にコミットして取り込む。Tsu の挙動はプロトコルテストと `bench` の同一シード結果で固定する。ローカルは `fever` 用に別 worktree を推奨。
+- Linux の g++ で `ai/search/beam/form.h` の `_countof` がビルドエラーになったため `std::size` に置換（`0f6ee54`）。ルールに依存しない修正なので `irregular-form` にも移植すべき。
+- `IMPLEMENTATION_PLAN.md` の T0 を完了にし、`README.md` の状態を更新。
+
+### 確認したこと
+
+- Linux（g++ 13.3、4コア、BMI2 あり）で `make pvp`、`make bench`、`make test` がビルドできた。
+- `python3 test/test_engine_protocol.py` は7件すべて通過。
+- `bench` をシード1〜3で実行し、Tsu エンジンの基準結果を記録した。以後、`fever` での作業後に同じ結果が出ることを確認する。
+
+| seed | result | score | chain | moves |
+| --- | --- | ---: | ---: | ---: |
+| 1 | fired | 129200 | 15 | 39 |
+| 2 | fired | 89700 | 13 | 38 |
+| 3 | fired | 137100 | 15 | 42 |
+
+- Windows の `build.ps1` は未実行。
+
+### 未確認・課題
+
+- `form.h` の修正を `irregular-form` に移植する（ユーザーの判断で）。
+- Windows でのビルドとプロトコルテストの確認。
+
+### 次の作業
+
+T1：`core/piece.h`、`core/dropset.*` の追加と、`data/fever/dropsets.json` との一致テスト。
