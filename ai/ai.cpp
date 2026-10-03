@@ -189,7 +189,8 @@ Result think(
     i32 target_point,
     style::Data style,
     i32 trigger,
-    bool stretch
+    bool stretch,
+    std::function<void(search::Type, search::Result&)> prepare
 )
 {
     // Checks field count
@@ -455,6 +456,10 @@ Result think(
                 build_type = search::Type::BUILD;
             }
 
+            if (prepare) {
+                prepare(build_type, bsearch);
+            }
+
             return ai::build(
                 self.field,
                 self.queue,
@@ -621,6 +626,10 @@ Result think(
 
         if (enemy_attack >= 90) {
             enough = (enemy_attack + 90) * target_point;
+        }
+
+        if (prepare) {
+            prepare(build_type, bsearch);
         }
 
         auto ai_build = ai::build(
@@ -1015,6 +1024,12 @@ Result think(
     if (enemy.all_clear) {
         build_type = search::Type::AC;
         form = false;
+    }
+
+    // Only search the build the tactical decision actually needs. A return attack above
+    // needs no build search; rebuilding a small second chain uses AC, not a large beam.
+    if (prepare) {
+        prepare(build_type, bsearch);
     }
 
     // Build

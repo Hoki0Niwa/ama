@@ -89,7 +89,8 @@ Result think(
     i32 target_point,
     style::Data style = style::Data(),
     i32 trigger = ai::TRIGGER,
-    bool stretch = true
+    bool stretch = true,
+    std::function<void(search::Type, search::Result&)> prepare = {}
 );
 
 };

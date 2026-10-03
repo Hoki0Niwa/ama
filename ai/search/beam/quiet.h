@@ -13,7 +13,6 @@ struct Result
     chain::Score chain = { 0, 0 };
     i32 x = 0;
     i32 key = 0;
-    cell::Type color = cell::Type::NONE;
     Field remain = Field();
 };
 
