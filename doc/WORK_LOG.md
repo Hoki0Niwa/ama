@@ -168,3 +168,40 @@
 ### 次の作業
 
 段階AのP0から。上端・ちぎり・敗北判定の順序と色列モデルを確定し、P1の配置処理と独立検証へ進む。段階B以降の着手時には、第6節の数値を一次資料で再確認する。
+
+## 2026-10-03：irregular-form の調査、全キャラ形状周期の収集、具体的実装計画
+
+### 依頼・目的
+
+- ぷよぷよeスポーツ Steam 版で開発を進める。`irregular-form` ブランチの改良を参考に、具体的な実装計画を立てる。
+- 現在のキャラはラフィーナだけだが、形状周期は全キャラ分を用意する。
+
+### 変更・決定
+
+- `irregular-form` を調査した。エンジンJSONプロトコル（`pvp --engine`）、`ai/fire.h` の発火方針、`QUEUE_VISIBLE = 3`、`prepare` コールバック、`bench/` と `render.py`、`pvp/` 対戦シミュレータ、実行時 BMI2 選択、`build.ps1`、`test_engine_protocol.py`、定型評価の既定オフが含まれる。これを土台にすると決め、最初の作業（T0）として `fever` へマージする。競合は `AGENTS.md` のみ。
+- フィーバーは別バイナリ `bin/fever/fever.exe` とし、Tsu 用 `pvp.exe` を変更しない方針を `irregular-form` の `AGENTS.md` から引き継いだ。
+- `data/fever/dropsets.json` と `doc/DROPSETS.md` を追加。24キャラと隠し2キャラの形状周期を puyo-camp 表記で収集した。りすくまのみ未取得。ヘド、シグ、ラフィーナ、すけとうだらは L/J を区別しない旧表記のみ。
+- `IMPLEMENTATION_PLAN.md` を具体化：`core/piece.h`、`core/dropset.*`、`core/rule.h`、`Field::drop_piece`、`Field::is_dead`、`move::generate(field, piece)`、`fever/main.cpp`、`bench_fever` の設計と、T0〜T7 の作業順序・完了条件を記載。
+- `RULES_AND_ASSUMPTIONS.md` に登場キャラ一覧と、L/J の縦横対応、周期の開始位置、2列幅ツモの出現位置を未確定事項として追加。
+- `README.md` と `AGENTS.md` を実装段階の記述に更新。
+
+### 確認したこと
+
+- `origin/irregular-form` は `main`（v2.0.1）から12コミット、30ファイル、約3,000行の追加。`fever` との競合は `AGENTS.md` だけ。
+- 収集した周期は文字列から個数を数え、資料のツモ数と全件一致した。
+- ホウライは L/J 表記と旧表記の2資料が一致。アレックスも同様。
+- ぷよぷよeスポーツの登場キャラ24体と隠し2体の名前をファミ通の記事で確認。
+- puyo-camp、Puyo Nexus、SEGA 公式を含む外部サイトへの直接アクセスは作業環境のネットワーク制限で遮断されたため、文字列は検索エンジンの要約経由で取得した。転記ミスの可能性があり、T7 で実機照合する。
+- 実装、ビルド、AIの実行は行っていない。
+
+### 未確認・課題
+
+- りすくまの形状周期。
+- L/J と縦3個組・横3個組の対応。
+- 周期の開始位置とフィーバー突入・終了時のリセット有無。
+- 2列幅ツモと3個組の出現位置・向き。
+- Puyo Nexus の Lidelle/Draco（Fever版）の個数とホウライの文字列の食い違い。eスポーツ版は puyo-camp の文字列を採用。
+
+### 次の作業
+
+T0：`irregular-form` を `fever` にマージし、`AGENTS.md` の競合を解決してビルドとプロトコルテストを確認する。続いて T1 の `Piece` と `dropset` から実装に入る。
