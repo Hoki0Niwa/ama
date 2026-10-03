@@ -103,3 +103,25 @@ NOTE: The source code for the `Puyo Puyo Champions Steam` isn't available to pre
 
 ## License
 This project is licensed under [MIT LICENSE](LICENSE).
+
+
+## Optional human-form evaluation
+
+The `irregular-form` branch can optionally use the original `main` beam evaluator's
+GTR, SGTR and FRON pattern matching. Set `build.form` in `config.json` to a positive
+integer to enable it; `50` is the original `main` weight. The best match of the three
+patterns contributes its matching score times this weight. These are one shared
+bias, not separate per-pattern weights. The original mismatch penalty and
+bottom-left garbage suppression are retained.
+
+The default is `build.form = 0`: pattern matching is skipped and irregular-form
+behavior remains the default. Legacy configs without `form` also default to zero.
+Other evaluation weights, including `shape`, remain independent. Ama Memory Bridge's
+launcher can edit these weights per AI and save them in its presets without changing
+this repository's config. Restart bridge sessions after changing engine/config.
+
+After building with `build.ps1`, run `python test/test_engine_protocol.py` for protocol
+regressions and `python test/test_form_evaluation.py` for native form evaluation and
+legacy-config compatibility checks. The latter uses MinGW g++ by default; `AMA_CXX`
+can select another compiler. Its `.cc` harness is compiled separately from the
+existing simulation target.
