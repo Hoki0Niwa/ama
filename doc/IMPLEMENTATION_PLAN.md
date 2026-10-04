@@ -2,7 +2,7 @@
 
 作成：2026-09-27、改訂：2026-10-04
 
-状態：段階Aの実装開始方針。T0は完了し、T1以降のFever固有機能は未実装。2026-10-04に共通Ama基盤の速度改善を適用（[記録](SPEED_REFACTOR.md)）。
+状態：段階Aの実装中。T0〜T5は完了し、次はT6の調整。T3〜T5（色列・探索・エンジン・計測）の仕様と検証範囲は [FEVER_ENGINE.md](FEVER_ENGINE.md)。2026-10-04に共通Ama基盤の速度改善を適用（[記録](SPEED_REFACTOR.md)）。T1は全26キャラの周期参照とPiece、T2は保守的な配置・遷移モデルを実装・単体検証した。未確定の消滅タイミング等は [FEVER_PHYSICS.md](FEVER_PHYSICS.md) に明記。Steam実機の全キャラ照合はT7。
 
 対象：ぷよぷよeスポーツ（Puyo Puyo Champions）Steam版。
 
@@ -64,7 +64,7 @@ enum class Shape : u8 { PAIR, TRIPLE, QUAD, BIG };
 
 struct Piece {
     Shape shape;
-    cell::Type colors[4];   // 形状ごとに決めたセル順
+    std::array<cell::Type, 4> colors; // 未使用スロットはNONE
 };
 
 }
@@ -73,15 +73,15 @@ struct Piece {
 - `PAIR`：`colors[0]` が軸、`colors[1]` が子。既存の `cell::Pair` と相互変換する。
 - `TRIPLE`：`colors[0]` が軸、`colors[1]` が軸の上の腕、`colors[2]` が軸の右の腕。縦3個組は `(A, A, B)`、横3個組は `(A, B, A)` で、同色3個は `(A, A, A)`。形状は同じL字で、色の位置だけが違う。回転は軸を中心に4状態。
 - `QUAD`：2×2。`colors[0..3]` を左下、左上、右下、右上とし、回転で色が1つずつ回る。4状態。
-- `BIG`：2×2の単色。回転の代わりに色が変わるので、配置の `r` を色の添字として使う。4状態。
+- `BIG`：2×2の単色。`colors[0]` に1色を保存し、残りは `NONE`。回転の代わりに色が変わるので、配置の `r` を色の添字として使う。4状態。
 
 配置は既存の `move::Placement{x, r}` を流用し、`r` の意味を形状ごとに定義する。2列幅の形状は `x` を左列とし、`x` は 0〜4。
 
 ### 4.2 形状周期：`core/dropset.*` と `data/fever/dropsets.json`
 
-- 全26キャラの周期を `data/fever/dropsets.json` に置く。L/J は `triple_a` / `triple_b` として読み、縦横への対応は1か所の設定で切り替える。
+- 全26キャラの周期を `data/fever/dropsets.json` に置く。2026-10-04にL=縦 `(A,A,B)`、J=横 `(A,B,A)` を資料で照合し、対応を `core/dropset.h` の `decode()` に集約した。旧表記 `3` の向きは推定しない。
 - 実行時にJSONを読まず、`core/dropset.cpp` に定数表として持つ。表とJSONの一致はテストで確認する。
-- `dropset::shape_at(character, index)` で `index` 手目の形状を返す。
+- `dropset::shape_at(id, index)` で0始まりの `index` 手目の形状を返す。`drop_at()` は3個組の向きも返し、`find()` で資料の状態を参照できる。不明ID・`unknown` の周期は `std::nullopt` を返す。
 
 ### 4.3 ルール：`core/rule.h`
 
@@ -89,15 +89,11 @@ struct Piece {
 struct Rule {
     bool fever;                 // フィーバールールか
     u8 death_columns;           // ビットマスク。通は 0b000100、フィーバーは 0b001100
-    const u32* power_normal;    // 連鎖倍率（通常盤面）
-    const u32* power_fever;     // 連鎖倍率（フィーバー盤面）
-    i32 target_normal;          // 70
-    i32 target_fever;           // 120
-    i32 margin_seconds;         // 128
+    Overflow overflow;          // TSU_ROW14 / AFTER_SPLIT / ON_CONTACT
 };
 ```
 
-段階Aでは `death_columns` だけ使い、テーブルは段階Bで埋める。
+段階Aでは敗北列と14段目消滅の扱いを明示する。消滅はユーザー確認済みだが、ちぎり前後のタイミングは未確認なので、既定は試作上の仮定の `AFTER_SPLIT`、比較用は `ON_CONTACT`。連鎖倍率の通常／Feverテーブル、レート70/120、マージン128秒などは段階B以降に追加する。
 
 ### 4.4 ツモ生成
 
@@ -149,36 +145,50 @@ struct Rule {
 
 ### T1：`Piece` と `dropset`
 
+状態：2026-10-04完了。資料照合により、りすくまは `unknown` から `player` に更新した。これはSteam実機照合の完了を意味しない。
+
 - `core/piece.h`、`core/dropset.h`、`core/dropset.cpp` を追加。
 - `data/fever/dropsets.json` と定数表の一致テスト。
 - `Pair` ↔ `Piece` 変換。
 
-完了条件：全26キャラの周期がコードから引け、りすくまは `unknown` として扱われる。
+完了条件：全26キャラの周期と資料の状態がコードから引け、未取得周期は `unknown` として扱われる。JSONと定数表が一致し、Pairの軸・子順が保存される。旧条件の「りすくまはunknown」は、今回その周期を取得したため一般の未取得データに対する条件へ改訂した。
+
+確認：`python test/test_fever_piece.py`。実装と資料の変更内容は [DROPSETS.md](DROPSETS.md) 第3・5節を参照。
 
 ### T2：配置と遷移
 
+状態：2026-10-04完了。保守的な到達判定・仮定した上端モデルと独立参照実装の一致を確認。実機入力の完全再現とは区別する。
+
 - `Field::drop_piece`、`Field::get_drop_piece_frame`、`Field::is_colliding_piece`、`Field::is_dead`。
-- `move::generate(field, piece)`。最初は壁蹴り・床蹴りを省略した保守的な到達判定。14段目の扱いは2個ぷよと同じ規則を仮定する。
+- `move::generate(field, piece, rules)`。特殊ツモは壁蹴り・床蹴りを省略した保守的な到達判定。PAIRは既存生成器を維持。Feverはユーザー指示に基づき14段目のぷよを消滅させ、Tsuの14段目占有は維持する。
 - 散在する死亡判定を `is_dead` に置き換える。通ルールでは結果が変わらないことを確認する。
 
 完了条件：次の基準局面が期待結果と一致する。
 
-- 全形状・全回転・端の列で、セル数と色数が保存される。
+- 全形状・全回転・端の列で、盤面に残したセルと14段目以上で消滅したセルを合わせて、セル数と色数が保存される。BIGは選択した色を基準にする。
 - 同色2個組と同色3個組を正しく扱える。
 - 段差への着地とちぎりの順序が正しい。
 - 高い壁の向こうへ不正に移動しない。
 - 消去と重力が単純な配列による参照実装と一致する。
 - 上端・隠れた段・中央2列の敗北を決めた仕様どおりに扱う。
-- 2個ぷよの到達可能配置は従来の `move::generate` と一致する。
+- `rule::TSU` の2個ぷよの到達可能配置は従来の `move::generate` と一致する。Feverの4列目敗北・14段目消滅は明示的に区別する。
+
+確認：`python test/test_fever_transition.py`。座標・モデル・検証範囲は [FEVER_PHYSICS.md](FEVER_PHYSICS.md) を参照。14段目の消滅タイミング、特殊ツモの出現位置、15段目の操作可否はSteam実機未照合。引っかけを要する廃棄経路は段階Eで対応する。
 
 ### T3：ツモ生成
+
+状態：2026-10-04完了。色は試作用の4色独立乱数で、Steam版の色生成は再現していない。実装は `core/fever_queue.*`。
 
 - `fever::Queue` と生成器。形状は周期、色は独立乱数。
 - 探索用の仮想列生成（色袋の割り当て）。
 
 完了条件：任意のキャラとシードで決定的な列が得られ、色制約を満たす。
 
+確認：`python test/test_fever_queue.py`。
+
 ### T4：探索の接続
+
+状態：2026-10-04完了。既存の `beam::`・`ai::fire` は変更せず、`fever/search.*` と `fever/fire.*` に `Piece` 対応の探索と発火方針を追加した。評価関数・静止探索・置換表は共用。生存盤面では3・4列目とも12段未満なので静止探索の到達範囲はそのまま使え、評価の重みと3列目基準の項の見直しはT6に回した。
 
 - `beam::expand`、`beam::search`、`beam::search_multi` の `Piece` 対応。
 - quiescence探索と評価の4列目対応。
@@ -186,7 +196,11 @@ struct Rule {
 
 完了条件：全形状で合法な手を返し、未来情報を使わず連続プレイできる。
 
+確認：`python test/test_fever_protocol.py` の連続プレイ検証。
+
 ### T5：`fever/main.cpp` と `bench_fever`
+
+状態：2026-10-04完了。ラフィーナ100シードの結果は [WORK_LOG.md](WORK_LOG.md) の同日の記録。
 
 - `solo` モードのエンジンと JSON プロトコル。
 - `bench_fever`、JSONログ、`render.py` 用スナップショット。
@@ -205,8 +219,8 @@ struct Rule {
 ### T7：全キャラ照合
 
 - 各キャラで16手プレイし、形状周期を実機と照合する。
-- L/J と縦横の対応を確定し、`dropsets.json` の状態を更新する。
-- りすくまの周期を取得する。
+- T1で資料照合したL/Jと縦横の対応をSteam実機でも確認し、`dropsets.json` の状態を更新する。
+- T1で取得したりすくまの周期を実機と照合する。
 
 完了条件：全26キャラの `status` が `official` または実機照合済みになる。
 
@@ -258,15 +272,15 @@ struct Rule {
 - [x] 時間管理の難しさを評価し、時間単位の方針を決定
 - [x] 自己対戦の適用範囲を決定
 - [x] irregular-form の改良を調査し、土台にすると決定
-- [x] 全24キャラと隠し2キャラの形状周期を収集（りすくまを除く）
+- [x] 全24キャラと隠し2キャラの形状周期を収集（2026-10-04にりすくまを補完。全件のSteam実機照合は未実施）
 - [x] T0：基盤の統合（2026-10-03。Linux で pvp/bench/test をビルドし、プロトコルテスト7件が通過）
-- [ ] T1：`Piece` と `dropset`
-- [ ] T2：配置と遷移
-- [ ] T3：ツモ生成
-- [ ] T4：探索の接続
-- [ ] T5：エンジンと計測
+- [x] T1：`Piece` と `dropset`
+- [x] T2：配置と遷移（保守的な到達判定。消滅タイミング等の仮定は実機照合待ち）
+- [x] T3：ツモ生成（試作用の色モデル。Steam版の色生成は未再現）
+- [x] T4：探索の接続
+- [x] T5：エンジンと計測（ラフィーナ100シードを計測）
 - [ ] T6：調整
 - [ ] T7：全キャラ照合
 - [ ] 段階B〜E
 
-Fever固有機能の実装・実行・性能評価は未実施。共通Ama基盤の速度改善、既存ターゲットのビルド、連鎖の回帰検証、共通探索の旧新比較は2026-10-04に実施した。段階AのT1〜T7の完了を意味しない。旧P0〜P4の記録は改訂前の計画に対応する。
+Fever固有機能はT1〜T5を実装し、定義したモデルの中で検証済み。連続プレイと100シードの計測は `bench_fever` 上のもので、実ゲームでの実行、重みの調整、実機照合は未実施。共通Ama基盤の速度改善、既存ターゲットのビルド、連鎖の回帰検証、共通探索の旧新比較は2026-10-04に実施した。これらはT6〜T7の完了を意味しない。旧P0〜P4の記録は改訂前の計画に対応する。

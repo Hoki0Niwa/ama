@@ -62,7 +62,7 @@ Result search(Field field, cell::Queue queue, eval::Weight w, i32 thread_count)
                 auto mask_pop = child.field.pop();
 
                 // Death
-                if (child.field.get_height(2) > 11) {
+                if (child.field.is_dead(rule::TSU)) {
                     continue;
                 }
 
@@ -112,7 +112,7 @@ eval::Result dfs(Node& node, cell::Queue& queue, eval::Weight& w, i32 depth)
         auto mask_pop = child.field.pop();
 
         // Checks for death
-        if (child.field.get_height(2) > 11) {
+        if (child.field.is_dead(rule::TSU)) {
             continue;
         }
 

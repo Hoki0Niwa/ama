@@ -59,7 +59,7 @@ inline chain::Score get_score(beam::eval::Weight w, u32 seed)
         auto mask = field.pop();
         auto chain = chain::get_score(mask);
 
-        if (field.get_height(2) > 11) {
+        if (field.is_dead(rule::TSU)) {
             break;
         }
 

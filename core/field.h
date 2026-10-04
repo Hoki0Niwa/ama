@@ -2,6 +2,8 @@
 
 #include "fieldbit.h"
 #include "avec.h"
+#include "piece_geometry.h"
+#include "rule.h"
 
 class Field
 {
@@ -24,16 +26,27 @@ public:
     FieldBit get_mask();
     Field get_mask_pop();
     u8 get_drop_pair_frame(i8 x, direction::Type direction);
+    std::optional<u8> get_drop_piece_frame(i8 x, direction::Type r, const piece::Piece& piece,
+                                          const rule::Rule& rules = rule::FEVER);
 public:
     bool is_occupied(i8 x, i8 y);
     bool is_occupied(i8 x, i8 y, u8 heights[6]);
     bool is_colliding_pair(i8 x, i8 y, direction::Type direction);
     bool is_colliding_pair(i8 x, i8 y, direction::Type direction, u8 heights[6]);
     bool is_empty();
+    bool is_dead(const rule::Rule& rules);
+    bool is_colliding_piece(i8 x, i8 y, direction::Type r, const piece::Piece& piece,
+                            const rule::Rule& rules = rule::FEVER);
+    bool is_colliding_piece(i8 x, i8 y, direction::Type r, const piece::Piece& piece,
+                            u8 heights[6], const rule::Rule& rules = rule::FEVER);
 public:
     void drop_puyo(i8 x, cell::Type cell);
     void drop_pair(i8 x, direction::Type direction, cell::Pair pair);
     void drop_garbage(i32 count);
+    // Simulates an already chosen placement, not its input route. Invalid
+    // geometry fails without mutation; call move::generate for reachability.
+    std::optional<piece::DropResult> drop_piece(i8 x, direction::Type r, const piece::Piece& piece,
+                                              const rule::Rule& rules = rule::FEVER);
 public:
     avec<Field, 19> pop();
     // Same chain resolution without recording masks or calculating its score.

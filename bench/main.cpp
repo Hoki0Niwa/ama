@@ -172,7 +172,7 @@ int main(int argc, char** argv)
                 max_count = chain.count;
             }
 
-            if (field.get_height(2) > 11) {
+            if (field.is_dead(rule::TSU)) {
                 result = "dead";
                 break;
             }
