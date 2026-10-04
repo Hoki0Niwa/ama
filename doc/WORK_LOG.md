@@ -589,3 +589,24 @@ T7：Steam実機での全26キャラの周期照合（実機が必要）。段�
 ### 次の作業
 
 段階Aの計画上のタスク（T0〜T7）は完了。残課題は、連鎖構築の未発火1〜2％と15連鎖以上の率、Steam版の色列の再現、T2の未確認事項（14段目消滅のタイミング、特殊ツモの出現位置）。次は段階B（時間モデルとキャラ別倍率表）か、これらの残課題。
+
+## 2026-10-04：周期の状態を steam に統一
+
+### 依頼・目的
+
+ユーザーから、アルルとラフィーナだけ `official` なのをどちらかに統一するよう依頼された。
+
+### 変更・決定
+
+- アルルとラフィーナの状態を `official` から `steam` に変更した（`core/dropset.cpp`、`data/fever/dropsets.json`）。全26キャラが `steam` になった。この2キャラもT7のキャラ選択画面の図と一致している。
+- 公式図でも確認済みという情報は、JSONの `official_diagram: true` と `doc/DROPSETS.md` の一覧に残した。
+- `Status::OFFICIAL` の列挙値は、公式図だけで確認したデータを今後扱う場合のために残した。現在の表では使っていない。
+- 周期の文字列は変更していない。
+
+### 確認したこと
+
+- `python test/test_fever_piece.py`（コードの表とJSONの一致）と `python test/test_fever_queue.py` が成功。pvp と fever のビルド成功。`python test/test_engine_protocol.py` 成功。
+
+### 未確認事項
+
+前回の記録から変更なし。
