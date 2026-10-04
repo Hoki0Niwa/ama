@@ -28,7 +28,7 @@ std::optional<Decision> decide(
         f.drop_pair(locks[i].x, locks[i].r, queue[0]);
         auto pop = f.pop();
 
-        if (f.get_height(2) > 11) {
+        if (f.is_dead(rule::TSU)) {
             continue;
         }
 

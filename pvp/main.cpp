@@ -995,7 +995,7 @@ GameResult play(Engine* engines[2], u32 seed, i32 first, const Options& options,
             self.max_score = std::max(self.max_score, chain.score);
         }
 
-        if (self.field.get_height(2) > 11) {
+        if (self.field.is_dead(rule::TSU)) {
             return finish(o, "death", self.free_at);
         }
 
@@ -1011,7 +1011,7 @@ GameResult play(Engine* engines[2], u32 seed, i32 first, const Options& options,
                 self.received += drop;
                 self.free_at += 1;
 
-                if (self.field.get_height(2) > 11) {
+                if (self.field.is_dead(rule::TSU)) {
                     return finish(o, "garbage", self.free_at);
                 }
             }

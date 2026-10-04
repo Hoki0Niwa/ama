@@ -3,10 +3,20 @@
     "ぷよぷよeスポーツ（Puyo Puyo Champions）フィーバールールのキャラ別ツモ形状周期（ドロップセット）。形状のみで、色は含まない。",
     "pattern は puyo-camp 表記: 2=2個組, L/J=3個組の2種, 4=2色4個組（22ぷよ）, 0=でかぷよ。16文字で1周期。",
     "pattern_alt は旧来の表記: 2=2個組, 3=3個組, 4=2色4個組, *=でかぷよ。L/J の区別が無い。",
-    "L/J と縦3個組・横3個組の対応は未確認。ラフィーナのみ公式図から手3=縦3, 手10=横3, 手13=縦3 と確認済み。",
+    "L=縦3個組(A,A,B)、J=横3個組(A,B,A)。2026-10-04に公式アミティ・ラフィーナ図とキャラ選択画面画像で照合。",
     "status: official=公式図で確認, player=プレイヤー資料の文字列, counts_only=個数だけ確認, unknown=未取得。",
     "出典は doc/DROPSETS.md を参照。"
   ],
+  "triple_mapping": {
+    "L": "vertical",
+    "J": "horizontal",
+    "checked_on": "2026-10-04",
+    "sources": [
+      "https://puyo.sega.com/champions/img/character/amitie_puyo.png",
+      "https://puyo.sega.com/champions/img/character/raffina_puyo.png",
+      "https://puyo-camp.jp/posts/196097"
+    ]
+  },
   "notation": {
     "2": "pair",
     "L": "triple_a",
@@ -17,23 +27,23 @@
     "*": "big"
   },
   "characters": [
-    { "id": "arle",        "name_ja": "アルル",       "name_en": "Arle",        "fever_type": "自力で連鎖",       "pattern": "2222222222222222", "pattern_alt": "2222222222222222", "counts": { "pair": 16, "triple": 0, "quad": 0, "big": 0 }, "total": 32, "status": "counts_only", "notes": "3個組・4個組なし。個数はPuyo Nexusの表から。" },
+    { "id": "arle",        "name_ja": "アルル",       "name_en": "Arle",        "fever_type": "自力で連鎖",       "pattern": "2222222222222222", "pattern_alt": "2222222222222222", "counts": { "pair": 16, "triple": 0, "quad": 0, "big": 0 }, "total": 32, "status": "official", "notes": "2026-10-04に公式組ぷよ図で全16手が2個組と確認。", "sources": ["https://puyo.sega.com/champions/img/character/arle_puyo.png"] },
     { "id": "amitie",      "name_ja": "アミティ",     "name_en": "Amitie",      "fever_type": "バランス",         "pattern": "222L2220222J2224", "pattern_alt": "2223222*22232224", "counts": { "pair": 12, "triple": 2, "quad": 1, "big": 1 }, "total": 38, "status": "player", "notes": "" },
     { "id": "ringo",       "name_ja": "りんご",       "name_en": "Ringo",       "fever_type": "フィーバーで逆転", "pattern": "222L0222J0422L2L", "pattern_alt": null,               "counts": { "pair": 9,  "triple": 4, "quad": 1, "big": 2 }, "total": 42, "status": "player", "notes": "" },
-    { "id": "hed",         "name_ja": "ヘド",         "name_en": "Hed",         "fever_type": "フィーバーで逆転", "pattern": null,               "pattern_alt": "2232232*2322322*", "counts": { "pair": 10, "triple": 4, "quad": 0, "big": 2 }, "total": 40, "status": "player", "notes": "すけとうだらと同じ周期。L/J の区別は未取得。" },
+    { "id": "hed",         "name_ja": "ヘド",         "name_en": "Hed",         "fever_type": "フィーバーで逆転", "pattern": "22L22J202L22J220", "pattern_alt": "2232232*2322322*", "counts": { "pair": 10, "triple": 4, "quad": 0, "big": 2 }, "total": 40, "status": "player", "notes": "2026-10-04に公開キャラ選択画面でL/Jを照合。すけとうだらと同じ周期。英語公式hed_puyo.pngは公開実機画像と相違するため採用しない。", "sources": ["https://puyo-camp.jp/posts/196097"] },
     { "id": "sultana",     "name_ja": "スルターナ",   "name_en": "Sultana",     "fever_type": "てがたくフィーバー", "pattern": "L202J24202L242J2", "pattern_alt": null,             "counts": { "pair": 8,  "triple": 4, "quad": 2, "big": 2 }, "total": 44, "status": "player", "notes": "フェーリの周期の流用。" },
     { "id": "schezo",      "name_ja": "シェゾ",       "name_en": "Schezo",      "fever_type": "自力で大連鎖",     "pattern": "2222L242J202L242", "pattern_alt": null,               "counts": { "pair": 10, "triple": 3, "quad": 2, "big": 1 }, "total": 41, "status": "player", "notes": "" },
-    { "id": "sig",         "name_ja": "シグ",         "name_en": "Sig",         "fever_type": "フィーバーで逆転", "pattern": null,               "pattern_alt": "222322242232*224", "counts": { "pair": 11, "triple": 2, "quad": 2, "big": 1 }, "total": 40, "status": "player", "notes": "L/J の区別は未取得。" },
+    { "id": "sig",         "name_ja": "シグ",         "name_en": "Sig",         "fever_type": "フィーバーで逆転", "pattern": "222L222422J20224", "pattern_alt": "222322242232*224", "counts": { "pair": 11, "triple": 2, "quad": 2, "big": 1 }, "total": 40, "status": "player", "notes": "2026-10-04に公式図と公開キャラ選択画面から手4=縦、手11=横と照合。Steam実機では未照合。", "sources": ["https://puyo.sega.com/champions/img/character/sig_puyo.png", "https://puyo-camp.jp/posts/196097"] },
     { "id": "maguro",      "name_ja": "まぐろ",       "name_en": "Maguro",      "fever_type": "こつこつジャブ攻撃", "pattern": "22L22J2242202224", "pattern_alt": null,             "counts": { "pair": 11, "triple": 2, "quad": 2, "big": 1 }, "total": 40, "status": "player", "notes": "" },
     { "id": "ciel",        "name_ja": "シエル",       "name_en": "Ciel",        "fever_type": "自力で大連鎖",     "pattern": "22L2J202L202J224", "pattern_alt": null,               "counts": { "pair": 9,  "triple": 4, "quad": 1, "big": 2 }, "total": 42, "status": "player", "notes": "クルークの周期の流用。" },
     { "id": "penglai",     "name_ja": "ホウライ",     "name_en": "Penglai",     "fever_type": "自力で連鎖",       "pattern": "222L22022J220224", "pattern_alt": "222322*22322*224", "counts": { "pair": 11, "triple": 2, "quad": 1, "big": 2 }, "total": 40, "status": "player", "notes": "リデルの周期の流用。2つの表記が一致。" },
     { "id": "rulue",       "name_ja": "ルルー",       "name_en": "Rulue",       "fever_type": "とにかく大連鎖",   "pattern": "2224222022242220", "pattern_alt": "2224222*2224222*", "counts": { "pair": 12, "triple": 0, "quad": 2, "big": 2 }, "total": 40, "status": "player", "notes": "3個組なし。" },
-    { "id": "raffina",     "name_ja": "ラフィーナ",   "name_en": "Raffina",     "fever_type": "とにかく大連鎖",   "pattern": null,               "pattern_alt": "22322*2223223224", "counts": { "pair": 11, "triple": 3, "quad": 1, "big": 1 }, "total": 39, "status": "official", "notes": "公式図で手3=縦3個組, 手10=横3個組, 手13=縦3個組 を確認。L/J の文字列は未取得。", "triple_orientation": { "3": "vertical", "10": "horizontal", "13": "vertical" } },
-    { "id": "suketoudara", "name_ja": "すけとうだら", "name_en": "Suketoudara", "fever_type": "フィーバーで逆転", "pattern": null,               "pattern_alt": "2232232*2322322*", "counts": { "pair": 10, "triple": 4, "quad": 0, "big": 2 }, "total": 40, "status": "player", "notes": "15th の資料に基づく。L/J の区別は未取得。" },
+    { "id": "raffina",     "name_ja": "ラフィーナ",   "name_en": "Raffina",     "fever_type": "とにかく大連鎖",   "pattern": "22L220222J22L224", "pattern_alt": "22322*2223223224", "counts": { "pair": 11, "triple": 3, "quad": 1, "big": 1 }, "total": 39, "status": "official", "notes": "2026-10-04に公式図を再確認しL/Jを補完。手3=縦3個組, 手10=横3個組, 手13=縦3個組。", "triple_orientation": { "3": "vertical", "10": "horizontal", "13": "vertical" }, "sources": ["https://puyo.sega.com/champions/img/character/raffina_puyo.png"] },
+    { "id": "suketoudara", "name_ja": "すけとうだら", "name_en": "Suketoudara", "fever_type": "フィーバーで逆転", "pattern": "22L22J202L22J220", "pattern_alt": "2232232*2322322*", "counts": { "pair": 10, "triple": 4, "quad": 0, "big": 2 }, "total": 40, "status": "player", "notes": "2026-10-04に公式図とeスポーツの公開キャラ選択画面からL/Jを照合。Steam実機では未照合。", "sources": ["https://puyo.sega.com/champions/img/character/suketoudara_puyo.png", "https://puyo-camp.jp/posts/196097"] },
     { "id": "ally",        "name_ja": "アリィ",       "name_en": "Ally",        "fever_type": "自力で連鎖",       "pattern": "2222L22220222224", "pattern_alt": null,               "counts": { "pair": 13, "triple": 1, "quad": 1, "big": 1 }, "total": 37, "status": "player", "notes": "" },
     { "id": "ragnus",      "name_ja": "ラグナス",     "name_en": "Ragnus",      "fever_type": "こつこつジャブ攻撃", "pattern": "2222L242J202L242", "pattern_alt": null,             "counts": { "pair": 10, "triple": 3, "quad": 2, "big": 1 }, "total": 41, "status": "player", "notes": "シェゾと同じ周期。" },
-    { "id": "risukuma",    "name_ja": "りすくま",     "name_en": "Risukuma",    "fever_type": "てがたくフィーバー", "pattern": null,               "pattern_alt": null,             "counts": null,                                              "total": null, "status": "unknown", "notes": "文字列・個数とも未取得。実機または puyo-camp の表で確認する。" },
-    { "id": "draco",       "name_ja": "ドラコ",       "name_en": "Draco",       "fever_type": "自力で連鎖",       "pattern": "2222222222LL0LL4", "pattern_alt": "222222222233*334", "counts": { "pair": 10, "triple": 4, "quad": 1, "big": 1 }, "total": 40, "status": "player", "notes": "20th 以降の周期。2個組10手のあと特殊ツモ6手。" },
+    { "id": "risukuma",    "name_ja": "りすくま",     "name_en": "Risukuma",    "fever_type": "てがたくフィーバー", "pattern": "2J22220222422L22", "pattern_alt": null,             "counts": { "pair": 12, "triple": 2, "quad": 1, "big": 1 }, "total": 38, "status": "player", "notes": "2026-10-04に公開キャラ選択画面で16手・38個を取得。公式risukuma_puyo.pngとも一致。Steam実機での照合はT7。", "sources": ["https://puyo-camp.jp/posts/196097", "https://puyo.sega.com/champions/img/character/risukuma_puyo.png"] },
+    { "id": "draco",       "name_ja": "ドラコ",       "name_en": "Draco",       "fever_type": "自力で連鎖",       "pattern": "2222222222LJ0JL4", "pattern_alt": "222222222233*334", "counts": { "pair": 10, "triple": 4, "quad": 1, "big": 1 }, "total": 40, "status": "player", "notes": "2026-10-04に公開キャラ選択画面を再読。ユーザーがSteam版の手11/12/14/15=縦/横/横/縦を確認し、従来の全Lを訂正。英語公式dracocentauros_puyo.pngはりすくまと同じ図のため採用しない。", "triple_orientation": { "11": "vertical", "12": "horizontal", "14": "horizontal", "15": "vertical" }, "sources": ["https://puyo-camp.jp/posts/196097"], "user_confirmed_orientation_on": "2026-10-04" },
     { "id": "witch",       "name_ja": "ウィッチ",     "name_en": "Witch",       "fever_type": "フィーバーで逆転", "pattern": "JL22J22242220222", "pattern_alt": null,               "counts": { "pair": 11, "triple": 3, "quad": 1, "big": 1 }, "total": 39, "status": "player", "notes": "初手が3個組。" },
     { "id": "harpy",       "name_ja": "ハーピー",     "name_en": "Harpy",       "fever_type": "フィーバーで逆転", "pattern": "2L202J202L242224", "pattern_alt": null,               "counts": { "pair": 9,  "triple": 3, "quad": 2, "big": 2 }, "total": 43, "status": "player", "notes": "ユウちゃん＆レイくんの周期の流用。" },
     { "id": "serilly",     "name_ja": "セリリ",       "name_en": "Serilly",     "fever_type": "こつこつジャブ攻撃", "pattern": "222L22J022L022J4", "pattern_alt": null,             "counts": { "pair": 9,  "triple": 4, "quad": 1, "big": 2 }, "total": 42, "status": "player", "notes": "さかな王子の周期の流用。ゲーム内表記は「フィーバーで逆転」。" },

@@ -55,7 +55,7 @@ int main(int argc, char** argv)
     i32 score = 0;
 
     for (i32 i = 0; i < 100; ++i) {
-        if (field.get_height(2) > 11) {
+        if (field.is_dead(rule::TSU)) {
             break;
         }
 

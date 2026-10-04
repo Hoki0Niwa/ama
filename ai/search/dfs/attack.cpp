@@ -70,7 +70,7 @@ Result search(
                 auto mask_pop = child.field.pop();
 
                 // Checks for death
-                if (child.field.get_height(2) > 11) {
+                if (child.field.is_dead(rule::TSU)) {
                     continue;
                 }
 
@@ -159,7 +159,7 @@ void dfs(
         auto mask_pop = child.field.pop();
 
         // Checks for death
-        if (child.field.get_height(2) > 11) {
+        if (child.field.is_dead(rule::TSU)) {
             continue;
         }
 

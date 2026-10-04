@@ -11,7 +11,7 @@ avec<Placement, 22> generate(Field& field, bool pair_equal)
     u8 heights[6];
     field.get_heights(heights);
 
-    if (heights[2] > 11) {
+    if (rule::is_dead(heights, rule::TSU)) {
         return result;
     }
 
