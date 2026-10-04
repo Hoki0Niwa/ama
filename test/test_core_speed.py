@@ -1,4 +1,4 @@
-"""Compare the common core with a scalar model, using Fever branch's PEXT switch."""
+"""Compare the common core with a scalar model, using explicit software and BMI2 PEXT paths."""
 from pathlib import Path
 import os
 import subprocess
@@ -25,7 +25,7 @@ class CoreSpeedTests(unittest.TestCase):
         sources = list((ROOT / 'core').glob('*.cpp')) + [
             ROOT / 'ai/search/beam' / name for name in ('quiet.cpp', 'table.cpp')]
         output = self.output_dir / ('core-speed-bmi2.exe' if pext else 'core-speed-software.exe')
-        flags = ['-mbmi2', '-DPEXT'] if pext else []
+        flags = ['-mbmi2', '-DPEXT'] if pext else ['-DAMA_SOFTWARE_PEXT']
         compiled = subprocess.run([str(self.compiler), '-std=c++20', '-O2', '-msse4.1', '-static',
                                    *flags, *map(str, sources), str(ROOT / 'test/core_speed_test.cc'),
                                    '-o', str(output)], env=self.environment, timeout=120,

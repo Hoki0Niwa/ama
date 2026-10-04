@@ -11,7 +11,7 @@ Thread::Thread()
 
 // Starts the search thread
 // We search all the configuration weights provided
-bool Thread::search(Field field, cell::Queue queue, Configs configs, std::optional<i32> trigger, bool stretch)
+bool Thread::search(Field field, cell::Queue queue, Configs configs, std::optional<i32> trigger, bool stretch, size_t beam_width, size_t beam_depth)
 {
     if (this->thread != nullptr) {
         return false;
@@ -19,17 +19,26 @@ bool Thread::search(Field field, cell::Queue queue, Configs configs, std::option
 
     this->clear();
 
-    this->thread = new std::thread([&] (Field f, cell::Queue q, Configs w, std::optional<i32> t, bool s) {
+    this->thread = new std::thread([&] (Field f, cell::Queue q, Configs w, std::optional<i32> t, bool s, size_t bw, size_t bd) {
         auto r = Result();
 
+        if (q.size() < 2) {
+            this->results = r;
+            return;
+        }
+
         auto beam_configs = beam::Configs();
+        beam_configs.width = bw;
+        beam_configs.depth = bd;
 
         if (t.has_value()) {
             beam_configs.trigger = t.value();
             beam_configs.stretch = s;
         }
 
-        if (q.size() > 2) {
+        // The beam search takes every visible pair and samples the rest of the queue up to its depth
+        // Only a queue that already covers the whole depth (e.g. a known queue) is searched as it is
+        if (q.size() >= beam_configs.depth) {
             r.build = beam::search(f, q, w.build, beam_configs);
 
             if (!r.build.candidates.empty()) {
@@ -55,13 +64,17 @@ bool Thread::search(Field field, cell::Queue queue, Configs configs, std::option
         }
         else {
             r.build = beam::search_multi(f, q, w.build, beam_configs);
-            r.freestyle = dfs::build::search(f, q, w.freestyle);
-            r.fast = dfs::build::search(f, q, w.fast);
-            r.ac = dfs::build::search(f, q, w.ac);
         }
 
+        // The dfs builds search the full tree of the queue, so they only take the first 2 pairs
+        cell::Queue q2 = { q[0], q[1] };
+
+        r.freestyle = dfs::build::search(f, q2, w.freestyle);
+        r.fast = dfs::build::search(f, q2, w.fast);
+        r.ac = dfs::build::search(f, q2, w.ac);
+
         this->results = r;
-    }, field, queue, configs, trigger, stretch);
+    }, field, queue, configs, trigger, stretch, beam_width, beam_depth);
 
     return true;
 };

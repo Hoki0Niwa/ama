@@ -28,7 +28,7 @@ constexpr Data GTR = []
 {
     Data pattern = { 0 };
 
-    const u8 dform[HEIGHT][6] = 
+    const u8 dform[HEIGHT][6] =
     {
         { 0,  0,  0,  0,  0,  0 },
         { 4,  4,  4,  0,  0,  0 },
@@ -38,7 +38,7 @@ constexpr Data GTR = []
         { 2,  2,  5,  0,  0,  0 }
     };
 
-    const i8 dmatrix[AREA][AREA] = 
+    const i8 dmatrix[AREA][AREA] =
     {
         { 0,  0,  0,  0,  0,  0,  0,  0 },
         { 0,  2, -1, -1,  0,  0,  0,  0 },
@@ -70,7 +70,7 @@ constexpr Data SGTR = []
 {
     Data pattern = { 0 };
 
-    const u8 dform[HEIGHT][6] = 
+    const u8 dform[HEIGHT][6] =
     {
         { 0,  0,  0,  0,  0,  0 },
         { 5,  5,  5,  0,  0,  0 },
@@ -80,7 +80,7 @@ constexpr Data SGTR = []
         { 2,  3,  3,  6,  0,  0 }
     };
 
-    const i8 dmatrix[AREA][AREA] = 
+    const i8 dmatrix[AREA][AREA] =
     {
         { 0,  0,  0,  0,  0,  0,  0,  0 },
         { 0,  2, -1, -1, -1,  0,  0,  0 },
@@ -112,7 +112,7 @@ constexpr Data FRON = []
 {
     Data pattern = { 0 };
 
-    const u8 dform[HEIGHT][6] = 
+    const u8 dform[HEIGHT][6] =
     {
         { 0,  0,  0,  0,  0,  0 },
         { 5,  5,  5,  0,  0,  0 },
@@ -122,7 +122,7 @@ constexpr Data FRON = []
         { 3,  3,  2,  3,  6,  0 }
     };
 
-    const i8 dmatrix[AREA][AREA] = 
+    const i8 dmatrix[AREA][AREA] =
     {
         { 0,  0,  0,  0,  0,  0,  0,  0 },
         { 0,  2, -1, -1, -1,  0,  0,  0 },
@@ -154,7 +154,7 @@ constexpr Data MERI = []
 {
     Data pattern = { 0 };
 
-    const u8 dform[HEIGHT][6] = 
+    const u8 dform[HEIGHT][6] =
     {
         { 5,  5,  5,  0,  0,  0 },
         { 4,  4,  4,  5,  0,  0 },
@@ -164,7 +164,7 @@ constexpr Data MERI = []
         { 3,  3,  3,  7,  0,  0 },
     };
 
-    const i8 dmatrix[AREA][AREA] = 
+    const i8 dmatrix[AREA][AREA] =
     {
         { 0,  0,  0,  0,  0,  0,  0,  0,  0 },
         { 0,  2, -1, -1, -1,  0,  0,  0,  0 },
@@ -199,7 +199,7 @@ constexpr Data list[] = {
     SGTR
 };
 
-constexpr usize COUNT = _countof(list);
+constexpr usize COUNT = std::size(list);
 
 };
 

@@ -9,16 +9,21 @@ endif
 ifeq ($(BUILD), debug)
 CXXFLAGS += -fdiagnostics-color=always -DUNICODE -std=c++20 -Wall -Og -pg -no-pie
 else
-CXXFLAGS += -DUNICODE -DNDEBUG -std=c++20 -O3 -msse4 -mbmi2 -flto $(CXXPROF) -march=native
+CXXFLAGS += -DUNICODE -DNDEBUG -std=c++20 -O3 -msse4.1 -flto $(CXXPROF)
 endif
 
 ifeq ($(PEXT), true)
-CXXFLAGS += -DPEXT
+CXXFLAGS += -DPEXT -mbmi2
 endif
 
-SRC_AI = core/*.cpp ai/*.cpp ai/search/*.cpp
+# The default selects BMI2 at runtime; NATIVE=true opts into a CPU-specific build.
+ifeq ($(NATIVE), true)
+CXXFLAGS += -march=native
+endif
 
-.PHONY: all puyop test clean makedir
+SRC_AI = core/*.cpp ai/*.cpp ai/search/*.cpp ai/search/beam/*.cpp ai/search/dfs/*.cpp
+
+.PHONY: all puyop test tuner bench pvp clean makedir
 
 all: puyop
 
@@ -31,6 +36,12 @@ tuner: makedir
 test: makedir
 	@$(CXX) $(CXXFLAGS) $(SRC_AI) test/*.cpp -o bin/test/test.exe
 
+bench: makedir
+	@$(CXX) $(CXXFLAGS) $(SRC_AI) bench/*.cpp -o bin/bench/bench.exe
+
+pvp: makedir
+	@$(CXX) $(CXXFLAGS) $(SRC_AI) pvp/*.cpp -o bin/pvp/pvp.exe
+
 clean: makedir
 	@rm -rf bin
 	@make makedir
@@ -40,5 +51,7 @@ makedir:
 	@mkdir -p bin/puyop
 	@mkdir -p bin/test
 	@mkdir -p bin/tuner/data
+	@mkdir -p bin/bench
+	@mkdir -p bin/pvp
 
 .DEFAULT_GOAL := puyop

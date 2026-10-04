@@ -169,6 +169,79 @@
 
 段階AのP0から。上端・ちぎり・敗北判定の順序と色列モデルを確定し、P1の配置処理と独立検証へ進む。段階B以降の着手時には、第6節の数値を一次資料で再確認する。
 
+## 2026-10-03：irregular-form の調査、全キャラ形状周期の収集、具体的実装計画
+
+### 依頼・目的
+
+- ぷよぷよeスポーツ Steam 版で開発を進める。`irregular-form` ブランチの改良を参考に、具体的な実装計画を立てる。
+- 現在のキャラはラフィーナだけだが、形状周期は全キャラ分を用意する。
+
+### 変更・決定
+
+- `irregular-form` を調査した。エンジンJSONプロトコル（`pvp --engine`）、`ai/fire.h` の発火方針、`QUEUE_VISIBLE = 3`、`prepare` コールバック、`bench/` と `render.py`、`pvp/` 対戦シミュレータ、実行時 BMI2 選択、`build.ps1`、`test_engine_protocol.py`、定型評価の既定オフが含まれる。これを土台にすると決め、最初の作業（T0）として `fever` へマージする。競合は `AGENTS.md` のみ。
+- フィーバーは別バイナリ `bin/fever/fever.exe` とし、Tsu 用 `pvp.exe` を変更しない方針を `irregular-form` の `AGENTS.md` から引き継いだ。
+- `data/fever/dropsets.json` と `doc/DROPSETS.md` を追加。24キャラと隠し2キャラの形状周期を puyo-camp 表記で収集した。りすくまのみ未取得。ヘド、シグ、ラフィーナ、すけとうだらは L/J を区別しない旧表記のみ。
+- `IMPLEMENTATION_PLAN.md` を具体化：`core/piece.h`、`core/dropset.*`、`core/rule.h`、`Field::drop_piece`、`Field::is_dead`、`move::generate(field, piece)`、`fever/main.cpp`、`bench_fever` の設計と、T0〜T7 の作業順序・完了条件を記載。
+- `RULES_AND_ASSUMPTIONS.md` に登場キャラ一覧と、L/J の縦横対応、周期の開始位置、2列幅ツモの出現位置を未確定事項として追加。
+- `README.md` と `AGENTS.md` を実装段階の記述に更新。
+
+### 確認したこと
+
+- `origin/irregular-form` は `main`（v2.0.1）から12コミット、30ファイル、約3,000行の追加。`fever` との競合は `AGENTS.md` だけ。
+- 収集した周期は文字列から個数を数え、資料のツモ数と全件一致した。
+- ホウライは L/J 表記と旧表記の2資料が一致。アレックスも同様。
+- ぷよぷよeスポーツの登場キャラ24体と隠し2体の名前をファミ通の記事で確認。
+- puyo-camp、Puyo Nexus、SEGA 公式を含む外部サイトへの直接アクセスは作業環境のネットワーク制限で遮断されたため、文字列は検索エンジンの要約経由で取得した。転記ミスの可能性があり、T7 で実機照合する。
+- 実装、ビルド、AIの実行は行っていない。
+
+### 未確認・課題
+
+- りすくまの形状周期。
+- L/J と縦3個組・横3個組の対応。
+- 周期の開始位置とフィーバー突入・終了時のリセット有無。
+- 2列幅ツモと3個組の出現位置・向き。
+- Puyo Nexus の Lidelle/Draco（Fever版）の個数とホウライの文字列の食い違い。eスポーツ版は puyo-camp の文字列を採用。
+
+### 次の作業
+
+T0：`irregular-form` を `fever` にマージし、`AGENTS.md` の競合を解決してビルドとプロトコルテストを確認する。続いて T1 の `Piece` と `dropset` から実装に入る。
+
+## 2026-10-03：T0 irregular-form を fever にマージ
+
+### 依頼・目的
+
+ユーザーから `irregular-form` のマージ依頼。あわせて「そのまま作業すると irregular-form と混ざらないか」という懸念への対応。
+
+### 変更・決定
+
+- `origin/irregular-form`（`04bd647`）を `fever` にマージ（`d4bce4c`）。競合は `AGENTS.md` のみで、両方の内容を併記し、「ブランチの分離」節を追加した。
+- 分離の運用：マージは `irregular-form` → `fever` の一方向だけ。フィーバー固有のコードは新規ファイルに閉じ込める。既存ファイルの共通化は `irregular-form` に先にコミットして取り込む。Tsu の挙動はプロトコルテストと `bench` の同一シード結果で固定する。ローカルは `fever` 用に別 worktree を推奨。
+- Linux の g++ で `ai/search/beam/form.h` の `_countof` がビルドエラーになったため `std::size` に置換（`0f6ee54`）。ルールに依存しない修正なので `irregular-form` にも移植すべき。
+- `IMPLEMENTATION_PLAN.md` の T0 を完了にし、`README.md` の状態を更新。
+
+### 確認したこと
+
+- Linux（g++ 13.3、4コア、BMI2 あり）で `make pvp`、`make bench`、`make test` がビルドできた。
+- `python3 test/test_engine_protocol.py` は7件すべて通過。
+- `bench` をシード1〜3で実行し、Tsu エンジンの基準結果を記録した。以後、`fever` での作業後に同じ結果が出ることを確認する。
+
+| seed | result | score | chain | moves |
+| --- | --- | ---: | ---: | ---: |
+| 1 | fired | 129200 | 15 | 39 |
+| 2 | fired | 89700 | 13 | 38 |
+| 3 | fired | 137100 | 15 | 42 |
+
+- Windows の `build.ps1` は未実行。
+
+### 未確認・課題
+
+- `form.h` の修正を `irregular-form` に移植する（ユーザーの判断で）。
+- Windows でのビルドとプロトコルテストの確認。
+
+### 次の作業
+
+T1：`core/piece.h`、`core/dropset.*` の追加と、`data/fever/dropsets.json` との一致テスト。
+
 ## 2026-10-04：共通Ama基盤の速度改善をFeverブランチへ移植
 
 ### 依頼と対象
@@ -197,3 +270,39 @@
 
 - 測定は既存の共通Ama探索と2個組の局面を対象にしたもの。Feverの特殊ツモや実ゲームでの性能は未確認。
 - 段階AのP0から継続する。特殊ツモ、中央2列の敗北、時間・ゲージ・種・対戦処理の実装や目標達成としては扱わない。
+
+## 2026-10-04：pullで停止したローカル変更とリモート変更を統合
+
+### 依頼・目的
+
+`git pull` が追跡済み文書のローカル変更と未追跡の `.gitignore`・`build.ps1` により停止した。irregular-form 側を反映した変更とリモート側の変更を両方保持する。
+
+### 変更・決定
+
+- 作業先は `C:\Users\ho_ki\git\ama-fever`、ブランチは `fever`。開始時は `f223c60`、ローカル変更18ファイル、`origin/fever` は16コミット先だった。
+- ローカル変更全18ファイルを保存コミット `025f5e0` にし、退避ブランチ `codex/fever-local-before-pull-20261004` を作成した。
+- fetch後の `origin/fever` は `16f23e2`。この履歴には `irregular-form` の `04bd647` とマージ `d4bce4c` が含まれるため、`origin/fever` をマージして両親の履歴を保持した。irregular-form や main のブランチは変更していない。
+- 競合5ファイルを解消。`.gitignore` は両側の除外を保持。`build.ps1` はリモートの pvp/bench/puyop/test/tuner と既定の pvp、ローカルの speed-bench と Pext オプションを併用し、ターゲット内の全cppをビルドする。
+- 計画書はリモートの全キャラ対応とT0〜T7を維持し、共通基盤の速度改善状況を追記。文書の作業先を実際のworktreeパスへ訂正した。
+- 作業記録はリモートの2026-10-03の記録とローカルの2026-10-04の速度改善記録を両方保持。旧P0〜P4の「次の作業」は改訂前の履歴として残し、現在はT1以降に従う。
+- リモートの実行時BMI2選択の導入に合わせ、速度回帰テストのソフトウェア版に `AMA_SOFTWARE_PEXT` を指定し、ソフトウェア経路を確実に検証するようにした。
+- マージはローカルでコミットする。pushは実施していない。
+
+### 確認したこと
+
+- 統合後の pvp/bench/puyop/test/tuner/speed-bench の6ターゲットをWindowsの `build.ps1` でビルド成功。
+- `python test/test_engine_protocol.py`：7件成功。
+- `python test/test_form_evaluation.py`：1件成功。
+- `python test/test_core_speed.py`：2件成功（明示的なソフトウェアPEXTとBMI2）。各2000盤面のスカラーモデル比較、500盤面・575候補の静止探索比較などを確認。
+- `origin/fever` のソースを `bin/merge-validation/remote` に展開して別ビルドし、同一のconfig/build重み・幅250・深さ16・最大100手でシード1〜3を比較。実時間の2列を除くTSVの全7列、盤面スナップショット、全手順のリプレイURLが一致。
+- シード1：129200点・15連鎖・39手、シード2：89700点・13連鎖・38手、シード3：137100点・15連鎖・42手。リモートのT0記録の値とも一致。
+- ローカルの速度改善9ソースファイルは保存コミットと一致し、両側の過去作業記録が欠落していないことを確認。
+
+### 未確認・課題
+
+- 今回の比較は既存の通エンジンで3シードのみ。全系列の一致、統合後の厳密な速度測定、Fever固有機能や実ゲームの動作確認は行っていない。
+- Linuxでの統合後ビルドは未実施。過去の速度測定値は当時のコード・条件の記録であり、今回の統合版の測定結果とは区別する。
+
+### 次の作業
+
+必要ならローカルの統合済み fever を通常のpushで公開する。開発の継続は最新計画のT1（Pieceとdropset）から行う。本依頼ではFever固有機能の新規実装はしていない。
