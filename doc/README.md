@@ -38,7 +38,7 @@ amaを土台に、ぷよぷよeスポーツ（Steam版）のフィーバール�
 - 土台にするブランチ：`irregular-form`（Tsu エンジンの改良。詳細は同ブランチの `ENGINE.md`）
 - 元リポジトリ：https://github.com/citrus610/ama
 - `fever` の実装コードは `irregular-form` のマージ分と、Linux ビルド修正（`form.h` の `_countof` → `std::size`）に加え、共通基盤の速度改善、`core/piece.h`・`core/dropset.*` を含む。
-- 共通基盤のSIMD演算・連鎖評価の高速化と置換表のメモリ解放を実装・検証済み。Feverの特殊ツモの表現・周期参照・配置と遷移モデル・ツモ生成・探索・単独用エンジン（`bin/fever/fever.exe`）・計測（`bench_fever`）は実装済み。時間・ゲージ・対戦処理、入力経路は未実装。
+- 共通基盤のSIMD演算・連鎖評価の高速化と置換表のメモリ解放を実装・検証済み。Feverの特殊ツモの表現・周期参照・配置と遷移モデル・ツモ生成・探索・単独用エンジン（`bin/fever/fever.exe`）・計測（`bench_fever`）は実装済み。時間・ゲージ・対戦処理は未実装。実機への接続はブリッジ側（`ama-memory-bridge/FEVER.md`）に実験版があり、シェゾで14連鎖の発火を確認した。エンジン側の入力経路は未実装。
 - 速度改善の変更・測定・再現手順：[SPEED_REFACTOR.md](SPEED_REFACTOR.md)。
 - 別の作業フォルダーには中断された未検証の試作があるが、このforkには移植していない。参考にする場合も、仕様確認・レビュー・検証から行う。
 
