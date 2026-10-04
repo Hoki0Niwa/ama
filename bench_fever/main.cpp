@@ -14,7 +14,8 @@
 // real game's value yet (stage B). The chain lengths are exact for the modelled rules.
 // The colors come from fever::create_queue, which does NOT reproduce the Steam version's color generation.
 // The AI sees QUEUE_VISIBLE pieces (3 by default) and plays through the fire policy
-// BEAM_WIDTH, BEAM_DEPTH and BEAM_TRIGGER (a chain length) in the environment override the search configuration
+// BEAM_WIDTH, BEAM_DEPTH, BEAM_TRIGGER (a chain length), PANIC_COUNT, PANIC_CHAIN, PANIC_STEP and SHAVE_CHAIN in the environment
+// override the search configuration
 // Optionally appends the field of each game to a snapshot file that `bench/render.py` reads
 // Optionally appends one JSON line per move played to a log file, to replay a game
 void write_snapshot(std::ofstream& out, u32 seed, const char* result, i32 score, i32 moves, Field& field)
@@ -32,7 +33,7 @@ int main(int argc, char** argv)
 {
     if (argc < 6) {
         fprintf(stderr, "usage: bench_fever <weight.json> <character> <seed_begin> <seed_end> <out.tsv> [max_moves=100] [snapshot.txt] [moves.jsonl]\n");
-        fprintf(stderr, "environment: BEAM_WIDTH, BEAM_DEPTH, BEAM_TRIGGER (chain length), BENCH_GOAL (chain length), QUEUE_VISIBLE\n");
+        fprintf(stderr, "environment: BEAM_WIDTH, BEAM_DEPTH, BEAM_TRIGGER (chain length), PANIC_COUNT, PANIC_CHAIN, PANIC_STEP, SHAVE_CHAIN, BENCH_GOAL (chain length), QUEUE_VISIBLE\n");
         fprintf(stderr, "<weight.json> is one flat weight set, e.g. the \"build\" object of config.json\n");
         return 1;
     }
@@ -73,6 +74,10 @@ int main(int argc, char** argv)
     configs.width = size_t(env("BEAM_WIDTH", i32(configs.width)));
     configs.depth = size_t(env("BEAM_DEPTH", i32(configs.depth)));
     configs.trigger = env("BEAM_TRIGGER", configs.trigger);
+    configs.panic_count = env("PANIC_COUNT", configs.panic_count);
+    configs.panic_chain = env("PANIC_CHAIN", configs.panic_chain);
+    configs.shave_chain = env("SHAVE_CHAIN", configs.shave_chain);
+    configs.panic_step = env("PANIC_STEP", configs.panic_step);
 
     i32 goal = env("BENCH_GOAL", 10);
     size_t visible = size_t(std::clamp(env("QUEUE_VISIBLE", 3), 1, 3));
@@ -171,6 +176,7 @@ int main(int argc, char** argv)
                 js["x"] = choice->placement.x;
                 js["r"] = std::string(1, fever::text::from_direction(choice->placement.r));
                 js["fire"] = choice->fire;
+                js["fire_moves"] = choice->fire_moves;
                 js["expected_chain"] = choice->chain;
                 js["chain"] = chain.count;
                 js["score"] = chain.score;

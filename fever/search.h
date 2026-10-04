@@ -18,8 +18,18 @@ struct Configs
 {
     size_t width = 250;
     size_t depth = 16;
-    i32 trigger = 13; // Chain length that ends the search early
+    i32 trigger = 14; // Chain length that ends the search early and that is fired
     bool stretch = true;
+    // Field count from which any chain within the visible pieces is fired rather than risking death,
+    // and the shortest chain worth firing that way
+    i32 panic_count = 70;
+    i32 panic_chain = 11;
+    // Cells per link by which that chain length slides: the fuller the field, the shorter the chain
+    // accepted, and below panic_count it rises by one link per step up to the trigger. 0 disables.
+    i32 panic_step = 0;
+    // When the search's own move would pop a shorter chain than this while the visible pieces
+    // trigger one at least this long, that chain is fired instead of shaving the field. 0 disables.
+    i32 shave_chain = 0;
     rule::Rule rules = rule::FEVER;
 };
 

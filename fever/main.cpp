@@ -10,7 +10,7 @@
 //
 //   request: { "rule": "fever", "character": "raffina", "dropset_index": 0, "solo": true,
 //              "self": { "field": [14 strings, 14th row first], "queue": ["2:RG", "2:BY", "L:RRG"] },
-//              "trigger": 13, "stretch": true, "beam_width": 250, "beam_depth": 16,
+//              "trigger": 14, "stretch": true, "beam_width": 250, "beam_depth": 16,
 //              "fire": false, "include_next": false }
 //   reply:   { "x": 2, "r": "U", "shape": "2", "chain": 0, "eval": 0, "fire": false, "solo": true }
 //   error:   { "error": "..." }
@@ -18,7 +18,9 @@
 // - "dropset_index" is the zero-based move of the character's cycle that queue[0] is. Every piece of
 //   the queue must have the shape the cycle gives, otherwise the request is refused.
 // - "queue" holds the visible pieces, see fever/text.h for their text form.
-// - "trigger" is a chain length. A chain in hand that long is fired.
+// - "trigger" is a chain length. A chain that long within the visible pieces is fired: "fire" is
+//   true and "fire_moves" is the number of pieces until it pops (1 when this placement pops it).
+//   "panic_count", "panic_chain", "panic_step" and "shave_chain" set the other firing rules, see fever/search.h.
 // - "fire": true asks for the longest chain the piece in hand triggers right away.
 // - "x" is the pivot's column for a pair and the left column of the 2x2 box for the other shapes.
 //   "r" is the clockwise turns as U/R/D/L. For a big puyo "r" is its color index (U red, R yellow,
@@ -91,6 +93,10 @@ json answer(const json& input, const beam::eval::Weight& w)
 
     configs.trigger = input.value("trigger", configs.trigger);
     configs.stretch = input.value("stretch", configs.stretch);
+    configs.panic_count = input.value("panic_count", configs.panic_count);
+    configs.panic_chain = input.value("panic_chain", configs.panic_chain);
+    configs.shave_chain = input.value("shave_chain", configs.shave_chain);
+    configs.panic_step = input.value("panic_step", configs.panic_step);
     configs.width = std::clamp(input.value("beam_width", configs.width), size_t(1), size_t(100000));
     configs.depth = std::clamp(input.value("beam_depth", configs.depth), queue.size(), size_t(64));
 
@@ -106,7 +112,8 @@ json answer(const json& input, const beam::eval::Weight& w)
                 .placement = now->placement,
                 .chain = now->chain.count,
                 .score = size_t(now->chain.score),
-                .fire = true
+                .fire = true,
+                .fire_moves = 1
             };
         }
     }
@@ -126,6 +133,10 @@ json answer(const json& input, const beam::eval::Weight& w)
     output["chain"] = choice->chain;
     output["eval"] = choice->score;
     output["fire"] = choice->fire;
+
+    if (choice->fire) {
+        output["fire_moves"] = choice->fire_moves;
+    }
     output["solo"] = true;
 
     if (queue[0].shape == piece::Shape::BIG) {
