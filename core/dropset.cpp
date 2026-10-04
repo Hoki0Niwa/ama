@@ -7,7 +7,7 @@ namespace
 // Keep in sync with data/fever/dropsets.json; test/test_fever_piece.py compares
 // the compiled table, its provenance and every slot of repeated cycles.
 constexpr Character TABLE[] = {
-    { "arle", "2222222222222222", "2222222222222222", Status::OFFICIAL },
+    { "arle", "2222222222222222", "2222222222222222", Status::STEAM },
     { "amitie", "222L2220222J2224", "2223222*22232224", Status::STEAM },
     { "ringo", "222L0222J0422L2L", "", Status::STEAM },
     { "hed", "22L22J202L22J220", "2232232*2322322*", Status::STEAM },
@@ -18,7 +18,7 @@ constexpr Character TABLE[] = {
     { "ciel", "22L2J202L202J224", "", Status::STEAM },
     { "penglai", "222L22022J220224", "222322*22322*224", Status::STEAM },
     { "rulue", "2224222022242220", "2224222*2224222*", Status::STEAM },
-    { "raffina", "22L220222J22L224", "22322*2223223224", Status::OFFICIAL },
+    { "raffina", "22L220222J22L224", "22322*2223223224", Status::STEAM },
     { "suketoudara", "22L22J202L22J220", "2232232*2322322*", Status::STEAM },
     { "ally", "2222L22220222224", "", Status::STEAM },
     { "ragnus", "2222L242J202L242", "", Status::STEAM },
