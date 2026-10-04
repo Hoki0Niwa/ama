@@ -213,6 +213,8 @@ struct Request
     // Beam search size. The defaults are the original constants; a smaller beam trades a little depth for speed.
     size_t beam_width = 250;
     size_t beam_depth = 16;
+    size_t beam_target = 0;                      // chain score to rank candidates by reaching; 0 ranks by expected score
+    bool beam_zoro = false;                      // sample same-color pairs into the future queues
     size_t attack_pairs = ai::QUEUE_VISIBLE;      // pairs the one-player attack search looks through
     bool reuse_search = false;
     size_t search_prefix = 0;                    // prefetch: the trailing guessed pair may change
@@ -252,6 +254,8 @@ Request request_from_json(const json& js)
     request.stretch = js.at("stretch").get<bool>();
     request.beam_width = js.value("beam_width", request.beam_width);
     request.beam_depth = js.value("beam_depth", request.beam_depth);
+    request.beam_target = js.value("beam_target", request.beam_target);
+    request.beam_zoro = js.value("beam_zoro", request.beam_zoro);
     request.attack_pairs = std::clamp(js.value("attack_pairs", request.attack_pairs), size_t(1), size_t(ai::QUEUE_VISIBLE));
     request.reuse_search = js.value("reuse_search", false);
     request.search_prefix = js.value("search_prefix", size_t(0));
@@ -340,7 +344,8 @@ public:
                 && count >= std::min(size_t(2), request.self.queue.size())
                 && std::equal(request.self.queue.begin(), request.self.queue.begin() + count, old.self.queue.begin())
                 && old.trigger == request.trigger && old.stretch == request.stretch
-                && old.beam_width == request.beam_width && old.beam_depth == request.beam_depth;
+                && old.beam_width == request.beam_width && old.beam_depth == request.beam_depth
+                && old.beam_target == request.beam_target && old.beam_zoro == request.beam_zoro;
         };
         search_reused = matches();
         build_search = "none";
@@ -356,7 +361,8 @@ public:
                     if (request.tactics_only) throw BuildRequired();
                     search::Thread thread;
                     thread.search(request.self.field, request.self.queue, configs, request.trigger,
-                                  request.stretch, request.beam_width, request.beam_depth);
+                                  request.stretch, request.beam_width, request.beam_depth,
+                                  request.beam_target, request.beam_zoro);
                     prepared = thread.get().value_or(search::Result());
                     std::fill(std::begin(prepared_types), std::end(prepared_types), true);
                     build_search = "beam";
@@ -457,6 +463,8 @@ public:
         beam::Configs beam_configs;
         beam_configs.width = request.beam_width;
         beam_configs.depth = request.beam_depth;
+        beam_configs.target = request.beam_target;
+        beam_configs.zoro = request.beam_zoro;
 
         auto build = beam::search_multi(
             request.self.field,

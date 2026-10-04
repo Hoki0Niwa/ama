@@ -56,6 +56,13 @@ class EngineProtocolTests(unittest.TestCase):
         self.assertEqual(reply['next_chain'], 1)
         self.assertGreaterEqual(reply['next_score'], 40)
 
+    def test_beam_target_and_zoro_options_still_place(self):
+        req = request()
+        req.update(beam_width=12, beam_depth=8, beam_target=60000, beam_zoro=True)
+        for reply in replies(req, dict(req, beam_zoro=False), dict(req, beam_target=0)):
+            self.assertIn(reply['r'], ('U', 'R', 'D', 'L'))
+            self.assertIn(reply['x'], range(6))
+
     def test_solo_fire_reply_matches_direct_attack(self):
         req = request()
         req['self'].update(field=['......'] * 11 + ['R.....'] * 3,
@@ -92,7 +99,7 @@ class EngineProtocolTests(unittest.TestCase):
     def test_cache_rejects_changed_input_and_search_settings(self):
         base = dict(request(), beam_width=12, beam_depth=3)
         base['self']['field'][-1] = 'R.....'
-        for key in ('field', 'row14', 'queue', 'beam_width', 'beam_depth', 'trigger', 'stretch'):
+        for key in ('field', 'row14', 'queue', 'beam_width', 'beam_depth', 'beam_target', 'beam_zoro', 'trigger', 'stretch'):
             with self.subTest(key=key):
                 changed = copy.deepcopy(base)
                 if key == 'field':
@@ -101,10 +108,10 @@ class EngineProtocolTests(unittest.TestCase):
                     changed['self']['field'][0] = '#.....'
                 elif key == 'queue':
                     changed['self']['queue'][1] = 'RR'
-                elif key == 'stretch':
-                    changed[key] = False
+                elif key in ('stretch', 'beam_zoro'):
+                    changed[key] = not base.get(key, False)
                 else:
-                    changed[key] += 1
+                    changed[key] = changed.get(key, 0) + 1
                 _, reply = replies(base, dict(changed, reuse_search=True))
                 self.assertFalse(reply['search_reused'])
 

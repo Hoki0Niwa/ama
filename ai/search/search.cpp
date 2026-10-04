@@ -11,7 +11,7 @@ Thread::Thread()
 
 // Starts the search thread
 // We search all the configuration weights provided
-bool Thread::search(Field field, cell::Queue queue, Configs configs, std::optional<i32> trigger, bool stretch, size_t beam_width, size_t beam_depth)
+bool Thread::search(Field field, cell::Queue queue, Configs configs, std::optional<i32> trigger, bool stretch, size_t beam_width, size_t beam_depth, size_t beam_target, bool beam_zoro)
 {
     if (this->thread != nullptr) {
         return false;
@@ -19,7 +19,7 @@ bool Thread::search(Field field, cell::Queue queue, Configs configs, std::option
 
     this->clear();
 
-    this->thread = new std::thread([&] (Field f, cell::Queue q, Configs w, std::optional<i32> t, bool s, size_t bw, size_t bd) {
+    this->thread = new std::thread([&] (Field f, cell::Queue q, Configs w, std::optional<i32> t, bool s, size_t bw, size_t bd, size_t bt, bool bz) {
         auto r = Result();
 
         if (q.size() < 2) {
@@ -30,6 +30,8 @@ bool Thread::search(Field field, cell::Queue queue, Configs configs, std::option
         auto beam_configs = beam::Configs();
         beam_configs.width = bw;
         beam_configs.depth = bd;
+        beam_configs.target = bt;
+        beam_configs.zoro = bz;
 
         if (t.has_value()) {
             beam_configs.trigger = t.value();
@@ -46,18 +48,7 @@ bool Thread::search(Field field, cell::Queue queue, Configs configs, std::option
                     r.build.candidates.begin(),
                     r.build.candidates.end(),
                     [&] (const beam::Candidate& a, const beam::Candidate& b) {
-                        if (beam_configs.stretch) {
-                            return a.score > b.score;
-                        }
-
-                        bool a_enough = a.score / beam::BRANCH >= beam_configs.trigger;
-                        bool b_enough = b.score / beam::BRANCH >= beam_configs.trigger;
-
-                        if (a_enough && b_enough) {
-                            return a.score < b.score;
-                        }
-
-                        return a.score > b.score;
+                        return beam::compare(a, b, beam_configs);
                     }
                 );
             }
@@ -74,7 +65,7 @@ bool Thread::search(Field field, cell::Queue queue, Configs configs, std::option
         r.ac = dfs::build::search(f, q2, w.ac);
 
         this->results = r;
-    }, field, queue, configs, trigger, stretch, beam_width, beam_depth);
+    }, field, queue, configs, trigger, stretch, beam_width, beam_depth, beam_target, beam_zoro);
 
     return true;
 };

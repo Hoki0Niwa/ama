@@ -41,28 +41,34 @@ void search_impl(
             }
 
             // Pops field
-            chain::Score chain;
+            auto result = Result {
+                .chain = chain::Score { 0, 0 },
+                .x = x,
+                .key = need,
+                .remain = Field()
+            };
+
             if (score) {
                 auto pop = plan.pop();
-                chain.count = pop.get_size();
-                if (chain.count > 1) chain = chain::get_score(pop);
+                result.chain.count = pop.get_size();
+
+                if (result.chain.count > 1) {
+                    // get_score consumes the masks, so the link sizes are read first
+                    for (i32 i = 0; i < pop.get_size(); ++i) {
+                        result.popped[i] = u8(pop[i].get_count());
+                    }
+
+                    result.chain = chain::get_score(pop);
+                }
             }
             else {
-                chain.count = plan.pop_count();
+                result.chain.count = plan.pop_count();
             }
 
             // Checks for callback
-            if (chain.count > 1) {
-
-                callback(Result {
-                    .chain = chain::Score {
-                        .count = chain.count,
-                        .score = chain.score
-                    },
-                    .x = x,
-                    .key = need,
-                    .remain = plan
-                });
+            if (result.chain.count > 1) {
+                result.remain = plan;
+                callback(result);
             }
         }
     );
@@ -150,4 +156,4 @@ std::pair<i8, i8> get_bound(u8 heights[6])
 
 };
 
-};
+};
