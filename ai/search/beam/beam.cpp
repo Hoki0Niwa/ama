@@ -176,6 +176,13 @@ Result search(
         }
     }
 
+    // Marks the candidates that reached the target chain score in this queue
+    if (configs.target > 0) {
+        for (auto& c : result.candidates) {
+            c.reach = (c.score >= configs.target) ? 1 : 0;
+        }
+    }
+
     return result;
 };
 
@@ -198,6 +205,9 @@ Result search(
 // The above 6 queues contain all types of puyo pairs without caring about the pairs' colors order or same-color pairs
 // We've tested queues with same-color pairs but the results were worse
 // We theorize that same-color pairs may make the AI overestimate its chains probability
+// Real Tsu queues do have a 1/4 chance of a same-color pair though, so `Configs::zoro` makes every 4th sampled pair
+// a same-color pair (the color cycles through the 4 colors of the queue's color order, so the 6 queues still differ)
+// It is off by default because of the result above
 //
 // 2. Transposition table
 // Instead of using std::unordered_map, we use a special transposition table
@@ -260,6 +270,12 @@ Result search(
 // This is the same as choosing the placement with the highest expected chain score
 // We can get the expected chain score by dividing the total chain by the thread count
 //
+// When `Configs::target` is set, the ranking aims for a chain score instead of the biggest expected one:
+// each thread also marks whether a placement's max chain reaches the target, and these marks are accumulated as well
+// (`Candidate::reach` is then the number of the queues that reach it)
+// Placements are ranked by `reach` first, so the most reliable way to reach the target wins, then by the rule above
+// Check `beam::compare`
+//
 // 4. Search constants
 // Instead of searching until we fill the field, we only search to depth 16 with the beam width of 250
 // Even searching only to depth 12 yield great results, so I don't see the appeal of searching deeper
@@ -278,7 +294,7 @@ Result search_multi(
 
     for (auto i = 0; i < beam::BRANCH; ++i) {
         auto q = queue;
-        auto qrng = beam::get_queue_random(i, configs.depth - queue.size());
+        auto qrng = beam::get_queue_random(i, configs.depth - queue.size(), configs.zoro);
 
         q.insert(q.end(), qrng.begin(), qrng.end());
 
@@ -311,6 +327,7 @@ Result search_multi(
                 for (auto& c2 : b.candidates) {
                     if (c1.placement == c2.placement) {
                         c1.score += c2.score;
+                        c1.reach += c2.reach;
                         break;
                     }
                 }
@@ -328,18 +345,7 @@ Result search_multi(
             result.candidates.begin(),
             result.candidates.end(),
             [&] (const beam::Candidate& a, const beam::Candidate& b) {
-                if (configs.stretch) {
-                    return a.score > b.score;
-                }
-
-                bool a_enough = a.score / beam::BRANCH >= configs.trigger;
-                bool b_enough = b.score / beam::BRANCH >= configs.trigger;
-
-                if (a_enough && b_enough) {
-                    return a.score < b.score;
-                }
-
-                return a.score > b.score;
+                return beam::compare(a, b, configs);
             }
         );
     }
@@ -348,7 +354,7 @@ Result search_multi(
 };
 
 // Gets future queues randomly (real 100% no clickbait)
-cell::Queue get_queue_random(i32 id, size_t count)
+cell::Queue get_queue_random(i32 id, size_t count, bool zoro)
 {
     cell::Queue result;
 
@@ -361,21 +367,27 @@ cell::Queue get_queue_random(i32 id, size_t count)
         { 2, 3, 0, 1 }
     };
 
+    // Pushes the next pair of the sampled part
+    auto push = [&] () {
+        auto n = result.size();
+
+        // Every 4th pair is a same-color pair
+        if (zoro && n % 4 == 3) {
+            auto c = cell::Type(bag[id][(n / 4) % 4]);
+            result.push_back(cell::Pair { c, c });
+            return;
+        }
+
+        result.push_back(cell::Pair {
+            cell::Type(bag[id][(n % 2) * 2]),
+            cell::Type(bag[id][(n % 2) * 2 + 1])
+        });
+    };
+
     while (result.size() < count)
     {
-        result.push_back(cell::Pair {
-            cell::Type(bag[id][0]),
-            cell::Type(bag[id][1])
-        });
-
-        result.push_back(cell::Pair {
-            cell::Type(bag[id][2]),
-            cell::Type(bag[id][3])
-        });
-
-        if (result.size() >= count) {
-            break;
-        }
+        push();
+        push();
     }
 
     return result;

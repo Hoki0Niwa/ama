@@ -40,7 +40,7 @@ private:
 public:
     Thread();
 public:
-    bool search(Field field, cell::Queue queue, Configs configs, std::optional<i32> trigger = {}, bool stretch = true, size_t beam_width = 250, size_t beam_depth = 16);
+    bool search(Field field, cell::Queue queue, Configs configs, std::optional<i32> trigger = {}, bool stretch = true, size_t beam_width = 250, size_t beam_depth = 16, size_t beam_target = 0, bool beam_zoro = false);
     std::optional<Result> get();
     void clear();
 };

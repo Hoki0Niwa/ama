@@ -59,6 +59,15 @@ void evaluate(node::Data& node, const Weight& w)
         q_score += link_2 * w.link_2;
         q_score += link_3 * w.link_3;
 
+        // Resources: puyos popped beyond 4 per link early in the chain are worth almost nothing in Tsu,
+        // while the same puyos spent on the tail (a longer chain, a multi-color or a large last pop)
+        // are worth a full link; the bonus is what the planned chain really scores above 4 per link
+        if (w.score != 0) {
+            i32 bonus = quiet.chain.score - eval::get_score_pure(quiet.chain.count);
+            i32 loss = eval::get_score_loss(quiet.popped, quiet.chain.count);
+            q_score += i32((i64(bonus - loss) * w.score) / 1000);
+        }
+
         // Updates the best q score and plan
         q = std::max(q, q_score);
     });
@@ -294,6 +303,44 @@ i32 get_waste_14(u8 row14)
     }
 
     return 6 - space;
+};
+
+// Returns the Tsu score of a chain popping exactly 4 puyos per link
+i32 get_score_pure(i32 count)
+{
+    i32 score = 0;
+
+    for (i32 i = 0; i < count && i < 19; ++i) {
+        score += 40 * i32(std::clamp(chain::POWER[i], 1U, 999U));
+    }
+
+    return score;
+};
+
+// Returns the opportunity cost of over-sized links
+// Every puyo popped beyond 4 per link could instead have been a quarter of one more link at the end
+// of the chain, worth 10 * POWER[count] points; what the puyo really earned where it is (about
+// 10 * POWER[i] for a 5th puyo in link i, far more for a multi-color last pop) is part of the chain's
+// score and is credited through the bonus, so a puyo spent on the tail nets about zero and a puyo
+// spent on an early link nets almost the whole cost
+i32 get_score_loss(const u8 popped[19], i32 count)
+{
+    if (count < 2) {
+        return 0;
+    }
+
+    i32 tail = 10 * i32(chain::POWER[std::min(count, 18)]);
+    i32 loss = 0;
+
+    for (i32 i = 1; i < count && i < 19; ++i) {
+        i32 excess = i32(popped[i]) - 4;
+
+        if (excess > 0) {
+            loss += excess * tail;
+        }
+    }
+
+    return loss;
 };
 
 };

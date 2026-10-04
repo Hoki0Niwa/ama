@@ -14,6 +14,8 @@ struct Result
     i32 x = 0;
     i32 key = 0;
     Field remain = Field();
+    // Puyos popped by each link of the chain, in order
+    u8 popped[19] = { 0 };
 };
 
 void search(
@@ -34,4 +36,4 @@ std::pair<i8, i8> get_bound(u8 heights[6]);
 
 };
 
-};
+};

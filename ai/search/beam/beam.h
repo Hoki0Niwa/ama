@@ -15,12 +15,19 @@ struct Configs
     size_t depth = 16;
     size_t trigger = 130000;
     bool stretch = true;
+    // Chain score the search is aiming for: when set, candidates are ranked first by how many sampled
+    // queues reach it and only then by their total chain score; 0 keeps the expected-score ranking
+    size_t target = 0;
+    // Mixes same-color pairs into the sampled queues so the build keeps room for them
+    bool zoro = false;
 };
 
 struct Candidate
 {
     move::Placement placement = move::Placement();
     size_t score = 0;
+    // Number of sampled queues in which this placement reached Configs::target
+    size_t reach = 0;
 };
 
 struct Result
@@ -57,11 +64,33 @@ Result search_multi(
     Configs configs = Configs()
 );
 
-cell::Queue get_queue_random(i32 id, size_t count);
+cell::Queue get_queue_random(i32 id, size_t count, bool zoro = false);
 
 inline bool operator < (const Candidate& a, const Candidate& b)
 {
     return a.score < b.score;
+};
+
+// Ranking of candidates whose scores are accumulated over the sampled queues (true when `a` ranks before `b`)
+// With a target, the candidates reaching it in more queues come first, then the usual rule breaks ties
+inline bool compare(const Candidate& a, const Candidate& b, const Configs& configs)
+{
+    if (configs.target > 0 && a.reach != b.reach) {
+        return a.reach > b.reach;
+    }
+
+    if (configs.stretch) {
+        return a.score > b.score;
+    }
+
+    bool a_enough = a.score / beam::BRANCH >= configs.trigger;
+    bool b_enough = b.score / beam::BRANCH >= configs.trigger;
+
+    if (a_enough && b_enough) {
+        return a.score < b.score;
+    }
+
+    return a.score > b.score;
 };
 
 };

@@ -9,9 +9,15 @@
 // Appends one line per seed to a TSV file:
 // seed, result (fired / dead / nomove / timeout), score of the first chain >= 78000 (0 if none),
 // biggest chain score, biggest chain length, moves played, frames spent, wall time in ms,
-// longest search of the game in ms
+// longest search of the game in ms,
+// then, for the chain that ended the game (all 0 when the game did not fire):
+// count_fire (puyos in the field just before it popped, triggering pair included),
+// popped (puyos it removed), leftover (count_fire - popped), excess (popped - 4 * links),
+// max_link (most puyos removed by a single link), wasted (puyos popped by the chains fired before it)
 // The AI sees ai::QUEUE_VISIBLE pairs and plays through the fire policy like the real client
-// BEAM_WIDTH, BEAM_DEPTH and BEAM_TRIGGER in the environment override the beam search configuration,
+// BEAM_WIDTH, BEAM_DEPTH, BEAM_TRIGGER, BEAM_TARGET and BEAM_ZORO (0/1) in the environment override the beam
+// search configuration, FIRE_GUARD (0/1), FIRE_GUARD_FIRE (0/1), FIRE_GUARD_COUNT, FIRE_GUARD_SCORE,
+// FIRE_GUARD_KEEP and FIRE_PANIC_COUNT the fire policy,
 // QUEUE_VISIBLE (2 or 3) the number of pairs shown to the AI
 // Optionally appends one line per seed (seed, result, score, puyop.com URL that replays every move played)
 // to a URL file
@@ -45,7 +51,11 @@ int main(int argc, char** argv)
 {
     if (argc < 5) {
         fprintf(stderr, "usage: bench <weight.json> <seed_begin> <seed_end> <out.tsv> [max_moves=100] [snapshot.txt] [urls.txt]\n");
-        fprintf(stderr, "environment: BEAM_WIDTH, BEAM_DEPTH, BEAM_TRIGGER override the beam search configuration, QUEUE_VISIBLE the pairs shown (2 or 3)\n");
+        fprintf(stderr, "environment: BEAM_WIDTH, BEAM_DEPTH, BEAM_TRIGGER, BEAM_TARGET, BEAM_ZORO (0/1) override the beam search configuration, "
+                        "FIRE_GUARD (0/1), FIRE_GUARD_FIRE (0/1), FIRE_GUARD_COUNT, FIRE_GUARD_SCORE, FIRE_GUARD_KEEP, FIRE_PANIC_COUNT the fire policy, "
+                        "QUEUE_VISIBLE the pairs shown (2 or 3)\n");
+        fprintf(stderr, "tsv columns: seed result score max_score max_count moves frames ms ms_max "
+                        "count_fire popped leftover excess max_link wasted\n");
         fprintf(stderr, "<weight.json> is one flat weight set, e.g. the \"build\" object of config.json\n");
         return 1;
     }
@@ -85,6 +95,41 @@ int main(int argc, char** argv)
         configs.trigger = size_t(atoi(getenv("BEAM_TRIGGER")));
     }
 
+    if (getenv("BEAM_TARGET") != nullptr) {
+        configs.target = size_t(atoi(getenv("BEAM_TARGET")));
+    }
+
+    if (getenv("BEAM_ZORO") != nullptr) {
+        configs.zoro = atoi(getenv("BEAM_ZORO")) != 0;
+    }
+
+    // Fire policy, overridable from the environment for experiments
+    auto policy = ai::fire::Policy();
+
+    if (getenv("FIRE_GUARD") != nullptr) {
+        policy.guard = atoi(getenv("FIRE_GUARD")) != 0;
+    }
+
+    if (getenv("FIRE_GUARD_FIRE") != nullptr) {
+        policy.guard_fire = atoi(getenv("FIRE_GUARD_FIRE")) != 0;
+    }
+
+    if (getenv("FIRE_GUARD_COUNT") != nullptr) {
+        policy.guard_count = i32(atoi(getenv("FIRE_GUARD_COUNT")));
+    }
+
+    if (getenv("FIRE_GUARD_SCORE") != nullptr) {
+        policy.guard_score = i32(atoi(getenv("FIRE_GUARD_SCORE")));
+    }
+
+    if (getenv("FIRE_GUARD_KEEP") != nullptr) {
+        policy.guard_keep = i32(atoi(getenv("FIRE_GUARD_KEEP")));
+    }
+
+    if (getenv("FIRE_PANIC_COUNT") != nullptr) {
+        policy.panic_count = i32(atoi(getenv("FIRE_PANIC_COUNT")));
+    }
+
     // Pairs shown to the AI, to compare against fewer visible pairs
     size_t visible = ai::QUEUE_VISIBLE;
 
@@ -120,6 +165,13 @@ int main(int argc, char** argv)
         const char* result = "timeout";
         i64 ms_max = 0;
 
+        // Chain efficiency of the chain that ended the game
+        i32 count_fire = 0;
+        i32 popped = 0;
+        i32 max_link = 0;
+        i32 wasted = 0;
+        i32 links = 0;
+
         // Field just before the last pop
         Field snap = field;
 
@@ -147,7 +199,7 @@ int main(int argc, char** argv)
             auto mv = ai.candidates.front();
 
             // The fire policy may take over when the field is nearly full
-            auto decision = ai::fire::decide(field, q, ai, i32(configs.trigger));
+            auto decision = ai::fire::decide(field, q, ai, i32(configs.trigger), policy);
 
             if (decision.has_value()) {
                 mv.placement = decision->placement;
@@ -164,6 +216,17 @@ int main(int argc, char** argv)
             snap = field;
 
             auto mask = field.pop();
+
+            // Puyos popped by this chain, before get_score consumes the mask
+            i32 chain_popped = 0;
+            i32 chain_max_link = 0;
+
+            for (i32 k = 0; k < mask.get_size(); ++k) {
+                i32 n = i32(mask[k].get_count());
+                chain_popped += n;
+                chain_max_link = std::max(chain_max_link, n);
+            }
+
             auto chain = chain::get_score(mask);
             moves += 1;
 
@@ -180,16 +243,23 @@ int main(int argc, char** argv)
             if (chain.score >= 78000) {
                 score = chain.score;
                 result = "fired";
+                count_fire = i32(snap.get_count());
+                popped = chain_popped;
+                links = chain.count;
+                max_link = chain_max_link;
                 break;
             }
 
+            wasted += chain_popped;
             frames += chain.count * 2;
         }
 
         auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t0).count();
 
         out << seed << '\t' << result << '\t' << score << '\t' << max_score << '\t' << max_count
-            << '\t' << moves << '\t' << frames << '\t' << ms << '\t' << ms_max << '\n';
+            << '\t' << moves << '\t' << frames << '\t' << ms << '\t' << ms_max
+            << '\t' << count_fire << '\t' << popped << '\t' << (count_fire - popped)
+            << '\t' << (popped - 4 * links) << '\t' << max_link << '\t' << (links > 0 ? wasted : 0) << '\n';
         out.flush();
 
         if (urls.is_open()) {
