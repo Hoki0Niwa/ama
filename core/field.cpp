@@ -1,14 +1,5 @@
 #include "field.h"
 
-Field::Field()
-{
-    for (u8 cell = 0; cell < cell::COUNT; ++cell) {
-        this->data[cell] = FieldBit();
-    }
-
-    this->row14 = 0;
-};
-
 bool Field::operator == (const Field& other)
 {
     for (u8 cell = 0; cell < cell::COUNT; ++cell) {
@@ -265,28 +256,42 @@ void Field::drop_garbage(i32 count)
 };
 
 // Pops the field and returns the popped masks
-avec<Field, 19> Field::pop()
+namespace
 {
-    avec<Field, 19> result = avec<Field, 19>();
 
+// Both public pop paths share the exact same chain resolution and garbage rules.
+template <typename Record>
+i32 pop_chain(Field& field, Record record)
+{
+    i32 count = 0;
     for (i32 index = 0; index < 19; ++index) {
-        auto pop = this->get_mask_pop();
+        auto pop = field.get_mask_pop();
         auto mask_pop = pop.get_mask();
-
         if (_mm_testz_si128(mask_pop.data, mask_pop.data)) {
             break;
         }
-
-        result.add(pop);
-
-        mask_pop = mask_pop | (mask_pop.get_expand() & this->data[static_cast<u8>(cell::Type::GARBAGE)]);
-        
+        record(pop);
+        ++count;
+        mask_pop = mask_pop | (mask_pop.get_expand() & field.data[static_cast<u8>(cell::Type::GARBAGE)]);
         for (u8 cell = 0; cell < cell::COUNT; ++cell) {
-            this->data[cell].pop(mask_pop);
+            field.data[cell].pop(mask_pop);
         }
     }
+    return count;
+}
 
+}
+
+avec<Field, 19> Field::pop()
+{
+    avec<Field, 19> result;
+    pop_chain(*this, [&](const Field& mask) { result.add(mask); });
     return result;
+};
+
+i32 Field::pop_count()
+{
+    return pop_chain(*this, [](const Field&) {});
 };
 
 void Field::from(const char c[13][7])
