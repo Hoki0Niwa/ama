@@ -40,6 +40,8 @@ The original request/reply fields are still supported. New request fields:
 | Field | Default | Meaning |
 | --- | --- | --- |
 | `beam_width`, `beam_depth` | 250, 16 | Construction beam size |
+| `beam_target` | 0 | Chain score to aim for: candidates are ranked by how many of the sampled queues reach it, then by total chain score; 0 keeps the expected-score ranking |
+| `beam_zoro` | false | Make every 4th pair of the sampled future queues a same-color pair |
 | `include_path` | false | Spawn route and explicit reachability |
 | `include_next` | false | Field, score, chain length and all-clear after the placement |
 | `solo` | false | Use construction/attack search without versus tactical policy |

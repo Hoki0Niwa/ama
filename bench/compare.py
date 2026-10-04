@@ -23,9 +23,15 @@ def load_tsv(path):
     games = {}
     with open(path) as f:
         for line in f:
-            p = line.rstrip('\n').split('\t')
+            p = line.rstrip('\r\n').split('\t')
+            if len(p) < 9:
+                continue
+            # Old files have 9 columns, new ones 15: count_fire popped leftover excess max_link wasted
+            p += ['0'] * (15 - len(p))
             games[int(p[0])] = dict(result=p[1], score=int(p[2]), best=int(p[3]), best_chain=int(p[4]),
-                                    moves=int(p[5]), frames=int(p[6]), ms=int(p[7]), ms_max=int(p[8]))
+                                    moves=int(p[5]), frames=int(p[6]), ms=int(p[7]), ms_max=int(p[8]),
+                                    count_fire=int(p[9]), popped=int(p[10]), leftover=int(p[11]),
+                                    excess=int(p[12]), max_link=int(p[13]), wasted=int(p[14]))
     return games
 
 
@@ -56,6 +62,16 @@ def summary(name, games):
               f'max {max(g["score"] for g in fired):,}')
         print(f'  fired moves: mean {statistics.mean(g["moves"] for g in fired):.1f}  '
               f'frames: mean {statistics.mean(g["frames"] for g in fired):.0f}')
+        # Chain efficiency (needs the 15-column format, 0 in older files)
+        per_link = [g['popped'] / g['best_chain'] for g in fired if g['best_chain'] > 0]
+        print(f'  puyos at fire: mean {statistics.mean(g["count_fire"] for g in fired):.1f}  '
+              f'popped: mean {statistics.mean(g["popped"] for g in fired):.1f}  '
+              f'leftover: mean {statistics.mean(g["leftover"] for g in fired):.1f}  '
+              f'excess: mean {statistics.mean(g["excess"] for g in fired):.1f}')
+        print(f'  popped per link: mean {statistics.mean(per_link) if per_link else 0:.2f}  '
+              f'wasted before fire: mean {statistics.mean(g["wasted"] for g in fired):.1f}')
+        print(f'  score >= 130000: {sum(g["score"] >= 130000 for g in fired)}  '
+              f'>= 150000: {sum(g["score"] >= 150000 for g in fired)}')
     print(f'  score per game (0 when not fired): mean {statistics.mean(g["score"] for g in games.values()):,.0f}')
     print(f'  longest search: {max(g["ms_max"] for g in games.values())} ms, '
           f'mean game time {statistics.mean(g["ms"] for g in games.values()) / 1000:.1f} s')
