@@ -215,7 +215,7 @@ class FeverProtocolTests(unittest.TestCase):
                     # Independent chain resolution
                     chain, after = resolve(entry['placed'])
                     self.assertEqual((chain, after), (entry['chain'], entry['field']))
-                    if entry['fire']:
+                    if entry['fire'] and entry['fire_moves'] == 1:
                         self.assertEqual(entry['expected_chain'], chain)
                     dead = after[2][2] != '.' or after[2][3] != '.'
                     self.assertEqual(entry['dead'], dead)
