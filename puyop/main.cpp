@@ -60,8 +60,10 @@ int main(int argc, char** argv)
         }
 
         vector<cell::Pair> tqueue;
-        tqueue.push_back(queue[(i + 0) % 128]);
-        tqueue.push_back(queue[(i + 1) % 128]);
+
+        for (size_t k = 0; k < ai::QUEUE_VISIBLE; ++k) {
+            tqueue.push_back(queue[(i + k) % 128]);
+        }
 
         auto time_start = std::chrono::high_resolution_clock::now();
         auto ai_result = beam::search_multi(field, tqueue, w);
@@ -74,6 +76,12 @@ int main(int argc, char** argv)
         }
 
         auto mv = ai_result.candidates[0];
+
+        auto decision = ai::fire::decide(field, tqueue, ai_result, i32(beam::Configs().trigger));
+
+        if (decision.has_value()) {
+            mv.placement = decision->placement;
+        }
 
         field.drop_pair(mv.placement.x, mv.placement.r, tqueue[0]);
         auto mask = field.pop();
