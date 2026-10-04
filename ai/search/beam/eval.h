@@ -34,6 +34,10 @@ struct Weight
 
     i32 tear = 0;
     i32 waste = 0;
+
+    // Scales the Tsu score lost by over-sized links and gained by multi-color/large pops of the
+    // planned chain, in eval points per 1,000 score points; zero keeps the chain-count-only behavior
+    i32 score = 0;
 };
 
 inline void to_json(json& j, const Weight& w)
@@ -53,7 +57,8 @@ inline void to_json(json& j, const Weight& w)
         {"nuisance", w.nuisance},
         {"tear", w.tear},
         {"waste", w.waste},
-        {"form", w.form}
+        {"form", w.form},
+        {"score", w.score}
     };
 }
 
@@ -74,6 +79,7 @@ inline void from_json(const json& j, Weight& w)
     j.at("tear").get_to(w.tear);
     j.at("waste").get_to(w.waste);
     w.form = j.value("form", 0); // Legacy configs deliberately default to off.
+    w.score = j.value("score", 0);
 }
 
 
@@ -97,6 +103,14 @@ std::pair<i32, i32> get_link_23(Field& field);
 
 i32 get_waste_14(u8 row14);
 
-};
+// Tsu score of a chain of `count` links popping exactly 4 puyos each
+i32 get_score_pure(i32 count);
+
+// Opportunity cost of the puyos a chain pops beyond 4 per link: what they would score as one more
+// link at the end of the chain (the first link is the trigger and is never charged: the pair that
+// fires usually lands its second puyo there)
+i32 get_score_loss(const u8 popped[19], i32 count);
 
 };
+
+};
