@@ -9,7 +9,9 @@ namespace dropset
 
 constexpr usize PERIOD = 16;
 
-enum class Status : u8 { OFFICIAL, PLAYER, COUNTS_ONLY, UNKNOWN };
+// STEAM: all 16 moves read from the Steam build, on the character-select screen
+// or, for the two hidden characters, from the NEXT window during play.
+enum class Status : u8 { OFFICIAL, STEAM, PLAYER, COUNTS_ONLY, UNKNOWN };
 enum class Drop : u8 { PAIR, TRIPLE_VERTICAL, TRIPLE_HORIZONTAL, TRIPLE_UNKNOWN, QUAD, BIG };
 
 struct Character
@@ -51,6 +53,7 @@ constexpr std::string_view status_name(Status status)
 {
     switch (status) {
     case Status::OFFICIAL: return "official";
+    case Status::STEAM: return "steam";
     case Status::PLAYER: return "player";
     case Status::COUNTS_ONLY: return "counts_only";
     case Status::UNKNOWN: return "unknown";
