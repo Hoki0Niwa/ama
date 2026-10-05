@@ -1,0 +1,108 @@
+{
+  "date": "2026-10-05",
+  "head": "be7ea6fb3ebac3dc558ad08eeae205bae6c06e23",
+  "evaluation": {
+    "bump": -100,
+    "chain": 1500,
+    "chi": 200,
+    "form": 0,
+    "hill": 0,
+    "key": -200,
+    "link_2": 150,
+    "link_3": 250,
+    "nuisance": -250,
+    "score": 400,
+    "shape": 0,
+    "side": 0,
+    "tear": 0,
+    "waste": -400,
+    "waste_14": -50,
+    "well": -100,
+    "y": 289
+  },
+  "sha256": {
+    "config.json": "19162494fff80151011369514c84d326e6b51a99a5d282b1d76510571fb4324b",
+    "build.ps1": "8b6c6807363b95e8256c775e094d6384570a0ba60a740bd689604473d30920f5",
+    "fever/main.cpp": "f14951acd31fd9563a716eb0326b686f32f76e863dcb1d76e7f30d10a1e349ed",
+    "fever/search.cpp": "5345f39b48a400c79d9e21ebe2b83e15e1db22de307dd80efb812d8ab1a0219c",
+    "fever/search.h": "80dbae37d5165d5c8322cc6d0350044de39bf49e5b0adfd835d57dd8aad06df0",
+    "fever/fire.cpp": "516488202600ff4a1ca3f67e3fb0601cd4d05fc372e265ab58e4f863bd611867",
+    "fever/fire.h": "6165a29e6201a37842d382ed84001f1b40804824c66eed5dd74ec7608cdb779b",
+    "core/piece_move.cpp": "8d25e255cdd5272b72cb744731a3a57a35dfa9d11d4799f8b49ce69494d007d6",
+    "core/rule.h": "574a2c343804ef185f028573f1e41fc7d9249c81b00aada7403a4dd04958942a",
+    "bench_fever/main.cpp": "3716e9b69708765a276bc9f8dd47247338fdbebeb96ac01557374ae30ed563d6",
+    "bin/fever/fever.exe": "9ca69c255ae83dde5d2ed0e3a78843bbfe054e9a427f07694c0facc8658dff25",
+    "bin/t8-t13/bench_fever.exe": "6c482e0e597548ad4a0c24e32ccd99b794bd3836283179ee51782cc9d1a14d08",
+    "bin/fever_battle/fever_battle.exe": "86ecf14fa1322f7d5f6b54c69d3a4528284bff90e9374190f650f0c9ee0d1c6d",
+    "bin/bench_fever/bench_fever.exe": "47803173bb641979606348366a5baa40d0defcef2047e49c8a822ede89086642",
+    "data/fever/battle_policy.json": "6fd4695421248f7a5f974c89de5a2762fcc4cdd034c957893be9d1d544d4dfac"
+  },
+  "conditions": {
+    "width": 250,
+    "depth": 16,
+    "trigger": 15,
+    "panic_count": 70,
+    "panic_chain": 13,
+    "panic_step": 2,
+    "patience": 46,
+    "patience_step": 3,
+    "plain_pairs": true,
+    "margin": 1,
+    "visible": 3,
+    "goal": 10,
+    "moves": 100
+  },
+  "game_build": "15209927 (existing bridge record, not observed today)",
+  "bridge_source_hashes": {
+    "fever_play.py": "868c2dec917003478525bfccc066d061dc4fbc047edeae21b04bf480178020d9",
+    "fever_memory.py": "0ad78df4c4407ae4329372d9ed172b4508261a0ebaa3589813ba1c02966ea2c2",
+    "fever_route.py": "632228f17d62840e10bef677432431cddcfcce71c2fb3dc619e87255df93f4d7"
+  },
+  "live_acceptance": "pending; user away, game unavailable",
+  "config_acceptance": "offline baseline recorded; live acceptance pending",
+  "benchmarks": {
+    "raffina_seed_range": [
+      3001,
+      3100
+    ],
+    "raffina": {
+      "samples": 100,
+      "results": {
+        "fired": 100
+      },
+      "mean_chain": 14.09,
+      "min_chain": 10,
+      "max_chain": 16,
+      "chain_13_or_more_percent": 94.0,
+      "chain_14_or_more_percent": 77.0,
+      "chain_15_or_more_percent": 38.0,
+      "mean_moves": 41.48,
+      "per_game_peak_search_ms_p95": 532,
+      "peak_search_ms_max": 581
+    },
+    "others_seed_range": [
+      3001,
+      3002
+    ],
+    "other_characters": {
+      "samples": 50,
+      "results": {
+        "fired": 50
+      },
+      "mean_chain": 13.74,
+      "min_chain": 11,
+      "max_chain": 15,
+      "chain_13_or_more_percent": 86.0,
+      "chain_14_or_more_percent": 64.0,
+      "chain_15_or_more_percent": 28.0,
+      "mean_moves": 40.1,
+      "per_game_peak_search_ms_p95": 509,
+      "peak_search_ms_max": 571
+    },
+    "samples_per_other_character": 2,
+    "color_model": "prototype_splitmix4",
+    "score_model": "Tsu (chain counts are acceptance metric)",
+    "timing_note": "two benchmark processes ran concurrently; wall-time peaks are not isolated performance measurements"
+  },
+  "excluded_run": "bin/t8-t13/acceptance-raffina.tsv used goal=2 and was interrupted; excluded from acceptance"
+}

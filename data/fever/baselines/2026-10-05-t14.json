@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-05",
+  "status": "T14_engine_prototype_not_live_acceptance",
+  "request": "User reports input-stop fixed and requests T14 before remaining normal-battle acceptance; research Namoko website.",
+  "tests": {
+    "fever_mode": 26,
+    "fever_mode_character_cycle_requests": 416,
+    "normal_battle_new_native": 23,
+    "fever_protocol": 7,
+    "normal_forecast": 15,
+    "tsu_protocol": 8
+  },
+  "tsu_bench": {
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "width": 250,
+    "depth": 16,
+    "max_moves": 100,
+    "comparison": "TSV columns except wall times, board snapshots, and replay URLs",
+    "source": "bin/t8-t13/tsu-regression.*",
+    "matches": true
+  },
+  "reference_geometry": {
+    "samples": 250,
+    "solved": 248,
+    "not_random_or_live_success": true
+  },
+  "sources": {
+    "fever_battle/model.py": "962621885b231e1525bbad4030fdc32329f02349f952b6448f99b7e717a05462",
+    "fever_battle/main.cpp": "244017ad487fea002b94c86cfecc476cc1cf990b74cacfbe743b7d05fe53f83d",
+    "fever_battle/search.h": "0fe33a22a67dffa8d86997aff969db448d43dc7cdd7f7bf51c6eda2e1152732c",
+    "fever_battle/replay.py": "0306984f25963a70161ffdb788507aabfad0528dd67faa11bc19caf00ec0d59a",
+    "fever_battle/mode.py": "510ee0c576edb505a2695e19267c3b9fe4f6b0102e1451398d86b97d84eb6f1a",
+    "fever_battle/mode_engine.py": "4cdd0d55ed323f822fedd1146e39b72ecee0783a2a6886a427a8695d14a41761",
+    "fever_battle/mode_tactics.py": "324785724044e365be47c2cc462d60f2227b93988bcff32fd2c004b314d885fa",
+    "fever_battle/seed_search.cpp": "5ff632589d57b09b721299d689fe18179d10531ef0db66fbb055bed97dcc94d3",
+    "fever_battle/seed_solver.py": "4c135dcbfc186c5e742957bc2fb634fdf74ea791db4f9168199040031bb42c99",
+    "fever_battle/reference_seeds.py": "0b7e8a69fab472e77d6632918cd7e3f7c0ee19001d642708cc321903c0ad6cf8",
+    "fever_battle/bench_seed.py": "24aa26466fda1bbee1d9c225ab5da6120ced05a0d9b9bca7f32292ab51b90b6a",
+    "test/test_fever_mode.py": "215cd38527aa7a247b15b4946e465d6ad7da1b577e0b271a2cf46144e0353009",
+    "data/fever/scoring.json": "8f5b2aba4df9ff5b8afc46e3ed4dc5d71ead3c64c364a0933a4564a29978a98b",
+    "data/fever/mode_rules.json": "e4615a809e2dbc5c85559f3aa7a1e0a195a9525036c8ba2dec66e2f7f698512f",
+    "data/fever/seeds/namoko-reference.json": "19c07711ae8abf7d20a27a7b72e4acd93e647562e1ca7ab5a613d301e5459e00",
+    "bin/t14/fever_battle.exe": "fe12ab44f2dc52eab7d1abca81352656709428672906911b313de95894881b39"
+  },
+  "limitations": [
+    "No bridge changes or new live match.",
+    "Fever timing uses normal-board geometry reference, not Fever calibration.",
+    "Seed search does not schedule unknown incoming attacks.",
+    "Real seed and natural queue success tests remain pending."
+  ]
+}

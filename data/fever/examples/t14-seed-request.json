@@ -1,0 +1,130 @@
+{
+  "protocol_version": 3,
+  "rule": "fever_battle",
+  "match_id": "mode-test",
+  "frame": 0,
+  "observation": {
+    "frame_before": 0,
+    "frame_after": 0,
+    "match_status": "running"
+  },
+  "target_point": 120,
+  "gauge_gain_on_offset": 1,
+  "clock_policy": {
+    "count_chain_frames": true
+  },
+  "self": {
+    "character": "raffina",
+    "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      ".....R",
+      ".....R",
+      ".....B",
+      ".....B",
+      "...BRR",
+      "..YYBB",
+      "..YBRR"
+    ],
+    "mode": "fever",
+    "gauge": 7,
+    "observed_frame": 0,
+    "phase": "controllable",
+    "moves_since_chain": 0,
+    "dropset_index": 0,
+    "piece_id": 0,
+    "queue": [
+      "2:RY"
+    ],
+    "confirmed": 0,
+    "unconfirmed": 0,
+    "remainder": 0,
+    "garbage_phase": 0,
+    "mode_generation": 1,
+    "seed_id": 1,
+    "prepared_frames": 900,
+    "remaining_frames": 900,
+    "clock_running": true,
+    "seed_base": 3,
+    "seed_chain": 3,
+    "stored_field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
+    ],
+    "normal_confirmed": 0,
+    "normal_unconfirmed": 0,
+    "fever_confirmed": 0,
+    "fever_unconfirmed": 0
+  },
+  "enemy": {
+    "character": "raffina",
+    "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
+    ],
+    "mode": "normal",
+    "gauge": 0,
+    "observed_frame": 0,
+    "phase": "controllable",
+    "moves_since_chain": 0,
+    "dropset_index": 0,
+    "piece_id": 0,
+    "queue": [
+      "2:RY"
+    ],
+    "confirmed": 0,
+    "unconfirmed": 0,
+    "remainder": 0,
+    "garbage_phase": 0,
+    "mode_generation": 0,
+    "seed_id": 1,
+    "prepared_frames": 900,
+    "remaining_frames": 0,
+    "clock_running": false,
+    "seed_base": 3,
+    "seed_chain": 3,
+    "stored_field": null,
+    "normal_confirmed": 0,
+    "normal_unconfirmed": 0,
+    "fever_confirmed": 0,
+    "fever_unconfirmed": 0
+  },
+  "seed_options": {
+    "budget_ms": 50,
+    "max_nodes": 8000,
+    "strategy": "quick"
+  },
+  "solo_options": {
+    "beam_width": 10,
+    "beam_depth": 3
+  }
+}

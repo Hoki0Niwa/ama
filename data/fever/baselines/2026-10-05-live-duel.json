@@ -1,0 +1,148 @@
+{
+  "date": "2026-10-05",
+  "purpose": "Fever two-AI live calibration entry, not full T13 acceptance",
+  "characters": [
+    "rafisol",
+    "ally"
+  ],
+  "user_confirmed_setting": {
+    "fever_count_both": 0
+  },
+  "game_executable_sha256": "2a3540514327f6b6ece4c2b11e000d626dd211dd977fa69524a4789afcd4e9c7",
+  "game_build_profile": 15209927,
+  "active_entry": "fever-duel",
+  "engine": "bin/fever/fever.exe",
+  "protocol": "solo fever, no protocol-2 battle adapter",
+  "future_color_table_read": false,
+  "controller_assignment_verified": {
+    "xinput_ports": [
+      0,
+      1
+    ],
+    "seats": [
+      1,
+      2
+    ],
+    "pad_operate_type_rva": "0x2ad2c0"
+  },
+  "bridge_sha256": {
+    "fever_duel.py": "4e074ea4ea5b8c55a82066e1dfb1bf5a0fb6810498c3f96eeaea3eebae9eb2e2",
+    "fever_battle_probe.py": "d28f854e6a69fa67922ec7e19b77c5f2671d38067b8b044f0db0b6c82d741066",
+    "control.py": "419829bdb43d507e7bcfcbe42930fe6da53305a0ae622cf790e13e83a21f1366",
+    "settings.py": "963c38acc26059dd36bbe212a3982878eb1401c7a4e4cda338003ef3f1db9f2e",
+    "launcher.py": "fe911a7d20ebd20474f2f25a2b523ef85fca0535cdbe71551117bb175a713bea",
+    "run-input-session.ps1": "4de4474b3e89dc23c71f80d479606513429f3f0a440ae37603625f0199d94bd2",
+    "start-input.ps1": "d52d05bbaf0dd9bf6a1a1f7df37ebbb3a71716544c7cf74db2d5a7f4963f9ae9",
+    "tests/test_fever_duel.py": "2790acc99e6aed16314d93a6c759a495b07ff7faef64e896a6769e7c40dc2a70"
+  },
+  "bridge_tests": {
+    "run": 635,
+    "skipped": 1,
+    "result": "OK"
+  },
+  "logs": [
+    {
+      "path": "bin\\t8-t13\\duel-session-initial.log",
+      "sha256": "e62321fc212a04c309e1c4d9163e7fdb2a05359e65003c87c7de1c85d28bbdc6",
+      "sides": [
+        {
+          "ai": 1,
+          "reported_moves": 34,
+          "steering_on_target_true": 32,
+          "steering_on_target_false": 2,
+          "note": "steering flags, not independently verified placement accuracy; false includes interruptions"
+        },
+        {
+          "ai": 2,
+          "reported_moves": 33,
+          "steering_on_target_true": 32,
+          "steering_on_target_false": 1,
+          "note": "steering flags, not independently verified placement accuracy; false includes interruptions"
+        }
+      ],
+      "source_path": "C:\\Users\\ho_ki\\git\\ama-memory-bridge\\observations\\session-logs\\input-session-20261005-122037.log"
+    },
+    {
+      "path": "bin\\t8-t13\\duel-session-updated.log",
+      "sha256": "4b6f65d0e107d60c1b5730876997fdd6c9c3269d87517367efa2dba881414932",
+      "sides": [
+        {
+          "ai": 1,
+          "reported_moves": 64,
+          "steering_on_target_true": 64,
+          "steering_on_target_false": 0,
+          "note": "steering flags, not independently verified placement accuracy; false includes interruptions"
+        },
+        {
+          "ai": 2,
+          "reported_moves": 68,
+          "steering_on_target_true": 65,
+          "steering_on_target_false": 3,
+          "note": "steering flags, not independently verified placement accuracy; false includes interruptions"
+        }
+      ],
+      "source_path": "C:\\Users\\ho_ki\\git\\ama-memory-bridge\\observations\\input-session.log"
+    }
+  ],
+  "recordings": [
+    {
+      "path": "bin\\t8-t13\\live-first-match-20261005.jsonl",
+      "sha256": "6609b251a7e087352fa1f3baa75d09011cb635826be3f4f2059807ca77ee536a",
+      "events": {
+        "header": 1,
+        "no_two_fever_players": 1,
+        "sample": 683
+      },
+      "same_frame_samples": 683,
+      "frame_min": 0,
+      "frame_max": 679
+    },
+    {
+      "path": "bin\\t8-t13\\live-duel-20261005.jsonl",
+      "sha256": "807daee82a8560a7b14190de0d997499c5c99f20b726297f8ab30623997a0c0f",
+      "events": {
+        "header": 1,
+        "sample": 1738
+      },
+      "same_frame_samples": 1738,
+      "frame_min": 679,
+      "frame_max": 2451
+    },
+    {
+      "path": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "sha256": "e51388806de9efd84881b7917bacbcc5294e050f6692c1b213b7d2df7f92651f",
+      "events": {
+        "header": 1,
+        "sample": 8980
+      },
+      "same_frame_samples": 8980,
+      "frame_min": 245,
+      "frame_max": 9241
+    }
+  ],
+  "result_screen_observed": {
+    "winner": "ally (2P)",
+    "maximum_chain": 12,
+    "cleared_puyos": 102,
+    "all_clear_count": 0,
+    "fever_count": 0,
+    "total_score": 103246,
+    "total_match_time": "02:09.916"
+  },
+  "candidate_offsets_unverified": {
+    "character_player_0x60": {
+      "rafisol": 24,
+      "ally": 13
+    },
+    "target_point_player_0x1a4": 120,
+    "note": "Two anchors only; not published as a fully calibrated battle profile"
+  },
+  "remaining": [
+    "opponent tactics and protocol-2 observation",
+    "gauge/current mode/confirmed packets/remainder calibration",
+    "large-chain firing and defensive policy",
+    "placement discrepancies",
+    "all-clear/restarts/focus-loss acceptance",
+    "30 clean acceptance matches covering all 26 characters"
+  ]
+}
