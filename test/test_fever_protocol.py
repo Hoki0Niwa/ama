@@ -162,6 +162,31 @@ class FeverProtocolTests(unittest.TestCase):
         reply, = replies(request(['2:RG', '2:BY', 'L:RRG'], field=tall))
         self.assertIn('error', reply)
 
+    def test_a_long_game_settles_for_a_shorter_chain(self):
+        # Red under green in the first column: a red and green pair next to it sets off two links
+        field = ['......'] * 8 + ['G.....'] * 3 + ['R.....'] * 3
+        base = dict(request(['2:RG', '2:YY', 'L:BBY'], field=field, include_next=True), trigger=6)
+        early, late = replies(dict(base, patience=5, patience_step=3, moves=4),
+                              dict(base, patience=5, patience_step=3, moves=5 + 3 * 4))
+        self.assertFalse(early['fire'])
+        self.assertTrue(late['fire'])                       # 6 - 4 = 2 links are enough by now
+        self.assertEqual(late['next_chain'], 2)
+
+    def test_margin_keeps_rows_free_in_the_death_columns(self):
+        # 3rd and 4th columns 10 high, nothing pops
+        field = ['......'] * 4 + ['..GB..', '..BG..'] * 5
+
+        def middle(rows):
+            return max(sum(row[x] != '.' for row in rows) for x in (2, 3))
+        for seed in range(1, 5):
+            base = request(pieces('raffina', seed, 3), field=field, include_next=True)
+            safe, over = replies(dict(base, margin=1), dict(base, margin=2))
+            # one row kept free: nothing more goes on those columns
+            self.assertNotIn('error', safe)
+            self.assertEqual(middle(safe['next_field']), 10)
+            # two rows cannot be kept free any more: the move is made by the rule alone instead of none at all
+            self.assertNotIn('error', over)
+
     def test_continuous_play_is_legal_and_uses_visible_pieces_only(self):
         moves_max = 40
         environment = dict(os.environ, BEAM_WIDTH=str(WIDTH), BEAM_DEPTH=str(DEPTH),
@@ -169,7 +194,9 @@ class FeverProtocolTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             directory = Path(directory)
             weights = directory / 'build.json'
-            weights.write_text(json.dumps(json.loads((ROOT / 'config.json').read_text())['build']))
+            # the set the engine reads: "fever" where config.json has one, else "build"
+            document = json.loads((ROOT / 'config.json').read_text())
+            weights.write_text(json.dumps(document.get('fever', document['build'])))
             for character in ('raffina', 'carbuncle', 'arle', 'draco'):
                 subprocess.run([str(BENCH), str(weights), character, '1', '3', str(directory / 'out.tsv'),
                                 str(moves_max), str(directory / 'snap.txt'), str(directory / 'moves.jsonl')],

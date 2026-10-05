@@ -15,6 +15,9 @@ namespace fever
 namespace fire
 {
 
+// Pieces the fire policy looks through: the piece in hand, NEXT and NEXT2
+constexpr size_t VISIBLE = 3;
+
 struct Decision
 {
     move::Placement placement = move::Placement(); // The first placement towards the chain

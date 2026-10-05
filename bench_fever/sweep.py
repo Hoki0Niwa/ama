@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BENCH = Path(os.environ.get('AMA_FEVER_BENCH', ROOT / 'bin/bench_fever/bench_fever.exe'))
 ENV = {'width': 'BEAM_WIDTH', 'depth': 'BEAM_DEPTH', 'trigger': 'BEAM_TRIGGER', 'goal': 'BENCH_GOAL',
        'visible': 'QUEUE_VISIBLE', 'panic_count': 'PANIC_COUNT', 'panic_chain': 'PANIC_CHAIN',
-       'shave': 'SHAVE_CHAIN', 'panic_step': 'PANIC_STEP'}
+       'shave': 'SHAVE_CHAIN', 'plain_pairs': 'PLAIN_PAIRS', 'margin': 'MARGIN', 'patience': 'PATIENCE', 'patience_step': 'PATIENCE_STEP', 'panic_step': 'PANIC_STEP'}
 
 
 def load(path):

@@ -39,6 +39,7 @@ int main(int argc, char** argv)
     }
 
     beam::eval::Weight w;
+    i32 hill = 0;
     {
         std::ifstream file(argv[1]);
 
@@ -50,6 +51,7 @@ int main(int argc, char** argv)
         json js;
         file >> js;
         from_json(js, w);
+        hill = js.value("hill", 0);
     }
 
     const auto* character = dropset::find(argv[2]);
@@ -70,6 +72,7 @@ int main(int argc, char** argv)
     };
 
     auto configs = fever::Configs();
+    configs.hill = hill;
 
     configs.width = size_t(env("BEAM_WIDTH", i32(configs.width)));
     configs.depth = size_t(env("BEAM_DEPTH", i32(configs.depth)));
@@ -77,7 +80,11 @@ int main(int argc, char** argv)
     configs.panic_count = env("PANIC_COUNT", configs.panic_count);
     configs.panic_chain = env("PANIC_CHAIN", configs.panic_chain);
     configs.shave_chain = env("SHAVE_CHAIN", configs.shave_chain);
+    configs.rules.plain_pairs = env("PLAIN_PAIRS", 0) != 0;
+    configs.rules.margin = u8(std::clamp(env("MARGIN", 0), 0, 6));
     configs.panic_step = env("PANIC_STEP", configs.panic_step);
+    configs.patience = env("PATIENCE", configs.patience);
+    configs.patience_step = env("PATIENCE_STEP", configs.patience_step);
 
     i32 goal = env("BENCH_GOAL", 10);
     size_t visible = size_t(std::clamp(env("QUEUE_VISIBLE", 3), 1, 3));
@@ -126,7 +133,17 @@ int main(int argc, char** argv)
 
             auto t1 = std::chrono::steady_clock::now();
 
+            configs.moves = i;
+
+            const i32 options = i32(move::generate(field, q[0], configs.rules).get_size());
+
             auto choice = fever::think(field, q, *character, u64(i), w, configs);
+
+            if (!choice && configs.rules.margin) {
+                auto plain = configs;
+                plain.rules.margin = 0;
+                choice = fever::think(field, q, *character, u64(i), w, plain);
+            }
 
             ms_max = std::max(ms_max, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t1).count());
 
@@ -173,6 +190,8 @@ int main(int argc, char** argv)
                 js["move"] = moves;
                 js["dropset_index"] = i;
                 js["piece"] = fever::text::from_piece(q[0]);
+                // How many placements the piece had (before this move): the freedom the field left it
+                js["options"] = options;
                 js["x"] = choice->placement.x;
                 js["r"] = std::string(1, fever::text::from_direction(choice->placement.r));
                 js["fire"] = choice->fire;
