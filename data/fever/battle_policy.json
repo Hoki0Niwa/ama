@@ -1,0 +1,16 @@
+{
+  "scope": "normal_battle_prototype",
+  "status": "adopted_solo_policy_not_battle_tuned",
+  "source": "ama-memory-bridge/fever_play.py defaults as read on 2026-10-05",
+  "solo_options": {
+    "trigger": 15,
+    "panic_count": 70,
+    "panic_chain": 13,
+    "panic_step": 2,
+    "margin": 1,
+    "patience": 46,
+    "patience_step": 3
+  },
+  "reset_moves_at_chain": 4,
+  "note": "One shared policy for all characters. Immediate offset can override solo construction. Actual battle timing and threat tactics remain uncalibrated."
+}
