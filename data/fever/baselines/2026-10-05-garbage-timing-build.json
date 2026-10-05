@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-05",
+  "adopted_source_checks": {
+    "config.json": true,
+    "fever/main.cpp": true,
+    "fever/search.cpp": true,
+    "fever/search.h": true,
+    "fever/fire.cpp": true,
+    "fever/fire.h": true,
+    "core/piece_move.cpp": true,
+    "core/rule.h": true,
+    "bench_fever/main.cpp": true,
+    "bin/fever/fever.exe": true
+  },
+  "sha256": {
+    "fever_battle/calibrate.py": "a4439a89a9072735cc0cf678b831c2d0c14987de4992df83e507fe57cc63d072",
+    "fever_battle/engine.py": "d311966b81c2bac9a7d1ce677e4cde7bb0c2b888dadcc8caed3fe49f83c9b5bc",
+    "fever_battle/forecast.py": "bb794cc15b6733c210209a7bc81d067f1f7fae8131df512a4f2a46a8a508475a",
+    "fever_battle/main.cpp": "eebb47162cfe4e9b4fda6bf9f84420c0cceedf41485c0bc8d33c79d3edfd1e89",
+    "fever_battle/model.py": "44d3968fb168f5c006802bdd35bb644e3c5a4f463ff889c0c35d23b587714cd2",
+    "fever_battle/observation.py": "79140383949896f340bb31133c33333ef3b78bf056e09a8d433cefed39aa1132",
+    "fever_battle/physics.h": "03066adf042da8066b12e9288620f2e35c5eb9eb2afbcd37a65c475f97774853",
+    "fever_battle/replay.py": "77b1124e228be70580e772b52f26be6b2e4996720762b26e8d85081a3844f9a2",
+    "fever_battle/search.cpp": "88c621babcf5eabd10a16d689b19bca78df73d97501fa666697fa2c93922e1e1",
+    "fever_battle/search.h": "c60daef56e04ac5c88e5624d6ed9b6a1c2d3bec93cb58a510bac9f3fa4fc265f",
+    "fever_battle/simulate.py": "b553efafec4fd17179f5d92585189214b774994201988ec41ece27a440a5d0a3",
+    "fever_battle/threat.py": "e038e1c613fcfb5a4cd7e8cacb39e18ddbfa69eb96b05e42bfca2881acfce70f",
+    "fever_battle/timing.py": "4ac8905ea98d06f4ff5a13d8adc228dcccdb00ed2cfde3073293cd67dc97daa9",
+    "fever_battle/worker.py": "6526ed1afe4b376232bed6058876b9cc1e59a8ab108b955a498d80b9e105d394",
+    "fever_battle/__init__.py": "9677c846d0fa03595110b2eb820855d473b44832fc312e933e531f28efb91ece",
+    "config.json": "19162494fff80151011369514c84d326e6b51a99a5d282b1d76510571fb4324b",
+    "bin/fever/fever.exe": "9ca69c255ae83dde5d2ed0e3a78843bbfe054e9a427f07694c0facc8658dff25",
+    "bin/fever_battle/fever_battle.exe": "966793e6a94236ea11c6c1cb8285354a09d7dacf53a0d074dbe8a1f758b9dd41",
+    "bin/pvp/pvp.exe": "bb33f3261cd04c0ee0a2f1985e0a4f8d994d945d99a44741d6b10ae36a6320b5",
+    "ama-memory-bridge/control.py": "ff11703376dd75e05f9bee70fa0de79edc27e0a03e4f23cb3e3813d7d94f54a7",
+    "ama-memory-bridge/settings.py": "db2049e746e0c2ff6fc1df81d3399721ffaac8cbab27c012f6ecc7e9d74e6ffe",
+    "ama-memory-bridge/fever_duel.py": "d7ca96c23937419b5367e67605bfe52bdf3777309f6bba154e82350cb5f61d84",
+    "ama-memory-bridge/fever_threat.py": "931b35db82bdcf2261553514856b8ff55e63fa009a581e7b9a303cf7e92abcb8",
+    "ama-memory-bridge/fever_timing_probe.py": "4fea8ff7f4f5f3f8279e457735ba3990228c8941a143d7f91b6960f8012ec091",
+    "ama-memory-bridge/fever_measure.py": "3619329c7726c2ebaa4ef95341e03af323357da3e57a887e2b65b137f476e7ce"
+  },
+  "tests": {
+    "garbage_forecast": 12,
+    "battle": 23,
+    "tsu_protocol": 8,
+    "animation_calibration": 3,
+    "bridge_full": {
+      "run": 642,
+      "skipped": 1
+    }
+  },
+  "scope": "Prototype state search and partially measured timing; CPU measurement mode verified running. T11 and T13 incomplete."
+}

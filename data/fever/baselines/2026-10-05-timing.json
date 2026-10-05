@@ -1,0 +1,2835 @@
+{
+  "status": "measured_samples_not_general_law",
+  "unit": "game_frame",
+  "fps": 60,
+  "sources": [
+    {
+      "path": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "sha256": "e51388806de9efd84881b7917bacbcc5294e050f6692c1b213b7d2df7f92651f"
+    },
+    {
+      "path": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "sha256": "37a7e17bf1da091da2a34049f00c317bf82769abd5a5c568d981c13ba767763d"
+    },
+    {
+      "path": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "sha256": "2e283dfbae5abe79c1f5db4e3e3880a07a24807dfc10cd5b887e02a18b9f47d7"
+    }
+  ],
+  "candidate_phase_offset": "field+0x10c; phase 2 operating, 4 lock, 5 falling, 6 chain/check; still calibration evidence",
+  "contact_summary": {
+    "n": 157,
+    "min": 0,
+    "median": 0,
+    "max": 31
+  },
+  "split_stage_by_rows": {
+    "0": {
+      "n": 90,
+      "min": 12,
+      "median": 12.0,
+      "max": 12
+    },
+    "1": {
+      "n": 18,
+      "min": 25,
+      "median": 25.0,
+      "max": 25
+    },
+    "2": {
+      "n": 22,
+      "min": 30,
+      "median": 30.0,
+      "max": 30
+    },
+    "3": {
+      "n": 6,
+      "min": 34,
+      "median": 34.0,
+      "max": 34
+    },
+    "4": {
+      "n": 8,
+      "min": 37,
+      "median": 37.0,
+      "max": 37
+    },
+    "5": {
+      "n": 3,
+      "min": 40,
+      "median": 40,
+      "max": 40
+    },
+    "6": {
+      "n": 4,
+      "min": 42,
+      "median": 42.0,
+      "max": 42
+    },
+    "7": {
+      "n": 1,
+      "min": 45,
+      "median": 45,
+      "max": 45
+    },
+    "8": {
+      "n": 3,
+      "min": 47,
+      "median": 47,
+      "max": 47
+    }
+  },
+  "chain_by_geometry": {
+    "fall=2,moving=2,columns=2": {
+      "n": 1,
+      "min": 73,
+      "median": 73,
+      "max": 73
+    },
+    "fall=2,moving=4,columns=3": {
+      "n": 1,
+      "min": 73,
+      "median": 73,
+      "max": 73
+    },
+    "fall=2,moving=6,columns=3": {
+      "n": 1,
+      "min": 75,
+      "median": 75,
+      "max": 75
+    },
+    "fall=3,moving=3,columns=2": {
+      "n": 1,
+      "min": 77,
+      "median": 77,
+      "max": 77
+    }
+  },
+  "rejected": {
+    "missed_lock_edge": 3,
+    "native_lock_board_mismatch": 3,
+    "invalid_root_or_placement": 6,
+    "fractional_column": 2
+  },
+  "locks": [
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 267,
+      "piece": "2:YG",
+      "x": 5,
+      "r": "D",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 319,
+      "piece": "2:BG",
+      "x": 4,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": null,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 427,
+      "piece": "J:BYB",
+      "x": 4,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        1,
+        0
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 488,
+      "piece": "2:RY",
+      "x": 3,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 529,
+      "piece": "4:RRBB",
+      "x": 3,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        2,
+        0
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 603,
+      "piece": "L:BBY",
+      "x": 0,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 642,
+      "piece": "0:R",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 7,
+      "split_distances": [
+        7,
+        0
+      ],
+      "phase5_frames": 45,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 714,
+      "piece": "2:GG",
+      "x": 4,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        0,
+        1
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 764,
+      "piece": "4:BBRR",
+      "x": 4,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        0,
+        1
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 826,
+      "piece": "J:BYB",
+      "x": 1,
+      "r": "D",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        2,
+        0
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 897,
+      "piece": "0:R",
+      "x": 0,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 1
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 1000,
+      "piece": "2:RY",
+      "x": 1,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        2,
+        0
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 1070,
+      "piece": "2:RY",
+      "x": 0,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 1112,
+      "piece": "2:BY",
+      "x": 2,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        2,
+        0
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 1179,
+      "piece": "L:GGG",
+      "x": 0,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 1221,
+      "piece": "2:BR",
+      "x": 0,
+      "r": "D",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 1260,
+      "piece": "2:GB",
+      "x": 0,
+      "r": "D",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 1300,
+      "piece": "2:YR",
+      "x": 2,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        1,
+        0
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 1349,
+      "piece": "J:RGR",
+      "x": 0,
+      "r": "L",
+      "contact_to_lock_frames": 1,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 4,
+      "split_distances": [
+        0,
+        4
+      ],
+      "phase5_frames": 37,
+      "chain_length": 1
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 1486,
+      "piece": "2:BY",
+      "x": 0,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 5,
+      "split_distances": [
+        0,
+        5
+      ],
+      "phase5_frames": 40,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 1639,
+      "piece": "L:BBY",
+      "x": 1,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 1
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 1732,
+      "piece": "0:G",
+      "x": 1,
+      "r": "D",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        0,
+        2
+      ],
+      "phase5_frames": 30,
+      "chain_length": 1
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 1861,
+      "piece": "2:GR",
+      "x": 2,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 1898,
+      "piece": "4:YYRR",
+      "x": 0,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 1934,
+      "piece": "J:YGY",
+      "x": 2,
+      "r": "R",
+      "contact_to_lock_frames": 4,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        0,
+        2
+      ],
+      "phase5_frames": 30,
+      "chain_length": 1
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 2058,
+      "piece": "0:B",
+      "x": 3,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        2,
+        0
+      ],
+      "phase5_frames": 30,
+      "chain_length": 1
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 2193,
+      "piece": "2:GB",
+      "x": 4,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 1,
+      "frame": 2344,
+      "piece": "2:BB",
+      "x": 3,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 257,
+      "piece": "L:YYG",
+      "x": 2,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        0,
+        1
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 414,
+      "piece": "2:BY",
+      "x": 1,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        0,
+        2
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 474,
+      "piece": "2:RY",
+      "x": 1,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": null,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 518,
+      "piece": "0:G",
+      "x": 2,
+      "r": "D",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 3,
+      "split_distances": [
+        0,
+        3
+      ],
+      "phase5_frames": 34,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 636,
+      "piece": "2:YG",
+      "x": 4,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 729,
+      "piece": "2:BR",
+      "x": 1,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 768,
+      "piece": "2:BY",
+      "x": 1,
+      "r": "D",
+      "contact_to_lock_frames": 2,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 804,
+      "piece": "4:GGRR",
+      "x": 1,
+      "r": "R",
+      "contact_to_lock_frames": 3,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 5,
+      "split_distances": [
+        0,
+        5
+      ],
+      "phase5_frames": 40,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 882,
+      "piece": "2:YR",
+      "x": 3,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        0,
+        2
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 950,
+      "piece": "2:YB",
+      "x": 4,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        1,
+        0
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 1095,
+      "piece": "2:GB",
+      "x": 4,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        0,
+        1
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 1151,
+      "piece": "L:RRG",
+      "x": 3,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        2,
+        0
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 1211,
+      "piece": "2:BY",
+      "x": 4,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        1,
+        0
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 1272,
+      "piece": "2:RR",
+      "x": 5,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 1334,
+      "piece": "2:GB",
+      "x": 5,
+      "r": "D",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 1371,
+      "piece": "2:YR",
+      "x": 2,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        0,
+        1
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 1424,
+      "piece": "0:B",
+      "x": 3,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 1
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 1534,
+      "piece": "2:BY",
+      "x": 4,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        0,
+        1
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 1588,
+      "piece": "2:BG",
+      "x": 4,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 1629,
+      "piece": "2:RY",
+      "x": 5,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 1668,
+      "piece": "2:RY",
+      "x": 5,
+      "r": "L",
+      "contact_to_lock_frames": 1,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 1744,
+      "piece": "4:GGBB",
+      "x": 3,
+      "r": "U",
+      "contact_to_lock_frames": 4,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        2,
+        0
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 1797,
+      "piece": "2:YG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 3
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 2215,
+      "piece": "2:BR",
+      "x": 0,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 2256,
+      "piece": "L:YYY",
+      "x": 1,
+      "r": "D",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 1
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "frame": 2367,
+      "piece": "2:GR",
+      "x": 3,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 2226,
+      "piece": "2:BG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 2274,
+      "piece": "4:BBRR",
+      "x": 0,
+      "r": "D",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        0,
+        1
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 2333,
+      "piece": "J:YGY",
+      "x": 2,
+      "r": "D",
+      "contact_to_lock_frames": 7,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 3
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 2206,
+      "piece": "2:BG",
+      "x": 1,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 2260,
+      "piece": "0:Y",
+      "x": 0,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 3,
+      "split_distances": [
+        3,
+        0
+      ],
+      "phase5_frames": 34,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 2406,
+      "piece": "2:RB",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 2450,
+      "piece": "2:BB",
+      "x": 4,
+      "r": "U",
+      "contact_to_lock_frames": 5,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 2480,
+      "piece": "2:GB",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 340,
+      "piece": "2:RG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 644,
+      "piece": "2:BG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 896,
+      "piece": "2:BB",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 1097,
+      "piece": "L:GGY",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 6,
+      "split_distances": [
+        0,
+        6
+      ],
+      "phase5_frames": 42,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 1277,
+      "piece": "2:YR",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 4,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 1376,
+      "piece": "2:BY",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 340,
+      "piece": "2:RG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 644,
+      "piece": "2:BG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 896,
+      "piece": "2:BB",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 1097,
+      "piece": "2:GY",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 1247,
+      "piece": "L:YYR",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 8,
+      "split_distances": [
+        0,
+        8
+      ],
+      "phase5_frames": 47,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 1381,
+      "piece": "2:BY",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 340,
+      "piece": "2:RG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 644,
+      "piece": "2:BG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 896,
+      "piece": "2:GB",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 1097,
+      "piece": "L:RRY",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 6,
+      "split_distances": [
+        0,
+        6
+      ],
+      "phase5_frames": 42,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 1277,
+      "piece": "2:YG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 1376,
+      "piece": "2:GB",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 340,
+      "piece": "2:RG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 644,
+      "piece": "2:BG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 896,
+      "piece": "2:GB",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 1097,
+      "piece": "2:RY",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 1247,
+      "piece": "L:YYG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 8,
+      "split_distances": [
+        0,
+        8
+      ],
+      "phase5_frames": 47,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 1381,
+      "piece": "2:GB",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 340,
+      "piece": "2:RG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 644,
+      "piece": "2:BB",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 896,
+      "piece": "2:GY",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 1097,
+      "piece": "L:RRB",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 6,
+      "split_distances": [
+        0,
+        6
+      ],
+      "phase5_frames": 42,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 1277,
+      "piece": "2:RY",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 1376,
+      "piece": "2:BY",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 340,
+      "piece": "2:RG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 644,
+      "piece": "2:BB",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 896,
+      "piece": "2:GY",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 1097,
+      "piece": "2:RB",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 1247,
+      "piece": "L:RRY",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 8,
+      "split_distances": [
+        0,
+        8
+      ],
+      "phase5_frames": 47,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 1381,
+      "piece": "2:BY",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "frame": 340,
+      "piece": "2:RG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 2,
+      "frame": 340,
+      "piece": "2:RG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 454,
+      "piece": "2:GR",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 509,
+      "piece": "2:GB",
+      "x": 4,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 4,
+      "split_distances": [
+        4,
+        0
+      ],
+      "phase5_frames": 37,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 592,
+      "piece": "L:YYR",
+      "x": 3,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        1,
+        0
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 663,
+      "piece": "2:RG",
+      "x": 5,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 717,
+      "piece": "4:YYGG",
+      "x": 3,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 769,
+      "piece": "2:BY",
+      "x": 4,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 3,
+      "split_distances": [
+        3,
+        0
+      ],
+      "phase5_frames": 34,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 839,
+      "piece": "J:RRR",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        2,
+        0
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 906,
+      "piece": "2:YY",
+      "x": 3,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 958,
+      "piece": "0:B",
+      "x": 1,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 4,
+      "split_distances": [
+        4,
+        0
+      ],
+      "phase5_frames": 37,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 1043,
+      "piece": "2:BG",
+      "x": 0,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        2,
+        0
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 1106,
+      "piece": "L:YYR",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 1148,
+      "piece": "2:BB",
+      "x": 2,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        0,
+        1
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 1213,
+      "piece": "4:GGBB",
+      "x": 4,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        2,
+        0
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 1284,
+      "piece": "2:YB",
+      "x": 1,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 1328,
+      "piece": "2:GB",
+      "x": 4,
+      "r": "D",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 1367,
+      "piece": "2:YG",
+      "x": 2,
+      "r": "R",
+      "contact_to_lock_frames": 3,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        0,
+        1
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 1418,
+      "piece": "2:BB",
+      "x": 3,
+      "r": "R",
+      "contact_to_lock_frames": 1,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        1,
+        0
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 1478,
+      "piece": "2:RY",
+      "x": 1,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 4,
+      "split_distances": [
+        4,
+        0
+      ],
+      "phase5_frames": 37,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 1547,
+      "piece": "L:RRG",
+      "x": 0,
+      "r": "D",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 5,
+      "split_distances": [
+        5,
+        0
+      ],
+      "phase5_frames": 40,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 1674,
+      "piece": "2:RG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 157,
+      "piece": "2:GR",
+      "x": 0,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        0,
+        2
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 229,
+      "piece": "2:GB",
+      "x": 0,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        0,
+        2
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 301,
+      "piece": "L:YYR",
+      "x": 0,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        0,
+        2
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 370,
+      "piece": "2:RG",
+      "x": 1,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 4,
+      "split_distances": [
+        0,
+        4
+      ],
+      "phase5_frames": 37,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 445,
+      "piece": "2:YG",
+      "x": 1,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 774,
+      "piece": "2:BY",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 870,
+      "piece": "0:B",
+      "x": 2,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 3,
+      "split_distances": [
+        0,
+        3
+      ],
+      "phase5_frames": 34,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 945,
+      "piece": "2:YR",
+      "x": 0,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 988,
+      "piece": "2:BG",
+      "x": 0,
+      "r": "D",
+      "contact_to_lock_frames": 2,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 1033,
+      "piece": "2:YR",
+      "x": 3,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 3,
+      "split_distances": [
+        0,
+        3
+      ],
+      "phase5_frames": 34,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 1256,
+      "piece": "2:BB",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 1308,
+      "piece": "2:GG",
+      "x": 3,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 1353,
+      "piece": "4:YYBB",
+      "x": 0,
+      "r": "R",
+      "contact_to_lock_frames": 6,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        0,
+        2
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 1521,
+      "piece": "2:GB",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 1583,
+      "piece": "2:YG",
+      "x": 5,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 47,
+      "piece": "2:RG",
+      "x": 5,
+      "r": "D",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 99,
+      "piece": "2:BR",
+      "x": 5,
+      "r": "D",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 454,
+      "piece": "2:RG",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 508,
+      "piece": "2:YB",
+      "x": 4,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 4,
+      "split_distances": [
+        4,
+        0
+      ],
+      "phase5_frames": 37,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 588,
+      "piece": "L:YYG",
+      "x": 2,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        0,
+        2
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 657,
+      "piece": "2:YY",
+      "x": 2,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        0,
+        1
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 725,
+      "piece": "4:RRGG",
+      "x": 3,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        0,
+        2
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 792,
+      "piece": "2:GB",
+      "x": 3,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 845,
+      "piece": "J:GYG",
+      "x": 3,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 4,
+      "split_distances": [
+        0,
+        4
+      ],
+      "phase5_frames": 37,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 930,
+      "piece": "2:GB",
+      "x": 5,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 1,
+      "frame": 970,
+      "piece": "0:R",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 4,
+      "split_distances": [
+        4,
+        0
+      ],
+      "phase5_frames": 37,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 48,
+      "piece": "2:RG",
+      "x": 0,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0,
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 108,
+      "piece": "2:BR",
+      "x": 0,
+      "r": "D",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 165,
+      "piece": "2:RG",
+      "x": 1,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        0,
+        1
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 233,
+      "piece": "2:YB",
+      "x": 1,
+      "r": "L",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 1,
+      "split_distances": [
+        0,
+        1
+      ],
+      "phase5_frames": 25,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 298,
+      "piece": "L:YYG",
+      "x": 2,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        0,
+        2
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 367,
+      "piece": "2:YY",
+      "x": 2,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 2,
+      "split_distances": [
+        0,
+        2
+      ],
+      "phase5_frames": 30,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 669,
+      "piece": "2:GB",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 715,
+      "piece": "2:GY",
+      "x": 1,
+      "r": "R",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 3,
+      "split_distances": [
+        3,
+        0
+      ],
+      "phase5_frames": 34,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 887,
+      "piece": "0:G",
+      "x": 2,
+      "r": "D",
+      "contact_to_lock_frames": 31,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 6,
+      "split_distances": [
+        0,
+        6
+      ],
+      "phase5_frames": 42,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 968,
+      "piece": "2:BY",
+      "x": 3,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-c.jsonl",
+      "seat": 2,
+      "frame": 1000,
+      "piece": "2:RR",
+      "x": 2,
+      "r": "U",
+      "contact_to_lock_frames": 0,
+      "input_condition": "not_observed_in_probe",
+      "split_rows": 0,
+      "split_distances": [
+        0
+      ],
+      "phase5_frames": 12,
+      "chain_length": 0
+    }
+  ],
+  "links": [
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "lock_frame": 1797,
+      "link": 1,
+      "start_frame": 1812,
+      "next_start_frame": 1887,
+      "duration_frames": 75,
+      "settled_edge_last_unsettled_frame": 1866,
+      "cleared_including_garbage": 5,
+      "distance_sum": 7,
+      "max_fall": 2,
+      "moving_columns": 3,
+      "moving_distances_by_column": [
+        [],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          2
+        ],
+        [
+          1,
+          1
+        ],
+        [],
+        []
+      ],
+      "moving_puyos": 6
+    },
+    {
+      "source": "bin\\t8-t13\\live-duel-restarted-20261005.jsonl",
+      "seat": 2,
+      "lock_frame": 1797,
+      "link": 2,
+      "start_frame": 1887,
+      "next_start_frame": 1964,
+      "duration_frames": 77,
+      "settled_edge_last_unsettled_frame": 1941,
+      "cleared_including_garbage": 8,
+      "distance_sum": 7,
+      "max_fall": 3,
+      "moving_columns": 2,
+      "moving_distances_by_column": [
+        [
+          1
+        ],
+        [
+          3,
+          3
+        ],
+        [],
+        [],
+        [],
+        []
+      ],
+      "moving_puyos": 3
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "lock_frame": 2333,
+      "link": 1,
+      "start_frame": 2348,
+      "next_start_frame": 2421,
+      "duration_frames": 73,
+      "settled_edge_last_unsettled_frame": 2402,
+      "cleared_including_garbage": 5,
+      "distance_sum": 7,
+      "max_fall": 2,
+      "moving_columns": 3,
+      "moving_distances_by_column": [
+        [],
+        [],
+        [
+          1
+        ],
+        [
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        []
+      ],
+      "moving_puyos": 4
+    },
+    {
+      "source": "bin\\t8-t13\\garbage\\live-timing-20261005-b.jsonl",
+      "seat": 1,
+      "lock_frame": 2333,
+      "link": 2,
+      "start_frame": 2421,
+      "next_start_frame": 2494,
+      "duration_frames": 73,
+      "settled_edge_last_unsettled_frame": 2475,
+      "cleared_including_garbage": 4,
+      "distance_sum": 4,
+      "max_fall": 2,
+      "moving_columns": 2,
+      "moving_distances_by_column": [
+        [],
+        [],
+        [],
+        [
+          2
+        ],
+        [
+          2
+        ],
+        []
+      ],
+      "moving_puyos": 2
+    }
+  ],
+  "steam_build": "15209927",
+  "recording_scope": "Two human pad seats; CPU calibration planned next. Raw recordings retained locally; extracted evidence tracked here."
+}

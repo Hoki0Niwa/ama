@@ -1,0 +1,12 @@
+{
+  "source": "bin/t8-t13/garbage/cpu-animation-20261005-a.jsonl",
+  "sha256": "27d1baa8c0f290a8e26afc628c631d828dea221546948b7d9bb92a5b589572cd",
+  "entity_samples": 7752,
+  "captured_bytes": "drawn cell object +0x00..0x3f, calibration only",
+  "offset_candidates": {
+    "0x24": "changes during falling then holds landing anchor",
+    "0x28_0x2c": "coordinate candidates also vary while bouncing",
+    "0x30_0x34": "render coordinate candidates include idle wobble"
+  },
+  "status": "candidate_offsets_not_formal_profile"
+}
