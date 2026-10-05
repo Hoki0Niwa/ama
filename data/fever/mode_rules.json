@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "status": "prototype_unverified_on_local_steam",
+  "source": "https://puyo-camp.jp/posts/86313",
+  "checked_date": "2026-10-05",
+  "fps": 60,
+  "gauge_max": 7,
+  "initial_time_frames": 900,
+  "max_time_frames": 1800,
+  "offset_time_reward_frames": 60,
+  "all_clear_time_reward_frames": 300,
+  "chain_reward_start": 3,
+  "chain_reward_step_frames": 30,
+  "initial_seed_chain": 5,
+  "min_seed_chain": 3,
+  "max_seed_chain": 15,
+  "normal_all_clear_seed_chain": 4,
+  "clock_policy": "explicit_running_flag_and_observed_clock_events",
+  "transition_policy": "explicit_enter_seed_exit_events_no_guessed_animation_durations"
+}
