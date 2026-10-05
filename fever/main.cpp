@@ -25,6 +25,11 @@
 // - "x" is the pivot's column for a pair and the left column of the 2x2 box for the other shapes.
 //   "r" is the clockwise turns as U/R/D/L. For a big puyo "r" is its color index (U red, R yellow,
 //   D green, L blue) and "color" repeats it as a color character.
+// - "plain_pairs": true offers pairs only where they get without kicks or climbing (for a real client).
+// - "margin": rows the search keeps free below the 12th in the death columns (0-6, default 0). When nothing
+//   stays within it, the move is chosen by the rule alone.
+// - "moves", "patience", "patience_step": the number of pieces placed so far in the build, and the number
+//   from which the chain length that is fired falls by one link every patience_step pieces (0 = never).
 // - "include_next" adds the field after the placement and the chain it pops.
 // - Garbage, the fever gauge and the opponent aren't modelled: only "solo": true is accepted.
 namespace
@@ -35,7 +40,7 @@ json fail(const std::string& message)
     return json{ {"error", message} };
 };
 
-json answer(const json& input, const beam::eval::Weight& w)
+json answer(const json& input, const beam::eval::Weight& w, const json& set)
 {
     if (input.value("rule", "") != "fever") {
         return fail("rule must be \"fever\"");
@@ -90,13 +95,19 @@ json answer(const json& input, const beam::eval::Weight& w)
     }
 
     auto configs = fever::Configs();
+    configs.hill = set.value("hill", 0);
 
     configs.trigger = input.value("trigger", configs.trigger);
     configs.stretch = input.value("stretch", configs.stretch);
     configs.panic_count = input.value("panic_count", configs.panic_count);
     configs.panic_chain = input.value("panic_chain", configs.panic_chain);
     configs.shave_chain = input.value("shave_chain", configs.shave_chain);
+    configs.rules.plain_pairs = input.value("plain_pairs", false);
+    configs.rules.margin = u8(std::clamp(input.value("margin", 0), 0, 6));
     configs.panic_step = input.value("panic_step", configs.panic_step);
+    configs.moves = input.value("moves", 0);
+    configs.patience = input.value("patience", configs.patience);
+    configs.patience_step = input.value("patience_step", configs.patience_step);
     configs.width = std::clamp(input.value("beam_width", configs.width), size_t(1), size_t(100000));
     configs.depth = std::clamp(input.value("beam_depth", configs.depth), queue.size(), size_t(64));
 
@@ -119,6 +130,12 @@ json answer(const json& input, const beam::eval::Weight& w)
     }
     else {
         choice = fever::think(*field, queue, *character, u64(index), w, configs);
+
+        if (!choice && configs.rules.margin) {
+            // Nothing stays within the margin (the board is already above it): play on by the rule alone
+            configs.rules.margin = 0;
+            choice = fever::think(*field, queue, *character, u64(index), w, configs);
+        }
     }
 
     if (!choice) {
@@ -168,6 +185,7 @@ int main(int argc, char** argv)
     std::string config_path = argc > 1 ? argv[1] : "config.json";
 
     beam::eval::Weight w;
+    json set;
     {
         std::ifstream file(config_path);
 
@@ -179,8 +197,9 @@ int main(int argc, char** argv)
         json js;
         file >> js;
 
-        // The Tsu weights are the starting point until the fever ones are tuned
-        from_json(js.contains("fever") ? js.at("fever") : js.at("build"), w);
+        // The fever set where the file has one (it may carry the fever-only weight "hill"), else the Tsu long-chain set
+        set = js.contains("fever") ? js.at("fever") : js.at("build");
+        from_json(set, w);
     }
 
     std::string line;
@@ -194,7 +213,7 @@ int main(int argc, char** argv)
         json output;
 
         try {
-            output = answer(json::parse(line), w);
+            output = answer(json::parse(line), w, set);
         }
         catch (const std::exception& e) {
             output = fail(e.what());

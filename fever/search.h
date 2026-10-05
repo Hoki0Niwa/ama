@@ -30,8 +30,45 @@ struct Configs
     // When the search's own move would pop a shorter chain than this while the visible pieces
     // trigger one at least this long, that chain is fired instead of shaving the field. 0 disables.
     i32 shave_chain = 0;
+    // The number of pieces placed so far in the game, and the number from which the chain length that
+    // is fired falls by one link every patience_step pieces (a field that keeps being shaved by small
+    // chains otherwise never fires). 0 disables.
+    i32 moves = 0;
+    i32 patience = 0;
+    i32 patience_step = 3;
     rule::Rule rules = rule::FEVER;
+    // Fever-only shape weight (key "hill" of the fever weight set). The shared terms only see single
+    // columns lower (well) or higher (bump) than both their neighbours.
+    // hill: eval points per row by which a column stands above the lowest column on its left and the
+    //       lowest on its right, whichever of the two is higher. Zero for a field that only goes down
+    //       toward one place: a valley (both ends high) or a wedge (one end high). Such a field keeps a way
+    //       open from where the pieces appear to every column.
+    i32 hill = 0;
 };
+
+// Rows by which the four inner columns stand above the lowest column on either side of them.
+inline i32 get_hill(const u8 heights[6])
+{
+    i32 result = 0;
+    for (i32 x = 1; x < 5; ++x) {
+        i32 left = 99, right = 99;
+        for (i32 i = 0; i < x; ++i) left = std::min(left, i32(heights[i]));
+        for (i32 i = x + 1; i < 6; ++i) right = std::min(right, i32(heights[i]));
+        result += std::max(0, i32(heights[x]) - std::max(left, right));
+    }
+    return result;
+}
+
+// The board's evaluation: the shared one plus what only this rule has.
+inline void evaluate(beam::node::Data& node, const beam::eval::Weight& w, const Configs& configs)
+{
+    beam::eval::evaluate(node, w);
+    if (configs.hill != 0) {
+        u8 heights[6];
+        node.field.get_heights(heights);
+        node.score.eval += get_hill(heights) * configs.hill;
+    }
+}
 
 struct Candidate
 {

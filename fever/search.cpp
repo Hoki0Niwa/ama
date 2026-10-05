@@ -34,6 +34,14 @@ void expand(
             continue;
         }
 
+        if (rules.margin) {
+            u8 heights[6];
+            child.field.get_heights(heights);
+            if (rule::is_unsafe(heights, rules)) {
+                continue;
+            }
+        }
+
         // Evaluates action
         i32 tear = drop->split;
         i32 waste = pop.get_size();
@@ -52,7 +60,8 @@ static void think(
     beam::Layer& parents,
     beam::Layer& children,
     const beam::eval::Weight& w,
-    const rule::Rule& rules
+    const rule::Rule& rules,
+    const Configs& configs
 )
 {
     // Sorts the parents layer
@@ -87,7 +96,7 @@ static void think(
                 child.score.eval = entry->eval;
             }
             else {
-                beam::eval::evaluate(child, w);
+                fever::evaluate(child, w, configs);
             }
 
             // Stores the entry in the transposition table
@@ -145,7 +154,7 @@ Result search(
 
             // Updates child
             child.index = i32(result.candidates.size());
-            beam::eval::evaluate(child, w);
+            fever::evaluate(child, w, configs);
 
             // Pushes
             result.candidates.push_back(candidate);
@@ -166,7 +175,8 @@ Result search(
             layers[i & 1],
             layers[(i + 1) & 1],
             w,
-            configs.rules
+            configs.rules,
+            configs
         );
 
         bool enough = false;

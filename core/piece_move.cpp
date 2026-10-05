@@ -6,7 +6,7 @@ avec<Placement, 22> generate(Field& field, const piece::Piece& value, const rule
 {
     avec<Placement, 22> result;
     if (!piece::is_valid(value) || field.is_dead(rules)) return result;
-    if (value.shape == piece::Shape::PAIR) {
+    if (value.shape == piece::Shape::PAIR && !(rules.fever && rules.plain_pairs)) {
         // Preserve the established pair reachability, ordering and equal-color
         // deduplication. Fever does not accumulate row-14 obstruction.
         auto copy = field;
@@ -17,13 +17,15 @@ avec<Placement, 22> generate(Field& field, const piece::Piece& value, const rule
     u8 heights[6];
     field.get_heights(heights);
     struct Position { i8 x, y; direction::Type r; };
-    bool visited[5][15][4]{};
-    bool reachable[5][4]{};
-    std::array<Position, 5 * 15 * 4> queue;
+    // A pair's x is its pivot column (0-5), the other shapes' the left column of their box (0-4)
+    const i8 x_max = value.shape == piece::Shape::PAIR ? 5 : 4;
+    bool visited[6][15][4]{};
+    bool reachable[6][4]{};
+    std::array<Position, 6 * 15 * 4> queue;
     usize head = 0, tail = 0;
     const auto add = [&](i8 x, i8 y, direction::Type r) {
         const auto rotation = static_cast<u8>(r);
-        if (x < 0 || x > 4 || y < 0 || y > 14 || visited[x][y][rotation]) return;
+        if (x < 0 || x > x_max || y < 0 || y > 14 || visited[x][y][rotation]) return;
         if (field.is_colliding_piece(x, y, r, value, heights, rules)) return;
         visited[x][y][rotation] = true;
         queue[tail++] = { x, y, r };
@@ -48,8 +50,15 @@ avec<Placement, 22> generate(Field& field, const piece::Piece& value, const rule
                 current.y + old.pivot_y - next.pivot_y, next_r);
         }
     }
-    for (u8 r = 0; r < 4; ++r) for (i8 x = 0; x < 5; ++x)
-        if (reachable[x][r]) result.add({ x, direction::Type(r) });
+    // A pair of one color lies the same either way round: up and right stand for down and left
+    const bool same = value.shape == piece::Shape::PAIR && value.colors[0] == value.colors[1];
+    for (u8 r = 0; r < 4; ++r) for (i8 x = 0; x <= x_max; ++x) {
+        if (!reachable[x][r]) continue;
+        if (same && r == static_cast<u8>(direction::Type::DOWN) && reachable[x][static_cast<u8>(direction::Type::UP)]) continue;
+        if (same && r == static_cast<u8>(direction::Type::LEFT) && x > 0
+            && reachable[x - 1][static_cast<u8>(direction::Type::RIGHT)]) continue;
+        result.add({ x, direction::Type(r) });
+    }
     return result;
 }
 }

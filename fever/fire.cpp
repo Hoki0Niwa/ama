@@ -44,6 +44,14 @@ static void walk(
             continue;
         }
 
+        if (rules.margin) {
+            u8 heights[6];
+            f.get_heights(heights);
+            if (rule::is_unsafe(heights, rules)) {
+                continue;
+            }
+        }
+
         auto decision = Decision {
             .placement = depth == 0 ? locks[i] : *first,
             .chain = chain::get_score(pop),
@@ -86,16 +94,29 @@ std::optional<Decision> best_now(
 
 i32 get_required(i32 count, const Configs& configs)
 {
+    i32 required = configs.trigger;
+
     if (configs.panic_step <= 0) {
-        return count >= configs.panic_count ? std::min(configs.panic_chain, configs.trigger) : configs.trigger;
+        required = count >= configs.panic_count ? std::min(configs.panic_chain, configs.trigger) : configs.trigger;
+    }
+    else {
+        // Links added below panic_count round up, links removed above it round down
+        i32 delta = configs.panic_count - count;
+        i32 links = delta >= 0 ? (delta + configs.panic_step - 1) / configs.panic_step : -((-delta) / configs.panic_step);
+
+        required = std::clamp(configs.panic_chain + links, 1, std::max(1, configs.trigger));
     }
 
-    // Links added below panic_count round up, links removed above it round down
-    i32 delta = configs.panic_count - count;
-    i32 links = delta >= 0 ? (delta + configs.panic_step - 1) / configs.panic_step : -((-delta) / configs.panic_step);
+    // A game that has gone on without the chain coming together settles for less, move by move
+    if (configs.patience > 0 && configs.moves >= configs.patience) {
+        i32 less = (configs.moves - configs.patience) / std::max(1, configs.patience_step);
 
-    return std::clamp(configs.panic_chain + links, 1, std::max(1, configs.trigger));
+        required = std::min(required, std::max(2, configs.trigger - less));
+    }
+
+    return required;
 };
+
 
 std::optional<Decision> decide(
     Field field,
@@ -108,7 +129,9 @@ std::optional<Decision> decide(
         return {};
     }
 
-    auto best = best_visible(field, queue, configs.rules);
+    // Every sequence of placements is tried, which is only affordable for the pieces a player sees.
+    // A client that reads further ahead still gets its fire decision from the first VISIBLE pieces.
+    auto best = best_visible(field, Queue(queue.begin(), queue.begin() + std::min(queue.size(), VISIBLE)), configs.rules);
 
     if (!best) {
         return {};
