@@ -1,0 +1,373 @@
+{
+  "date": "2026-10-06",
+  "method": "user-operated live matches, read-only observer; no controller commands from diagnostics",
+  "tests": {
+    "mode": 51,
+    "bridge_fever": 162,
+    "tsu_protocol": 8,
+    "battle": 23
+  },
+  "tsu_seeds": [
+    1,
+    2,
+    3
+  ],
+  "tsu_non_time_results_unchanged": true,
+  "records": {
+    "repro-input-20261006.log": {
+      "sha256": "b4717918fbaeb71f5715b33b90851bd619db45c5d8838749617d920092ba1f4f",
+      "events": {
+        "duel ready": 1,
+        "battle settings": 1,
+        "controller assignment": 3,
+        "planning": 76,
+        "analysis failed, retrying": 24,
+        "locked": 32,
+        "fire": 4,
+        "paused": 2
+      },
+      "retries": {
+        "latest observation no longer authorizes this route": 8,
+        "placement is no longer reachable from the observed pose": 1,
+        "enemy state changed; discard decision": 15
+      },
+      "aligned": {
+        "True": 34,
+        "False": 2
+      }
+    },
+    "verified-input-20261006.log": {
+      "sha256": "2d11fa30fad473704b235d3ab51be35ef94e91db486b613500f98feb59880557",
+      "events": {
+        "duel ready": 1,
+        "battle settings": 1,
+        "controller assignment": 7,
+        "other": 2,
+        "planning": 446,
+        "locked": 219,
+        "analysis failed, retrying": 17,
+        "fire": 33,
+        "big puyo: the other turn button": 2,
+        "paused": 6,
+        "resumed": 4,
+        "mode wait": 2
+      },
+      "retries": {
+        "automation disabled, game paused or focus lost": 5,
+        "placement is no longer reachable from the observed pose": 9,
+        "latest observation no longer authorizes this route: automation disabled, game paused or focus lost": 2,
+        "enemy seed strategy inputs changed; discard decision": 1
+      },
+      "aligned": {
+        "True": 234,
+        "False": 18
+      }
+    },
+    "verified-spawn-input-20261006.log": {
+      "sha256": "57a47167dc36bb644ef20771d102fae5fc41fd3d1b75f45e5726403282e0be22",
+      "events": {
+        "duel ready": 1,
+        "battle settings": 1,
+        "controller assignment": 5,
+        "planning": 493,
+        "locked": 154,
+        "analysis failed, retrying": 155,
+        "big puyo: the other turn button": 2,
+        "fire": 34,
+        "paused": 4,
+        "resumed": 2
+      },
+      "retries": {
+        "automation disabled, game paused or focus lost": 8,
+        "placement is no longer reachable from the observed pose": 145,
+        "latest observation no longer authorizes this route: automation disabled, game paused or focus lost": 2
+      }
+    }
+  },
+  "grouped_nuisance": {
+    "code": 22,
+    "normalized": "#",
+    "game_rva": "0x46250",
+    "game_sha256": "2a3540514327f6b6ece4c2b11e000d626dd211dd977fa69524a4789afcd4e9c7",
+    "before_rejected_slow_fall_frames": 115,
+    "after_control_samples_with_22": 9,
+    "after_rejected_control_samples_with_22": 0
+  },
+  "observed_fast_finish": {
+    "capture": "verified-restart-20261006.jsonl",
+    "capture_round": 1,
+    "seat": 2,
+    "initial_pending": 695,
+    "drop_frames": [
+      4178,
+      4296
+    ],
+    "pending_after_drops": [
+      665,
+      635
+    ],
+    "placement_after_first_drop": {
+      "decision_frame": 4271,
+      "lock_frame": 4280,
+      "piece_id": 38
+    },
+    "result_frame": 4496,
+    "drops_until_result": 2,
+    "optimality_proved_on_game": false
+  },
+  "raw_captures": {
+    "repro-20261006.jsonl": "2d216ef8ec21b77ed625b17a407ed4ded1c1452ddb36902c36ca0cf4838b8689",
+    "verified-restart-20261006.jsonl": "1e008fa0944b2dca7e0bfbec98b6a9600b1a3b7dc7562682adf0a7dce041a719",
+    "verified-spawn-20261006.jsonl": "968aba29a912597444ddcfe5f42785f935d8c1cf67cc615d0392c18fdda3cf7f"
+  },
+  "latest_spawn_guard_live_verified": true,
+  "recovery_live_verified": false,
+  "recovery_replay": [
+    {
+      "frame": 627,
+      "piece": "L:RRR",
+      "old_move": "4D",
+      "new_move": "1U",
+      "allowed": [
+        {
+          "x": 0,
+          "r": "U"
+        },
+        {
+          "x": 0,
+          "r": "R"
+        },
+        {
+          "x": 0,
+          "r": "D"
+        },
+        {
+          "x": 0,
+          "r": "L"
+        },
+        {
+          "x": 1,
+          "r": "U"
+        },
+        {
+          "x": 1,
+          "r": "R"
+        },
+        {
+          "x": 1,
+          "r": "D"
+        },
+        {
+          "x": 1,
+          "r": "L"
+        },
+        {
+          "x": 2,
+          "r": "U"
+        },
+        {
+          "x": 2,
+          "r": "R"
+        },
+        {
+          "x": 2,
+          "r": "D"
+        },
+        {
+          "x": 2,
+          "r": "L"
+        },
+        {
+          "x": 3,
+          "r": "U"
+        },
+        {
+          "x": 3,
+          "r": "R"
+        },
+        {
+          "x": 3,
+          "r": "D"
+        },
+        {
+          "x": 3,
+          "r": "L"
+        }
+      ],
+      "reason": "observed_reachable_recovery",
+      "chain": 1,
+      "controller": false
+    },
+    {
+      "frame": 660,
+      "piece": "L:RRR",
+      "old_move": "4D",
+      "new_move": "1U",
+      "allowed": [
+        {
+          "x": 0,
+          "r": "U"
+        },
+        {
+          "x": 0,
+          "r": "R"
+        },
+        {
+          "x": 0,
+          "r": "D"
+        },
+        {
+          "x": 0,
+          "r": "L"
+        },
+        {
+          "x": 1,
+          "r": "U"
+        },
+        {
+          "x": 1,
+          "r": "R"
+        },
+        {
+          "x": 1,
+          "r": "D"
+        },
+        {
+          "x": 1,
+          "r": "L"
+        },
+        {
+          "x": 2,
+          "r": "U"
+        },
+        {
+          "x": 2,
+          "r": "R"
+        },
+        {
+          "x": 2,
+          "r": "D"
+        },
+        {
+          "x": 2,
+          "r": "L"
+        },
+        {
+          "x": 3,
+          "r": "U"
+        },
+        {
+          "x": 3,
+          "r": "R"
+        },
+        {
+          "x": 3,
+          "r": "D"
+        },
+        {
+          "x": 3,
+          "r": "L"
+        }
+      ],
+      "reason": "observed_reachable_recovery",
+      "chain": 1,
+      "controller": false
+    },
+    {
+      "frame": 700,
+      "piece": "L:RRR",
+      "old_move": "4D",
+      "new_move": "1U",
+      "allowed": [
+        {
+          "x": 0,
+          "r": "U"
+        },
+        {
+          "x": 0,
+          "r": "R"
+        },
+        {
+          "x": 0,
+          "r": "D"
+        },
+        {
+          "x": 0,
+          "r": "L"
+        },
+        {
+          "x": 1,
+          "r": "U"
+        },
+        {
+          "x": 1,
+          "r": "R"
+        },
+        {
+          "x": 1,
+          "r": "D"
+        },
+        {
+          "x": 1,
+          "r": "L"
+        },
+        {
+          "x": 2,
+          "r": "U"
+        },
+        {
+          "x": 2,
+          "r": "R"
+        },
+        {
+          "x": 2,
+          "r": "D"
+        },
+        {
+          "x": 2,
+          "r": "L"
+        },
+        {
+          "x": 3,
+          "r": "U"
+        },
+        {
+          "x": 3,
+          "r": "R"
+        },
+        {
+          "x": 3,
+          "r": "D"
+        },
+        {
+          "x": 3,
+          "r": "L"
+        }
+      ],
+      "reason": "observed_reachable_recovery",
+      "chain": 1,
+      "controller": false
+    },
+    {
+      "frame": 750,
+      "piece": "L:RRR",
+      "old_move": "4D",
+      "new_move": "3U",
+      "allowed": [
+        {
+          "x": 3,
+          "r": "U"
+        }
+      ],
+      "reason": "observed_reachable_recovery",
+      "chain": 0,
+      "controller": false
+    }
+  ],
+  "sources_sha256": {
+    "fever_battle\\mode_engine.py": "8b35a0bf94bd063b564ba2a961066b2cff38cdac637235d42f5c9823e19f2dfa",
+    "fever_battle\\uncertainty.py": "b94857a89b49321174e017dcc16166ca84943cf0af4398b914fa741001834330",
+    "C:\\Users\\ho_ki\\git\\ama-memory-bridge\\fever_mode_memory.py": "b6db47ae9bf87caf1db9bca98e563c56e97f158ca77c749cf9ba295a7a26157e",
+    "C:\\Users\\ho_ki\\git\\ama-memory-bridge\\fever_mode_play.py": "cc28c2a0dc2c1cf036b592ffcd69bbc727b34762a7039a0bd750c602e84bb5f5"
+  }
+}

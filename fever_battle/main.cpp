@@ -4,7 +4,12 @@
 #include "../lib/nlohmann/json.hpp"
 #include "search.h"
 #include "physics.h"
+#include "gauge_wait.h"
+#include "color_needs.h"
 #include <stdexcept>
+#include <chrono>
+#include <bit>
+#include <map>
 
 using json = nlohmann::json;
 
@@ -83,14 +88,17 @@ json answer(const json& request)
     auto field = read_field(request.at("field"));
     if (op == "garbage_search") return fever_battle::search(field, request);
     if (op == "seed_search") return fever_battle::seed_search(field, request);
+    if (op == "gauge_wait") return fever_battle::gauge_wait(field, request);
+    if (op == "normal_colors") return fever_battle::normal_colors(field, request);
     if (op == "validate") return {{"valid", true}, {"dead", field.is_dead(rule::FEVER)}};
     if (op == "resolve") return resolve(field);
-    if (op != "placements" && op != "transition") throw std::invalid_argument("unknown operation");
+    if (op != "placements" && op != "transition" && op != "finish_probe" && op != "closing_transition") throw std::invalid_argument("unknown operation");
     auto piece = fever::text::to_piece(request.at("piece").get<std::string>());
     if (!piece) throw std::invalid_argument("invalid piece");
-    if (field.is_dead(rule::FEVER)) throw std::invalid_argument("already dead field");
+    if (field.is_dead(rule::FEVER) && op != "closing_transition") throw std::invalid_argument("already dead field");
     auto rules = rule::FEVER;
     rules.plain_pairs = true;
+    if (op == "closing_transition") rules.death_columns = 0;
     auto moves = move::generate(field, *piece, rules);
     const auto transition = [&](const move::Placement& placement) {
         auto copy = field;
@@ -101,12 +109,115 @@ json answer(const json& request)
         auto result = resolve(copy);
         result["locked_field"] = locked;
         result["split_distances"] = split_distances;
+        u8 heights[6];
+        field.get_heights(heights);
+        const auto geometry = *piece::geometry(*piece, placement.r);
+        int contact = 0;
+        for (u8 i = 0; i < geometry.count; ++i)
+            contact = std::max(contact, int(heights[placement.x + geometry.cells[i].x]) - geometry.cells[i].y);
+        result["contact_height"] = contact;
+        result["pivot_height"] = contact + geometry.pivot_y;
         result["x"] = placement.x;
         result["r"] = std::string(1, fever::text::from_direction(placement.r));
         result["split"] = drop->split;
         result["discarded"] = drop->discarded;
         return result;
     };
+    if (op == "finish_probe") {
+        const int pending = bounded_integer(request.at("confirmed"), 1, 1000000000, "confirmed");
+        const int budget = bounded_integer(request.at("budget_ms"), 0, 1000, "budget_ms");
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(budget);
+        std::optional<piece::Piece> next;
+        std::optional<piece::Piece> last;
+        if (request.contains("next_piece")) {
+            next = fever::text::to_piece(request.at("next_piece").get<std::string>());
+            if (!next) throw std::invalid_argument("invalid next piece");
+        }
+        if (request.contains("last_piece")) {
+            last = fever::text::to_piece(request.at("last_piece").get<std::string>());
+            if (!last) throw std::invalid_argument("invalid last piece");
+        }
+        const auto surviving_drops = [](Field source, int count) {
+            std::vector<Field> result;
+            const int whole = count / 6, extra = count % 6;
+            for (unsigned mask = 0; mask < 64; ++mask) {
+                if (std::popcount(mask) != extra) continue;
+                auto copy = source;
+                u8 height[6]; copy.get_heights(height);
+                for (int x = 0; x < 6; ++x) {
+                    const int amount = whole + ((mask >> x) & 1);
+                    for (int i = 0; i < amount && height[x] < 13; ++i)
+                        copy.set_cell(x, height[x]++, cell::Type::GARBAGE);
+                }
+                // Side-column overflow alone is not proof of loss. Keep the
+                // supported 13 rows and require a filled central death column.
+                if (!copy.is_dead(rule::FEVER)) result.push_back(copy);
+            }
+            return result;
+        };
+        std::map<std::vector<std::string>, bool> last_cache;
+        const auto last_has_chance = [&](Field board) -> std::optional<bool> {
+            if (!last || pending <= 60) return true;
+            auto key = fever::text::from_field(board);
+            if (last_cache.contains(key)) return last_cache.at(key);
+            auto choices = move::generate(board, *last, rules);
+            for (int k = 0; k < choices.get_size(); ++k) {
+                if (std::chrono::steady_clock::now() >= deadline) return std::nullopt;
+                auto copy = board;
+                if (!copy.drop_piece(choices[k].x, choices[k].r, *last, rules))
+                    throw std::runtime_error("generated last placement failed");
+                auto clear = copy.pop();
+                if (!copy.is_dead(rule::FEVER) && (clear.get_size() ||
+                        !surviving_drops(copy, std::min(30, pending - 60)).empty())) {
+                    last_cache[key] = true;
+                    return true;
+                }
+            }
+            last_cache[key] = false;
+            return false;
+        };
+        json candidates = json::array();
+        for (int i = 0; i < moves.get_size(); ++i) {
+            if (std::chrono::steady_clock::now() >= deadline)
+                return {{"proved", false}, {"reason", "budget_inconclusive"}};
+            auto c = transition(moves[i]);
+            if (!c["dead"].get<bool>() && !c["links"].empty())
+                return {{"proved", false}, {"reason", "current_clear_can_survive"}};
+            int drops = c["dead"].get<bool>() ? 0 : 1;
+            if (drops) {
+                auto after = read_field(c["field"]);
+                for (auto board : surviving_drops(after, std::min(30, pending))) {
+                    if (!next || pending <= 30)
+                        return {{"proved", false}, {"reason", "another_visible_or_unknown_chance"}};
+                    auto following = move::generate(board, *next, rules);
+                    for (int j = 0; j < following.get_size(); ++j) {
+                        if (std::chrono::steady_clock::now() >= deadline)
+                            return {{"proved", false}, {"reason", "budget_inconclusive"}};
+                        auto copy = board;
+                        if (!copy.drop_piece(following[j].x, following[j].r, *next, rules))
+                            throw std::runtime_error("generated next placement failed");
+                        auto clear = copy.pop();
+                        if (!copy.is_dead(rule::FEVER)) {
+                            if (clear.get_size())
+                                return {{"proved", false}, {"reason", "next_clear_can_survive"}};
+                            for (auto second : surviving_drops(copy, std::min(30, pending - 30))) {
+                                auto chance = last_has_chance(second);
+                                if (!chance) return {{"proved", false}, {"reason", "budget_inconclusive"}};
+                                if (*chance) return {{"proved", false}, {"reason", "last_visible_chance"}};
+                                drops = 3;
+                            }
+                        }
+                    }
+                    drops = std::max(drops, 2);
+                }
+            }
+            c["finish_after_drops"] = drops;
+            // Proof examines all three visible pieces, but a closing placement
+            // must end before a third nuisance drop on every column subset.
+            if (drops <= 2) candidates.push_back(c);
+        }
+        return {{"proved", !candidates.empty()}, {"placements", candidates}};
+    }
     if (op == "placements") {
         json results = json::array();
         for (int index = 0; index < moves.get_size(); ++index) results.push_back(transition(moves[index]));
@@ -116,6 +227,10 @@ json answer(const json& request)
     const auto r = request.at("r").get<std::string>();
     if (r.size() != 1 || std::string("URDL").find(r[0]) == std::string::npos)
         throw std::invalid_argument("r must be U/R/D/L");
+    // Only an explicitly observed current pose can request this straight drop.
+    // Death reporting still uses FEVER. Ordinary placements retain their BFS.
+    if (op == "closing_transition")
+        return transition(move::Placement{static_cast<i8>(x), static_cast<direction::Type>(std::string("URDL").find(r[0]))});
     for (int index = 0; index < moves.get_size(); ++index)
         if (moves[index].x == x && fever::text::from_direction(moves[index].r) == r[0]) return transition(moves[index]);
     throw std::invalid_argument("placement is unreachable by the conservative route model");

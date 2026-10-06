@@ -18,18 +18,12 @@ def offset_gauge(points, pending, remainder, rate, gauge, gain, maximum=7):
                 cancelled=cancelled, remaining_pending=pending)
 
 
+QUICK_FRAMES = 300   # at or below this much Fever time the seed is fired, not extended
+
+
 def seed_strategy(own, enemy, enemy_possible_score):
-    # Avoid extension when incoming active-side garbage or a short deadline
-    # makes another nonclearing placement dangerous.
-    if own['fever_confirmed'] + own['fever_unconfirmed']:
-        return 'quick', 'active_fever_nuisance'
-    if own['remaining_frames'] <= 300:
+    # Pressure alone must not dismantle a seed with a small counter-chain.
+    # The solver checks survival after confirmed drops for each build route.
+    if own['remaining_frames'] <= QUICK_FRAMES:
         return 'quick', 'short_remaining_time'
-    if enemy['mode'] == 'normal' and enemy['phase'] == 'controllable' and enemy_possible_score == 0:
-        # This is only a visible-one-piece estimate of a distant mainline.
-        return 'quick', 'no_immediate_visible_enemy_fire'
-    if enemy['mode'] == 'fever' and enemy['normal_confirmed'] + enemy['normal_unconfirmed']:
-        # Maintaining pressure while the opponent also has held nuisance is
-        # a generalization of Namoko's immediate first-seed examples.
-        return 'quick', 'enemy_has_held_nuisance'
-    return 'extend', 'seek_visible_extension_or_all_clear'
+    return 'extend', 'build_chain_for_next_fever_entry'

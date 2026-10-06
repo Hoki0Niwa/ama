@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-06",
+  "controller": false,
+  "source": "input-session-20261006-073943.log",
+  "snapshot_count": 32,
+  "cold_timings": {
+    "80x8": {
+      "n": 8,
+      "mean_ms": 36.29416249168571,
+      "max_ms": 55.32609997317195
+    },
+    "50x8": {
+      "n": 8,
+      "mean_ms": 28.360912489006296,
+      "max_ms": 40.66170001169667
+    }
+  },
+  "replay_passed": 32
+}

@@ -1,0 +1,77 @@
+{
+  "controller": false,
+  "fingerprint": "2a3540514327f6b6ece4c2b11e000d626dd211dd977fa69524a4789afcd4e9c7",
+  "two_player": {
+    "n": 50,
+    "mean_ms": 0.40015800041146576,
+    "max_ms": 0.9719000081531703
+  },
+  "control": {
+    "n": 50,
+    "mean_ms": 0.1875979988835752,
+    "max_ms": 0.6108000525273383
+  },
+  "running": [
+    5,
+    7
+  ],
+  "finish_probe": {
+    "n": 50,
+    "mean_ms": 3.089787997305393,
+    "max_ms": 23.482899996452034
+  },
+  "date": "2026-10-06",
+  "old_request_replay": {
+    "source": "input-session-20261006-073943.log",
+    "passed": 32
+  },
+  "before_log": {
+    "source": "input-session.log",
+    "bytes": 609010,
+    "sha256": "cbb17cb206e2aa8c92301f27c4a56845ccfafed7599bf2450c0e2d5382edc6a6",
+    "events": {
+      "duel ready": 1,
+      "battle settings": 1,
+      "controller assignment": 5,
+      "planning": 440,
+      "locked": 118,
+      "analysis failed, retrying": 177,
+      "fire": 24,
+      "paused": 8,
+      "resumed": 6,
+      "big puyo: the other turn button": 2,
+      "rotation buttons swapped": 2
+    },
+    "retries": {
+      "latest observation no longer authorizes this route": 80,
+      "enemy state changed; discard decision": 62,
+      "settled board unavailable during animation/placement": 7,
+      "not the opening queue": 15,
+      "placement is no longer reachable from the observed pose": 6,
+      "automation disabled, game paused or focus lost": 3,
+      "self state changed; discard decision": 3,
+      "only a running round may request decisions": 1
+    }
+  },
+  "route_invariant_audit": {
+    "samples": 20303,
+    "same_piece_fixed_changes": 0,
+    "max_adjacent_gap_frames": 3
+  },
+  "tests": {
+    "mode": 48,
+    "battle": 23,
+    "tsu_protocol": 8,
+    "bridge_fever": 156,
+    "launcher": 46,
+    "settings": 39
+  },
+  "tsu_seeds": [
+    1,
+    2,
+    3
+  ],
+  "tsu_non_time_results_unchanged": true,
+  "live_inputs_verified": false,
+  "native_sha256": "1f41030120cfb16db12d403ee2ac1474ef69f733000f887ec99eda7510a704a4"
+}

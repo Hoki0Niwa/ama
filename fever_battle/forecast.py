@@ -45,6 +45,8 @@ class GarbageSearch:
             nuisance_forecast=result, timing_calibrated=False,
             chain_timing_calibrated=result.get('timing_status','').startswith('steam_15209927'),
             model_status='prototype_unverified_on_local_steam')
+        if 'color_needs' in result:
+            reply['normal_color_needs'] = result['color_needs']
         if shape == '0':
             reply['color'] = 'RYGB'['URDL'.index(first['r'])]
         return reply
