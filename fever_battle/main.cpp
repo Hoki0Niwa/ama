@@ -1,6 +1,7 @@
 #include "../core/core.h"
 #include "../core/fever_queue.h"
 #include "../fever/text.h"
+#include "../fever/engine.h"
 #include "../lib/nlohmann/json.hpp"
 #include "search.h"
 #include "physics.h"
@@ -176,6 +177,13 @@ json answer(const json& request)
             values.push_back(text);
         }
         return {{"queue", values}, {"color_model", "prototype_splitmix4"}};
+    }
+    if (op == "solo") {
+        // The chain builder's own request and reply (fever/main.cpp), with its weight set.
+        const auto& set = request.at("weights");
+        auto reply = fever::answer(request.at("request"), set.get<beam::eval::Weight>(), set);
+        if (reply.contains("error")) throw std::invalid_argument(reply["error"].get<std::string>());
+        return reply;
     }
     auto field = read_field(request.at("field"));
     if (op == "garbage_search") return fever_battle::search(field, request);
