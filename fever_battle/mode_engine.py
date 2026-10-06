@@ -359,8 +359,12 @@ class ModeBattleEngine(BattleEngine):
     def _seed_options(self, request, own, enemy):
         options = request.get('seed_options', {})
         self.seed_solver.validate_options(options)
-        plan=seed_turnover_plan(own,self.scoring,request['target_point'])
-        strategy, reason = seed_strategy(own, enemy, 0, turnover=plan)
+        if self.policy.get('fever_seed', {}).get('strategy') == 'value':
+            # One measure for every line (seed_search.cpp); no strategy is chosen out here.
+            strategy, reason = 'value', 'expected_points_by_the_end_of_this_fever'
+        else:
+            plan=seed_turnover_plan(own,self.scoring,request['target_point'])
+            strategy, reason = seed_strategy(own, enemy, 0, turnover=plan)
         if 'strategy' in options:
             strategy, reason = options['strategy'], 'explicit_common_strategy'
         return {**options, 'strategy': strategy}, reason

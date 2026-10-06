@@ -175,7 +175,9 @@ json seed_search(Field field, const json& request) {
         throw std::invalid_argument("explicit chain clock policy required");
     const bool count_chain = request.at("count_chain_frames").get<bool>();
     const auto strategy = request.at("strategy").get<std::string>();
-    if (strategy != "quick" && strategy != "extend") throw std::invalid_argument("unknown seed strategy");
+    if (strategy != "quick" && strategy != "extend" && strategy != "value")
+        throw std::invalid_argument("unknown seed strategy");
+    const bool by_value = strategy == "value";
     const auto queue = request.at("queue").get<std::vector<std::string>>();
     if (queue.empty() || queue.size() > 3) throw std::invalid_argument("visible queue only");
     std::vector<piece::Piece> pieces;
@@ -270,6 +272,48 @@ json seed_search(Field field, const json& request) {
         }
         return -1;
     };
+    // Strategy "value": one measure for every line, the points expected by
+    // the end of this Fever. A fire is worth its own points and what the
+    // seeds after it can still score on the clock it leaves; a line that pops
+    // nothing is worth the chain it has built, by the odds that the puyos it
+    // waits for come. The model below is a template (one colour, four puyos a
+    // link, fixed odds), not a forecast of the seeds or the colours to come.
+    const auto template_points = [&](int chain) {
+        i64 total = 0;
+        for (int i = 0; i < chain && i < int(power_table.size()); ++i)
+            total += 40 * std::clamp(power_table[i] + bonuses.group.at(4) + bonuses.color.at(1),
+                bonuses.minimum, bonuses.maximum);
+        return total;
+    };
+    const auto next_level = [&](int chain, bool all_clear) {
+        const int level = chain >= target ? chain + 1 : target - std::min(2, std::max(0, target - chain - 1));
+        return std::clamp(level + (all_clear ? 2 : 0), 3, 15);
+    };
+    const int setup_frames = 2 * (placement + spawn);
+    const auto chain_frames = [&](int chain) {
+        return first_link + std::max(0, chain - 1) * (pop_frames + settle_frames + 14) + pop_frames;
+    };
+    constexpr double SEED_ODDS = 0.85;      // a later seed is fired at its level
+    constexpr double CARRIED_LEVEL = 0.5;   // the level kept for the next Fever, in its first seed's points
+    const auto future = [&](int level, int clock) {
+        double total = 0, odds = 1;
+        for (int k = 0; k < 24 && clock > setup_frames + first_link + safety; ++k) {
+            total += odds * template_points(level);
+            clock -= setup_frames + chain_frames(level);
+            if (clock <= 0) break;          // that chain outlasts the clock: it scores, nothing follows
+            clock = std::min(maximum, clock + std::max(0, level - 2) * 30) - chain_ready;
+            odds *= SEED_ODDS; level = std::min(15, level + 1);
+        }
+        return total + odds * CARRIED_LEVEL * template_points(level);
+    };
+    constexpr double COLOR_ODDS[4] = {0, 0.75, 0.45, 0.25};     // 1, 2 or 3 puyos of one colour come in time
+    // Points that offset are worth what they stop, the same as points sent, so
+    // nuisance pending is no separate term: more points is less of it. Only
+    // what the stored board cannot take at the end weighs beyond that.
+    const auto danger = [&](i64 carry, double points_to_come) {
+        const double left = std::max(0.0, double(carry) - points_to_come / rate);
+        return std::max(0.0, left - double(std::max<i64>(0, quiet_limit))) * rate;
+    };
     const auto consider = [&](SeedNode& node, int chain, bool alive, int fire_at, int end_at, i64 sent) {
         const bool in_time = (chain ? fire_at : end_at) + safety < remaining;
         const bool success = chain >= target && in_time && alive;
@@ -285,7 +329,7 @@ json seed_search(Field field, const json& request) {
             // Extension values the chain kept for the next Fever entry. The
             // clock award/next-seed opportunity is reported, not a turnover
             // bonus that forces this seed to fire while it can still grow.
-        } else if (strategy == "extend" || avoid_early_failure) {
+        } else if (strategy == "extend" || by_value || avoid_early_failure) {
             auto p = potential(node.field, rules);
             value = build_value(node.field, p, int(node.path.size()), end_at);
             node.build_value = int(value);
@@ -301,6 +345,28 @@ json seed_search(Field field, const json& request) {
         // An in-time ignition scores the WHOLE chain, even if it ends after
         // timeout. Completion/next-seed time is a distinct secondary objective.
         const i64 total_points = chain ? node.path.back().total_points : 0;
+        if (by_value) {
+            const auto& last = node.path.back();
+            double worth = 0;
+            if (chain) {
+                const int clock = last.completed ? last.remaining_after_rewards - chain_ready : 0;
+                const double later = future(next_level(chain, last.all_clear), clock);
+                worth = double(total_points) + later - danger(last.carry, later);
+            } else {
+                const auto& p = last.extension;
+                const int wait = p.needed * (placement + spawn);
+                const bool reachable = p.chain > 0 && end_at + wait + first_link + safety < remaining;
+                const double odds = reachable ? COLOR_ODDS[std::clamp(p.needed, 1, 3)] : 0;
+                int clock = remaining - end_at - wait - chain_frames(p.chain);
+                if (clock > 0) clock = std::min(maximum, clock + std::max(0, p.chain - 2) * 30) - chain_ready;
+                const double hit = template_points(p.chain) + future(next_level(p.chain, false), clock);
+                // The puyos do not come and nothing is fired: the seed and its level are kept.
+                const double miss = CARRIED_LEVEL * template_points(target);
+                worth = odds * (hit - danger(last.carry, hit)) + (1 - odds) * (miss - danger(last.carry, 0));
+            }
+            value = i64(worth);
+            node.build_value = int(std::clamp<i64>(value, -2000000000, 2000000000));
+        }
         i64 turnover_value = total_points;
         if (prefer_turnover && chain) {
             const auto& last = node.path.back();
@@ -316,6 +382,7 @@ json seed_search(Field field, const json& request) {
         auto rank = strategy == "quick"
             ? std::make_tuple(tier, turnover_value + reward_clear * i64(rate) * 30,
                 int(success && next_seed_fits), reward_clear, -end_at, sent)
+            : by_value ? std::make_tuple(tier, value, reward_clear, chain, -end_at, sent)
             : std::make_tuple(tier, value, reward_clear, chain,
                 fire_at, sent);
         if (rank > best_rank) { best_rank = rank; best_path = node.path; }
@@ -501,7 +568,7 @@ json seed_search(Field field, const json& request) {
         if (depth == 0 && !cutoff) root_complete = true;
         // Preserve distinct boards and garbage state at each visible position.
         std::stable_sort(next.begin(), next.end(), [&](const SeedNode& a, const SeedNode& b) {
-            return strategy == "extend" ? std::make_tuple(a.build_value, -a.frame) >
+            return strategy != "quick" ? std::make_tuple(a.build_value, -a.frame) >
                 std::make_tuple(b.build_value, -b.frame) : a.frame < b.frame;
         });
         std::unordered_set<std::string> seen; layer.clear();
@@ -516,7 +583,9 @@ json seed_search(Field field, const json& request) {
     const auto& original = best_path.back();
     const bool premature_failure = avoid_early_failure && original.chain > 0 &&
         original.chain < target && original.end_at < remaining + safety;
-    const bool deferred_failure = premature_failure && !guarded_path.empty();
+    // Under "value" the measure already weighs a failed fire, a kept seed and
+    // what is carried: the line it ranks first stands, with nothing swapped in.
+    const bool deferred_failure = !by_value && premature_failure && !guarded_path.empty();
     if (deferred_failure) best_path = std::move(guarded_path);
     bool prefer_known_fire = false;
     if (strategy == "extend" && !best_path.back().chain && !known_fire_path.empty()) {
@@ -533,7 +602,7 @@ json seed_search(Field field, const json& request) {
     // it when the nuisance left for the normal board is harmless, or no larger
     // than after the fire (drops taken on the Fever board disappear with it).
     bool quiet_end = false;
-    if (quiet_limit >= 0 && !quiet_path.empty()) {
+    if (!by_value && quiet_limit >= 0 && !quiet_path.empty()) {
         const auto& fire = best_path.back();
         const auto& quiet = quiet_path.back();
         if (fire.chain > 0 && fire.chain < target - 1 && !fire.all_clear && fire.sent < quiet_attack &&
@@ -574,7 +643,8 @@ json seed_search(Field field, const json& request) {
             {"minimum_estimate", 1 + std::max(0,remaining-safety-1)/(placement+spawn+split_costs[13].get<int>())},
             {"maximum_estimate", 1 + std::max(0,remaining-safety-1)/(placement+spawn)},
             {"status", "estimated_spawn_counts_split_range_not_ignition_probability"}}},
-        {"objective", strategy == "quick" ? "deadline_score_and_seed_turnover" : "max_chain_for_next_fever_entry"},
+        {"objective", strategy == "quick" ? "deadline_score_and_seed_turnover" :
+            by_value ? "expected_points_by_the_end_of_this_fever" : "max_chain_for_next_fever_entry"},
         {"extension_moves", extension_moves}, {"extension_patience", patience}, {"desired_chain", target + gain},
         {"extension_stop_policy", "time_and_space_no_fixed_move_limit"},
         {"unknown_build_reserve_frames", unknown_build_reserve},

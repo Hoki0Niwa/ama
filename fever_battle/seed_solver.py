@@ -18,7 +18,7 @@ class SeedSolver:
         for key, value in options.items():
             if key in bounds:
                 integer(value, key, *bounds[key])
-        if options.get('strategy', 'quick') not in ('quick', 'extend'):
+        if options.get('strategy', 'quick') not in ('quick', 'extend', 'value'):
             raise ValueError('unknown seed strategy')
 
     def solve(self, side, rate, count_chain_frames, options=None, match_id=None, allowed=None,
@@ -34,7 +34,7 @@ class SeedSolver:
         timing = ChainTiming.for_mode('fever', placement_frames=integer(options.get('placement_frames', 14),
                                                                       'placement_frames', 1, 10000))
         strategy = options.get('strategy', 'quick')
-        if strategy not in ('quick', 'extend'):
+        if strategy not in ('quick', 'extend', 'value'):
             raise ValueError('unknown seed strategy')
         has_history = all(key in side for key in ('mode_generation', 'seed_id', 'piece_id'))
         if has_history:
