@@ -2104,3 +2104,15 @@ T7：Steam実機での全26キャラの周期照合（実機が必要）。段�
 - 残り：`quick`・`extend` の内部処理はコードに残る（エンジンからは到達しない）。理由は同10.4。
 - 反映：既定の `fever_battle.exe` を置き換え（SHA256 9484ef2067f002e784bf45b654ebb187e34bb6c11b252aee5ebd7dfe70f668e4）、旧版は `fever_battle.pre-p6-20261007.exe`。基準を取り直した。
 - 未実施：実機での確認。
+
+### 2026-10-07 R5・R6（共有エンジンを揃える、pvpとai::thinkの分割）
+
+- 依頼：フィーバー中は `value`、通常構築は本線のまま、という決定を踏まえてR5・R6へ進む。
+- R5：`irregular-form`（`1fd53ff`）を `fever` へ取り込み（`02bad49`）。競合4ファイルは同じ速度改善の二重実装で、`irregular-form` 側を採った。取り込み後に残る `fever` だけの差は `is_dead(rule::TSU)` への置き換えとフィーバー用の宣言で、意図したもの。
+- R6（`irregular-form` で実施）：`pvp/main.cpp` からプロトコルとエンジンを `pvp/protocol.h`・`pvp/engine.h` へ分離（`01ddadc`）。`ai::think` を判断ごとの4関数へ分割（`7f7b096`、各ブロックは一字一句そのまま移動）。`form.h` の `std::size`。`origin/irregular-form` へpushし、`fever` へ取り込んだ。
+- 確認：`irregular-form` で、変更前後のバイナリの固定シード6試合（抽象審判）のログ917行が一致、`bench` シード1〜4が時間の列以外一致、共有テスト5種成功。取り込み後の `fever` で、Fever系236件成功、再生2148件差分0、同じTsu側の確認。
+- 分かったこと：フレーム単位の審判の対戦ログは同じバイナリでも再現しない。一致の確認には抽象審判を使った。
+- 反映：`fever` の既定の `fever_battle.exe`・`fever.exe` を置き換え、基準を取り直した。`C:\Users\ho_ki\git\ama\bin\pvp\pvp.exe` は対戦に使用中のため置き換えていない（新ビルドは `bin\r6b\pvp.exe`）。
+- 途中の誤り：`ai::think` の分割で共有値 `prepare` を渡し忘れ、ビルドが一度失敗した。追加してから検証した。`form.h` の変更はビルドだけ確認し、その後の `fever` 側の取り込みでテスト全体を通している。
+- 実施しなかったもの：dfsとbeamの評価部品の共通化、ビーム本体の共通化、盤面の文字列変換の統一。理由は `doc/REFACTOR_PLAN.md` 9.3。
+- 未実施：実機での確認。R7〜R9。
