@@ -12,6 +12,18 @@
     "patience_step": 3
   },
   "reset_moves_at_chain": 4,
+  "normal_build": {
+    "status": "prototype_heuristic_not_battle_tuned",
+    "objective": "mainline",
+    "fever_aim": {
+      "weight_set": "fever_aim",
+      "solo_options": {
+        "trigger": 19,
+        "patience": 0,
+        "shave_chain": 0
+      }
+    }
+  },
   "fever_defense": {
     "status": "prototype_heuristic_not_battle_tuned",
     "hoard_max_central_height": 8,

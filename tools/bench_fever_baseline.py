@@ -118,10 +118,14 @@ def entry_run(engine, character, colours, args, limit=90):
         own['normal_confirmed'] = own['confirmed']
         own.update(queue=queue[move:move+3], dropset_index=move % 16, piece_id=move, moves_since_chain=since_chain)
         started = time.monotonic()
-        reply = engine.answer(request(f'entry-{colours}', move, own, enemy, 1))
+        try:
+            reply = engine.answer(request(f'entry-{colours}', move, own, enemy, 1))
+        except ValueError as error:      # the engine found no placement that survives
+            reply = dict(error=str(error))
         slowest = max(slowest, time.monotonic()-started)
         if 'error' in reply or reply.get('action') != 'place':
-            return dict(row, end=reply.get('error', reply.get('reason')), moves=move, gauge=own['gauge'], reasons=reasons)
+            return dict(row, end='dead' if 'no placement survives' in reply.get('error', '') else
+                reply.get('error', reply.get('reason')), moves=move, gauge=own['gauge'], reasons=reasons)
         reasons[reply['reason']] = reasons.get(reply['reason'], 0) + 1
         result = engine.native.ask(dict(op='transition', field=own['field'], piece=own['queue'][0],
                                         x=reply['x'], r=reply['r']))
@@ -184,14 +188,18 @@ def main():
     parser.add_argument('--start', type=int, default=12, help='entry: piece at which nuisance first arrives')
     parser.add_argument('--every', type=int, default=3, help='entry: pieces between arrivals')
     parser.add_argument('--amount', type=int, default=4, help='entry: confirmed nuisance per arrival')
+    parser.add_argument('--objective', choices=('mainline', 'fever_aim'),
+                        help='entry: normal build objective, in place of the policy file')
     parser.add_argument('--output', type=Path)
     args = parser.parse_args()
     engine = mode_engine.ModeBattleEngine(args.native, args.solo, ROOT/'config.json')
+    if args.objective:
+        engine.policy['normal_build']['objective'] = args.objective
     try:
         summary, rows = (seed_bench if args.bench == 'seed' else entry_bench)(engine, args)
     finally:
         engine.close()
-    summary.update(bench=args.bench, native_sha256=hashlib.sha256(args.native.read_bytes()).hexdigest(),
+    summary.update(bench=args.bench, objective=engine.policy['normal_build']['objective'], native_sha256=hashlib.sha256(args.native.read_bytes()).hexdigest(),
                    solo_sha256=hashlib.sha256(args.solo.read_bytes()).hexdigest())
     print(json.dumps(summary, ensure_ascii=False, indent=1))
     if args.output:

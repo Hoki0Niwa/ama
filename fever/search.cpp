@@ -61,11 +61,14 @@ static void think(
     beam::Layer& children,
     const beam::eval::Weight& w,
     const rule::Rule& rules,
-    const Configs& configs
+    const Configs& configs,
+    size_t depth
 )
 {
     // Sorts the parents layer
     parents.sort();
+
+    std::vector<i64> reached(configs.aim ? candidates.size() : 0, INT64_MIN);
 
     // Expands each parent to the next layer
     for (auto& node : parents.data) {
@@ -102,6 +105,10 @@ static void think(
             // Stores the entry in the transposition table
             children.table.set(entry, hash, child.score.action, child.score.eval);
 
+            if (configs.aim) {
+                reached[child.index] = std::max(reached[child.index], i64(child.score.eval) + child.score.action);
+            }
+
             // Adds children to the next layer
             children.add(child);
         });
@@ -109,6 +116,15 @@ static void think(
 
     // Clears the parents layer
     parents.clear();
+
+    for (size_t i = 0; i < reached.size(); ++i) {
+        if (reached[i] != INT64_MIN) {
+            candidates[i].aim = reached[i];
+        }
+        else if (candidates[i].aim > AIM_LOST / 2) {
+            candidates[i].aim = AIM_LOST + i64(depth) * 1000000;
+        }
+    }
 };
 
 // Beam search
@@ -155,6 +171,7 @@ Result search(
             // Updates child
             child.index = i32(result.candidates.size());
             fever::evaluate(child, w, configs);
+            candidate.aim = i64(child.score.eval) + child.score.action;
 
             // Pushes
             result.candidates.push_back(candidate);
@@ -176,7 +193,8 @@ Result search(
             layers[(i + 1) & 1],
             w,
             configs.rules,
-            configs
+            configs,
+            i + 1
         );
 
         bool enough = false;
@@ -258,6 +276,7 @@ Result search_multi(
             for (auto& c2 : b.candidates) {
                 if (c1.placement == c2.placement) {
                     c1.score += c2.score;
+                    c1.aim += c2.aim;
                     c1.chain = std::max(c1.chain, c2.chain);
                     break;
                 }
@@ -270,6 +289,10 @@ Result search_multi(
         result.candidates.begin(),
         result.candidates.end(),
         [&] (const Candidate& a, const Candidate& b) {
+            if (configs.aim) {
+                return a.aim > b.aim;
+            }
+
             if (configs.stretch) {
                 return a.score > b.score;
             }

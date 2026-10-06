@@ -73,6 +73,10 @@ json answer(const json& input, const beam::eval::Weight& w, const json& set)
 
     auto configs = fever::Configs();
     configs.hill = set.value("hill", 0);
+    configs.stock = set.value("stock", 0);
+    configs.stock_color = set.value("stock_color", 0);
+    configs.stock_want = std::clamp(input.value("stock_want", configs.stock_want), 1, 7);
+    configs.aim = input.value("aim", false);
 
     configs.trigger = input.value("trigger", configs.trigger);
     configs.stretch = input.value("stretch", configs.stretch);

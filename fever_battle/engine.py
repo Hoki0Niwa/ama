@@ -29,11 +29,11 @@ class SoloBuilder:
     the weight set is the one that engine reads from the config.
     """
     def __init__(self, native, config):
-        data = json.loads(Path(config).read_text(encoding='utf-8'))
-        self.native, self.weights = native, data['fever'] if 'fever' in data else data['build']
+        self.native, self.sets = native, json.loads(Path(config).read_text(encoding='utf-8'))
 
-    def ask(self, request, timeout=10):
-        return self.native.ask(dict(op='solo', weights=self.weights, request=request), timeout=timeout)
+    def ask(self, request, timeout=10, weight_set='fever'):
+        weights = self.sets[weight_set] if weight_set in self.sets else self.sets['build']
+        return self.native.ask(dict(op='solo', weights=weights, request=request), timeout=timeout)
 
 
 class BattleEngine:

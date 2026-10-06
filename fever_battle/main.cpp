@@ -191,6 +191,11 @@ json answer(const json& request)
     if (op == "gauge_wait") return fever_battle::gauge_wait(field, request);
     if (op == "normal_colors") return fever_battle::normal_colors(field, request);
     if (op == "validate") return {{"valid", true}, {"dead", field.is_dead(rule::FEVER)}};
+    if (op == "stock") {
+        // Offset stock of a board (fever/stock.h), for tests and measurements.
+        const auto stock = fever::stock::evaluate(field, bounded_integer(request.at("want"), 1, 7, "want"));
+        return {{"units", stock.units}, {"links", stock.links}, {"colors", stock.colors}};
+    }
     if (op == "resolve") return resolve(field);
     if (op != "placements" && op != "transition" && op != "finish_probe" && op != "closing_transition") throw std::invalid_argument("unknown operation");
     auto piece = fever::text::to_piece(request.at("piece").get<std::string>());

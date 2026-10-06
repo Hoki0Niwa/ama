@@ -1,0 +1,203 @@
+{
+ "date": "2026-10-07",
+ "bench": "tools/bench_fever_baseline.py entry",
+ "character": "raffina",
+ "queues_per_condition": 24,
+ "weight_sets": {
+  "fever_aim": {
+   "chain": 300,
+   "stock": 500,
+   "stock_color": 400,
+   "score": 0
+  },
+  "fever_aim_alt": {
+   "chain": 0,
+   "stock": 800,
+   "stock_color": 600,
+   "score": 0
+  }
+ },
+ "totals": {
+  "mainline": {
+   "entry": 94,
+   "dead": 26
+  },
+  "fever_aim": {
+   "entry": 97,
+   "dead": 23
+  },
+  "fever_aim_alt": {
+   "entry": 97,
+   "dead": 23
+  }
+ },
+ "conditions": [
+  {
+   "start": 12,
+   "every": 3,
+   "amount": 4,
+   "objective": "mainline",
+   "entry": 24,
+   "dead": 0,
+   "mean_moves_after_first_attack": 10.46,
+   "mean_dropped_before_entry": 5.21,
+   "slowest_ms": 157
+  },
+  {
+   "start": 12,
+   "every": 3,
+   "amount": 4,
+   "objective": "fever_aim",
+   "entry": 24,
+   "dead": 0,
+   "mean_moves_after_first_attack": 8.62,
+   "mean_dropped_before_entry": 2.33,
+   "slowest_ms": 157
+  },
+  {
+   "start": 6,
+   "every": 2,
+   "amount": 6,
+   "objective": "mainline",
+   "entry": 16,
+   "dead": 8,
+   "mean_moves_after_first_attack": 14.69,
+   "mean_dropped_before_entry": 31.5,
+   "slowest_ms": 141
+  },
+  {
+   "start": 6,
+   "every": 2,
+   "amount": 6,
+   "objective": "fever_aim",
+   "entry": 16,
+   "dead": 8,
+   "mean_moves_after_first_attack": 14.12,
+   "mean_dropped_before_entry": 30.69,
+   "slowest_ms": 141
+  },
+  {
+   "start": 10,
+   "every": 1,
+   "amount": 3,
+   "objective": "mainline",
+   "entry": 22,
+   "dead": 2,
+   "mean_moves_after_first_attack": 10.55,
+   "mean_dropped_before_entry": 19.05,
+   "slowest_ms": 157
+  },
+  {
+   "start": 10,
+   "every": 1,
+   "amount": 3,
+   "objective": "fever_aim",
+   "entry": 23,
+   "dead": 1,
+   "mean_moves_after_first_attack": 8.22,
+   "mean_dropped_before_entry": 11.17,
+   "slowest_ms": 156
+  },
+  {
+   "start": 8,
+   "every": 5,
+   "amount": 20,
+   "objective": "mainline",
+   "entry": 9,
+   "dead": 15,
+   "mean_moves_after_first_attack": 11.11,
+   "mean_dropped_before_entry": 22.11,
+   "slowest_ms": 141
+  },
+  {
+   "start": 8,
+   "every": 5,
+   "amount": 20,
+   "objective": "fever_aim",
+   "entry": 10,
+   "dead": 14,
+   "mean_moves_after_first_attack": 11.2,
+   "mean_dropped_before_entry": 26.6,
+   "slowest_ms": 125
+  },
+  {
+   "start": 4,
+   "every": 1,
+   "amount": 2,
+   "objective": "mainline",
+   "entry": 23,
+   "dead": 1,
+   "mean_moves_after_first_attack": 13.91,
+   "mean_dropped_before_entry": 19.22,
+   "slowest_ms": 188
+  },
+  {
+   "start": 4,
+   "every": 1,
+   "amount": 2,
+   "objective": "fever_aim",
+   "entry": 24,
+   "dead": 0,
+   "mean_moves_after_first_attack": 13.38,
+   "mean_dropped_before_entry": 18.12,
+   "slowest_ms": 172
+  },
+  {
+   "start": 12,
+   "every": 3,
+   "amount": 4,
+   "objective": "fever_aim_alt",
+   "entry": 24,
+   "dead": 0,
+   "mean_moves_after_first_attack": 9.46,
+   "mean_dropped_before_entry": 3.25,
+   "slowest_ms": 157
+  },
+  {
+   "start": 6,
+   "every": 2,
+   "amount": 6,
+   "objective": "fever_aim_alt",
+   "entry": 19,
+   "dead": 5,
+   "mean_moves_after_first_attack": 12.05,
+   "mean_dropped_before_entry": 22.11,
+   "slowest_ms": 156
+  },
+  {
+   "start": 10,
+   "every": 1,
+   "amount": 3,
+   "objective": "fever_aim_alt",
+   "entry": 23,
+   "dead": 1,
+   "mean_moves_after_first_attack": 8.39,
+   "mean_dropped_before_entry": 11.83,
+   "slowest_ms": 156
+  },
+  {
+   "start": 8,
+   "every": 5,
+   "amount": 20,
+   "objective": "fever_aim_alt",
+   "entry": 7,
+   "dead": 17,
+   "mean_moves_after_first_attack": 11.29,
+   "mean_dropped_before_entry": 26.86,
+   "slowest_ms": 141
+  },
+  {
+   "start": 4,
+   "every": 1,
+   "amount": 2,
+   "objective": "fever_aim_alt",
+   "entry": 24,
+   "dead": 0,
+   "mean_moves_after_first_attack": 12.96,
+   "mean_dropped_before_entry": 17.42,
+   "slowest_ms": 157
+  }
+ ],
+ "status": "offline_prototype_colour_model_scripted_nuisance_not_live_and_not_a_battle_result",
+ "note": "24 colour sequences per condition; differences of a few entries are within what a rerun with other sequences could change"
+}

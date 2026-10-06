@@ -180,6 +180,14 @@ class ModeBattleEngine(BattleEngine):
             options.pop('patience', None)  # no history-based impatience threshold
         options.setdefault('beam_width', 50)
         options.setdefault('beam_depth', 8)
+        build = self.policy.get('normal_build', {})
+        if (build.get('objective') == 'fever_aim' and request['gauge_gain_on_offset'] > 0
+                and own['gauge'] < self.mode_rules['gauge_max']):
+            # Fever aim: build what offsets link by link, not one long chain.
+            # The builder ranks by its evaluation and fires nothing by length.
+            aim = build['fever_aim']
+            options.update(aim['solo_options'], aim=True, weight_set=aim['weight_set'],
+                           stock_want=self.mode_rules['gauge_max'] - own['gauge'])
         return options
 
     def _solo_build(self, own, options):
@@ -194,9 +202,11 @@ class ModeBattleEngine(BattleEngine):
             # search, whose inputs contain no opponent or packet counts.
             self.normal_build_reused = True
             return deepcopy(cached[2])
+        build = {key: value for key, value in options.items() if key != 'weight_set'}
         result = self.solo.ask(dict(rule='fever', solo=True, character=own['character'],
             dropset_index=own['dropset_index'], self={'field': own['field'], 'queue': own['queue']},
-            plain_pairs=True, include_next=True, **options))
+            plain_pairs=True, include_next=True, **build), **(
+                {'weight_set': options['weight_set']} if 'weight_set' in options else {}))
         self.normal_build_cache = (key, list(own['queue']), deepcopy(result))
         return result
 
