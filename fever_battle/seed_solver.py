@@ -7,6 +7,7 @@ class SeedSolver:
     def __init__(self, native, scoring):
         self.native, self.scoring = native, scoring
         self.seed_origin = None
+        self.value_model = None     # constants of strategy "value"; None leaves the worker's defaults
 
     @staticmethod
     def validate_options(options):
@@ -63,6 +64,7 @@ class SeedSolver:
             budget_ms=budget, safety_frames=integer(options.get('safety_frames', 8), 'safety_frames', 0, 600),
             timing=timing.native(), powers=self.scoring.data['characters'][side['character']]['fever'],
             bonuses=self.scoring.data['bonuses'], **({'allowed': allowed} if allowed is not None else {}),
+            **({'value_model': self.value_model} if self.value_model is not None else {}),
             **({} if quiet_carry_limit is None else dict(
                 quiet_carry_limit=integer(quiet_carry_limit, 'quiet_carry_limit', 0, 10**9),
                 quiet_min_attack=integer(quiet_min_attack, 'quiet_min_attack', 0, 10**9)))),

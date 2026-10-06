@@ -1,6 +1,6 @@
 # リポジトリ全体のリファクタリング計画
 
-作成：2026-10-06。状態（2026-10-07）：**R0・R1の基準固定・R2・R4、R3の一部、探索の再編（P2〜P5とP6の一部、SEARCH_PLAN第10節）、R5、R6の一部（第9節）を実施済み。** R7〜R9（ビルド・設定・文書）は未着手。実機での確認はしていない。 探索と評価の再編は [SEARCH_PLAN.md](SEARCH_PLAN.md) に分けてあり、本書はそれを含むリポジトリ全体の範囲・順序・規則を定める。
+作成：2026-10-06。状態（2026-10-07）：**R0〜R9に着手済み。** 完了：R0、R2、R4、R5。一部：R1（テストの並べ直しと検証スクリプトの統合は未実施、7.4）、R3（8.3）、R6（9.3）、R7・R8・R9（第10節）。探索の再編は SEARCH_PLAN 第10節。実機での確認はしていない。 探索と評価の再編は [SEARCH_PLAN.md](SEARCH_PLAN.md) に分けてあり、本書はそれを含むリポジトリ全体の範囲・順序・規則を定める。
 
 依頼（2026-10-06）：順序4（代表キャラの実機受入れ）は完了といってよい状態。リファクタリングは後付け実装だけでなく、リポジトリ全体を対象にする。
 
@@ -287,4 +287,31 @@ R3として今後も残る作業：`model.py`（入力検査・得点・審判�
 
 - `fever`：**既定の `fever_battle.exe`・`fever.exe` は置き換えていない。** 置き換えようとした時点でフィーバー対戦のプロセスが動いており、ファイルが使用中だった。既定は探索の再編後のビルド（SHA256 `9484ef20…68e4`）のままで、取り込み後のビルドは `bin/r6/` にある。両者は記録済み2148要求に同じ返答をする（挙動の差はない）。基準 `data/fever/golden/` は既定のビルドに対するもの。
 - `irregular-form`：**実行中の `pvp.exe`（Tsuの対戦に使用中）は置き換えていない。** 新しいビルドは `C:\Users\ho_ki\git\ama\bin\r6b\pvp.exe` にあり、既定の `bin/pvp/pvp.exe` への反映はユーザーが対戦を止めたときに `build.ps1` で行う。
+
+## 10. R7〜R9の実施結果（2026-10-07）
+
+### 10.1 R9：文書
+
+- [FEVER_MODE_ENGINE.md](FEVER_MODE_ENGINE.md) を、追記の積み重ねから**現行仕様**へ書き直した。構成、要求と返答、判断の流れ、通常盤面（構築・戦術探索・最短決着）、フィーバー中（`value`・明示指定の方針・時計）、意図した制約、検証方法、未確認事項。出典、審判の時計とイベント、公開タネの検証、構築の先読みと操作承認の節は内容が現行のままなので残した。旧版の「フィーバー中の時計は未校正」という段落は、その後の実測（[FEVER_TIMING.md](FEVER_TIMING.md)）で置き換わっているため除いた。
+- [README.md](README.md)：冒頭を「現在の状態」の要約にし、日付ごとの追記17件を除いた（経緯は `WORK_LOG.md`）。文書表に `FEVER_MODE_LIVE`・`FEVER_MODE_OBSERVATION`・`FEVER_MARGIN_TIME`・`SPEED_REFACTOR` を追加。
+- 判断の説明が一部古くなった3文書（`FEVER_MARGIN_TIME.md`・`FEVER_MODE_LIVE.md`・`BATTLE_ROADMAP.md`）は、冒頭に「どこが現行でどこが当時の記述か」の注記を付けた。本文は書き直していない。
+- 書き直していない文書：`FEVER_BATTLE_ENGINE.md`（protocol 2）、`FEVER_ENGINE.md`（単独エンジン）、`FEVER_TIMING.md`・`FEVER_PHYSICS.md`・`FEVER_BATTLE_RULES.md`・`RULES_AND_ASSUMPTIONS.md`・`DROPSETS.md`（規則と実測）、`IMPLEMENTATION_PLAN.md`。今回のリファクタリングで内容が変わっていない。追記の形は残っている。
+- `doc/` と `docs/`：`docs/` は `irregular-form` から来るTsu側の文書で、統合しない（`fever` 側で動かすと取り込みのたびに競合する）。README に区別を書いた。
+
+### 10.2 R8：設定とデータ
+
+- フィーバー中の `value` の定数（後続タネの成功の見込み、持ち越す段の価値、色の見込み、有害な持ち越しの重み）を `seed_search.cpp` の定数から `battle_policy.json` の `fever_seed.value_model` へ移した。要求に含めて渡し、無ければ従来と同じ既定値を使う。記録済み要求の再生は差分0。
+- `data/fever/baselines/README.md` に記録41件の一覧（各ファイルが自分で述べている適用範囲つき）を追加した。記録自体は動かしていない。
+- 残り：`tactics.cpp` の固定値（中央8段、予告の上限30・60個）、構築の `PRUNE_CHAIN`、相殺ストックの重み（4・2・1）と繰り返し回数は、コード内の定数のまま。`config.json`（重みセット）と `battle_policy.json`（方針）の2か所に分かれる構成は変えていない。
+
+### 10.3 R7：ビルドと成果物
+
+- `makefile` にフィーバー用の3ターゲット（`fever`・`bench_fever`・`fever_battle`）を追加した。ソース構成は `build.ps1` と同じ。出力先を `BIN=` で変えられる。MSYSのシェルで `make BIN=bin/make-test fever_battle fever bench_fever` が通り、できたバイナリは記録済み2148要求に同じ返答をした。既存のTsu用ターゲットは変更していない。
+- `build.ps1` は R4 で `fever_battle` のソース列挙を `bench_fever` と共通にしてある。
+- `bin/`：今回の作業で作った一時ビルド（`p2`〜`p6`・`r2`・`r4`・`r5`）は削除した。**それ以前からある退避先は消していない。** 合計約6.3GBで、`t8-t13`（約5.3GB）・`t15`（約560MB）・`t7`（約250MB）が大半。`t15` は作業記録が32か所で参照している。削除するかどうかはユーザーの判断による。
+
+### 10.4 反映の状態
+
+- `bin/fever_battle/fever_battle.exe`：R6後のビルド（SHA256 `2611b30f…31fa`）。Tsuの `C:\Users\ho_ki\git\ama\bin\pvp\pvp.exe` もR6後のビルドへ置き換え済み（旧版は `pvp.pre-r6-20261007.exe`）。
+- R8の変更（`value_model` を要求から読む）を含むビルドは `bin/r8/fever_battle.exe` にあり、**既定へは未反映**。置き換えようとした時点でフィーバー対戦のプロセスが動いていた。既定のビルドは `value_model` を読まず同じ既定値を使うので、挙動は同じ。対戦を止めたときに `./build.ps1 -Target fever_battle` で反映できる。
 
