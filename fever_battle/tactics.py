@@ -37,7 +37,8 @@ def choose(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=No
         enemy_remainder=opponent.get('remainder', 0),
         timing=ChainTiming().native(), powers=scoring.data['characters'][own['character']]['normal'],
         bonuses=scoring.data['bonuses'], weights=policy['weights'],
-        width=policy.get('width', 12), budget_ms=policy.get('budget_ms', 30))
+        width=policy.get('width', 12), max_nodes=policy.get('max_nodes', 6000),
+        budget_ms=policy.get('budget_ms', 100))
     if allowed is not None:
         request['allowed'] = allowed
     if builder is not None:

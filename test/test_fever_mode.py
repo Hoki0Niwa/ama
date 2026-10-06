@@ -18,7 +18,6 @@ from fever_battle.mode_tactics import seed_strategy
 from fever_battle.worker import JsonProcess
 from fever_battle.uncertainty import outcomes
 from fever_battle.finish import choose as fast_finish, placement_frames
-from fever_battle.gauge_wait import choose as wait_move
 from fever_battle.normal_colors import inspect as inspect_colors
 
 from fever_fixtures import NATIVE, SOLO, request, seed3, seed_with_small_green, side
@@ -337,7 +336,7 @@ class NativeModeTests(unittest.TestCase):
         current['self'].update(confirmed=3,normal_confirmed=3,garbage_phase=None,garbage_phase_status='unknown')
         reply=self.engine.answer(current)
         self.assertNotIn('normal_search_reused',reply)
-        self.assertIn('nuisance_uncertainty',reply)
+        self.assertIn('tactics_forecast',reply)
 
     def test_normal_prefetch_never_predicts_after_a_clear(self):
         own=side('normal',queue=['2:RR','2:BB','L:RRY'])
@@ -508,10 +507,11 @@ class NativeModeTests(unittest.TestCase):
         self.assertIsNone(own['garbage_phase'])
         own.update(confirmed=3, normal_confirmed=3)
         reply = self.engine.answer(request(own))
-        forecast = reply['nuisance_uncertainty']
-        self.assertEqual(forecast['possible_drop_boards'], 20)
+        forecast = reply['tactics_forecast']
+        self.assertEqual(forecast['choice']['possible_drop_boards'], 20)
+        self.assertFalse(forecast['choice']['post_drop_field_known'])
         self.assertIsNone(reply['next_field'])
-        self.assertEqual(forecast['uncertainty'], 'all_remainder_column_subsets')
+        self.assertEqual(forecast['unknown_drop_policy'], 'worst_column_choice_then_reobserve')
 
     def test_fever_unknown_preparation_and_cursor_use_observed_seed(self):
         own = side('fever', seed3(), ['2:RY', '2:BB', 'L:RRY'])
@@ -626,7 +626,7 @@ class NativeModeTests(unittest.TestCase):
         self.engine.prepared=('stale',0,dict(x=4,r='D'))
         reply=self.engine.answer(req)
         self.assertIn((reply['x'],reply['r']),[(2,'U'),(3,'U')])
-        self.assertEqual(reply['reason'],'observed_reachable_recovery')
+        self.assertTrue(reply['recovery'])
         self.assertIsNone(self.engine.prepared)
         step=self.engine.native.ask(dict(op='transition',field=req['self']['field'],piece='L:RRR',x=reply['x'],r=reply['r']))
         self.assertEqual(step['field'],reply['next_field'])
@@ -746,19 +746,15 @@ class NativeModeTests(unittest.TestCase):
         self.assertEqual(reply['searched_visible'], 2)
         self.assertTrue(authorize_mode_reply(req, reply, req))
 
-    def test_normal_missing_mainline_color_can_use_small_clear_to_hold_garbage(self):
+    def test_gauge_free_battle_stops_a_due_drop_with_the_clear_it_has(self):
         own = side('normal', seed_with_small_green(), ['2:GB'])
         own.update(confirmed=18, normal_confirmed=18, garbage_phase=None, garbage_phase_status='unknown')
         req = request(own); req['gauge_gain_on_offset'] = 0
         reply = self.engine.answer(req)
         self.assertEqual(reply['chain'], 1)
-        self.assertTrue(reply['intentional_small_clear'])
-        self.assertTrue(reply['hold_nuisance_for_missing_color'])
         self.assertEqual(reply['nuisance_uncertainty']['dropped'], 0)
-        self.assertEqual(sum(row.count('R') for row in reply['next_field']),
-                         sum(row.count('R') for row in own['field']))
-        self.assertEqual(inspect_colors(self.engine.native,
-            {**own, 'field':reply['next_field'], 'confirmed':0})['needs']['mainline_chain'], 3)
+        self.assertEqual(reply['needed_color_consumed'], 0)
+        self.assertEqual(reply['normal_color_needs']['mainline_chain'], 3)
 
     def test_fever_wait_preserves_mainline_colors_with_the_same_small_counter(self):
         own = side('normal', seed_with_small_green(), ['2:GB'])
@@ -775,7 +771,6 @@ class NativeModeTests(unittest.TestCase):
         req = request(own); req['gauge_gain_on_offset'] = 0
         reply = self.engine.answer(req)
         self.assertGreaterEqual(reply['chain'], 3)
-        self.assertFalse(reply.get('intentional_small_clear', False))
 
     def test_losing_immediate_target_port_does_not_force_seed_failure_while_an_ignition_survives(self):
         own = side('fever', seed_with_small_green(), ['2:GB'])
@@ -972,67 +967,50 @@ class NativeModeTests(unittest.TestCase):
         self.assertTrue(reply['entry_pending_after_chain'])
         self.assertEqual(reply['gauge_forecast']['gauge_after'], 7)
 
-    def test_wait_preserves_colors_when_four_puyos_are_enough_to_enter(self):
+    @staticmethod
+    def popped(candidate):
+        return sum(sum(link['groups']) for link in candidate['links'])
+
+    def test_entry_spends_four_puyos_when_four_are_enough(self):
         own=side('normal',list(EMPTY[:-1])+['RRRBBB'],['2:RB','2:RY','2:GY'])
         own.update(character='arle',gauge=6,unconfirmed=100,normal_unconfirmed=100)
         reply=self.engine.answer(request(own))
-        self.assertEqual(reply['reason'],'fever_wait_conserve')
-        self.assertEqual(reply['consumed_puyos'],4)
+        self.assertEqual(reply['reason'],'tactics_offset')
         self.assertTrue(reply['entry_pending_after_chain'])
-        candidates=reply['wait_forecast']['candidates']
-        self.assertTrue(any(c['popped']==8 and c['gauge_after']==7 for c in candidates))
-        self.assertEqual(sum(sum(link['groups']) for link in self.engine.native.ask(dict(
-            op='transition',field=own['field'],piece=own['queue'][0],x=reply['x'],r=reply['r']))['links']),4)
+        candidates=reply['tactics_forecast']['candidates']
+        self.assertTrue(any(self.popped(c)==8 and c['gauge_after']==7 for c in candidates))
+        self.assertEqual(self.popped(reply['tactics_forecast']['choice']),4)
 
-    def test_wait_uses_next_colors_to_choose_which_small_clear_to_prepare(self):
-        answers=[]
-        for nxt in ('RR','BB'):
-            own=side('normal',list(EMPTY[:-2])+['RRRBBB','GGGYYY'],['2:RB','2:'+nxt,'2:GY'])
-            own.update(character='arle',gauge=4,unconfirmed=200,normal_unconfirmed=200)
-            reply=wait_move(self.engine.native,self.engine.scoring,own,120,1,budget_ms=1000)
-            self.assertEqual(reply['searched_visible'],3)
-            self.assertEqual(reply['wait_forecast']['choice']['projected_gauge'],7)
-            self.assertEqual(reply['wait_forecast']['choice']['projected_popped'],12)
-            self.assertEqual(reply['consumed_puyos'],0)
-            answers.append((reply['x'],reply['r']))
-        self.assertNotEqual(answers[0],answers[1])
+    def test_search_reads_next2_and_never_a_fourth_piece(self):
+        own=side('normal',list(EMPTY[:-2])+['RRRBBB','GGGYYY'],['2:RB','2:GG','2:RR'])
+        own.update(character='arle',gauge=4,unconfirmed=200,normal_unconfirmed=200)
+        with patch.dict(self.engine.policy['normal_tactics'],max_nodes=1000000,budget_ms=1000):
+            reply=self.engine.answer(request(own))
+        self.assertEqual(reply['tactics_forecast']['visible'],3)
+        self.assertEqual(reply['searched_visible'],3)
+        own['queue'].append('2:RY')
+        with self.assertRaisesRegex(ValueError,'NEXT2'):
+            self.engine.answer(request(own))
 
-    def test_wait_uses_only_observed_pending_and_stops_normal_forecast_at_entry(self):
+    def test_due_packet_enters_at_once_and_nothing_is_searched_past_entry(self):
         own=side('normal',list(EMPTY[:-1])+['RRRBBB'],['2:RB','2:RY','2:GY'])
         own.update(character='arle',gauge=6,confirmed=1000,normal_confirmed=1000)
-        reply=wait_move(self.engine.native,self.engine.scoring,own,120,1,budget_ms=1000)
+        reply=self.engine.answer(request(own))
+        choice=reply['tactics_forecast']['choice']
         self.assertTrue(reply['entry_pending_after_chain'])
-        self.assertTrue(reply['wait_forecast']['choice']['survives'])
-        self.assertEqual(reply['wait_forecast']['choice']['steps'],1)
-        # A nonclear cannot survive the actual confirmed drop on this board.
-        self.assertTrue(all(not c['survives'] for c in reply['wait_forecast']['candidates'] if c['popped']==0))
-        own.update(confirmed=0,normal_confirmed=0,unconfirmed=0,normal_unconfirmed=0)
-        self.assertIsNone(wait_move(self.engine.native,self.engine.scoring,own,120,1))
-        own.update(unconfirmed=100,normal_unconfirmed=100)
-        self.assertIsNone(wait_move(self.engine.native,self.engine.scoring,own,120,0))
+        self.assertTrue(choice['survives'])
+        self.assertEqual((choice['gauge_after'],choice['projected_gauge']),(7,7))
+        own.update(confirmed=0,normal_confirmed=0)
+        self.assertNotIn('tactics_forecast',self.engine.answer(request(own)))
 
-    def test_wait_uses_next2_and_never_reads_a_fourth_piece(self):
-        answers=[]
-        for last in ('RR','BB'):
-            own=side('normal',list(EMPTY[:-2])+['RRRBBB','GGGYYY'],['2:RB','2:GG','2:'+last])
-            own.update(character='arle',gauge=4,unconfirmed=200,normal_unconfirmed=200)
-            reply=wait_move(self.engine.native,self.engine.scoring,own,120,1,budget_ms=1000)
-            self.assertEqual(reply['searched_visible'],3)
-            answers.append((reply['x'],reply['r']))
-        self.assertNotEqual(*answers)
-        own['queue'].append('2:RY')
-        with self.assertRaisesRegex(ValueError,'visible queue only'):
-            wait_move(self.engine.native,self.engine.scoring,own,120,1)
-
-    def test_wait_does_not_forecast_next_on_an_unknown_all_clear_seed(self):
+    def test_nothing_is_forecast_on_an_unknown_all_clear_seed(self):
         own=side('normal',list(EMPTY[:-1])+['RRRBBB'],['2:RB','2:RR','2:BB'])
         own.update(character='arle',gauge=3,unconfirmed=200,normal_unconfirmed=200)
-        reply=wait_move(self.engine.native,self.engine.scoring,own,120,1,budget_ms=1000)
-        # Clearing all eight colors supplies two offsets, then the normal
-        # all-clear seed must be observed before forecasting another placement.
-        direct=next(c for c in reply['wait_forecast']['candidates'] if (c['x'],c['r'])==(2,'U'))
+        reply=self.engine.answer(request(own))
+        # Clearing all eight puyos ends at the all-clear seed, which must be
+        # observed before another placement is weighed.
+        direct=next(c for c in reply['tactics_forecast']['candidates'] if c['all_clear'])
         self.assertEqual(direct['projected_gauge'],direct['gauge_after'])
-        self.assertEqual(direct['steps'],1)
 
     def test_wait_recovery_respects_reachable_whitelist(self):
         own=side('normal',list(EMPTY[:-1])+['RRRBBB'],['2:RB','2:RY','2:GY'])
@@ -1040,9 +1018,9 @@ class NativeModeTests(unittest.TestCase):
         req=request(own);req.update(op='recover_placement',reachable_placements=[dict(x=5,r='U')])
         reply=self.engine.answer(req)
         self.assertEqual((reply['x'],reply['r']),(5,'U'))
-        self.assertEqual(reply['reason'],'fever_wait_conserve')
-        self.assertEqual(reply['consumed_puyos'],0)
-        self.assertEqual(reply['wait_forecast']['choice']['projected_gauge'],7)
+        self.assertTrue(reply['recovery'])
+        self.assertEqual(reply['chain'],0)
+        self.assertEqual(reply['tactics_forecast']['choice']['projected_gauge'],7)
 
     def test_reference_metadata_and_decoder_do_not_guess_missing_entries(self):
         data = json.loads((ROOT/'data/fever/seeds/namoko-reference.json').read_text(encoding='utf-8'))

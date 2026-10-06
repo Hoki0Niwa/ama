@@ -26,9 +26,9 @@ class TacticsTests(unittest.TestCase):
             if phase is None:
                 own['garbage_phase_status'] = 'unknown'
             reply = self.engine.answer(request(own))
-            self.assertEqual(reply['reason'], 'fever_wait_hoard_until_drop')
+            self.assertEqual(reply['reason'], 'tactics_stack')
             self.assertEqual(reply['chain'], 0)
-            self.assertEqual(reply['hoard_forecast']['source'], 'chain_builder')
+            self.assertFalse(reply['tactics_forecast']['choice']['drop_due'])
             self.assertEqual(reply['decision_dependencies'], ['self'])
 
     def test_enemy_fever_chain_in_progress_is_stocked_against_until_it_ends(self):
@@ -40,11 +40,11 @@ class TacticsTests(unittest.TestCase):
         self.assertTrue(events)
         reply = self.engine.answer(req)
         self.assertLess(reply['chain'], 3)
-        self.assertIn(reply['reason'], ('fever_wait_hoard_until_drop', 'fever_wait_conserve'))
+        self.assertIn(reply['reason'], ('tactics_stack', 'tactics_offset'))
 
     def test_due_drop_is_stopped_with_a_small_offset_not_the_main_chain(self):
         reply = self.engine.answer(request(self.waiting(confirmed=18, normal_confirmed=18)))
-        self.assertEqual(reply['reason'], 'fever_wait_conserve')
+        self.assertEqual(reply['reason'], 'tactics_offset')
         self.assertEqual(reply['chain'], 1)
         self.assertEqual(reply['gauge_forecast']['gauge_after'], 1)
 
@@ -54,23 +54,29 @@ class TacticsTests(unittest.TestCase):
         self.assertEqual(reply['chain'], 1)
         self.assertTrue(reply['entry_pending_after_chain'])
 
-    def test_board_too_high_to_take_a_drop_is_not_stocked_further(self):
+    def test_board_too_high_to_take_a_drop_counts_a_clear_as_due(self):
         rows = ['......']*5 + ['RYRY..', 'YRYR..']*4 + ['RYRYGB']
         own = side('normal', rows, ['2:GB'])
         own.update(unconfirmed=60, normal_unconfirmed=60)
-        reply = self.engine.answer(request(own))
-        self.assertNotEqual(reply['reason'], 'fever_wait_hoard_until_drop')
+        forecast = self.engine.answer(request(own))['tactics_forecast']
+        # Nothing has been confirmed, but the board would not stand it: an
+        # offset here is not an early one. (This piece pops nothing anywhere.)
+        self.assertTrue(all(c['drop_due'] for c in forecast['candidates']))
+        low = side('normal', seed_with_small_green(), ['2:GB'])
+        low.update(unconfirmed=60, normal_unconfirmed=60)
+        forecast = self.engine.answer(request(low))['tactics_forecast']
+        self.assertFalse(any(c['drop_due'] for c in forecast['candidates']))
 
-    def test_zero_gain_keeps_the_previous_routine(self):
+    def test_zero_gain_keeps_the_gauge_free_routine(self):
         own = self.waiting(unconfirmed=200, normal_unconfirmed=200)
         req = request(own); req['gauge_gain_on_offset'] = 0
-        self.assertNotEqual(self.engine.answer(req)['reason'], 'fever_wait_hoard_until_drop')
+        self.assertNotIn('tactics_forecast', self.engine.answer(req))
 
     def test_stacking_plays_the_chain_builder_move(self):
         own = self.waiting(unconfirmed=12, normal_unconfirmed=12)
         with patch.object(self.engine.solo, 'ask', return_value=dict(x=5, r='U')):
             reply = self.engine.answer(request(own))
-        self.assertEqual((reply['x'], reply['r'], reply['reason']), (5, 'U', 'fever_wait_hoard_until_drop'))
+        self.assertEqual((reply['x'], reply['r'], reply['reason']), (5, 'U', 'tactics_stack'))
 
     def test_recovery_without_nuisance_does_not_fire_the_longest_reachable_chain(self):
         req = request(self.waiting())

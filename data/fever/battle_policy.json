@@ -26,31 +26,26 @@
   },
   "normal_tactics": {
     "status": "prototype_heuristic_not_battle_tuned",
-    "mode": "ladder",
-    "budget_ms": 30,
+    "max_nodes": 3000,
+    "budget_ms": 100,
     "width": 12,
     "weights": {
       "entry": 6000,
       "gauge": 1000,
       "stock": 40,
       "color": 60,
-      "drop": 80,
+      "drop": 150,
       "consume": 12,
-      "mainline": 120,
+      "mainline": 1120,
       "height": 300,
       "early": 1500,
       "builder": 250,
       "step": 400,
       "exposed": 700,
-      "pending": 40,
+      "pending": 0,
       "uncountered": 2500,
       "mainline_min": 4
     }
-  },
-  "fever_defense": {
-    "status": "prototype_heuristic_not_battle_tuned",
-    "hoard_max_central_height": 8,
-    "mainline_min_chain": 13
   },
   "fever_end": {
     "status": "prototype_heuristic_not_battle_tuned",

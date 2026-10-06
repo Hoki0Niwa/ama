@@ -9,7 +9,6 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT), str(ROOT/'test')]
 from fever_fixtures import NATIVE, SOLO, request, side, seed_with_small_green
 from fever_battle.mode_engine import ModeBattleEngine
-from fever_battle.fever_defense import choose as defend
 from fever_battle.uncertainty import choose
 
 
@@ -30,44 +29,41 @@ class CounterTests(unittest.TestCase):
     def events(self, points=120000):
         return [dict(type='link', frame=500, points=points), dict(type='end', frame=550)]
 
-    def defend(self, own, events=None, enemy=None, **kwargs):
-        return defend(self.engine.native, self.engine.scoring, own, 120, 1,
-                      enemy_events=events, enemy=enemy or side(), **kwargs)
+    def answer(self, own, events=None, builder=(1, 'U'), allowed=None):
+        """The engine's reply with the builder's move and the opponent's chain given."""
+        req = request(own)
+        if allowed is not None:
+            req.update(op='recover_placement', reachable_placements=allowed)
+        with patch.object(self.engine.solo, 'ask', return_value=dict(x=builder[0], r=builder[1])):
+            with patch.object(self.engine, '_enemy_events', return_value=events or []):
+                return self.engine.answer(req)
 
     def test_builder_mainline_cannot_answer_large_tail_after_it_finishes(self):
-        own = self.own()
-        with patch.object(self.engine.solo, 'ask', return_value=dict(x=1, r='U')):
-            with patch.object(self.engine, '_enemy_events', return_value=self.events()):
-                reply = self.engine.answer(request(own))
+        reply = self.answer(self.own(), self.events())
         self.assertEqual(reply['chain'], 0)
-        self.assertEqual(reply['reason'], 'fever_wait_hoard_until_drop')
-        forecast = reply['mainline_counter_forecast']
-        self.assertEqual(forecast['rejected_move']['chain'], 3)
-        self.assertEqual(forecast['pending_after_observed_chains'], 1011)
-        self.assertEqual(forecast['gauge_after'], 3)
+        self.assertEqual(reply['reason'], 'tactics_stack')
+        rejected = next(c for c in reply['tactics_forecast']['candidates'] if (c['x'], c['r']) == (1, 'U'))
+        self.assertEqual(rejected['chain'], 3)
+        self.assertLess(rejected['value'], reply['tactics_forecast']['choice']['value'])
         self.assertEqual(reply['decision_dependencies'], ['self', 'enemy'])
 
     def test_pending_packet_alone_also_blocks_insufficient_builder_fire(self):
-        reply = self.defend(self.own(), build=lambda: (1, 'U'))
+        reply = self.answer(self.own())
         self.assertEqual(reply['chain'], 0)
-        self.assertEqual(reply['mainline_counter_forecast']['pending_after_observed_chains'], 11)
 
     def test_full_counter_keeps_the_builder_fire(self):
-        reply = self.defend(self.own(1), self.events(120), build=lambda: (1, 'U'))
-        self.assertEqual(reply['chain'], 3)
-        self.assertEqual(reply['reason'], 'fever_wait_builder_clear')
-        self.assertNotIn('mainline_counter_forecast', reply)
+        reply = self.answer(self.own(1), self.events(120))
+        self.assertEqual((reply['x'], reply['r'], reply['chain']), (1, 'U', 3))
+        self.assertEqual(reply['tactics_forecast']['choice']['unconfirmed'], 0)
 
     def test_one_offset_from_entry_uses_small_clear(self):
-        reply = self.defend(self.own(200, gauge=6), self.events(), build=lambda: (1, 'U'))
+        reply = self.answer(self.own(200, gauge=6), self.events())
         self.assertEqual(reply['chain'], 1)
-        self.assertEqual(reply['reason'], 'fever_wait_conserve')
+        self.assertTrue(reply['entry_pending_after_chain'])
 
     def test_only_reachable_emergency_entry_is_not_forbidden(self):
-        reply = self.defend(self.own(200, gauge=4), self.events(),
-                            allowed=[dict(x=1, r='U')], build=lambda: (1, 'U'))
+        reply = self.answer(self.own(200, gauge=4), self.events(), allowed=[dict(x=1, r='U')])
         self.assertEqual((reply['x'], reply['r'], reply['chain']), (1, 'U', 3))
-        self.assertEqual(reply['reason'], 'fever_wait_conserve')
 
     def due_mainline(self, pending=1000):
         refs = json.loads((ROOT/'data/fever/seeds/namoko-reference.json').read_text(encoding='utf-8'))
@@ -80,9 +76,8 @@ class CounterTests(unittest.TestCase):
     def test_due_large_packet_preserves_seven_chain_with_one_chain_offset(self):
         reply = self.engine.answer(request(self.due_mainline()))
         self.assertEqual(reply['chain'], 1)
-        self.assertEqual(reply['reason'], 'fever_small_offset_preserve_mainline')
-        self.assertEqual(reply['preserved_mainline_chain'], 7)
-        self.assertEqual(reply['mainline_counter_forecast']['pending_after_observed_chains'], 905)
+        self.assertEqual(reply['reason'], 'tactics_offset')
+        self.assertEqual(reply['tactics_forecast']['root_stock']['longest'], 7)
         self.assertEqual(reply['gauge_forecast']['gauge_after'], 1)
         self.assertFalse(reply['entry_pending_after_chain'])
 
@@ -92,9 +87,8 @@ class CounterTests(unittest.TestCase):
         self.assertTrue(reply['entry_pending_after_chain'])
 
     def test_due_large_packet_keeps_mainline_when_small_clear_is_unreachable(self):
-        reply = self.defend(self.due_mainline(), allowed=[dict(x=3, r='R')])
+        reply = self.answer(self.due_mainline(), allowed=[dict(x=3, r='R')])
         self.assertEqual(reply['chain'], 7)
-        self.assertEqual(reply['reason'], 'fever_wait_conserve')
 
     def simulate(self, own=None, events=None, enemy=None, margin=None, points=240):
         # Isolate causal packet accounting from the character's chain table.

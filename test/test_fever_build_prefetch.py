@@ -54,7 +54,7 @@ class BuildPrefetchTests(unittest.TestCase):
             reply = self.engine.answer(current)
         build.assert_not_called()
         self.assertTrue(reply['normal_build_search_reused'])
-        self.assertEqual(reply['reason'], 'fever_wait_hoard_until_drop')
+        self.assertEqual(reply['reason'], 'tactics_stack')
 
     def test_observed_post_garbage_board_can_prepare_build_during_enemy_fever(self):
         current = self.active()

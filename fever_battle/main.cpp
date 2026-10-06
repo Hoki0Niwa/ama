@@ -5,7 +5,6 @@
 #include "../lib/nlohmann/json.hpp"
 #include "search.h"
 #include "physics.h"
-#include "gauge_wait.h"
 #include "tactics.h"
 #include "color_needs.h"
 #include "transition.h"
@@ -189,7 +188,6 @@ json answer(const json& request)
     auto field = read_field(request.at("field"));
     if (op == "garbage_search") return fever_battle::search(field, request);
     if (op == "seed_search") return fever_battle::seed_search(field, request);
-    if (op == "gauge_wait") return fever_battle::gauge_wait(field, request);
     if (op == "tactics") return fever_battle::tactics(field, request);
     if (op == "normal_colors") return fever_battle::normal_colors(field, request);
     if (op == "validate") return {{"valid", true}, {"dead", field.is_dead(rule::FEVER)}};

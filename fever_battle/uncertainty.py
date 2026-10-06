@@ -26,13 +26,8 @@ def outcomes(rows, count):
 
 
 def choose(native, scoring, side, rate, options=None, allowed_placements=None,
-           enemy_events=None, enemy=None, margin=None, small_clears=False):
-    """Rank real current-piece placements and reobserve after any actual drop.
-
-    small_clears (normal board, offsets earn gauge): a clear ranks above a
-    plain placement only when it stops a drop or offsets something, and the
-    shortest such clear is preferred to the longest.
-    """
+           enemy_events=None, enemy=None, margin=None):
+    """Rank real current-piece placements and reobserve after any actual drop."""
     options = options or {}
     timing = ChainTiming.for_mode(side['mode'], placement_frames=integer(options.get('placement_frames', 14), 'placement_frames', 1, 10000))
     candidates = native.ask(dict(op='placements', field=side['field'], piece=side['queue'][0]))['placements']
@@ -99,10 +94,6 @@ def choose(native, scoring, side, rate, options=None, allowed_placements=None,
         # first offset the enemy's pending packets before its tail reaches us.
         exchange_at = max(end_at, max((e['frame'] for e in events), default=0))
         advance(exchange_at)
-        if small_clears and side['mode'] == 'normal':
-            useful = bool(chain) and bool(due or cancelled)
-            rank = (4 if survives and useful else 3 if survives else 1, -chain,
-                    -max(heights[2:4]), -sum(h*h for h in heights))
         first = dict(x=candidate['x'], r=candidate['r'], field=candidate['field'],
             locked_field=candidate['locked_field'], chain=chain, link_points=points,
             all_clear=candidate['all_clear'], fire_at=fire_at, end_at=end_at, in_time=in_time,

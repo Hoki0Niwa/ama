@@ -33,6 +33,7 @@ struct Node {
     i64 enemy_fixed = 0, enemy_flying = 0, enemy_remainder = 0;
     int event = 0, frame = 0, phase = 0, gauge = 0;
     int popped = 0, dropped = 0, early = 0, early_gauge = 0, steps = 0;
+    bool builder_fire = false;      // the builder's own fire that leaves nothing pending
 };
 // What one placement did, for the reply. Boards on unknown columns are kept
 // only to be weighed; none of them becomes the next board.
@@ -58,7 +59,7 @@ public:
     const Weights* w = nullptr;
     rule::Rule rules = rule::FEVER;
     bool unknown_phase = false, geometry = false;
-    int gain = 1, root_gauge = 0, root_longest = 0, width = 16, expanded = 0;
+    int gain = 1, root_gauge = 0, root_longest = 0, width = 16, expanded = 0, max_nodes = 6000;
     int placement = 14, pop = 55, settle = 14, fall = 2, spawn = 28, score_offset = 0;
     int first_link = 0, chain_ready = 0, check = 0;
     json split_costs = json::array();
@@ -70,7 +71,10 @@ public:
         n.frame = until;
     }
     void tick() {
-        if (++expanded % 64 == 0 && std::chrono::steady_clock::now() >= deadline) throw Exhausted{};
+        // The placement count bounds the search, so that the same request gets
+        // the same answer; the clock only guards against a stalled machine.
+        if (++expanded > max_nodes) throw Exhausted{};
+        if (expanded % 64 == 0 && std::chrono::steady_clock::now() >= deadline) throw Exhausted{};
     }
     // Plays one placement. False when the piece cannot go there.
     bool play(Node& n, const piece::Piece& piece, const move::Placement& move, Step& step) const {
@@ -81,8 +85,15 @@ public:
             ? split_costs[rows].get<int>() : rows * fall;
         if (!n.field.drop_piece(move.x, move.r, piece, rules)) return false;
         advance(n, n.frame + extra);
-        // What would fall if this placement popped nothing.
-        { auto peek = n; advance(peek, peek.frame + check); step.due = peek.fixed > 0; }
+        // A clear is due when popping nothing would let nuisance fall now, or
+        // would leave a board that what is pending kills whenever it lands.
+        {
+            auto peek = n; advance(peek, peek.frame + check);
+            step.due = peek.fixed > 0;
+            const int pending = int(std::min<i64>(30, peek.fixed + peek.flying));
+            if (!step.due && pending)
+                each_remainder_drop(n.field, pending, [&](Field board) { step.due = step.due || board.is_dead(rules); });
+        }
         const auto locked = n.field;
         auto masks = n.field.pop();
         step.chain = masks.get_size();
@@ -139,7 +150,8 @@ public:
         if (field.is_dead(rules)) return {false, -1000000000 + i64(n.steps) * 1000, n.gauge};
         const bool entered = n.gauge >= 7;
         const auto stock = fever::stock::evaluate(field, std::max(1, 7 - n.gauge));
-        const int spent = std::max(0, root_longest - stock.longest);
+        // Links of the longest chain that are gone. A board of single triggers has none to lose.
+        const int spent = n.builder_fire ? 0 : std::max(0, root_longest - std::max(1, stock.longest));
         i64 value = i64(n.gauge - root_gauge - (entered ? 0 : n.early_gauge)) * w->gauge
             - i64(n.dropped) * w->drop - i64(n.popped) * w->consume - i64(n.steps) * w->step
             - std::min<i64>(60, n.fixed + n.flying) * w->pending;
@@ -245,6 +257,7 @@ json tactics(Field field, const json& request) {
     search.rates = &rates; search.w = &weights;
     search.gain = number(request, "gain", 1, 7);
     search.width = number(request, "width", 1, 64);
+    search.max_nodes = number(request, "max_nodes", 1, 1000000);
     search.unknown_phase = request.value("unknown_garbage_phase", false);
     const auto& timing = request.at("timing");
     search.placement = number(timing, "placement_frames", 1, 10000);
@@ -277,7 +290,15 @@ json tactics(Field field, const json& request) {
     search.root_longest = root_stock.longest;
     search.deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(number(request, "budget_ms", 1, 1000));
 
-    struct First { move::Placement move; Node node; Step step; Outcome here; };
+    // The builder's own placement: it knows the build further ahead than the
+    // visible pieces. Where it pops, it is the builder firing by its own
+    // policy, which stands when it leaves nothing pending.
+    const auto by_builder = [&](const move::Placement& move) {
+        if (!request.contains("builder")) return false;
+        const auto& b = request.at("builder");
+        return b.at("x") == move.x && b.at("r") == std::string(1, fever::text::from_direction(move.r));
+    };
+    struct First { move::Placement move; Node node; Step step; Outcome here; i64 bonus = 0; };
     std::vector<First> firsts;
     auto moves = move::generate(field, search.pieces[0], search.rules);
     for (int i = 0; i < moves.get_size(); ++i) {
@@ -289,18 +310,15 @@ json tactics(Field field, const json& request) {
         }
         First first{moves[i], root, {}, {}};
         if (!search.play(first.node, search.pieces[0], moves[i], first.step)) continue;
+        if (by_builder(moves[i]) && (!first.step.chain || first.node.fixed + first.node.flying == 0)) {
+            first.bonus = weights.builder;
+            first.node.early = 0; first.node.early_gauge = 0;
+            first.node.builder_fire = first.step.chain > 0;
+        }
         first.here = search.leaf(first.node, first.step);
         firsts.push_back(std::move(first));
     }
     if (firsts.empty()) throw std::invalid_argument("no conservative legal placement");
-    // The builder's own placement, where it pops nothing: it knows the build
-    // further ahead than the visible pieces.
-    const auto builder = [&](const First& first) -> i64 {
-        if (!request.contains("builder") || first.step.chain) return 0;
-        const auto& b = request.at("builder");
-        return b.at("x") == first.move.x &&
-            b.at("r") == std::string(1, fever::text::from_direction(first.move.r)) ? weights.builder : 0;
-    };
     std::vector<Outcome> values(firsts.size());
     int completed = 0; bool cutoff = false;
     try {
@@ -309,7 +327,7 @@ json tactics(Field field, const json& request) {
             for (size_t i = 0; i < firsts.size(); ++i) {
                 search.tick();
                 layer[i] = search.below(firsts[i].node, firsts[i].step, 0, limit);
-                layer[i].value += builder(firsts[i]);
+                layer[i].value += firsts[i].bonus;
             }
             values = std::move(layer); completed = limit;
         }
@@ -317,7 +335,7 @@ json tactics(Field field, const json& request) {
     if (!completed) {
         // Not even one piece was weighed within the budget: every placement by itself.
         for (size_t i = 0; i < firsts.size(); ++i) {
-            values[i] = firsts[i].here; values[i].value += builder(firsts[i]);
+            values[i] = firsts[i].here; values[i].value += firsts[i].bonus;
         }
     }
     json candidates = json::array();
