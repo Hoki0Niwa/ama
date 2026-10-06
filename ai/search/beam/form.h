@@ -199,7 +199,7 @@ constexpr Data list[] = {
     SGTR
 };
 
-constexpr usize COUNT = sizeof(list) / sizeof(list[0]);
+constexpr usize COUNT = std::size(list);
 
 };
 
