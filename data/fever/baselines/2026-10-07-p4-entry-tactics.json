@@ -1,0 +1,114 @@
+{
+ "date": "2026-10-07",
+ "bench": "tools/bench_fever_baseline.py entry",
+ "character": "raffina",
+ "queues_per_condition": 48,
+ "tactics": "single_search_final_weights",
+ "weights": {
+  "entry": 6000,
+  "gauge": 1000,
+  "stock": 40,
+  "color": 60,
+  "drop": 150,
+  "consume": 12,
+  "mainline": 1120,
+  "height": 300,
+  "early": 1500,
+  "builder": 250,
+  "step": 400,
+  "exposed": 700,
+  "pending": 0,
+  "uncountered": 2500,
+  "mainline_min": 4
+ },
+ "totals": {
+  "mainline": {
+   "entry": 82,
+   "dead": 62
+  },
+  "fever_aim": {
+   "entry": 103,
+   "dead": 41
+  }
+ },
+ "ladder_reference": {
+  "source": "2026-10-07-p3-entry-tactics.json",
+  "mainline": {
+   "entry": 94,
+   "dead": 50
+  },
+  "fever_aim": {
+   "entry": 100,
+   "dead": 44
+  }
+ },
+ "conditions": [
+  {
+   "start": 6,
+   "every": 2,
+   "amount": 6,
+   "objective": "mainline",
+   "entry": 30,
+   "dead": 18,
+   "mean_moves_after_first_attack": 13.6,
+   "mean_dropped_before_entry": 27.9,
+   "slowest_ms": 109
+  },
+  {
+   "start": 6,
+   "every": 2,
+   "amount": 6,
+   "objective": "fever_aim",
+   "entry": 35,
+   "dead": 13,
+   "mean_moves_after_first_attack": 13.97,
+   "mean_dropped_before_entry": 28.89,
+   "slowest_ms": 141
+  },
+  {
+   "start": 8,
+   "every": 5,
+   "amount": 20,
+   "objective": "mainline",
+   "entry": 15,
+   "dead": 33,
+   "mean_moves_after_first_attack": 10.67,
+   "mean_dropped_before_entry": 23.8,
+   "slowest_ms": 94
+  },
+  {
+   "start": 8,
+   "every": 5,
+   "amount": 20,
+   "objective": "fever_aim",
+   "entry": 23,
+   "dead": 25,
+   "mean_moves_after_first_attack": 9.83,
+   "mean_dropped_before_entry": 22.17,
+   "slowest_ms": 141
+  },
+  {
+   "start": 10,
+   "every": 1,
+   "amount": 3,
+   "objective": "mainline",
+   "entry": 37,
+   "dead": 11,
+   "mean_moves_after_first_attack": 10.19,
+   "mean_dropped_before_entry": 17.76,
+   "slowest_ms": 94
+  },
+  {
+   "start": 10,
+   "every": 1,
+   "amount": 3,
+   "objective": "fever_aim",
+   "entry": 45,
+   "dead": 3,
+   "mean_moves_after_first_attack": 7.16,
+   "mean_dropped_before_entry": 8.42,
+   "slowest_ms": 156
+  }
+ ],
+ "status": "offline_prototype_colour_model_scripted_nuisance_not_live_and_not_a_battle_result"
+}

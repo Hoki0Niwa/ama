@@ -65,11 +65,8 @@ def main():
     parser.add_argument('--width', type=int, default=50)
     parser.add_argument('--depth', type=int, default=8)
     parser.add_argument('--pending', type=int, default=0, help='unconfirmed nuisance held throughout')
-    parser.add_argument('--no-colors', action='store_true', help='skip the needed-colour override')
     parser.add_argument('--output', type=Path)
     args = parser.parse_args()
-    if args.no_colors:
-        mode_engine.apply_normal_colors = lambda native, scoring, own, rate, reply, **_: reply
     engine = mode_engine.ModeBattleEngine(args.native, ROOT/'bin/fever/fever.exe', ROOT/'config.json')
     try:
         rows = [run(engine, args.character, seed, dict(beam_width=args.width, beam_depth=args.depth), args.pending)
@@ -78,7 +75,7 @@ def main():
         engine.close()
     chains = [row['chain'] for row in rows]
     summary = dict(character=args.character, width=args.width, depth=args.depth, pending=args.pending,
-        colors=not args.no_colors, chains=chains, mean=round(statistics.mean(chains), 2),
+        chains=chains, mean=round(statistics.mean(chains), 2),
         at_least_10=sum(c >= 10 for c in chains), at_least_13=sum(c >= 13 for c in chains))
     for row in rows:
         print(json.dumps(row))

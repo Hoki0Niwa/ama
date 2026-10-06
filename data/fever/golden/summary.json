@@ -1,7 +1,7 @@
 {
- "native_sha256": "6b7dedccdf991f576f0acece69ab8a3d1b6f58580f5ad1014f0c1e8063690ad6",
+ "native_sha256": "53b5bfef274bfc113ee9fc061905558779625ecc7ed843de8a8ef95cecc70ab0",
  "solo_sha256": "b14d030a80515117f46bf1fbaa49432e77523aff3f6f515e730300fa0c9d549e",
- "head": "2b2dd9cc0f1c3e44b3d8bf4ad430fd27574d4bce",
+ "head": "1804bfbae1b932fbfa00a73044d2d47586dba7c0",
  "tests": {
   "test_fever_battle.py": 23,
   "test_fever_build_prefetch.py": 10,
@@ -12,7 +12,7 @@
   "test_fever_forecast.py": 15,
   "test_fever_garbage_repair.py": 9,
   "test_fever_long_extension.py": 7,
-  "test_fever_mode.py": 82,
+  "test_fever_mode.py": 81,
   "test_fever_piece.py": 2,
   "test_fever_protocol.py": 7,
   "test_fever_queue.py": 3,
@@ -22,33 +22,29 @@
   "test_fever_transition.py": 2,
   "test_fever_watch.py": 3
  },
- "tests_total": 237,
- "native_cases": 2101,
- "native_stable": 2101,
+ "tests_total": 236,
+ "native_cases": 2109,
+ "native_stable": 2109,
  "native_by_exe_op": {
   "native:closing_transition": {
    "cases": 2,
    "stable": 2
   },
   "native:finish_probe": {
-   "cases": 10,
-   "stable": 10
+   "cases": 8,
+   "stable": 8
   },
   "native:garbage_search": {
-   "cases": 216,
-   "stable": 216
-  },
-  "native:gauge_wait": {
-   "cases": 23,
-   "stable": 23
+   "cases": 215,
+   "stable": 215
   },
   "native:normal_colors": {
-   "cases": 46,
-   "stable": 46
+   "cases": 41,
+   "stable": 41
   },
   "native:placements": {
-   "cases": 231,
-   "stable": 231
+   "cases": 232,
+   "stable": 232
   },
   "native:queue": {
    "cases": 81,
@@ -63,24 +59,28 @@
    "stable": 499
   },
   "native:solo": {
-   "cases": 492,
-   "stable": 492
+   "cases": 500,
+   "stable": 500
   },
   "native:stock": {
    "cases": 8,
    "stable": 8
   },
+  "native:tactics": {
+   "cases": 42,
+   "stable": 42
+  },
   "native:transition": {
-   "cases": 350,
-   "stable": 350
+   "cases": 337,
+   "stable": 337
   },
   "native:validate": {
-   "cases": 91,
-   "stable": 91
+   "cases": 92,
+   "stable": 92
   }
  },
  "engine_cases": 34,
- "engine_stable": 33,
+ "engine_stable": 34,
  "volatile_fields": [
   "elapsed_ms",
   "prepare_ms",

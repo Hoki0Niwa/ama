@@ -190,21 +190,16 @@ def main():
     parser.add_argument('--amount', type=int, default=4, help='entry: confirmed nuisance per arrival')
     parser.add_argument('--objective', choices=('mainline', 'fever_aim'),
                         help='entry: normal build objective, in place of the policy file')
-    parser.add_argument('--tactics', choices=('ladder', 'unified'),
-                        help='entry: how a threat on the normal board is answered, in place of the policy file')
     parser.add_argument('--output', type=Path)
     args = parser.parse_args()
     engine = mode_engine.ModeBattleEngine(args.native, args.solo, ROOT/'config.json')
-    if args.tactics:
-        engine.policy['normal_tactics']['mode'] = args.tactics
     if args.objective:
         engine.policy['normal_build']['objective'] = args.objective
     try:
         summary, rows = (seed_bench if args.bench == 'seed' else entry_bench)(engine, args)
     finally:
         engine.close()
-    summary.update(bench=args.bench, objective=engine.policy['normal_build']['objective'],
-                   tactics=engine.policy['normal_tactics']['mode'], native_sha256=hashlib.sha256(args.native.read_bytes()).hexdigest(),
+    summary.update(bench=args.bench, objective=engine.policy['normal_build']['objective'], native_sha256=hashlib.sha256(args.native.read_bytes()).hexdigest(),
                    solo_sha256=hashlib.sha256(args.solo.read_bytes()).hexdigest())
     print(json.dumps(summary, ensure_ascii=False, indent=1))
     if args.output:

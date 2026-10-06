@@ -18,10 +18,9 @@ from .seed_solver import SeedSolver
 from .timing import ChainTiming
 from .threat import enemy_events
 from .mode_tactics import QUICK_FRAMES, offset_gauge, seed_strategy, seed_turnover_plan
-from .normal_colors import apply as apply_normal_colors
+from .normal_colors import report as report_colors
 from .uncertainty import choose as uncertain_move
 from .finish import choose as fast_finish
-from .fever_defense import HOARD_REASON, choose as defend
 from . import tactics
 from .uncertainty import outcomes
 from .margin import MarginForecast
@@ -366,19 +365,15 @@ class ModeBattleEngine(BattleEngine):
             strategy, reason = options['strategy'], 'explicit_common_strategy'
         return {**options, 'strategy': strategy}, reason
 
-    def _defend(self, request, own, enemy, rate, allowed=None, build=None):
-        """Fever-rule answer to nuisance: stock up until a drop is due, then the smallest offsets."""
-        return defend(self.native, self.scoring, own, rate, request['gauge_gain_on_offset'],
-            self.policy.get('fever_defense'), allowed, self._enemy_events(request, enemy), enemy,
-            self.margin, offset_search=not self.margin.get('rate_events'), build=build)
-
     def _tactics(self, request, own, enemy, rate, build=None, allowed=None):
         """The single search's reply to a threat on the normal board, or None to leave it to the rest."""
-        policy = self.policy.get('normal_tactics', {})
+        policy = self.policy['normal_tactics']
         events = self._enemy_events(request, enemy)
-        if (policy.get('mode') != 'unified' or request['gauge_gain_on_offset'] <= 0
-                or own['gauge'] >= self.mode_rules['gauge_max']
-                or not (own['confirmed'] + own['unconfirmed'] or events)):
+        threat = own['confirmed'] + own['unconfirmed'] or events
+        # Offsets earn no gauge: the nuisance search of the gauge-free battle answers.
+        # Without a threat only a recovery (allowed) has anything to decide here.
+        if (request['gauge_gain_on_offset'] <= 0 or own['gauge'] >= self.mode_rules['gauge_max']
+                or not (threat or allowed is not None)):
             return None
         builder = None
         if build is not None:
@@ -422,12 +417,9 @@ class ModeBattleEngine(BattleEngine):
         def build():
             result = self._solo_build(own, options)
             return result['x'], result['r']
-        unified = self._tactics(request, own, enemy, rate, build)
-        if unified is not None:
-            return unified
-        waiting = self._defend(request, own, enemy, rate, build=build)
-        if waiting is not None:
-            return waiting
+        answer = self._tactics(request, own, enemy, rate, build)
+        if answer is not None:
+            return answer
         finish = fast_finish(self.native, own)
         if finish is not None:
             choice = finish['candidate']
@@ -446,8 +438,7 @@ class ModeBattleEngine(BattleEngine):
                 if chain['mode_generation'] != enemy['mode_generation'] or chain['seed_id'] != enemy['seed_id']:
                     raise ValueError('enemy prediction belongs to another mode or seed')
             result = uncertain_move(self.native, self.scoring, own, rate,
-                enemy_events=self._enemy_events(request, enemy), enemy=enemy, margin=self.margin,
-                small_clears=request['gauge_gain_on_offset'] > 0)['choice']
+                enemy_events=self._enemy_events(request, enemy), enemy=enemy, margin=self.margin)['choice']
             return dict(x=result['x'], r=result['r'], shape=own['queue'][0][0],
                 reason='unknown_nuisance_one_move_then_reobserve', fire=bool(result['chain']),
                 chain=result['chain'], next_chain=result['chain'], next_score=sum(result['link_points']),
@@ -548,7 +539,7 @@ class ModeBattleEngine(BattleEngine):
                 if not isinstance(move, dict) or set(move) != {'x', 'r'} or move['r'] not in ('U','R','D','L'):
                     raise ValueError('invalid reachable placement')
                 integer(move['x'], 'reachable x', 0, 5)
-            waiting = self._defend(request, own, enemy, rate, allowed)
+            waiting = None if own['mode'] == 'fever' else self._tactics(request, own, enemy, rate, allowed=allowed)
             if own['mode'] == 'fever':
                 options = request.get('seed_options', {})
                 self.seed_solver.validate_options(options)
@@ -564,8 +555,7 @@ class ModeBattleEngine(BattleEngine):
             else:
                 result = uncertain_move(self.native, self.scoring, own, rate,
                     allowed_placements={(m['x'], m['r']) for m in allowed},
-                    enemy_events=self._enemy_events(request, enemy), enemy=enemy, margin=self.margin,
-                    small_clears=request['gauge_gain_on_offset'] > 0)
+                    enemy_events=self._enemy_events(request, enemy), enemy=enemy, margin=self.margin)
             first = result['choice']; points = first['link_points']
             reply = dict(x=first['x'], r=first['r'], shape=own['queue'][0][0],
                 reason='observed_reachable_recovery', decision_dependencies=['self'],
@@ -576,12 +566,10 @@ class ModeBattleEngine(BattleEngine):
                 input_required_frames=first['fire_at']+request.get('seed_options', {}).get('safety_frames', 8)
                     if own['mode']=='fever' else 0)
             if waiting is not None:
-                reply = waiting
+                # The same search as an ordinary decision, over the reachable placements only.
+                reply = dict(waiting, recovery=True)
             if own['mode'] == 'normal':
-                reply = apply_normal_colors(self.native, self.scoring, own, rate, reply,
-                    preserve_choice=bool(request.get('enemy_chain')),
-                    allowed={(m['x'], m['r']) for m in allowed})
-                reply['reason'] = 'observed_reachable_recovery' if waiting is None else reply['reason']
+                reply = report_colors(self.native, own, reply)
         elif own['mode'] == 'fever':
             options, strategy_reason = self._seed_options(request, own, enemy)
             result = self.seed_solver.solve(
@@ -615,46 +603,13 @@ class ModeBattleEngine(BattleEngine):
             reply = self._normal(request, own, enemy, rate)
             if self.normal_build_reused:
                 reply.update(normal_build_search_reused=True, normal_build_searched_visible=len(self.normal_build_cache[1]))
-            reply = apply_normal_colors(self.native, self.scoring, own, rate, reply,
-                preserve_choice=bool(request.get('enemy_chain')))
+            reply = report_colors(self.native, own, reply)
             gauge = offset_gauge(reply['link_points'], own['confirmed'] + own['unconfirmed'],
                                  own['remainder'], rate, own['gauge'], request['gauge_gain_on_offset'])
-            central_height = max(sum(row[x] != '.' for row in own['field']) for x in (2, 3))
-            if (own['confirmed'] >= 30 or central_height >= 9) and gauge['gauge_after'] < 7 and (
-                    'tactics_forecast' not in reply) and (
-                    reply['reason'] not in ('no_rescue_fast_finish', 'fever_wait_conserve', HOARD_REASON,
-                                           'fever_small_offset_preserve_mainline')):
-                # Preserve normal construction as the default. Under a large
-                # confirmed threat, compare clearing routes that can fill the
-                # gauge without another nonclearing garbage drop.
-                candidates = [] if self.native.ask(dict(op='validate', field=own['field']))['dead'] else (
-                    self.native.ask(dict(op='placements', field=own['field'], piece=own['queue'][0]))['placements'])
-                entries = []
-                for candidate in candidates:
-                    if candidate['dead']:
-                        continue
-                    points = self.scoring.chain(own['character'], candidate['links'])
-                    estimate = offset_gauge(points, own['confirmed'] + own['unconfirmed'], own['remainder'],
-                                            rate, own['gauge'], request['gauge_gain_on_offset'])
-                    if estimate['gauge_after'] == 7:
-                        entries.append((candidate, points, estimate))
-                if entries:
-                    needs = reply.get('normal_color_needs', {})
-                    reserves = needs.get('reserve_weights', {})
-                    def needed_loss(candidate):
-                        return sum((sum(row.count(color) for row in candidate['locked_field']) -
-                                    sum(row.count(color) for row in candidate['field'])) * weight
-                                   for color, weight in reserves.items())
-                    chosen, points, gauge = min(entries, key=lambda e: (len(e[1]), needed_loss(e[0]), -sum(e[1])))
-                    reply = dict(x=chosen['x'], r=chosen['r'], shape=own['queue'][0][0],
-                                 reason='offset_to_enter_fever_under_threat', fire=bool(points),
-                                 chain=len(points), next_chain=len(points), next_score=sum(points),
-                                 link_points=points, next_field=chosen['field'], next_all_clear=chosen['all_clear'],
-                                 normal_color_needs=needs, needed_color_consumed=needed_loss(chosen))
             reply.update(gauge_forecast=gauge, entry_pending_after_chain=gauge['gauge_after'] == 7)
             if not request.get('enemy_chain') and reply['reason'] in (
                     'normal_build_or_fire', 'unknown_nuisance_one_move_then_reobserve',
-                    'offset_to_enter_fever_under_threat', 'no_rescue_fast_finish', 'observed_current_pose_drop'):
+                    'no_rescue_fast_finish', 'observed_current_pose_drop'):
                 reply['decision_dependencies'] = ['self']
         if reply['shape'] == '0':
             # Every policy branch, including unknown nuisance and seed search,
