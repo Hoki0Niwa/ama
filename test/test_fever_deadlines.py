@@ -124,11 +124,11 @@ class DeadlineSearchTests(unittest.TestCase):
             match_id='mode-test')
         self.assertEqual(result['choice']['chain'],3)
         self.assertFalse(result['path'][-1]['next_seed_input_fits'])
-        # In a battle nothing is carried to the normal board, so the under-target
-        # fire that only lowers the next seed is not made at all.
+        # The engine weighs the same fire by its points against the level it costs.
         reply=self.engine.answer(request(own))
-        self.assertEqual(reply['chain'],0)
-        self.assertEqual(reply['reason'],'fever_end_without_pointless_fire')
+        self.assertEqual(reply['seed_forecast']['strategy'],'value')
+        self.assertIn(reply['chain'],(0,3))
+        self.assertIn('expected_points',reply['seed_forecast']['choice'])
 
     def test_fever_seed_includes_delivery_while_nonclearing_piece_is_settling(self):
         own=side('fever',queue=['2:RG'])

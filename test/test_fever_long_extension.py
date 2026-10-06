@@ -1,4 +1,4 @@
-"""Large held packets grow the next entry; repayable packets consume seeds."""
+"""The engine's one measure under held packets; the explicit strategies kept for comparison."""
 from copy import deepcopy
 from pathlib import Path
 import sys
@@ -7,7 +7,6 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT));sys.path.insert(0,str(ROOT/'test'))
 from fever_fixtures import NATIVE,SOLO,side,request,seed3
 from fever_battle.mode_engine import ModeBattleEngine
-from fever_battle.mode_tactics import seed_turnover_plan
 from tools.verify_fever_extension import verify
 from fever_battle.mode import next_seed
 
@@ -18,43 +17,28 @@ class LongExtensionTests(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):cls.engine.close()
 
-    def test_repayable_packet_consumes_but_large_held_packet_grows_next_entry(self):
-        own=side('fever',seed3(),['2:RY']);own.update(normal_confirmed=10)
-        consume=self.engine.answer(request(own))
-        self.assertEqual(consume['seed_forecast']['strategy'],'quick')
-        self.assertTrue(consume['seed_forecast']['prefer_seed_turnover'])
-        self.assertTrue(consume['seed_strategy_plan']['packet_fits_estimate'])
-        self.assertGreaterEqual(consume['chain'],3)
-        own['normal_confirmed']=1000
-        grow=self.engine.answer(request(own))
-        self.assertEqual(grow['seed_forecast']['strategy'],'extend')
-        self.assertFalse(grow['seed_forecast']['prefer_seed_turnover'])
-        self.assertFalse(grow['seed_strategy_plan']['packet_fits_estimate'])
-        self.assertEqual(grow['chain'],0)
-        self.assertEqual(grow['seed_forecast']['desired_chain'],15)
-        self.assertIn('next_entry',grow['seed_strategy_reason'])
-
-    def test_template_counter_capacity_depends_on_clock_character_and_current_rate(self):
-        own=side('fever');own.update(normal_confirmed=1000)
-        a=seed_turnover_plan(own,self.engine.scoring,120)
-        b=seed_turnover_plan(own,self.engine.scoring,60)
-        self.assertGreater(a['estimated_seed_count'],1)
-        self.assertGreater(b['estimated_counter_capacity'],a['estimated_counter_capacity'])
-        own['remaining_frames']=300
-        c=seed_turnover_plan(own,self.engine.scoring,120)
-        self.assertLess(c['estimated_counter_capacity'],a['estimated_counter_capacity'])
-        self.assertEqual(a['status'],'template_current_rate_unseen_seed_success_not_proven')
+    def test_engine_uses_the_value_measure_whatever_the_held_packet(self):
+        for held in (10,1000):
+            own=side('fever',seed3(),['2:RY']);own.update(normal_confirmed=held)
+            reply=self.engine.answer(request(own))
+            self.assertEqual(reply['seed_forecast']['strategy'],'value')
+            self.assertEqual(reply['seed_strategy_reason'],'expected_points_by_the_end_of_this_fever')
+            self.assertNotIn('seed_strategy_plan',reply)
+            self.assertIn('expected_points',reply['seed_forecast']['choice'])
+            # A seed the visible piece fires at its level is fired, held packet or not.
+            self.assertGreaterEqual(reply['chain'],3)
 
     def test_large_pressure_does_not_override_explicit_consumption_comparison(self):
         own=side('fever',seed3());own['normal_confirmed']=1000
         req=request(own);req['seed_options']['strategy']='quick'
         answer=self.engine.answer(req)
         self.assertEqual(answer['seed_strategy_reason'],'explicit_common_strategy')
-        self.assertFalse(answer['seed_forecast']['prefer_seed_turnover'])
+        self.assertEqual(answer['seed_forecast']['strategy'],'quick')
 
     def test_long_build_cached_above_unknown_color_reserve_is_rechecked_at_boundary(self):
         own=side('fever',seed3());own['normal_confirmed']=1000
-        answer=self.engine.answer(request(own));result=answer['seed_forecast']
+        req=request(own);req['seed_options']['strategy']='extend'
+        answer=self.engine.answer(req);result=answer['seed_forecast']
         self.assertEqual(answer['chain'],0)
         own['remaining_frames']=result['choice']['end_at']+result['unknown_build_reserve_frames']
         self.assertFalse(self.engine._failure_build_allows(own,answer))
@@ -93,7 +77,7 @@ class LongExtensionTests(unittest.TestCase):
         self.assertEqual(next_seed(3,chosen['choice']['chain']),next_seed(3,higher_points['choice']['chain']))
         verify(self.engine.native,self.engine.scoring,own,chosen)
 
-    def test_cached_strategy_rechecks_pressure_that_changes_turnover_capacity_class(self):
+    def test_prepared_decision_is_rechecked_when_held_or_flying_nuisance_changes(self):
         own=side('fever',seed3(),['2:RY','2:BB','2:GY']);own.update(normal_confirmed=10)
         req=request(own);before=self.engine._signature(req,own)
         own['normal_confirmed']=1000

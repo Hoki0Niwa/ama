@@ -47,10 +47,6 @@
       "mainline_min": 4
     }
   },
-  "fever_seed": {
-    "status": "prototype_heuristic_not_battle_tuned",
-    "strategy": "auto"
-  },
   "fever_end": {
     "status": "prototype_heuristic_not_battle_tuned",
     "harmless_carry": 5,
