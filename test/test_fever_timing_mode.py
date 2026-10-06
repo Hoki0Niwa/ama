@@ -94,7 +94,7 @@ class IntegrationTests(unittest.TestCase):
             fever_confirmed=0, fever_unconfirmed=0, normal_confirmed=0, normal_unconfirmed=0,
             remainder=0, garbage_phase=0, remaining_frames=900, seed_chain=3)
         solver = SeedSolver(self.native, self.scoring)
-        result = solver.solve(own, 120, True, dict(strategy='quick', budget_ms=500))
+        result = solver.solve(own, 120, True, dict(budget_ms=500))
         first = result['choice']
         transition = self.native.ask(dict(op='transition', field=field, piece='2:RY', x=first['x'], r=first['r']))
         clock = ChainTiming.for_mode('fever')
@@ -105,7 +105,7 @@ class IntegrationTests(unittest.TestCase):
         self.assertTrue(first['next_seed_input_fits'])
         # The chain fits, but the next seed does not fit its measured exchange budget.
         own['remaining_frames'] = first['end_at'] + 90
-        result = solver.solve(own, 120, True, dict(strategy='quick', budget_ms=500),
+        result = solver.solve(own, 120, True, dict(budget_ms=500),
                               allowed=[dict(x=first['x'],r=first['r'])])
         self.assertTrue(result['choice']['completed_before_timeout'])
         self.assertFalse(result['choice']['next_seed_input_fits'])

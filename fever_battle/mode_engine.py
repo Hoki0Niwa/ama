@@ -246,17 +246,11 @@ class ModeBattleEngine(BattleEngine):
         return (own['mode'] != 'fever' or own['remaining_frames'] > QUICK_FRAMES
                 or estimate - own['remaining_frames'] <= self.FEVER_PREPARED_SLACK)
 
-    def _failure_build_allows(self, own, reply):
+    def _stacking_still_fits(self, own, reply):
+        """A prepared placement that pops nothing is used only while the next piece can still appear."""
         if own['mode'] != 'fever' or reply.get('fire'):
             return True
-        forecast=reply.get('seed_forecast', {})
-        first = forecast.get('choice')
-        if (first and first.get('target_ignition_preserved') and not first.get('visible_target_repair_all_drop_cases')
-                and forecast.get('path') and not forecast['path'][-1]['chain']
-                and own['remaining_frames'] <= first['end_at']+forecast.get('unknown_build_reserve_frames',0)):
-            return False
-        if not (own['normal_confirmed'] + own['normal_unconfirmed']) and not (first or {}).get('repair_workspace_available'):
-            return True
+        first = reply.get('seed_forecast', {}).get('choice')
         if first is None:
             return False
         timing = ChainTiming.for_mode('fever')
@@ -264,8 +258,7 @@ class ModeBattleEngine(BattleEngine):
         safety = max(0, reply.get('input_required_frames', fire_at+8)-fire_at)
         ready_delay = (timing.nuisance_ready_frames if first.get('dropped') else
                        max(0, timing.spawn_frames-timing.nuisance_check_frames))
-        future_input = timing.placement_frames + timing.first_link_frames if first.get('repair_workspace_available') else 0
-        return own['remaining_frames'] > first['end_at'] + ready_delay + future_input + safety
+        return own['remaining_frames'] > first['end_at'] + ready_delay + safety
 
     def _after_placement(self, request, own):
         """This side as its next piece will find it, or the reason it cannot be told.
@@ -360,12 +353,8 @@ class ModeBattleEngine(BattleEngine):
     def _seed_options(self, request, own, enemy):
         options = request.get('seed_options', {})
         self.seed_solver.validate_options(options)
-        # One measure for every line (seed_search.cpp); no strategy is chosen out here.
-        # "quick" and "extend" remain as explicit requests, to compare and to replay.
-        strategy, reason = 'value', 'expected_points_by_the_end_of_this_fever'
-        if 'strategy' in options:
-            strategy, reason = options['strategy'], 'explicit_common_strategy'
-        return {**options, 'strategy': strategy}, reason
+        # One measure ranks every line (seed_search.cpp); there is no strategy to choose.
+        return dict(options), 'expected_points_by_the_end_of_this_fever'
 
     def _tactics(self, request, own, enemy, rate, build=None, allowed=None):
         """The single search's reply to a threat on the normal board, or None to leave it to the rest."""
@@ -526,7 +515,7 @@ class ModeBattleEngine(BattleEngine):
             return dict(action='wait', reason='await_observed_mode_or_seed', decision_identity=identity(request))
         if (op == 'think' and prepared is not None and not self.margin.get('rate_events') and
                 not self.margin.get('enemy_rate_events') and prepared[0] == self._signature(request, own)
-                and self._clock_allows(own, prepared[1]) and self._failure_build_allows(own, prepared[2])):
+                and self._clock_allows(own, prepared[1]) and self._stacking_still_fits(own, prepared[2])):
             # Decided while the piece before fell, on this very side.
             reply = deepcopy(prepared[2])
             reply.update(decision_identity=identity(request), search_ms=0.0, search_reused=True,
@@ -551,8 +540,7 @@ class ModeBattleEngine(BattleEngine):
                     match_id=request['match_id'], allowed=allowed,
                     enemy_events=self._enemy_events(request, enemy), enemy=enemy,
                     maximum_frames=clock_limit(policy), margin=self.margin,
-                    quiet_carry_limit=self._quiet_carry_limit(own),
-                    quiet_min_attack=self.policy.get('fever_end', {}).get('min_attack', 30))
+                    quiet_carry_limit=self._quiet_carry_limit(own))
             else:
                 result = uncertain_move(self.native, self.scoring, own, rate,
                     allowed_placements={(m['x'], m['r']) for m in allowed},
@@ -577,8 +565,7 @@ class ModeBattleEngine(BattleEngine):
                 own, rate, policy['count_chain_frames'], options, match_id=request['match_id'],
                 enemy_events=self._enemy_events(request, enemy), enemy=enemy,
                 maximum_frames=clock_limit(policy), margin=self.margin,
-                quiet_carry_limit=self._quiet_carry_limit(own),
-                quiet_min_attack=self.policy.get('fever_end', {}).get('min_attack', 30))
+                quiet_carry_limit=self._quiet_carry_limit(own))
             first = result['choice']
             points = first['link_points']
             safety = request.get('seed_options', {}).get('safety_frames', 8)
@@ -593,8 +580,6 @@ class ModeBattleEngine(BattleEngine):
                 selected_move_loses=first['dead'])
             if result.get('intentional_seed_failure'):
                 reply.update(reason='fever_intentional_failure_hold_nuisance', intentional_seed_failure=True)
-            if result.get('quiet_fever_end'):
-                reply.update(reason='fever_end_without_pointless_fire')
             # Both objectives depend on our clock/seed, not enemy soft drops
             # or a speculative one-piece attack estimate.
             reply['decision_dependencies'] = ['self', 'enemy'] if request.get('enemy_chain') else ['self']

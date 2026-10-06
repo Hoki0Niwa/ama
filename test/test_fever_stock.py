@@ -92,7 +92,6 @@ class AimObjectiveTests(unittest.TestCase):
                          ('value', 'expected_points_by_the_end_of_this_fever'))
         self.assertEqual(reply['seed_strategy_reason'], 'expected_points_by_the_end_of_this_fever')
         self.assertFalse(reply['selected_move_loses'])
-        self.assertFalse(forecast['early_failure_deferred'] or forecast['quiet_fever_end'])
 
     def test_aim_build_places_a_piece(self):
         self.engine.policy['normal_build']['objective'] = 'fever_aim'

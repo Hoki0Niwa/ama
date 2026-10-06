@@ -129,11 +129,8 @@ def fever_run(engine, character, colours, args, seeds, limit=120):
     since = 0
     for move in range(limit):
         own.update(queue=queue[move:move+3], dropset_index=move % 16, piece_id=move, moves_since_chain=since)
-        req = request(f'fever-{colours}', move, own, enemy, 1)
-        if args.strategy:
-            req['seed_options'] = dict(strategy=args.strategy)
         try:
-            reply = engine.answer(req)
+            reply = engine.answer(request(f'fever-{colours}', move, own, enemy, 1))
         except ValueError as error:
             return dict(row, end=str(error), moves=move)
         if reply.get('action') != 'place':
@@ -271,8 +268,6 @@ def main():
     parser.add_argument('--clock', type=int, default=900, help='seed: frames on the Fever clock at the first piece')
     parser.add_argument('--level', type=int, default=5, help='fever: chain length of the first seed')
     parser.add_argument('--held', type=int, default=0, help='fever: nuisance held for the normal board')
-    parser.add_argument('--strategy', choices=('quick', 'extend', 'value'),
-                        help='fever: seed strategy for every seed, in place of the engine choice')
     parser.add_argument('--start', type=int, default=12, help='entry: piece at which nuisance first arrives')
     parser.add_argument('--every', type=int, default=3, help='entry: pieces between arrivals')
     parser.add_argument('--amount', type=int, default=4, help='entry: confirmed nuisance per arrival')

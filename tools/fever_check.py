@@ -180,6 +180,7 @@ def load(name):
 def replay(args):
     from fever_battle.worker import JsonProcess
     os.environ.pop('AMA_NATIVE_TRACE', None)
+    VOLATILE.update(key for key in args.ignore.split(',') if key)
     differences, compared, skipped = [], 0, 0
     processes = dict(native=JsonProcess([args.native], cwd=ROOT), solo=JsonProcess([args.solo, ROOT/'config.json'], cwd=ROOT))
     try:
@@ -192,7 +193,7 @@ def replay(args):
             except ValueError as error:
                 reply = dict(error=str(error))
             compared += 1
-            if reply != case['reply']:
+            if reply != normal(case['reply']):
                 differences.append(dict(kind='native', index=index, exe=case['exe'], request=case['request'],
                                         expected=case['reply'], actual=reply))
     finally:
@@ -204,7 +205,7 @@ def replay(args):
             continue
         reply = engine_answer(args.native, args.solo, case['request'])
         compared += 1
-        if reply != case['reply']:
+        if reply != normal(case['reply']):
             differences.append(dict(kind='engine', case=case['case'], request=case['request'],
                                     expected=case['reply'], actual=reply))
     report = dict(native_sha256=sha(args.native), solo_sha256=sha(args.solo), compared=compared,
@@ -227,6 +228,7 @@ def main():
     parser.add_argument('--solo', type=Path, default=SOLO)
     parser.add_argument('--output', type=Path, help='replay: write every difference here')
     parser.add_argument('--show', type=int, default=20, help='replay: differences to list')
+    parser.add_argument('--ignore', default='', help='replay: comma-separated reply keys left out of the comparison')
     args = parser.parse_args()
     if args.command == 'test':
         # Every Fever test file takes the battle worker from AMA_BATTLE_NATIVE.

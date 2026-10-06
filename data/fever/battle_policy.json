@@ -58,8 +58,7 @@
   },
   "fever_end": {
     "status": "prototype_heuristic_not_battle_tuned",
-    "harmless_carry": 5,
-    "min_attack": 30
+    "harmless_carry": 5
   },
   "note": "One shared policy for all characters. Immediate offset can override solo construction. Actual battle timing and threat tactics remain uncalibrated."
 }

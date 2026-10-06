@@ -40,7 +40,7 @@ def benchmark(native, reference):
             result = native.ask(dict(op='seed_search', field=seed['field'], queue=[piece],
                 confirmed=0, unconfirmed=0, held_pending=0, remainder=0, garbage_phase=0,
                 target_point=120, remaining_frames=1800, seed_chain=seed['seed_chain'],
-                safety_frames=8, count_chain_frames=True, strategy='quick', width=64,
+                safety_frames=8, count_chain_frames=True, width=64,
                 budget_ms=50, max_nodes=8000, timing=ChainTiming.for_mode('fever').native(),
                 powers=score.data['characters']['raffina']['fever'], bonuses=score.data['bonuses']))
             first = result['choice']
@@ -60,7 +60,7 @@ def benchmark(native, reference):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--native', type=Path, default=ROOT/'bin/t14/fever_battle.exe')
+    parser.add_argument('--native', type=Path, default=ROOT/'bin/fever_battle/fever_battle.exe')
     parser.add_argument('--reference', type=Path, default=ROOT/'data/fever/seeds/namoko-reference.json')
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
