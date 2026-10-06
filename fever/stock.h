@@ -16,6 +16,7 @@ struct Result
     i32 units = 0;  // Links weighted by how few puyos fire them, up to the links wanted
     i32 links = 0;  // The same links, unweighted
     i32 colors = 0; // Colors that fire something with a single puyo
+    i32 longest = 0; // The longest chain any one trigger of the board fires
 };
 
 // A link fired by 1, 2 or 3 puyos of its color counts 4, 2 or 1 units: one puyo comes with any piece
@@ -55,11 +56,15 @@ inline Result evaluate(Field field, i32 want)
                     ready[p] = ready[p] || need == 1;
 
                     // The fewest puyos first; among those the longer chain
-                    if (need <= best_need) {
+                    if (need <= best_need || round == 0) {
                         auto remain = plan;
                         i32 links = remain.pop_count();
 
-                        if (need < best_need || links > best_links) {
+                        if (round == 0) {
+                            result.longest = std::max(result.longest, links);
+                        }
+
+                        if (need < best_need || (need == best_need && links > best_links)) {
                             best_need = need;
                             best_links = links;
                             best_remain = remain;

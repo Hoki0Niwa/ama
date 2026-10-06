@@ -24,6 +24,29 @@
       }
     }
   },
+  "normal_tactics": {
+    "status": "prototype_heuristic_not_battle_tuned",
+    "mode": "ladder",
+    "budget_ms": 30,
+    "width": 12,
+    "weights": {
+      "entry": 6000,
+      "gauge": 1000,
+      "stock": 40,
+      "color": 60,
+      "drop": 80,
+      "consume": 12,
+      "mainline": 120,
+      "height": 300,
+      "early": 1500,
+      "builder": 250,
+      "step": 400,
+      "exposed": 700,
+      "pending": 40,
+      "uncountered": 2500,
+      "mainline_min": 4
+    }
+  },
   "fever_defense": {
     "status": "prototype_heuristic_not_battle_tuned",
     "hoard_max_central_height": 8,

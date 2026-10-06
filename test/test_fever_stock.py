@@ -29,13 +29,13 @@ class StockTests(unittest.TestCase):
         return self.native.ask(dict(op='stock', field=rows, want=want))
 
     def test_empty_board_has_no_stock(self):
-        self.assertEqual(self.stock(EMPTY), dict(units=0, links=0, colors=0))
+        self.assertEqual(self.stock(EMPTY), dict(units=0, links=0, colors=0, longest=0))
 
     def test_three_stacked_fire_with_one_puyo(self):
-        self.assertEqual(self.stock(board('RRR')), dict(units=4, links=1, colors=1))
+        self.assertEqual(self.stock(board('RRR')), dict(units=4, links=1, colors=1, longest=1))
 
     def test_two_stacked_need_two_puyos_and_count_less(self):
-        self.assertEqual(self.stock(board('RR')), dict(units=2, links=1, colors=0))
+        self.assertEqual(self.stock(board('RR')), dict(units=2, links=1, colors=0, longest=1))
 
     def test_independent_triggers_add_up(self):
         result = self.stock(board('RRR', '', 'YYY', '', 'GGG'))
@@ -46,9 +46,10 @@ class StockTests(unittest.TestCase):
         self.assertEqual(self.stock(rows, want=2)['links'], 2)
 
     def test_a_chain_counts_every_link(self):
-        # Red on yellow: the yellow trigger drops the reds onto the bottom red.
+        # Red on yellow: the yellow trigger drops the reds onto the bottom red, one puyo short of popping.
         result = self.stock(board('RYYYRR'))
         self.assertGreaterEqual(result['links'], 2)
+        self.assertEqual(result['longest'], 1)     # one trigger pops one link; the next is a second trigger
 
     def test_a_trigger_is_reached_from_the_side_until_nuisance_walls_it_in(self):
         self.assertEqual(self.stock(board('RRR#'))['links'], 1)
