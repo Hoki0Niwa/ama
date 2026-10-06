@@ -101,6 +101,7 @@ class ModeBattleEngine(BattleEngine):
         super().__init__(native, solo, config)
         self.mode_rules = rules()
         self.seed_solver = SeedSolver(self.native, self.scoring)
+        self.seed_solver.value_model = self.policy.get('fever_seed', {}).get('value_model')
         self.prepared = None
         self.margin_forecast = MarginForecast()
         self.margin = {}

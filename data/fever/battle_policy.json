@@ -47,6 +47,15 @@
       "mainline_min": 4
     }
   },
+  "fever_seed": {
+    "status": "prototype_heuristic_not_battle_tuned",
+    "value_model": {
+      "seed_odds": 0.85,
+      "carried_level": 0.5,
+      "color_odds": [0.75, 0.45, 0.25],
+      "harmful_carry": 10
+    }
+  },
   "fever_end": {
     "status": "prototype_heuristic_not_battle_tuned",
     "harmless_carry": 5,

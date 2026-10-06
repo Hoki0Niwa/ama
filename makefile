@@ -23,7 +23,12 @@ endif
 
 SRC_AI = core/*.cpp ai/*.cpp ai/search/*.cpp ai/search/beam/*.cpp ai/search/dfs/*.cpp
 
-.PHONY: all puyop test tuner bench pvp clean makedir
+# Fever targets (this branch only), the same sources as build.ps1: the fever engine's search and
+# builder without its main are shared by its bench and by the battle worker. BIN moves their output.
+SRC_FEVER = $(filter-out fever/main.cpp,$(wildcard fever/*.cpp))
+BIN ?= bin
+
+.PHONY: all puyop test tuner bench pvp fever bench_fever fever_battle clean makedir
 
 all: puyop
 
@@ -41,6 +46,18 @@ bench: makedir
 
 pvp: makedir
 	@$(CXX) $(CXXFLAGS) $(SRC_AI) pvp/*.cpp -o bin/pvp/pvp.exe
+
+fever:
+	@mkdir -p $(BIN)/fever
+	@$(CXX) $(CXXFLAGS) $(SRC_AI) fever/*.cpp -o $(BIN)/fever/fever.exe
+
+bench_fever:
+	@mkdir -p $(BIN)/bench_fever
+	@$(CXX) $(CXXFLAGS) $(SRC_AI) $(SRC_FEVER) bench_fever/*.cpp -o $(BIN)/bench_fever/bench_fever.exe
+
+fever_battle:
+	@mkdir -p $(BIN)/fever_battle
+	@$(CXX) $(CXXFLAGS) $(SRC_AI) $(SRC_FEVER) fever_battle/*.cpp -o $(BIN)/fever_battle/fever_battle.exe
 
 clean: makedir
 	@rm -rf bin

@@ -294,8 +294,17 @@ json seed_search(Field field, const json& request) {
     const auto chain_frames = [&](int chain) {
         return first_link + std::max(0, chain - 1) * (pop_frames + settle_frames + 14) + pop_frames;
     };
-    constexpr double SEED_ODDS = 0.85;      // a later seed is fired at its level
-    constexpr double CARRIED_LEVEL = 0.5;   // the level kept for the next Fever, in its first seed's points
+    // The model's constants come with the request (data/fever/battle_policy.json fever_seed);
+    // the defaults are the prototype values they were introduced with.
+    const auto model = request.value("value_model", json::object());
+    const auto model_number = [&](const char* key, double fallback) {
+        if (!model.contains(key)) return fallback;
+        const auto& v = model.at(key);
+        if (!v.is_number() || v < 0 || v > 1000) throw std::invalid_argument(std::string(key) + " out of range");
+        return v.get<double>();
+    };
+    const double SEED_ODDS = model_number("seed_odds", 0.85);          // a later seed is fired at its level
+    const double CARRIED_LEVEL = model_number("carried_level", 0.5);   // the level kept for the next Fever, in its first seed's points
     const auto future = [&](int level, int clock) {
         double total = 0, odds = 1;
         for (int k = 0; k < 24 && clock > setup_frames + first_link + safety; ++k) {
@@ -307,11 +316,20 @@ json seed_search(Field field, const json& request) {
         }
         return total + odds * CARRIED_LEVEL * template_points(level);
     };
-    constexpr double COLOR_ODDS[4] = {0, 0.75, 0.45, 0.25};     // 1, 2 or 3 puyos of one colour come in time
+    double COLOR_ODDS[4] = {0, 0.75, 0.45, 0.25};               // 1, 2 or 3 puyos of one colour come in time
+    if (model.contains("color_odds")) {
+        const auto& odds = model.at("color_odds");
+        if (!odds.is_array() || odds.size() != 3) throw std::invalid_argument("color_odds needs three values");
+        for (int i = 0; i < 3; ++i) {
+            if (!odds[i].is_number() || odds[i] < 0 || odds[i] > 1) throw std::invalid_argument("color_odds out of range");
+            COLOR_ODDS[i + 1] = odds[i].get<double>();
+        }
+    }
     // Points that offset are worth what they stop, the same as points sent, so
     // nuisance pending is no separate term: more points is less of it. Only
     // what the stored board cannot take at the end weighs beyond that.
-    constexpr double HARMFUL_CARRY = 10;    // a nuisance the stored board cannot take, in the points of ten sent
+    // A nuisance the stored board cannot take, in the points of this many sent
+    const double HARMFUL_CARRY = model_number("harmful_carry", 10);
     const auto danger = [&](i64 carry, double points_to_come) {
         const double left = std::max(0.0, double(carry) - points_to_come / rate);
         return std::max(0.0, left - double(std::max<i64>(0, quiet_limit))) * rate * HARMFUL_CARRY;
