@@ -84,11 +84,8 @@ class AimObjectiveTests(unittest.TestCase):
         self.engine.policy['normal_build']['objective'] = 'fever_aim'
         self.assertNotIn('aim', self.options(gain=0))
 
-    def test_value_seed_strategy_is_off_by_default_and_fires_a_seed_it_can(self):
+    def test_value_seed_strategy_is_the_engine_choice_and_swaps_nothing_in(self):
         own = side('fever', seed3(), ['2:BB', '2:RY', 'L:GGB'])
-        reply = self.engine.answer(request(own))
-        self.assertNotEqual(reply['seed_forecast']['strategy'], 'value')
-        self.engine.policy['fever_seed']['strategy'] = 'value'
         reply = self.engine.answer(request(own))
         forecast = reply['seed_forecast']
         self.assertEqual((forecast['strategy'], forecast['objective']),

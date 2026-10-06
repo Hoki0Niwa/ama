@@ -23,12 +23,10 @@ class SeedSolver:
 
     def solve(self, side, rate, count_chain_frames, options=None, match_id=None, allowed=None,
               enemy_events=None, enemy=None, maximum_frames=1800, margin=None,
-              quiet_carry_limit=None, quiet_min_attack=30, prefer_turnover=False):
+              quiet_carry_limit=None, quiet_min_attack=30):
         options = options or {}
         if type(count_chain_frames) is not bool:
             raise ValueError('explicit count_chain_frames policy required')
-        if type(prefer_turnover) is not bool:
-            raise ValueError('prefer_turnover must be boolean')
         self.validate_options(options)
         budget = integer(options.get('budget_ms', 50), 'seed budget_ms', 1, 1000)
         timing = ChainTiming.for_mode('fever', placement_frames=integer(options.get('placement_frames', 14),
@@ -59,7 +57,6 @@ class SeedSolver:
             maximum_frames=integer(maximum_frames, 'maximum_frames', 1800, 1860),
             count_chain_frames=count_chain_frames,
             strategy=strategy,
-            prefer_turnover=prefer_turnover,
             extension_moves=extension_moves,
             width=integer(options.get('width', 64), 'seed width', 1, 1000),
             max_nodes=integer(options.get('max_nodes', 8000), 'seed max_nodes', 1, 100000),

@@ -14,7 +14,6 @@ from fever_battle.model import EMPTY, Scoring
 from fever_battle.mode_engine import ModeBattleEngine, authorize_mode_reply
 from fever_battle.replay import replay
 from fever_battle.reference_seeds import decode
-from fever_battle.mode_tactics import seed_strategy
 from fever_battle.worker import JsonProcess
 from fever_battle.uncertainty import outcomes
 from fever_battle.finish import choose as fast_finish, placement_frames
@@ -524,7 +523,7 @@ class NativeModeTests(unittest.TestCase):
         own.update(confirmed=3, fever_confirmed=3)
         reply = self.engine.answer(request(own))
         self.assertEqual(len(reply['seed_forecast']['path']), 1)
-        self.assertEqual(reply['seed_forecast']['strategy'], 'quick')
+        self.assertEqual(reply['seed_forecast']['strategy'], 'value')
         self.assertEqual(reply['seed_forecast']['garbage_phase_status'], 'unknown_all_remainder_column_subsets')
         rows=list(EMPTY); rows[-1]='RRR...'
         own.update(field=rows,queue=['2:RR'],normal_confirmed=500)
@@ -772,20 +771,20 @@ class NativeModeTests(unittest.TestCase):
         reply = self.engine.answer(req)
         self.assertGreaterEqual(reply['chain'], 3)
 
-    def test_losing_immediate_target_port_does_not_force_seed_failure_while_an_ignition_survives(self):
+    def test_confirmed_drop_on_a_seed_is_answered_without_losing(self):
         own = side('fever', seed_with_small_green(), ['2:GB'])
         own.update(confirmed=18, fever_confirmed=18, garbage_phase=None, garbage_phase_status='unknown')
         reply = self.engine.answer(request(own))
-        self.assertEqual(reply['chain'], 0)
-        self.assertFalse(reply.get('intentional_seed_failure', False))
         first = reply['seed_forecast']['choice']
-        self.assertEqual(first['dropped'], 18)
         self.assertFalse(first['dead'])
-        self.assertGreater(first['extension_potential']['chain'], 0)
-        self.assertTrue(reply['seed_forecast']['early_failure_deferred'])
-        self.assertFalse(reply['seed_forecast']['solved'])
-        self.assertFalse(reply['replaces_seed_on_clear'])
-        self.assertEqual(len(reply['seed_forecast']['path']), 1)
+        self.assertIn('expected_points', first)
+        # A clear stops the drop; a placement that pops nothing takes all of it.
+        self.assertEqual(first['dropped'], 0 if reply['chain'] else 18)
+        # The same position under the explicit extension strategy keeps the seed.
+        req = request(own); req['seed_options']['strategy'] = 'extend'
+        kept = self.engine.answer(req)
+        self.assertEqual(kept['chain'], 0)
+        self.assertTrue(kept['seed_forecast']['early_failure_deferred'])
 
     def test_offline_seed_geometry_keeps_missing_history_explicit(self):
         own = side('fever', seed3())
@@ -843,13 +842,12 @@ class NativeModeTests(unittest.TestCase):
         self.assertGreaterEqual(reply['chain'], own['seed_chain'])
         self.assertEqual(reply['seed_forecast']['choice']['dropped'], 0)
 
-    def test_small_unconfirmed_pressure_does_not_trigger_small_counter(self):
+    def test_unconfirmed_pressure_does_not_stop_a_seed_fired_at_its_level(self):
         own = side('fever', seed3())
         own.update(unconfirmed=206, fever_unconfirmed=206)
         reply = self.engine.answer(request(own))
-        self.assertFalse(reply['fire'])
+        self.assertGreaterEqual(reply['chain'], own['seed_chain'])
         self.assertEqual(reply['seed_forecast']['choice']['dropped'], 0)
-        self.assertTrue(reply['seed_forecast']['choice']['target_ignition_preserved'])
 
     def test_fever_recovery_keeps_extension_inside_observed_reachable_moves(self):
         req = request(); req.update(op='recover_placement', reachable_placements=[dict(x=2, r='U')])
@@ -1033,15 +1031,6 @@ class NativeModeTests(unittest.TestCase):
         for bad in ('a78x', 'a0b78', 'a999999999999', 'a77'):
             with self.assertRaises(ValueError):
                 decode(bad)
-
-    def test_shared_strategy_keeps_extension_under_small_pressure(self):
-        own, enemy = side('fever'), side('fever')
-        self.assertEqual(seed_strategy(own, enemy, 100)[0], 'extend')
-        own['fever_confirmed'] = 1
-        self.assertEqual(seed_strategy(own, enemy, 100)[0], 'extend')
-        own['fever_confirmed'] = 0
-        own['remaining_frames'] = 120
-        self.assertEqual(seed_strategy(own, enemy, 100)[0], 'extend')
 
     def test_countdown_can_finish_active_chain_but_never_accept_stale_deadline(self):
         req = request()

@@ -106,8 +106,6 @@ class TacticsTests(unittest.TestCase):
     def test_fever_ends_without_a_fire_when_nothing_is_carried(self):
         reply = self.engine.answer(request(self.ending()))
         self.assertEqual(reply['chain'], 0)
-        self.assertEqual(reply['reason'], 'fever_end_without_pointless_fire')
-        self.assertTrue(reply['seed_forecast']['quiet_fever_end'])
         self.assertEqual(reply['seed_forecast']['choice']['carried_nuisance'], 0)
 
     def test_harmless_held_nuisance_does_not_force_a_failed_fire(self):
@@ -118,7 +116,6 @@ class TacticsTests(unittest.TestCase):
     def test_harmful_held_nuisance_keeps_the_last_offset(self):
         reply = self.engine.answer(request(self.ending(normal_confirmed=50)))
         self.assertGreater(reply['chain'], 0)
-        self.assertFalse(reply['seed_forecast']['quiet_fever_end'])
 
     def test_stored_board_that_cannot_take_the_drop_is_not_called_harmless(self):
         own = self.ending(normal_confirmed=4)

@@ -17,7 +17,7 @@ from .observation import coherent
 from .seed_solver import SeedSolver
 from .timing import ChainTiming
 from .threat import enemy_events
-from .mode_tactics import QUICK_FRAMES, offset_gauge, seed_strategy, seed_turnover_plan
+from .mode_tactics import QUICK_FRAMES, offset_gauge
 from .normal_colors import report as report_colors
 from .uncertainty import choose as uncertain_move
 from .finish import choose as fast_finish
@@ -359,12 +359,9 @@ class ModeBattleEngine(BattleEngine):
     def _seed_options(self, request, own, enemy):
         options = request.get('seed_options', {})
         self.seed_solver.validate_options(options)
-        if self.policy.get('fever_seed', {}).get('strategy') == 'value':
-            # One measure for every line (seed_search.cpp); no strategy is chosen out here.
-            strategy, reason = 'value', 'expected_points_by_the_end_of_this_fever'
-        else:
-            plan=seed_turnover_plan(own,self.scoring,request['target_point'])
-            strategy, reason = seed_strategy(own, enemy, 0, turnover=plan)
+        # One measure for every line (seed_search.cpp); no strategy is chosen out here.
+        # "quick" and "extend" remain as explicit requests, to compare and to replay.
+        strategy, reason = 'value', 'expected_points_by_the_end_of_this_fever'
         if 'strategy' in options:
             strategy, reason = options['strategy'], 'explicit_common_strategy'
         return {**options, 'strategy': strategy}, reason
@@ -554,8 +551,7 @@ class ModeBattleEngine(BattleEngine):
                     enemy_events=self._enemy_events(request, enemy), enemy=enemy,
                     maximum_frames=clock_limit(policy), margin=self.margin,
                     quiet_carry_limit=self._quiet_carry_limit(own),
-                    quiet_min_attack=self.policy.get('fever_end', {}).get('min_attack', 30),
-                    prefer_turnover=strategy_reason=='consume_seeds_packet_within_estimated_capacity')
+                    quiet_min_attack=self.policy.get('fever_end', {}).get('min_attack', 30))
             else:
                 result = uncertain_move(self.native, self.scoring, own, rate,
                     allowed_placements={(m['x'], m['r']) for m in allowed},
@@ -581,8 +577,7 @@ class ModeBattleEngine(BattleEngine):
                 enemy_events=self._enemy_events(request, enemy), enemy=enemy,
                 maximum_frames=clock_limit(policy), margin=self.margin,
                 quiet_carry_limit=self._quiet_carry_limit(own),
-                quiet_min_attack=self.policy.get('fever_end', {}).get('min_attack', 30),
-                prefer_turnover=strategy_reason=='consume_seeds_packet_within_estimated_capacity')
+                quiet_min_attack=self.policy.get('fever_end', {}).get('min_attack', 30))
             first = result['choice']
             points = first['link_points']
             safety = request.get('seed_options', {}).get('safety_frames', 8)
@@ -592,7 +587,6 @@ class ModeBattleEngine(BattleEngine):
                 link_points=points, next_all_clear=first['all_clear'],
                 seed_forecast=result, replaces_seed_on_clear=bool(points),
                 seed_strategy_reason=strategy_reason, seed_search_reused=False,
-                seed_strategy_plan=seed_turnover_plan(own,self.scoring,rate),
                 searched_visible=result.get('searched_visible', len(own['queue'])),
                 input_required_frames=first['fire_at'] + safety,
                 selected_move_loses=first['dead'])

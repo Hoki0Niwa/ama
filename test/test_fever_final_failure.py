@@ -23,13 +23,16 @@ class FinalFailureTests(unittest.TestCase):
         own.update(seed_chain=5, seed_base=5, remaining_frames=remaining, normal_confirmed=50)
         return request(own)
 
-    def test_held_packet_does_not_cause_early_failed_clear_and_another_seed(self):
-        reply = self.engine.answer(self.one_chain(300))
-        self.assertEqual(reply['chain'], 0)
-        forecast = reply['seed_forecast']
-        self.assertTrue(forecast['early_failure_deferred'])
-        self.assertGreater(forecast['choice']['extension_potential']['chain'], 0)
-        self.assertEqual(forecast['choice']['dropped'], 0)
+    def test_held_packet_with_time_left_is_weighed_by_expected_points(self):
+        req = self.one_chain(300)
+        reply = self.engine.answer(req)
+        self.assertEqual(reply['seed_forecast']['strategy'], 'value')
+        self.assertFalse(reply['seed_forecast']['choice']['dead'])
+        # The explicit extension strategy still defers the early failed clear.
+        req['seed_options']['strategy'] = 'extend'
+        kept = self.engine.answer(req)
+        self.assertEqual(kept['chain'], 0)
+        self.assertTrue(kept['seed_forecast']['early_failure_deferred'])
 
     def test_last_active_piece_fires_even_after_clock_zero_without_new_time(self):
         for remaining in (20, 0):

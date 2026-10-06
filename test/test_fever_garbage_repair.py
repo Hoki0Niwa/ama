@@ -37,11 +37,20 @@ class GarbageRepairTests(unittest.TestCase):
                    normal_confirmed=20,garbage_phase=phase,garbage_phase_status='unknown' if phase is None else 'observed',remaining_frames=remaining)
         return own
 
-    def test_recorded_early_three_chain_builds_after_small_drops_with_or_without_held_normal_packet(self):
+    def test_recorded_position_under_the_value_measure_is_legal_and_survives(self):
+        req=self.captured(1,16); reply=self.engine.answer(req)
+        result=reply['seed_forecast']; first=result['choice']
+        self.assertEqual(result['strategy'],'value')
+        self.assertFalse(first['dead'])
+        self.assertIn('expected_points',first)
+        verify(self.engine.native,self.engine.scoring,req['self'],result)
+
+    def test_recorded_early_three_chain_builds_after_small_drops_under_explicit_extension(self):
         for count in (1,2,4,6,12):
             for held in (0,16):
                 with self.subTest(count=count,held=held):
-                    req=self.captured(count,held); reply=self.engine.answer(req)
+                    req=self.captured(count,held); req.setdefault('seed_options',{})['strategy']='extend'
+                    reply=self.engine.answer(req)
                     result=reply['seed_forecast']; first=result['choice']
                     self.assertEqual(reply['chain'],0)
                     self.assertTrue(result['early_failure_deferred'])

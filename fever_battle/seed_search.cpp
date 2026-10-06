@@ -35,6 +35,7 @@ struct Step {
     int time_reward = 0, remaining_after_rewards = 0;
     i64 carry = 0;      // nuisance left for the normal board if Fever ended after this step
     Potential extension; int setup_bonus = 0;
+    bool has_worth = false; i64 worth = 0;      // strategy "value": points expected by the end of the Fever
     bool all_cases_preserve() const { return !has_all_cases || all_cases; }
     json describe() {
         json j = {{"x", x}, {"r", std::string(1, r)},
@@ -60,6 +61,7 @@ struct Step {
             j["repair_workspace_available"] = repair_workspace;
             if (repair_workspace) j["repair_status"] = "reobserve_each_piece_unknown_colors_not_proven";
         }
+        if (has_worth) j["expected_points"] = worth;
         if (dropped) {
             j["visible_target_repair_all_drop_cases"] = visible_target_repair;
             if (visible_target_repair) j["repair_latest_fire_at"] = repair_fire_at;
@@ -142,7 +144,6 @@ json seed_search(Field field, const json& request) {
     const int patience = std::max(0, 15 - target);
     const int gain = 15 - target;
     const bool unknown_phase = request.value("unknown_garbage_phase", false);
-    const bool prefer_turnover = request.value("prefer_turnover", false);
     // Ending Fever without a fire: nuisance the normal board takes without harm
     // (-1: not compared), and the attack below which an under-target fire is idle.
     const i64 quiet_limit = request.contains("quiet_carry_limit")
@@ -310,9 +311,10 @@ json seed_search(Field field, const json& request) {
     // Points that offset are worth what they stop, the same as points sent, so
     // nuisance pending is no separate term: more points is less of it. Only
     // what the stored board cannot take at the end weighs beyond that.
+    constexpr double HARMFUL_CARRY = 10;    // a nuisance the stored board cannot take, in the points of ten sent
     const auto danger = [&](i64 carry, double points_to_come) {
         const double left = std::max(0.0, double(carry) - points_to_come / rate);
-        return std::max(0.0, left - double(std::max<i64>(0, quiet_limit))) * rate;
+        return std::max(0.0, left - double(std::max<i64>(0, quiet_limit))) * rate * HARMFUL_CARRY;
     };
     const auto consider = [&](SeedNode& node, int chain, bool alive, int fire_at, int end_at, i64 sent) {
         const bool in_time = (chain ? fire_at : end_at) + safety < remaining;
@@ -366,19 +368,9 @@ json seed_search(Field field, const json& request) {
             }
             value = i64(worth);
             node.build_value = int(std::clamp<i64>(value, -2000000000, 2000000000));
+            node.path.back().has_worth = true; node.path.back().worth = value;
         }
-        i64 turnover_value = total_points;
-        if (prefer_turnover && chain) {
-            const auto& last = node.path.back();
-            const bool clears_packet = root.confirmed + root.flying + root.held > 0 && last.carry == 0;
-            // Clearing the packet or renewing a successful seed is the goal.
-            // Simultaneous groups are only a small efficiency tie-break, not
-            // a reason to delay the same seed's regular ignition.
-            const int cycle = std::max(1, end_at + chain_ready - last.time_reward);
-            turnover_value = i64(clears_packet)*1000000000 + i64(success && next_seed_fits)*100000000
-                + i64(reward_clear)*10000000 + 100000000/cycle + chain*1000
-                + std::min<i64>(999,total_points/rate);
-        }
+        const i64 turnover_value = total_points;
         auto rank = strategy == "quick"
             ? std::make_tuple(tier, turnover_value + reward_clear * i64(rate) * 30,
                 int(success && next_seed_fits), reward_clear, -end_at, sent)
@@ -627,7 +619,6 @@ json seed_search(Field field, const json& request) {
         {"requires_reobservation_after_drop", best_path.back().dropped > 0},
         {"searched_visible", queue.size()}, {"pending_arrival_status", events.empty() ? "unconfirmed_not_scheduled" : "observed_enemy_chain_timeline"},
         {"strategy", strategy},
-        {"prefer_seed_turnover", prefer_turnover},
         {"known_fire_preferred_over_smaller_potential", prefer_known_fire},
         {"seed_color_needs", color_needs(field).describe(pieces, 0)},
         {"intentional_seed_failure", intentional_failure},
