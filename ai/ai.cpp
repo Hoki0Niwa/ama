@@ -181,54 +181,59 @@ Result build(
     return ai::RESULT_DEFAULT;
 };
 
-Result think(
-    gaze::Player self,
-    gaze::Player enemy,
-    search::Result bsearch,
-    search::Configs configs,
-    i32 target_point,
-    style::Data style,
-    i32 trigger,
-    bool stretch,
-    std::function<void(search::Type, search::Result&)> prepare
-)
+// What a decision is made on: the arguments of think and what it reads from both fields before deciding
+struct Situation
 {
-    // Checks field count
-    i32 field_count = self.field.get_count();
+    gaze::Player& self;
+    gaze::Player& enemy;
+    search::Result& bsearch;
+    search::Configs& configs;
+    i32 target_point;
+    style::Data& style;
+    i32 trigger;
+    bool stretch;
+    std::function<void(search::Type, search::Result&)>& prepare;
+    i32 field_count;
+    i32 balance;
+    dfs::attack::Result& self_attacks;
+    dfs::attack::Result& enemy_attacks;
+    i32 attack_max;
+    i32 enemy_delay;
+    gaze::Data& enemy_gaze;
+    bool enemy_small_field;
+    bool enemy_garbage_obstruct;
+    i32 enemy_harass;
+    i32 enemy_early_attack;
+};
 
-    // Gets attack balance
-    i32 balance = self.attack - enemy.attack;
+// Each decision below reads the situation under the names think gave its values
+#define AI_SITUATION_NAMES(s) \
+    [[maybe_unused]] auto& self = (s).self; \
+    [[maybe_unused]] auto& enemy = (s).enemy; \
+    [[maybe_unused]] auto& bsearch = (s).bsearch; \
+    [[maybe_unused]] auto& configs = (s).configs; \
+    [[maybe_unused]] auto& target_point = (s).target_point; \
+    [[maybe_unused]] auto& style = (s).style; \
+    [[maybe_unused]] auto& trigger = (s).trigger; \
+    [[maybe_unused]] auto& stretch = (s).stretch; \
+    [[maybe_unused]] auto& prepare = (s).prepare; \
+    [[maybe_unused]] auto& field_count = (s).field_count; \
+    [[maybe_unused]] auto& balance = (s).balance; \
+    [[maybe_unused]] auto& self_attacks = (s).self_attacks; \
+    [[maybe_unused]] auto& enemy_attacks = (s).enemy_attacks; \
+    [[maybe_unused]] auto& attack_max = (s).attack_max; \
+    [[maybe_unused]] auto& enemy_delay = (s).enemy_delay; \
+    [[maybe_unused]] auto& enemy_gaze = (s).enemy_gaze; \
+    [[maybe_unused]] auto& enemy_small_field = (s).enemy_small_field; \
+    [[maybe_unused]] auto& enemy_garbage_obstruct = (s).enemy_garbage_obstruct; \
+    [[maybe_unused]] auto& enemy_harass = (s).enemy_harass; \
+    [[maybe_unused]] auto& enemy_early_attack = (s).enemy_early_attack;
 
-    // Speculates enemy's garbage dropping
-    if (enemy.attack_frame > 0 && balance >= 3) {
-        enemy.field.drop_garbage(balance);
-    }
 
-    if (enemy.dropping >= 3) {
-        enemy.field.drop_garbage(balance);
-    }
-
-    // Gets attacks
-    auto self_attacks = dfs::attack::search(self.field, self.queue);
-    auto enemy_attacks = dfs::attack::search(enemy.field, { enemy.queue[0], enemy.queue[1] });
-
-    // Gets max attack
-    i32 attack_max = 0;
-
-    for (auto& c : self_attacks.candidates) {
-        attack_max = std::max(attack_max, c.attack_max.score_total);
-    }
-
-    // Reads enemy's field
-    i32 enemy_delay = enemy.attack_frame + (enemy.dropping > 0) + (enemy.attack_frame > 0 && balance > 0);
-
-    auto enemy_gaze = gaze::gaze(enemy.field, enemy_attacks, enemy_delay);
-
-    bool enemy_small_field = gaze::is_small_field(enemy.field, self.field);
-    bool enemy_garbage_obstruct = gaze::is_garbage_obstruct(enemy.field, chain::Score { .count = enemy_gaze.main.count, .score = enemy_gaze.main.score });
-
-    i32 enemy_harass = enemy_gaze.harass.score / target_point;
-    i32 enemy_early_attack = enemy_gaze.early.score / target_point;
+// The enemy is attacking: return fire, offset, or build through it. Empty when it is not attacking.
+static std::optional<Result> defend(Situation& situation)
+{
+    AI_SITUATION_NAMES(situation)
 
     // If the enemy is attacking
     if (balance < 0) {
@@ -652,6 +657,14 @@ Result think(
         return ai_build;
     }
 
+    return {};
+};
+
+// The enemy's chain is running but isn't big enough: an attack timed against it, if there is one
+static std::optional<Result> counter(Situation& situation)
+{
+    AI_SITUATION_NAMES(situation)
+
     // If the enemy is triggering a chain but it isn't big enough, then try to trigger an attack fast
     if (balance >= 0 && enemy.attack_frame > 0 && style.attack == style::Attack::STRONG) {
         u8 enemy_heights[6];
@@ -721,6 +734,14 @@ Result think(
         }
     }
 
+    return {};
+};
+
+// The enemy cannot dig out in time: a killing attack, if there is one
+static std::optional<Result> kill(Situation& situation)
+{
+    AI_SITUATION_NAMES(situation)
+
     // Kill
     if (enemy_garbage_obstruct) {
         // Calculates the amount of attacks needed
@@ -778,6 +799,14 @@ Result think(
             };
         }
     }
+
+    return {};
+};
+
+// A small attack while our field is still low, if one is worth it
+static std::optional<Result> harass(Situation& situation)
+{
+    AI_SITUATION_NAMES(situation)
 
     // Harassment
     bool field_side_enough =
@@ -1002,6 +1031,73 @@ Result think(
                     .update = Update()
                 };
             }
+        }
+    }
+
+    return {};
+};
+
+#undef AI_SITUATION_NAMES
+
+Result think(
+    gaze::Player self,
+    gaze::Player enemy,
+    search::Result bsearch,
+    search::Configs configs,
+    i32 target_point,
+    style::Data style,
+    i32 trigger,
+    bool stretch,
+    std::function<void(search::Type, search::Result&)> prepare
+)
+{
+    // Checks field count
+    i32 field_count = self.field.get_count();
+
+    // Gets attack balance
+    i32 balance = self.attack - enemy.attack;
+
+    // Speculates enemy's garbage dropping
+    if (enemy.attack_frame > 0 && balance >= 3) {
+        enemy.field.drop_garbage(balance);
+    }
+
+    if (enemy.dropping >= 3) {
+        enemy.field.drop_garbage(balance);
+    }
+
+    // Gets attacks
+    auto self_attacks = dfs::attack::search(self.field, self.queue);
+    auto enemy_attacks = dfs::attack::search(enemy.field, { enemy.queue[0], enemy.queue[1] });
+
+    // Gets max attack
+    i32 attack_max = 0;
+
+    for (auto& c : self_attacks.candidates) {
+        attack_max = std::max(attack_max, c.attack_max.score_total);
+    }
+
+    // Reads enemy's field
+    i32 enemy_delay = enemy.attack_frame + (enemy.dropping > 0) + (enemy.attack_frame > 0 && balance > 0);
+
+    auto enemy_gaze = gaze::gaze(enemy.field, enemy_attacks, enemy_delay);
+
+    bool enemy_small_field = gaze::is_small_field(enemy.field, self.field);
+    bool enemy_garbage_obstruct = gaze::is_garbage_obstruct(enemy.field, chain::Score { .count = enemy_gaze.main.count, .score = enemy_gaze.main.score });
+
+    i32 enemy_harass = enemy_gaze.harass.score / target_point;
+    i32 enemy_early_attack = enemy_gaze.early.score / target_point;
+
+    // The decisions, in order: the first that has an answer gives it
+    auto situation = Situation {
+        self, enemy, bsearch, configs, target_point, style, trigger, stretch, prepare,
+        field_count, balance, self_attacks, enemy_attacks, attack_max, enemy_delay, enemy_gaze,
+        enemy_small_field, enemy_garbage_obstruct, enemy_harass, enemy_early_attack
+    };
+
+    for (auto decide : { defend, counter, kill, harass }) {
+        if (auto result = decide(situation)) {
+            return *result;
         }
     }
 
