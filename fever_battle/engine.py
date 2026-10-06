@@ -22,14 +22,25 @@ SOLO_OPTIONS = {'trigger', 'stretch', 'panic_count', 'panic_chain', 'panic_step'
                 'margin', 'patience', 'patience_step', 'beam_width', 'beam_depth'}
 
 
+class SoloBuilder:
+    """The solo chain builder, answered by the battle worker (op solo).
+
+    Same request and reply as bin/fever/fever.exe, whose code the worker links;
+    the weight set is the one that engine reads from the config.
+    """
+    def __init__(self, native, config):
+        data = json.loads(Path(config).read_text(encoding='utf-8'))
+        self.native, self.weights = native, data['fever'] if 'fever' in data else data['build']
+
+    def ask(self, request, timeout=10):
+        return self.native.ask(dict(op='solo', weights=self.weights, request=request), timeout=timeout)
+
+
 class BattleEngine:
     def __init__(self, native, solo, config):
+        """`solo` (the path of fever.exe) is no longer started; callers still pass it."""
         self.native = JsonProcess([native], cwd=ROOT)
-        try:
-            self.solo = JsonProcess([solo, config], cwd=ROOT)
-        except Exception:
-            self.native.close()
-            raise
+        self.solo = SoloBuilder(self.native, config)
         self.scoring = Scoring()
         self.garbage_search = GarbageSearch(self.native, config)
         self.policy = json.loads((ROOT / 'data/fever/battle_policy.json').read_text(encoding='utf-8'))
@@ -38,7 +49,6 @@ class BattleEngine:
 
     def close(self):
         self.native.close()
-        self.solo.close()
 
     def side(self, side):
         character = side['character']

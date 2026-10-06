@@ -14,19 +14,13 @@ try {
     $outputPath = Join-Path $PSScriptRoot $Output
     New-Item -ItemType Directory -Force (Split-Path $outputPath) | Out-Null
     $sourceDirs = @('core', 'ai', 'ai/search', 'ai/search/beam', 'ai/search/dfs')
-    # The battle worker links the existing evaluator without changing its source.
-    if ($Target -eq 'fever_battle') { $sourceDirs = @('core') }
     if ($Target -ne 'speed-bench') { $sourceDirs += $Target }
     $sources = $sourceDirs |
         ForEach-Object { Get-ChildItem (Join-Path $PSScriptRoot "$_/*.cpp") } |
         ForEach-Object FullName
-    if ($Target -eq 'fever_battle') {
-        $sources += @('eval.cpp', 'quiet.cpp', 'form.cpp') |
-            ForEach-Object { Join-Path $PSScriptRoot "ai/search/beam/$_" }
-    }
     if ($Target -eq 'speed-bench') { $sources += Join-Path $PSScriptRoot 'test/speed_bench.cc' }
-    # bench_fever shares the fever engine's search, without its main
-    if ($Target -eq 'bench_fever') {
+    # bench_fever and the battle worker share the fever engine's search and builder, without its main
+    if ($Target -in 'bench_fever', 'fever_battle') {
         $sources += Get-ChildItem (Join-Path $PSScriptRoot 'fever/*.cpp') |
             Where-Object Name -ne 'main.cpp' | ForEach-Object FullName
     }
