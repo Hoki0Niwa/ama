@@ -2,6 +2,7 @@
 
 #include "../ai/search/beam/beam.h"
 #include "../core/fever_queue.h"
+#include "stock.h"
 
 // Fever counterpart of ai/search/beam: the same layers, table and evaluation,
 // expanded with piece::Piece placements under rule::FEVER.
@@ -44,6 +45,15 @@ struct Configs
     //       toward one place: a valley (both ends high) or a wedge (one end high). Such a field keeps a way
     //       open from where the pieces appear to every column.
     i32 hill = 0;
+    // Fever-only weights of the offset stock (keys "stock" and "stock_color", see fever/stock.h):
+    // eval points per weighted link the board can pop without a quiet placement, up to stock_want
+    // links (7 minus the gauge), and per color that fires something with one puyo.
+    i32 stock = 0;
+    i32 stock_color = 0;
+    i32 stock_want = 7;
+    // Chooses the placement by the best evaluation its deepest positions reach, not by the biggest
+    // chain found below it. A build that aims at offsets has no chain score to be ranked by.
+    bool aim = false;
 };
 
 // Rows by which the four inner columns stand above the lowest column on either side of them.
@@ -68,6 +78,10 @@ inline void evaluate(beam::node::Data& node, const beam::eval::Weight& w, const 
         node.field.get_heights(heights);
         node.score.eval += get_hill(heights) * configs.hill;
     }
+    if (configs.stock != 0 || configs.stock_color != 0) {
+        auto stock = stock::evaluate(node.field, configs.stock_want);
+        node.score.eval += stock.units * configs.stock + stock.colors * configs.stock_color;
+    }
 }
 
 struct Candidate
@@ -75,7 +89,14 @@ struct Candidate
     move::Placement placement = move::Placement();
     size_t score = 0; // Biggest chain score found, summed over the virtual queues
     i32 chain = 0;    // Longest chain found on any virtual queue
+    // With Configs::aim: the best evaluation among the deepest positions searched below this
+    // placement, summed over the virtual queues
+    i64 aim = 0;
 };
+
+// What a placement is worth under Configs::aim once the beam has dropped every position below it:
+// less than any evaluation, and less the sooner it happened
+constexpr i64 AIM_LOST = -1000000000000;
 
 struct Result
 {
