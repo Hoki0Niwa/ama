@@ -38,7 +38,8 @@ void evaluate(node::Data& node, const Weight& w)
     // Quiescence search
     i32 q = INT32_MIN;
 
-    quiet::search(node.field, 3, [&] (quiet::Result quiet) {
+    auto search = w.score != 0 ? quiet::search : quiet::search_count;
+    search(node.field, 3, [&] (quiet::Result quiet) {
         i32 q_score = 0;
 
         // Potential chain

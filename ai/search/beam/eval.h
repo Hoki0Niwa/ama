@@ -38,6 +38,11 @@ struct Weight
     // Scales the Tsu score lost by over-sized links and gained by multi-color/large pops of the
     // planned chain, in eval points per 1,000 score points; zero keeps the chain-count-only behavior
     i32 score = 0;
+
+    // Actual score points charged per colored puyo cleared by the candidate's
+    // first move, if it is a small clear. Unknown future clears are not charged.
+    // Used only to rank construction candidates; firing thresholds use the raw score.
+    i32 clear_cost = 0;
 };
 
 inline void to_json(json& j, const Weight& w)
@@ -58,7 +63,8 @@ inline void to_json(json& j, const Weight& w)
         {"tear", w.tear},
         {"waste", w.waste},
         {"form", w.form},
-        {"score", w.score}
+        {"score", w.score},
+        {"clear_cost", w.clear_cost}
     };
 }
 
@@ -80,6 +86,7 @@ inline void from_json(const json& j, Weight& w)
     j.at("waste").get_to(w.waste);
     w.form = j.value("form", 0); // Legacy configs deliberately default to off.
     w.score = j.value("score", 0);
+    w.clear_cost = std::max(0, j.value("clear_cost", 0));
 }
 
 

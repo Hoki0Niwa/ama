@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <memory>
+#include <exception>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -10,14 +11,16 @@
 #include <fcntl.h>
 #else
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/wait.h>
 #include <signal.h>
 #endif
 
 // PVP simulation between two engines
 //
-// Time is counted in the same abstract unit the AI uses: placing a pair costs 1 (2 when the pair
-// tears apart) and every chain link costs 2. Both players share the same queue, as in Puyo Puyo Tsu.
+// The default referee jumps between events in virtual game frames (see TIMING.md).
+// --timing abstract retains the original pair=1, chain link=2 referee.
+// Both players share the same queue, as in Puyo Puyo Tsu.
 // Nuisance is computed from the chain score with `target_point` points per puyo (70 in Tsu),
 // offset against the nuisance pending on the attacker, sent to the opponent when the chain ends and
 // dropped (at most 30 at a time) after the next pair the opponent places without starting a chain,
@@ -239,6 +242,9 @@ json request_to_json(Request& request)
     js["target_point"] = request.target_point;
     js["trigger"] = request.trigger;
     js["stretch"] = request.stretch;
+    js["beam_width"] = request.beam_width;
+    js["beam_depth"] = request.beam_depth;
+    js["attack_pairs"] = request.attack_pairs;
 
     return js;
 };
@@ -507,6 +513,11 @@ private:
 public:
     PipeEngine(const std::string& command) : command(command)
     {
+        // Keep transient inheritable pipe ends private while another worker
+        // starts its engine. Otherwise parallel children can retain each
+        // other's pipes and prevent EOF on shutdown.
+        static std::mutex spawning;
+        std::lock_guard<std::mutex> spawn_lock(spawning);
 #ifdef _WIN32
         SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
 
@@ -522,14 +533,15 @@ public:
 
         STARTUPINFOA si = { 0 };
         si.cb = sizeof(si);
-        si.dwFlags = STARTF_USESTDHANDLES;
+        si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+        si.wShowWindow = SW_HIDE;
         si.hStdInput = child_in_r;
         si.hStdOutput = child_out_w;
         si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
 
         std::string cmd = this->command;
 
-        if (!CreateProcessA(NULL, cmd.data(), NULL, NULL, TRUE, 0, NULL, NULL, &si, &this->process)) {
+        if (!CreateProcessA(NULL, cmd.data(), NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &this->process)) {
             fprintf(stderr, "can't start \"%s\"\n", this->command.c_str());
             exit(1);
         }
@@ -546,6 +558,8 @@ public:
             fprintf(stderr, "can't create pipes\n");
             exit(1);
         }
+
+        for (int fd : {in[0], in[1], out[0], out[1]}) fcntl(fd, F_SETFD, FD_CLOEXEC);
 
         this->pid = fork();
 
@@ -741,6 +755,8 @@ int serve(const std::string& config_path)
     return 0;
 };
 
+#include "timing.h"
+
 // Nuisance that has been sent but hasn't landed yet
 struct Incoming
 {
@@ -831,9 +847,14 @@ struct Options
     i32 max_moves = 300;
     bool verbose = false;
     std::string log;
+    bool frames = true;
+    i32 jobs = 1;
+    size_t beam_width = 250;
+    size_t beam_depth = 16;
+    Timing timing;
 };
 
-GameResult play(Engine* engines[2], u32 seed, i32 first, const Options& options, std::ofstream& log)
+GameResult play_abstract(Engine* engines[2], u32 seed, i32 first, const Options& options, std::ostream& log)
 {
     auto queue = cell::create_queue(seed);
 
@@ -909,6 +930,8 @@ GameResult play(Engine* engines[2], u32 seed, i32 first, const Options& options,
         request.self = view(self, enemy);
         request.enemy = view(enemy, self);
         request.target_point = options.target_point;
+        request.beam_width = options.beam_width;
+        request.beam_depth = options.beam_depth;
 
         i32 count = self.field.get_count();
 
@@ -927,7 +950,7 @@ GameResult play(Engine* engines[2], u32 seed, i32 first, const Options& options,
         self.trigger = reply.trigger.value_or(ai::TRIGGER);
 
         // Logs the decision as one JSON line per move
-        if (log.is_open()) {
+        if (!options.log.empty()) {
             json js = request_to_json(request);
 
             js["game_seed"] = seed;
@@ -958,7 +981,7 @@ GameResult play(Engine* engines[2], u32 seed, i32 first, const Options& options,
         auto mask = self.field.pop();
         auto chain = chain::get_score(mask);
 
-        if (log.is_open() && chain.count > 0) {
+        if (!options.log.empty() && chain.count > 0) {
             json js;
 
             js["game_seed"] = seed;
@@ -1027,6 +1050,8 @@ GameResult play(Engine* engines[2], u32 seed, i32 first, const Options& options,
     }
 };
 
+#include "simulator.h"
+
 void print_field_pair(Field& a, Field& b)
 {
     auto ra = field_to_rows(a);
@@ -1039,11 +1064,6 @@ void print_field_pair(Field& a, Field& b)
 
 int match(const std::string& spec_a, const std::string& spec_b, const Options& options)
 {
-    auto engine_a = make_engine(spec_a);
-    auto engine_b = make_engine(spec_b);
-
-    Engine* engines[2] = { engine_a.get(), engine_b.get() };
-
     i32 wins[2] = { 0, 0 };
     i32 draws = 0;
 
@@ -1051,19 +1071,72 @@ int match(const std::string& spec_a, const std::string& spec_b, const Options& o
 
     if (!options.log.empty()) {
         log.open(options.log);
+        if (!log) throw std::runtime_error("can't open match log: " + options.log);
+        log << json({{"event", "match"}, {"timing", options.frames ? "frames" : "abstract"},
+            {"profile", options.timing.to_json()}, {"beam_width", options.beam_width},
+            {"beam_depth", options.beam_depth}, {"jobs", options.jobs},
+            {"seed", options.seed}, {"games", options.games},
+            {"max_moves", options.max_moves}, {"target_point", options.target_point},
+            {"engine_A", spec_a}, {"engine_B", spec_b}}).dump() << '\n';
     }
 
-    printf("A: %s\nB: %s\n", engine_a->name().c_str(), engine_b->name().c_str());
+    printf("A: %s\nB: %s\n", spec_a.c_str(), spec_b.c_str());
     printf("games: %d, first seed: %u, target point: %d\n\n", options.games, options.seed, options.target_point);
+    printf("timing: %s, beam: %zux%zu, jobs: %d\n", options.frames ? "frames" : "abstract", options.beam_width, options.beam_depth, options.jobs);
     printf("game\tseed\twinner\treason\tticks\tmoves_A\tmoves_B\tchain_A\tchain_B\tsent_A\tsent_B\n");
+    fflush(stdout);
 
+    struct Completed { GameResult result; double seconds = 0; std::string log; bool done = false; };
+    std::vector<Completed> completed(options.games);
+    std::atomic<i32> next_game = 0;
+    std::mutex mutex;
+    std::condition_variable changed;
+    std::exception_ptr failure;
+    std::atomic<bool> stop = false;
+    auto match_start = std::chrono::steady_clock::now();
+    std::vector<std::jthread> workers;
+    for (i32 worker = 0; worker < std::min(options.jobs, options.games); ++worker) {
+        workers.emplace_back([&] {
+            try {
+                // Never share an engine's cache or a process pipe across matches.
+                auto a = make_engine(spec_a); auto b = make_engine(spec_b);
+                Engine* engines[2] = {a.get(), b.get()};
+                while (!stop) {
+                    i32 g = next_game.fetch_add(1);
+                    if (g >= options.games) break;
+                    std::ostringstream game_log;
+                    auto start = std::chrono::steady_clock::now();
+                    auto result = play(engines, options.seed + u32(g), g % 2, options, game_log);
+                    double seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+                    {
+                        std::lock_guard<std::mutex> lock(mutex);
+                        completed[g] = {result, seconds, game_log.str(), true};
+                    }
+                    changed.notify_one();
+                }
+            }
+            catch (...) {
+                std::lock_guard<std::mutex> lock(mutex);
+                if (!failure) failure = std::current_exception();
+                stop = true;
+                changed.notify_one();
+            }
+        });
+    }
+
+    i64 total_frames = 0;
     for (i32 g = 0; g < options.games; ++g) {
         u32 seed = options.seed + u32(g);
-        i32 first = g % 2;
-
-        auto t0 = std::chrono::steady_clock::now();
-        auto result = play(engines, seed, first, options, log);
-        auto secs = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - t0).count();
+        Completed game;
+        {
+            std::unique_lock<std::mutex> lock(mutex);
+            changed.wait(lock, [&] { return completed[g].done || failure; });
+            if (failure) break;
+            game = std::move(completed[g]);
+        }
+        auto& result = game.result;
+        total_frames += result.ticks;
+        if (log.is_open()) log << game.log;
 
         const char* winner = result.winner == 0 ? "A" : (result.winner == 1 ? "B" : "draw");
 
@@ -1074,12 +1147,12 @@ int match(const std::string& spec_a, const std::string& spec_b, const Options& o
             draws += 1;
         }
 
-        printf("%d\t%u\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t(%llds)\n",
+        printf("%d\t%u\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t(%.3fs)\n",
             g + 1, seed, winner, result.reason.c_str(), result.ticks,
             result.moves[0], result.moves[1],
             result.max_chain[0], result.max_chain[1],
             result.sent[0], result.sent[1],
-            (long long)secs);
+            game.seconds);
 
         if (options.verbose) {
             printf("  A                 B\n");
@@ -1090,7 +1163,13 @@ int match(const std::string& spec_a, const std::string& spec_b, const Options& o
         fflush(stdout);
     }
 
+    workers.clear(); // join before reading the failure or destroying shared state
+    if (failure) std::rethrow_exception(failure);
     printf("\nA wins: %d, B wins: %d, draws: %d\n", wins[0], wins[1], draws);
+    double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - match_start).count();
+    printf("wall: %.3fs, games/s: %.3f", elapsed, options.games / std::max(0.000001, elapsed));
+    if (options.frames) printf(", simulated seconds: %.3f, speed: %.2fx", double(total_frames) / options.timing.fps, total_frames / (options.timing.fps * std::max(0.000001, elapsed)));
+    printf("\n");
 
     return 0;
 };
@@ -1100,6 +1179,7 @@ int match(const std::string& spec_a, const std::string& spec_b, const Options& o
 int main(int argc, char** argv)
 {
     using namespace pvp;
+    try {
 
     std::vector<std::string> args(argv + 1, argv + argc);
 
@@ -1138,6 +1218,33 @@ int main(int argc, char** argv)
         else if (args[i] == "--log") {
             options.log = next();
         }
+        else if (args[i] == "--timing") {
+            auto mode = next();
+            if (mode != "frames" && mode != "abstract") throw std::runtime_error("--timing must be frames or abstract");
+            options.frames = mode == "frames";
+        }
+        else if (args[i] == "--timing-config") {
+            options.timing.load(next());
+        }
+        else if (args[i] == "--jobs") {
+            options.jobs = std::stoi(next());
+        }
+        else if (args[i] == "--beam-width") {
+            auto value = std::stoi(next());
+            if (value <= 0 || value > 100000) throw std::runtime_error("--beam-width must be in 1..100000");
+            options.beam_width = size_t(value);
+        }
+        else if (args[i] == "--beam-depth") {
+            auto value = std::stoi(next());
+            if (value < 2 || value > 128) throw std::runtime_error("--beam-depth must be in 2..128");
+            options.beam_depth = size_t(value);
+        }
+        else if (args[i] == "--fast") {
+            options.beam_width = 50; options.beam_depth = 8;
+        }
+        else if (args[i].starts_with("--")) {
+            throw std::runtime_error("unknown option: " + args[i]);
+        }
         else {
             specs.push_back(args[i]);
         }
@@ -1145,11 +1252,20 @@ int main(int argc, char** argv)
 
     if (specs.size() != 2) {
         fprintf(stderr,
-            "usage: pvp [--games N] [--seed S] [--target P] [--max-moves M] [--verbose] [--log moves.jsonl] <engine A> <engine B>\n"
+            "usage: pvp [--games N] [--seed S] [--target P] [--max-moves M] [--verbose] [--log moves.jsonl]\n"
+            "           [--timing frames|abstract] [--timing-config profile.json] [--jobs N]\n"
+            "           [--fast | --beam-width W --beam-depth D] <engine A> <engine B>\n"
             "       pvp --engine [config.json]\n"
             "an engine is `local`, `local:<config.json>` or a command line that speaks the engine protocol\n");
         return 1;
     }
 
+    if (options.games <= 0 || options.max_moves <= 0 || options.target_point <= 0 || options.jobs <= 0 || options.jobs > 256)
+        throw std::runtime_error("games, max-moves and target must be positive; jobs must be in 1..256");
     return match(specs[0], specs[1], options);
+    }
+    catch (const std::exception& error) {
+        fprintf(stderr, "pvp: %s\n", error.what());
+        return 1;
+    }
 };

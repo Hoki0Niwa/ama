@@ -1,0 +1,58 @@
+{
+  "3": {
+    "games": 3,
+    "fired": 3,
+    "over130": 1,
+    "over150": 0,
+    "non_firing": 0,
+    "mean_score": 124916.66666666667,
+    "mean_fired_score": 124916.66666666667,
+    "mean_single_clears": 2,
+    "mean_small_clears": 2.3333333333333335,
+    "max_single_clears": 3,
+    "mean_moves": 43.333333333333336,
+    "mean_fired_moves": 43.333333333333336
+  },
+  "6": {
+    "games": 3,
+    "fired": 3,
+    "over130": 2,
+    "over150": 0,
+    "non_firing": 0,
+    "mean_score": 118586.66666666667,
+    "mean_fired_score": 118586.66666666667,
+    "mean_single_clears": 0.6666666666666666,
+    "mean_small_clears": 1,
+    "max_single_clears": 1,
+    "mean_moves": 40.333333333333336,
+    "mean_fired_moves": 40.333333333333336
+  },
+  "12": {
+    "games": 3,
+    "fired": 3,
+    "over130": 3,
+    "over150": 0,
+    "non_firing": 0,
+    "mean_score": 134006.66666666666,
+    "mean_fired_score": 134006.66666666666,
+    "mean_single_clears": 0.3333333333333333,
+    "mean_small_clears": 0.3333333333333333,
+    "max_single_clears": 1,
+    "mean_moves": 36.666666666666664,
+    "mean_fired_moves": 36.666666666666664
+  },
+  "16": {
+    "games": 3,
+    "fired": 3,
+    "over130": 3,
+    "over150": 0,
+    "non_firing": 0,
+    "mean_score": 133326.66666666666,
+    "mean_fired_score": 133326.66666666666,
+    "mean_single_clears": 0.3333333333333333,
+    "mean_small_clears": 0.3333333333333333,
+    "max_single_clears": 1,
+    "mean_moves": 36.333333333333336,
+    "mean_fired_moves": 36.333333333333336
+  }
+}

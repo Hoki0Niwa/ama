@@ -7,6 +7,27 @@ Table::Table()
     this->age = 0;
 };
 
+Table::~Table()
+{
+    free_aligned(this->buckets);
+};
+
+Table::Table(Table&& other) noexcept
+    : buckets(std::exchange(other.buckets, nullptr)),
+      age(std::exchange(other.age, 0)), count(std::exchange(other.count, 0))
+{};
+
+Table& Table::operator=(Table&& other) noexcept
+{
+    if (this != &other) {
+        free_aligned(this->buckets);
+        this->buckets = std::exchange(other.buckets, nullptr);
+        this->age = std::exchange(other.age, 0);
+        this->count = std::exchange(other.count, 0);
+    }
+    return *this;
+};
+
 // Resizes or initialize the transposition table
 // Allocates memory with alignment for fast fetching
 void Table::resize(u64 kb)

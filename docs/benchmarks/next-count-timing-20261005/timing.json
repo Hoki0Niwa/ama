@@ -1,0 +1,30 @@
+{
+  "3": {
+    "games": 3,
+    "total_game_ms": 20983,
+    "total_moves": 130,
+    "approx_ms_per_move": 161.40769230769232,
+    "max_decision_ms": 350
+  },
+  "6": {
+    "games": 3,
+    "total_game_ms": 18766,
+    "total_moves": 121,
+    "approx_ms_per_move": 155.0909090909091,
+    "max_decision_ms": 364
+  },
+  "12": {
+    "games": 3,
+    "total_game_ms": 16025,
+    "total_moves": 110,
+    "approx_ms_per_move": 145.6818181818182,
+    "max_decision_ms": 284
+  },
+  "16": {
+    "games": 3,
+    "total_game_ms": 12558,
+    "total_moves": 109,
+    "approx_ms_per_move": 115.21100917431193,
+    "max_decision_ms": 224
+  }
+}

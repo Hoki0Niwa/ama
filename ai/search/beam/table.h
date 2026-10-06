@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <cassert>
+#include <utility>
 
 #include "node.h"
 
@@ -66,6 +67,11 @@ private:
     u64 count;
 public:
     Table();
+    ~Table();
+    Table(const Table&) = delete;
+    Table& operator=(const Table&) = delete;
+    Table(Table&& other) noexcept;
+    Table& operator=(Table&& other) noexcept;
 public:
     void resize(u64 kb = 256);
     void clear();
