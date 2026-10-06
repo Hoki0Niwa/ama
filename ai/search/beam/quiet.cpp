@@ -6,11 +6,18 @@ namespace beam
 namespace quiet
 {
 
-// Searches all the potential chain extensions of the field
-void search(
+namespace
+{
+
+void generate_with_heights(Field& field, const u8 heights[6], i8 x_min, i8 x_max,
+                           i32 drop, const std::function<void(i8, i8, i8)>& callback);
+
+// Searches the same chain extensions, optionally retaining their point score.
+void search_impl(
     Field& field,
     i32 drop,
-    std::function<void(Result)> callback
+    const std::function<void(Result)>& callback,
+    bool score
 )
 {
     u8 heights[6];
@@ -19,8 +26,9 @@ void search(
     auto [x_min, x_max] = quiet::get_bound(heights);
 
     // Drops puyo until a chain is triggered for all columns and colors
-    quiet::generate(
+    generate_with_heights(
         field,
+        heights,
         x_min,
         x_max,
         drop,
@@ -32,25 +40,28 @@ void search(
                 plan.data[p].set_bit(x, heights[x] + i);
             }
 
-            // Pops field
-            auto pop = plan.pop();
+            // Pops field; detailed scoring also retains each link's size.
+            Result result;
+            if (score) {
+                auto pop = plan.pop();
+                result.chain.count = pop.get_size();
+                if (result.chain.count > 1) {
+                    // get_score consumes the masks, so read link sizes first.
+                    for (i32 i = 0; i < pop.get_size(); ++i) {
+                        result.popped[i] = u8(pop[i].get_count());
+                    }
+                    result.chain = chain::get_score(pop);
+                }
+            }
+            else {
+                result.chain.count = plan.pop_count();
+            }
 
             // Checks for callback
-            if (pop.get_size() > 1) {
-                auto result = Result {
-                    .chain = chain::Score { 0, 0 },
-                    .x = x,
-                    .key = need,
-                    .remain = plan
-                };
-
-                // get_score consumes the masks, so the link sizes are read first
-                for (i32 i = 0; i < pop.get_size(); ++i) {
-                    result.popped[i] = u8(pop[i].get_count());
-                }
-
-                result.chain = chain::get_score(pop);
-
+            if (result.chain.count > 1) {
+                result.x = x;
+                result.key = need;
+                result.remain = plan;
                 callback(result);
             }
         }
@@ -58,17 +69,15 @@ void search(
 };
 
 // Finds dropping positions that may trigger a chain
-void generate(
+void generate_with_heights(
     Field& field,
+    const u8 heights[6],
     i8 x_min,
     i8 x_max,
     i32 drop,
-    std::function<void(i8, i8, i8)> callback
+    const std::function<void(i8, i8, i8)>& callback
 )
 {
-    u8 heights[6];
-    field.get_heights(heights);
-
     for (i8 x = x_min; x <= x_max; ++x) {
         // Finds the maximum amount of puyo blobs that can be drop
         i32 drop_max = std::min(drop, 12 - i32(heights[x]));
@@ -92,6 +101,26 @@ void generate(
             }
         }
     }
+};
+
+}
+
+void search(Field& field, i32 drop, std::function<void(Result)> callback)
+{
+    search_impl(field, drop, callback, true);
+};
+
+void search_count(Field& field, i32 drop, std::function<void(Result)> callback)
+{
+    search_impl(field, drop, callback, false);
+};
+
+void generate(Field& field, i8 x_min, i8 x_max, i32 drop,
+              std::function<void(i8, i8, i8)> callback)
+{
+    u8 heights[6];
+    field.get_heights(heights);
+    generate_with_heights(field, heights, x_min, x_max, drop, callback);
 };
 
 // Gets the dropping bound

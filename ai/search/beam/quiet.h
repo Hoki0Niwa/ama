@@ -24,6 +24,13 @@ void search(
     std::function<void(Result)> callback
 );
 
+// Evaluation uses chain length and remaining connections, without its point score.
+void search_count(
+    Field& field,
+    i32 drop,
+    std::function<void(Result)> callback
+);
+
 void generate(
     Field& field,
     i8 x_min,

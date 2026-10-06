@@ -20,6 +20,9 @@ struct Configs
     size_t target = 0;
     // Mixes same-color pairs into the sampled queues so the build keeps room for them
     bool zoro = false;
+    // Benchmark comparisons can use an exact horizon. Production retains the
+    // legacy rounding of sampled tails to an even number of pairs.
+    bool exact_depth = false;
 };
 
 struct Candidate
@@ -28,6 +31,10 @@ struct Candidate
     size_t score = 0;
     // Number of sampled queues in which this placement reached Configs::target
     size_t reach = 0;
+    // Best chain score after paying for the first move's small clear, summed over queues.
+    // The raw score above remains available for fire/target decisions.
+    size_t utility = 0;
+    i32 clear_puyos = 0;
 };
 
 struct Result
@@ -64,7 +71,7 @@ Result search_multi(
     Configs configs = Configs()
 );
 
-cell::Queue get_queue_random(i32 id, size_t count, bool zoro = false);
+cell::Queue get_queue_random(i32 id, size_t count, bool zoro = false, bool exact_count = false);
 
 inline bool operator < (const Candidate& a, const Candidate& b)
 {
@@ -80,16 +87,32 @@ inline bool compare(const Candidate& a, const Candidate& b, const Configs& confi
     }
 
     if (configs.stretch) {
+        if (a.utility != b.utility) {
+            return a.utility > b.utility;
+        }
+        if (a.clear_puyos != b.clear_puyos) {
+            return a.clear_puyos < b.clear_puyos;
+        }
         return a.score > b.score;
     }
 
     bool a_enough = a.score / beam::BRANCH >= configs.trigger;
     bool b_enough = b.score / beam::BRANCH >= configs.trigger;
 
+    if (a_enough != b_enough) {
+        return a_enough;
+    }
+
     if (a_enough && b_enough) {
         return a.score < b.score;
     }
 
+    if (a.utility != b.utility) {
+        return a.utility > b.utility;
+    }
+    if (a.clear_puyos != b.clear_puyos) {
+        return a.clear_puyos < b.clear_puyos;
+    }
     return a.score > b.score;
 };
 

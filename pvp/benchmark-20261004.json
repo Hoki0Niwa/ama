@@ -1,0 +1,188 @@
+[
+  {
+    "name": "fast",
+    "command": [
+      "bin/pvp/pvp.exe",
+      "--games",
+      "2",
+      "--seed",
+      "1",
+      "--max-moves",
+      "30",
+      "--fast",
+      "local",
+      "local"
+    ],
+    "elapsed": 60.91488870000467,
+    "summary": "wall: 60.818s, games/s: 0.033, simulated seconds: 44.267, speed: 0.73x",
+    "games": [
+      [
+        "1",
+        "1",
+        "draw",
+        "max_moves",
+        "1363",
+        "30",
+        "30",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "2",
+        "2",
+        "draw",
+        "max_moves",
+        "1293",
+        "30",
+        "30",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    ]
+  },
+  {
+    "name": "fast_parallel",
+    "command": [
+      "bin/pvp/pvp.exe",
+      "--games",
+      "2",
+      "--seed",
+      "1",
+      "--max-moves",
+      "30",
+      "--fast",
+      "--jobs",
+      "2",
+      "local",
+      "local"
+    ],
+    "elapsed": 36.129456700000446,
+    "summary": "wall: 36.088s, games/s: 0.055, simulated seconds: 44.267, speed: 1.23x",
+    "games": [
+      [
+        "1",
+        "1",
+        "draw",
+        "max_moves",
+        "1363",
+        "30",
+        "30",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "2",
+        "2",
+        "draw",
+        "max_moves",
+        "1293",
+        "30",
+        "30",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    ]
+  },
+  {
+    "name": "standard",
+    "command": [
+      "bin/pvp/pvp.exe",
+      "--games",
+      "2",
+      "--seed",
+      "1",
+      "--max-moves",
+      "30",
+      "local",
+      "local"
+    ],
+    "elapsed": 91.05396520002978,
+    "summary": "wall: 90.963s, games/s: 0.022, simulated seconds: 47.150, speed: 0.52x",
+    "games": [
+      [
+        "1",
+        "1",
+        "draw",
+        "max_moves",
+        "1442",
+        "30",
+        "30",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "2",
+        "2",
+        "draw",
+        "max_moves",
+        "1387",
+        "30",
+        "30",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    ]
+  },
+  {
+    "name": "screening_parallel",
+    "command": [
+      "bin/pvp/pvp.exe",
+      "--games",
+      "2",
+      "--seed",
+      "1",
+      "--max-moves",
+      "30",
+      "--beam-width",
+      "12",
+      "--beam-depth",
+      "3",
+      "--jobs",
+      "2",
+      "local",
+      "local"
+    ],
+    "elapsed": 25.380364199983887,
+    "summary": "wall: 25.296s, games/s: 0.079, simulated seconds: 74.450, speed: 2.94x",
+    "games": [
+      [
+        "1",
+        "1",
+        "draw",
+        "max_moves",
+        "2224",
+        "30",
+        "30",
+        "2",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "2",
+        "2",
+        "draw",
+        "max_moves",
+        "2243",
+        "30",
+        "30",
+        "3",
+        "3",
+        "0",
+        "0"
+      ]
+    ]
+  }
+]

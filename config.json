@@ -19,6 +19,7 @@
     "build": {
         "bump": -100,
         "chain": 1000,
+        "clear_cost": 0,
         "chi": 200,
         "form": 0,
         "key": -200,

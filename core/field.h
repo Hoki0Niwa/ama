@@ -36,6 +36,8 @@ public:
     void drop_garbage(i32 count);
 public:
     avec<Field, 19> pop();
+    // Same chain resolution without recording masks or calculating its score.
+    i32 pop_count();
 public:
     void from(const char c[13][7]);
     void print();
@@ -74,4 +76,13 @@ inline i64 bench_pop(i32 iter)
     }
 
     return time / iter;
+};
+// Keep small operations visible to callers in the search hot path.
+inline Field::Field()
+{
+    for (u8 cell = 0; cell < cell::COUNT; ++cell) {
+        this->data[cell] = FieldBit();
+    }
+
+    this->row14 = 0;
 };

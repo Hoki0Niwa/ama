@@ -80,17 +80,22 @@ builds select BMI2/PEXT at runtime and fall back to software on unsupported CPUs
 - Run `make PEXT=true bench` to build the batch benchmark for comparing evaluation weights. It plays one game per seed with one flat weight set and appends one line per seed to a TSV file, so the same seed range can be run for several weight files and compared pairwise.
   - Extract a weight profile from `config.json`, e.g. `python3 -c "import json;json.dump(json.load(open('config.json'))['build'],open('build.json','w'))"`
   - Run `bin/bench/bench.exe build.json 1 101 out.tsv` to play seeds 1 to 100.
-  - Columns: seed, result (`fired` / `dead` / `nomove` / `timeout`), score of the first chain >= 78000 (0 if none), biggest chain score, biggest chain length, moves, frames, time in ms, longest search of the game in ms, then for the chain that ended the game (0 when not fired) `count_fire` (puyos in the field just before it popped), `popped`, `leftover` (`count_fire - popped`), `excess` (`popped - 4 * links`), `max_link` (most puyos in one link) and `wasted` (puyos popped by the chains fired earlier in the game). `compare.py` reads both this and the older 9-column format.
-  - The AI sees 3 pairs and plays through the fire policy, as in the game. `BEAM_WIDTH`, `BEAM_DEPTH` and `BEAM_TRIGGER` in the environment override the beam search configuration and `QUEUE_VISIBLE=2` shows it only 2 pairs, e.g. `BEAM_TRIGGER=95000 QUEUE_VISIBLE=2 bin/bench/bench.exe build.json 1 101 old.tsv` plays like the previous versions. `BEAM_TARGET`, `BEAM_ZORO` (0/1) and `FIRE_GUARD` (0/1), `FIRE_GUARD_COUNT`, `FIRE_GUARD_SCORE` (the fire policy's late-game guard) override the other search and policy options.
+  - The first 15 columns are: seed, result (`fired` / `dead` / `nomove` / `timeout`), score of the first chain >= 78000 (0 if none), biggest chain score, biggest chain length, moves, frames, time in ms, longest search of the game in ms, then for the chain that ended the game (0 when not fired) `count_fire` (puyos in the field just before it popped), `popped`, `leftover` (`count_fire - popped`), `excess` (`popped - 4 * links`), `max_link` (most puyos in one link) and `wasted` (puyos popped by the chains fired earlier in the game).
+  - Four appended columns make the current format 19 columns: `small_clear_moves` counts earlier moves that cleared at least one link; `single_clear_moves` counts their one-link subset. Both exclude the ending big chain and a move that ends in death, and are retained for games that do not fire. `first_130k_move` is the first 1-based move on which the current pair could legally fire at least 130,000 and survive (`-1` if never). `fire_delay_130k` is the actual fire move minus that first opportunity (`0` for immediate fire, `-1` if never ready or not fired). `bench/compare.py` reads 9-, 15- and 19-column files; missing new metrics are shown as unrecorded. The opportunity diagnostic is outside the longest-search timer but included in total game wall time.
+  - The AI sees 3 pairs and plays through the fire policy, as in the game. `BEAM_WIDTH`, `BEAM_DEPTH` and `BEAM_TRIGGER` in the environment override the beam search configuration. `QUEUE_VISIBLE` controls known pairs, including the current pair (2..128, capped at beam depth); values above 3 supply the actual future queue for experiments. For example, `BEAM_TRIGGER=95000 QUEUE_VISIBLE=2 bin/bench/bench.exe build.json 1 101 old.tsv` plays with the older visibility and trigger. `BEAM_TARGET`, `BEAM_ZORO` (0/1) and `FIRE_GUARD` (0/1), `FIRE_GUARD_COUNT`, `FIRE_GUARD_SCORE` (the fire policy's late-game guard) override the other search and policy options.
+  - `python bench/measure_next.py --exe bin/bench/bench.exe --output docs/benchmarks/next-count-run --next-counts 3 6 12 16 --seeds 40 --jobs 2` compares known NEXT counts on the same seeds and saves a manifest, TSVs, field snapshots and a summary. It resumes completed games if interrupted. The search horizon stays fixed; a fully known horizon uses one beam search, while partially known horizons use six sampled tails. This measures perfect future information, rather than the accuracy of a prediction from remaining color counts.
+  - The benchmark uses exact sampled-tail lengths so odd NEXT counts do not add an extra search ply. Production retains its existing tail-length rounding. See the [40-seed NEXT comparison](docs/benchmarks/next-count-20261005/README.md) for results and timing conditions.
+  - To explore beyond 16 known pairs, also raise `--depth`, e.g. `--next-counts 36 --depth 36 --seeds 10 --jobs 1`. See the [16/24/36-pair comparison](docs/benchmarks/next36-20261005/README.md). Summaries include game time divided by moves and the longest decision; use serial runs for timing comparisons.
   - One game takes about 6 seconds on a 4-core machine, so 500 seeds for one weight file is roughly 50 minutes.
   - Add a 6th argument to also save the field of every game, e.g. `bin/bench/bench.exe build.json 1 13 out.tsv 100 fields.txt`. For a fired game it is the complete chain with the triggering pair placed, otherwise the last position reached.
   - `python3 bench/render.py -o shapes.svg before=fields_before.txt after=fields_after.txt` draws the saved fields side by side (one row per weight set, one column per seed) to compare the shapes built from the same queue. It only needs the Python standard library.
-- Run `make PEXT=true pvp` to build the PVP simulator. It plays two engines against each other with the same queue, counting time in the AI's own unit (one pair = 1, one chain link = 2), sending nuisance with 70 points per puyo, offsetting, all clear bonus and a loss when the 3rd column reaches the 12th row.
+- Run `make PEXT=true pvp` to build the PVP simulator. It plays two engines against each other with the same queue, using virtual game frames and skipping directly between events, sending nuisance with 70 points per puyo, offsetting, all clear bonus and a loss when the 3rd column reaches the 12th row.
   - `bin/pvp/pvp.exe --games 30 --seed 1 local local:other.json` matches two weight files of this build.
   - `bin/pvp/pvp.exe --games 30 local "path/to/other/pvp.exe --engine path/to/other/config.json"` matches this build against another build of the AI: any command that speaks the JSON line protocol documented in `pvp/main.cpp` can be an engine, and `pvp --engine` serves that protocol for its own build. Build the simulator in both source trees to compare two versions.
   - Each line of the output is one game: winner, reason (`death`, `garbage`, `no_move`, `max_moves`), length, moves, biggest chain and nuisance sent per side. `--verbose` also prints the final fields and `--log moves.jsonl` writes every request, reply and chain as JSON lines.
   - The referee plays the role of the game client for the AI's `trigger` and `stretch` arguments: the AI stretches its chain while its field holds fewer than 60 puyos, then fires as soon as a chain worth the trigger is available, and the trigger is lowered at 70 and 74 puyos so the AI fires what it has instead of overflowing (see the constants in `pvp/main.cpp`). The AI's own fire policy handles the danger zone before these limits.
-  - Margin time and the real frame timing of the game are not simulated.
+  - `--fast` uses a smaller 50 x 8 search for quick screening; `--beam-width W --beam-depth D` sets it explicitly (default 250 x 16). `--jobs N` runs independent matches concurrently, preserving seed and log order. Neither option introduces real-time waits.
+  - `--timing-config pvp/timing.json` applies an adjustable frame profile; `--timing abstract` reproduces the previous referee. Measured and approximate timings, event logs, and limitations are documented in [pvp/TIMING.md](pvp/TIMING.md). Margin time and controller/prefetch latency are not simulated.
 
 NOTE: The source code for the `Puyo Puyo Champions Steam` isn't available to prevent cheating
 
@@ -125,3 +130,30 @@ regressions and `python test/test_form_evaluation.py` for native form evaluation
 legacy-config compatibility checks. The latter uses MinGW g++ by default; `AMA_CXX`
 can select another compiler. Its `.cc` harness is compiled separately from the
 existing simulation target.
+
+## Solo chain quality
+
+The current solo objective is to make scores above 130,000 more consistent, retain
+opportunities to reach 150,000, and reduce repeated small clears that delay firing.
+The default trigger stays at 130,000; raising it to 150,000 is no longer the proposed
+default. The earlier 150,000 experiments remain documented in
+[docs/challenge-150k.md](docs/challenge-150k.md).
+
+`build.clear_cost` charges actual score points per colored puyo cleared by a
+candidate's first move, when that move scores less than 5,000. This counts only the
+clear that will certainly happen if the move is chosen. A first move scoring at
+least 5,000 has no such cost. Uncertain future clears retain the existing action
+and position evaluation; completed clears are not charged again at the next decision.
+This is separate from `build.score`, which evaluates excess puyos within a planned
+chain. The candidate's raw score, target attainment and fire thresholds are preserved.
+Legacy configs without `clear_cost` use zero and keep the previous ranking.
+
+The new cost defaults to zero. In the 40-seed comparison, a cost of 1,200 reduced
+single-link clears by about 20%, but also reduced 130,000 attainment from 22 to 20
+games. A cost of 300 did not reduce small clears. Neither setting demonstrated the
+desired combination, so the existing default behavior is retained. See the measured
+results and saved TSV files in [docs/challenge-150k.md](docs/challenge-150k.md).
+
+Use `python bench/compare.py --summary-only before=before.tsv after=after.tsv` to
+compare scores, small clears and firing delays without field snapshots or Pillow.
+Run `python test/test_chain_quality.py` for the native small-clear regression checks.
