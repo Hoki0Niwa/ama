@@ -5,13 +5,12 @@
 #include "physics.h"
 #include "timing.h"
 #include "color_needs.h"
+#include "transition.h"
 #include <unordered_set>
 
 namespace fever_battle {
 using json = nlohmann::json;
 namespace {
-// The next remainder resumes after the last actually dropped nuisance puyo.
-constexpr int ORDER[] = {0, 3, 2, 5, 1, 4};
 struct State {
     beam::node::Data node;
     i64 fixed = 0, flying = 0, remainder = 0, sent = 0;
@@ -23,42 +22,12 @@ struct State {
     json path = json::array();
     bool seed = false;
 };
-i64 number(const json& j, const char* key, i64 low, i64 high) {
-    const auto& v = j.at(key);
-    if (!v.is_number_integer() || v < low || v > high)
-        throw std::invalid_argument(std::string(key) + " out of range");
-    return v.get<i64>();
-}
-int garbage(Field& field, int count, int phase) {
-    u8 heights[6]; field.get_heights(heights);
-    int amounts[6]; for (auto& n : amounts) n = count / 6;
-    for (int i = 0; i < count % 6; ++i) ++amounts[ORDER[(phase + i) % 6]];
-    int discarded = 0;
-    for (int x = 0; x < 6; ++x) for (int i = 0; i < amounts[x]; ++i) {
-        if (heights[x] >= 13) ++discarded;
-        else field.set_cell(x, heights[x]++, cell::Type::GARBAGE);
-    }
-    return discarded;
-}
-json links_and_points(avec<Field, 19>& masks, const json& powers, const json& bonus) {
+json links_and_points(avec<Field, 19>& masks, const std::vector<int>& powers, const Bonuses& bonuses) {
     json links = json::array(), points = json::array();
     for (int i = 0; i < masks.get_size(); ++i) {
-        auto mask = masks[i]; int colors = 0, total = 0, group_bonus = 0;
-        json groups = json::array();
-        for (int c = 0; c < cell::COUNT - 1; ++c) {
-            if (mask.data[c].is_empty()) continue;
-            ++colors;
-            while (!mask.data[c].is_empty()) {
-                auto group = mask.data[c].get_mask_group_lsb();
-                const int n = group.get_count(); total += n;
-                groups.push_back(n); group_bonus += bonus.at("group").at(std::min(11, n)).get<int>();
-                mask.data[c] = mask.data[c] & ~group;
-            }
-        }
-        int multiplier = std::clamp(powers.at(i).get<int>() + group_bonus + bonus.at("color").at(colors).get<int>(),
-            bonus.at("multiplier_min").get<int>(), bonus.at("multiplier_max").get<int>());
-        links.push_back({{"groups", groups}, {"colors", colors}});
-        points.push_back(10 * total * multiplier);
+        const auto link = score_link(masks[i], powers.at(i), bonuses);
+        links.push_back({{"groups", link.groups}, {"colors", link.colors}});
+        points.push_back(link.points);
     }
     return {{"links", links}, {"points", points}};
 }
@@ -80,7 +49,7 @@ json search(Field field, const json& request) {
         if (!p) throw std::invalid_argument("invalid visible piece");
         pieces.push_back(*p);
     }
-    const auto powers = request.at("powers"), bonus = request.at("bonuses");
+    const auto powers = request.at("powers");
     const auto events = request.value("enemy_events", json::array());
     if (!events.is_array()) throw std::invalid_argument("enemy_events must be an array");
     int previous = -1;
@@ -112,6 +81,8 @@ json search(Field field, const json& request) {
                 throw std::invalid_argument("invalid split duration");
     }
     if (powers.size() != 19) throw std::invalid_argument("19 character powers required");
+    const auto power_table = powers.get<std::vector<int>>();
+    const Bonuses bonus(request.at("bonuses"));
     State root; root.node.field = field;
     root.fixed = number(request, "confirmed", 0, 1000000000);
     root.flying = number(request, "unconfirmed", 0, 1000000000);
@@ -123,19 +94,8 @@ json search(Field field, const json& request) {
     // Process predicted opposing links causally. Offsetting now cannot erase a link
     // that the opponent has not scored yet; own excess attacks can offset it later.
     const auto advance = [&](State& state, int until) {
-        while (state.event_index < int(events.size()) && events[state.event_index]["frame"].get<int>() <= until) {
-            const auto& event = events[state.event_index++];
-            if (event["type"] == "end") { state.fixed += state.flying; state.flying = 0; }
-            else {
-                i64 total = event["points"].get<i64>() + state.enemy_remainder;
-                const int active_rate = rates.at(event["frame"].get<int>(), true);
-                i64 amount = total / active_rate; state.enemy_remainder = total % active_rate;
-                if (state.enemy_fixed + state.enemy_flying && amount == 0) amount = 1;
-                auto n = std::min(state.enemy_fixed, amount); state.enemy_fixed -= n; amount -= n;
-                n = std::min(state.enemy_flying, amount); state.enemy_flying -= n; amount -= n;
-                state.flying += amount;
-            }
-        }
+        advance_enemy(events, rates, until, state.event_index, state.fixed, state.flying,
+            state.enemy_fixed, state.enemy_flying, state.enemy_remainder);
         state.frame = until;
     };
     if (field.is_dead(rules)) throw std::invalid_argument("already dead field");
@@ -164,7 +124,7 @@ json search(Field field, const json& request) {
                     child.needed_loss += popped[k].data[c].get_count() * needs.reserve[c];
                 const auto falls = fall_distances(before_pop, popped);
                 const auto features = fall_features(before_pop,popped);
-                auto detail = links_and_points(popped, powers, bonus);
+                auto detail = links_and_points(popped, power_table, bonus);
                 const auto placement_field = fever::text::from_field(child.node.field);
                 int dropped = 0, discarded = 0; i64 cancelled = 0, sent = 0;
                 if (popped.get_size()) {
@@ -193,7 +153,7 @@ json search(Field field, const json& request) {
                     // Delivery is checked after lock/split, not at first contact.
                     advance(child, child.frame + timing.value("nuisance_check_frames", 0));
                     dropped = int(std::min<i64>(30, child.fixed)); child.fixed -= dropped;
-                    discarded = garbage(child.node.field, dropped, child.phase);
+                    discarded = drop_nuisance(child.node.field, dropped, child.phase);
                     if (dropped) child.phase = (child.phase + dropped) % 6;
                 }
                 if (child.node.field.is_dead(rules)) { ++deaths; continue; }
@@ -233,10 +193,8 @@ json search(Field field, const json& request) {
         std::unordered_set<std::string> seen;
         layer.clear();
         for (auto& n : next) {
-            auto key = json{{"field", fever::text::from_field(n.node.field)}, {"fixed", n.fixed},
-                {"flying", n.flying}, {"remainder", n.remainder}, {"phase", n.phase},
-                {"frame", n.frame}, {"event_index", n.event_index}, {"enemy_fixed", n.enemy_fixed},
-                {"enemy_flying", n.enemy_flying}, {"enemy_remainder", n.enemy_remainder}}.dump();
+            auto key = state_key(n.node.field, n.fixed, n.flying, n.remainder, n.phase, n.frame,
+                n.event_index, n.enemy_fixed, n.enemy_flying, n.enemy_remainder);
             if (seen.insert(key).second) layer.push_back(std::move(n));
             if (layer.size() >= size_t(width)) break;
         }

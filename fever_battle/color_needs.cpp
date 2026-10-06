@@ -1,5 +1,6 @@
 #include "color_needs.h"
 #include "../fever/text.h"
+#include "transition.h"
 #include <bit>
 #include <tuple>
 
@@ -101,19 +102,12 @@ json normal_colors(Field field, const json& request) {
         int dropped = masks.get_size() ? 0 : std::min(30, fixed);
         bool alive = !child.is_dead(rules);
         int worst_quality = 1000000, worst_chain = 100;
-        for (unsigned mask = 0; mask < 64; ++mask) {
-            if (std::popcount(mask) != dropped % 6) continue;
-            auto board = child; u8 heights[6]; board.get_heights(heights);
-            for (int x = 0; x < 6; ++x) {
-                int n = dropped/6+((mask>>x)&1);
-                for (int k = 0; k < n && heights[x] < 13; ++k)
-                    board.set_cell(x, heights[x]++, cell::Type::GARBAGE);
-            }
+        each_remainder_drop(child, dropped, [&](Field board, bool) {
             alive &= !board.is_dead(rules);
             auto needs = color_needs(board);
             worst_quality = std::min(worst_quality, needs.quality(queue, 1));
             worst_chain = std::min(worst_chain, needs.chain);
-        }
+        });
         candidates.push_back({{"x", moves[i].x}, {"r", std::string(1, fever::text::from_direction(moves[i].r))},
             {"survives", alive}, {"chain", masks.get_size()}, {"popped", popped},
             {"needed_color_consumed", loss}, {"remaining_chain", worst_chain},

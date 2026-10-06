@@ -1,6 +1,7 @@
 #include "gauge_wait.h"
 #include "../fever/text.h"
 #include "color_needs.h"
+#include "transition.h"
 #include <bit>
 #include <chrono>
 #include <tuple>
@@ -8,12 +9,6 @@
 namespace fever_battle {
 using json = nlohmann::json;
 namespace {
-int number(const json& j, const char* name, int low, int high) {
-    const auto& v = j.at(name);
-    if (!v.is_number_integer() || v < low || v > high)
-        throw std::invalid_argument(std::string(name) + " out of range");
-    return v.get<int>();
-}
 struct State { Field field; int fixed, flying, gauge; i64 remainder; };
 struct Value {
     bool alive = false; int gauge = 0, popped = 0, steps = 0, height = 0, rough = 0, needed_loss = 0;
@@ -25,9 +20,8 @@ class Search {
 public:
     std::vector<piece::Piece> pieces;
     std::array<int,19> power{};
-    std::array<int,12> groups{};
-    std::array<int,5> colors{};
-    int gain, rate, minimum, maximum, width;
+    Bonuses bonuses;
+    int gain, rate, width;
     std::array<int,4> reserves{};
     int root_mainline = 0;
     rule::Rule rules = rule::FEVER;
@@ -52,19 +46,11 @@ public:
                 throw std::runtime_error("generated gauge placement failed");
             auto masks = next.field.pop(); int popped = 0, needed_loss = 0;
             for (int link=0;link<masks.get_size();++link) {
-                auto mask = masks[link]; int count=0, color=0, bonus=0;
-                for (int c=0;c<cell::COUNT-1;++c) {
-                    if (mask.data[c].is_empty()) continue;
-                    ++color;
-                    needed_loss += mask.data[c].get_count() * reserves[c];
-                    while (!mask.data[c].is_empty()) {
-                        auto group = mask.data[c].get_mask_group_lsb(); int n = group.get_count();
-                        count += n; bonus += groups[std::min(n,11)];
-                        mask.data[c] = mask.data[c] & ~group;
-                    }
-                }
-                popped += count;
-                i64 points = 10*count*std::clamp(power[link]+bonus+colors[color],minimum,maximum);
+                for (int c=0;c<cell::COUNT-1;++c)
+                    needed_loss += masks[link].data[c].get_count() * reserves[c];
+                const auto scored = score_link(masks[link], power[link], bonuses);
+                popped += scored.cells;
+                i64 points = scored.points;
                 i64 amount = (points+next.remainder)/rate;
                 next.remainder = (points+next.remainder)%rate;
                 if (next.fixed+next.flying && !amount) amount=1;
@@ -85,20 +71,14 @@ public:
         if (best.alive && e.state.gauge<7 && !(e.clear && e.state.field.is_empty())) {
             const int drop = e.clear ? 0 : std::min(30,e.state.fixed);
             bool first = true;
-            for (unsigned mask=0;mask<64;++mask) {
-                if (std::popcount(mask)!=drop%6) continue;
-                auto next=e.state; u8 heights[6];next.field.get_heights(heights); bool overflow=false;
-                for (int x=0;x<6;++x) {
-                    int n=drop/6+((mask>>x)&1); overflow |= heights[x]+n>13;
-                    for (int i=0;i<n && heights[x]<13;++i)
-                        next.field.set_cell(x,heights[x]++,cell::Type::GARBAGE);
-                }
+            each_remainder_drop(e.state.field, drop, [&](Field board, bool overflow) {
+                auto next=e.state; next.field=board;
                 next.fixed-=drop;
                 auto value = overflow ? Value{false,next.gauge} : leaf(next);
                 if (value.alive && depth+1<limit) value=solve(next,depth+1,limit);
                 if (first || value.rank()<best.rank()) best=value;
                 first=false;
-            }
+            });
         }
         best.popped+=e.popped; best.needed_loss+=e.needed_loss; ++best.steps;
         return best;
@@ -138,10 +118,7 @@ json gauge_wait(Field field,const json& request) {
     const auto powers=request.at("powers");
     if (!powers.is_array() || powers.size()!=19) throw std::invalid_argument("19 normal powers required");
     for (int k=0;k<19;++k) search.power[k]=powers[k].get<int>();
-    const auto bonuses=request.at("bonuses");
-    for (int k=0;k<12;++k) search.groups[k]=bonuses.at("group").at(k).get<int>();
-    for (int k=0;k<5;++k) search.colors[k]=bonuses.at("color").at(k).get<int>();
-    search.minimum=bonuses.at("multiplier_min").get<int>();search.maximum=bonuses.at("multiplier_max").get<int>();
+    search.bonuses=Bonuses(request.at("bonuses"));
     State root{field,number(request,"confirmed",0,1000000000),number(request,"unconfirmed",0,1000000000),
         number(request,"gauge",0,6),number(request,"remainder",0,1000000000)};
     auto needs=color_needs(field); search.reserves=needs.reserve; search.root_mainline=needs.chain;
