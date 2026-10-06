@@ -1,0 +1,17 @@
+{
+  "description": "Puyo Puyo Champions Tsu, provisional timing profile. See pvp/TIMING.md for measurements and approximations.",
+  "fps": 60,
+  "start": 11,
+  "soft_drop": 2,
+  "input": 3,
+  "wall_kick": 9,
+  "quick_turn": 8,
+  "next_pair": 27,
+  "tear_row": 18,
+  "vanish": 55,
+  "chain_drop": 2,
+  "chain_ground": 23,
+  "garbage_drop": 2,
+  "garbage_ground": 32,
+  "ai_unit": 41
+}

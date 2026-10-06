@@ -20,6 +20,7 @@ struct Data
     Field field = Field();
     Score score = Score();
     i32 index = -1;
+    i32 cleared = 0;
 };
 
 inline bool operator < (const Score& a, const Score& b)

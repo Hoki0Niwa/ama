@@ -40,24 +40,16 @@ void search_impl(
                 plan.data[p].set_bit(x, heights[x] + i);
             }
 
-            // Pops field
-            auto result = Result {
-                .chain = chain::Score { 0, 0 },
-                .x = x,
-                .key = need,
-                .remain = Field()
-            };
-
+            // Pops field; detailed scoring also retains each link's size.
+            Result result;
             if (score) {
                 auto pop = plan.pop();
                 result.chain.count = pop.get_size();
-
                 if (result.chain.count > 1) {
-                    // get_score consumes the masks, so the link sizes are read first
+                    // get_score consumes the masks, so read link sizes first.
                     for (i32 i = 0; i < pop.get_size(); ++i) {
                         result.popped[i] = u8(pop[i].get_count());
                     }
-
                     result.chain = chain::get_score(pop);
                 }
             }
@@ -67,6 +59,8 @@ void search_impl(
 
             // Checks for callback
             if (result.chain.count > 1) {
+                result.x = x;
+                result.key = need;
                 result.remain = plan;
                 callback(result);
             }

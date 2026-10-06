@@ -1,0 +1,39 @@
+{
+  "seed_begin": 0,
+  "seeds": 10,
+  "next_counts": [
+    36
+  ],
+  "width": 250,
+  "depth": 36,
+  "trigger": 130000,
+  "target": 0,
+  "zoro": false,
+  "panic_count": 74,
+  "max_moves": 100,
+  "stop_score": 78000,
+  "jobs": 1,
+  "weights": {
+    "bump": -100,
+    "chain": 1000,
+    "clear_cost": 0,
+    "chi": 200,
+    "form": 0,
+    "key": -200,
+    "link_2": 150,
+    "link_3": 250,
+    "nuisance": -250,
+    "score": 400,
+    "shape": 0,
+    "side": 0,
+    "tear": -250,
+    "waste": -250,
+    "waste_14": -50,
+    "well": -100,
+    "y": 289
+  },
+  "binary_sha256": "fd230702ed16107b8d46522c1f015a5501cf32f377fa68ad38f9faa7d940b5b6",
+  "information": "Actual queue supplied; known pair count includes current pair.",
+  "search": "Six sampled tails below depth; one beam search when the horizon is fully known. Sampled tails have exactly the requested length.",
+  "timing": "Serial runs; game wall-clock time divided by moves approximates decision time."
+}

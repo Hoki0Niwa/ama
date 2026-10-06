@@ -1,0 +1,21 @@
+{
+  "seeds": [
+    0,
+    39
+  ],
+  "width": 250,
+  "depth": 16,
+  "visible_pairs": 3,
+  "trigger": 130000,
+  "target": 0,
+  "zoro": false,
+  "max_moves": 100,
+  "stop_score": 78000,
+  "baseline": "cff22d9 plus the pre-existing working-tree core/search speed changes; instrumented before this task changed engine behavior",
+  "candidate": "First-move-only clear cost, no future resource-history penalty; original waste and score weights retained",
+  "timing_note": "Some runs were concurrent; wall-clock timings are not used to claim a performance improvement.",
+  "binaries": {
+    "baseline.exe": "f2fe5f5d681064325e1e99230cc727083b44e893fbc258b39a8ce594bca8c661",
+    "candidate-v3.exe": "fd32f794b337b7bbaf2c54b73bc21ab92167fba96f70f9a9199d1237241c2634"
+  }
+}

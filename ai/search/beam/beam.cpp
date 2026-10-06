@@ -33,6 +33,12 @@ void expand(
         i32 tear = node.field.get_drop_pair_frame(locks[i].x, locks[i].r) - 1;
         i32 waste = pop.get_size();
 
+        if (w.clear_cost > 0) {
+            for (i32 link = 0; link < pop.get_size(); ++link) {
+                child.cleared += i32(pop[link].get_count());
+            }
+        }
+
         eval::action(child, tear, waste, w);
 
         // Callback
@@ -57,6 +63,10 @@ void think(
         beam::expand(pair, node, w, [&] (node::Data& child, const move::Placement& placement, const chain::Score& chain) {
             // Updates max chain score found
             candidates[child.index].score = std::max(candidates[child.index].score, size_t(chain.score));
+            // Penalize the known first move, not speculative future maintenance.
+            // The remaining route keeps the original action/position evaluation.
+            auto utility = size_t(std::max(i64(0), i64(chain.score) - i64(candidates[child.index].clear_puyos) * std::max(0, w.clear_cost)));
+            candidates[child.index].utility = std::max(candidates[child.index].utility, utility);
 
             // Prunes children that triggered big chains
             if (chain.score >= beam::PRUNE) {
@@ -136,6 +146,8 @@ Result search(
 
             candidate.placement = placement;
             candidate.score = chain.score;
+            candidate.clear_puyos = chain.score < beam::PRUNE ? child.cleared : 0;
+            candidate.utility = size_t(std::max(i64(0), i64(chain.score) - i64(candidate.clear_puyos) * std::max(0, w.clear_cost)));
 
             // Updates child
             child.index = i32(result.candidates.size());
@@ -294,7 +306,7 @@ Result search_multi(
 
     for (auto i = 0; i < beam::BRANCH; ++i) {
         auto q = queue;
-        auto qrng = beam::get_queue_random(i, configs.depth - queue.size(), configs.zoro);
+        auto qrng = beam::get_queue_random(i, configs.depth - queue.size(), configs.zoro, configs.exact_depth);
 
         q.insert(q.end(), qrng.begin(), qrng.end());
 
@@ -327,6 +339,7 @@ Result search_multi(
                 for (auto& c2 : b.candidates) {
                     if (c1.placement == c2.placement) {
                         c1.score += c2.score;
+                        c1.utility += c2.utility;
                         c1.reach += c2.reach;
                         break;
                     }
@@ -354,7 +367,7 @@ Result search_multi(
 };
 
 // Gets future queues randomly (real 100% no clickbait)
-cell::Queue get_queue_random(i32 id, size_t count, bool zoro)
+cell::Queue get_queue_random(i32 id, size_t count, bool zoro, bool exact_count)
 {
     cell::Queue result;
 
@@ -387,7 +400,9 @@ cell::Queue get_queue_random(i32 id, size_t count, bool zoro)
     while (result.size() < count)
     {
         push();
-        push();
+        if (!exact_count || result.size() < count) {
+            push();
+        }
     }
 
     return result;
