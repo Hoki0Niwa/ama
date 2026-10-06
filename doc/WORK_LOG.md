@@ -2144,3 +2144,13 @@ T7：Steam実機での全26キャラの周期照合（実機が必要）。段�
 - 反映：エンジンのプロセスが動いていないことを確認して既定の `fever_battle.exe` を置き換えた（SHA256 c26e40ba086e466b…、R8の `value_model` 読み取りも含む）。基準を取り直した。
 - 削除（ユーザー指示）：`bin/` の退避先をすべて削除した。`t1`〜`t22` 系・`merge-*`・`r6`・`r8` のフォルダーと、`bin/fever_battle`・`bin/fever` などに置いていた旧バイナリ18個。`bin/t15` には2026-10-06の放置対戦の収録原本（約12MB）と各時点の退避ソースも含まれていた。`bin/` は約6.3GBから40MBになった。以後、過去のバイナリへの戻しはGitの該当コミットからのビルドで行う。作業記録が参照している `bin/t…` のパスは存在しない。
 - 未確認：修正後の実機での操作感。
+
+### 2026-10-07 P6の残り：quick・extendの削除
+
+- 依頼：残っている作業を進める。
+- 変更：タネ探索から `quick`・`extend` とその内部処理を削除し、1つの値だけにした（`seed_search.cpp` 633行→462行）。Python側の `seed_options.strategy`・`extension_moves`・`quiet_min_attack` を削除。方針どうしを比べるツール3本を削除し、`verify` を `fever_battle/seed_solver.py` へ移した。`bench_seed.py`・`verify_fever_mode_observations.py` の既定バイナリを、削除済みの `bin/t14`・`bin/t15` から `bin/fever_battle` へ直した。`fever_check.py replay` に `--ignore`（比較から外す返答項目）を追加。
+- テスト：方針固有の規則を確かめていた19件を削除、仕組みを確かめるものは方針の指定を外して残した。Fever系18ファイル・220件成功。
+- 確認：削除前の基準2031件との比較（消した出力項目を除く）で差14件、配置の変化2件。フィーバー通しの計測は削除前と同じ（5連鎖開始21,036点、9連鎖開始60,078点、保留300個で19,468点・57,646点）。
+- 反映：エンジンのプロセスが動いていないことを確認して既定の `fever_battle.exe` を置き換え、基準を取り直した。
+- 文書：`FEVER_MODE_ENGINE.md` 5.2、`FEVER_MARGIN_TIME.md` の注記、`README.md`、`SEARCH_PLAN.md` 第11節。
+- 未確認：修正後の実機。

@@ -8,8 +8,8 @@
 
 - **通常盤面**：予告も相手連鎖もなければ本線を構築する。フィーバーは通常盤面の本線が最も大事であり（2026-10-07ユーザー）、構築の目的は本線構築に固定している。予告または相手連鎖があるときは、積む・最小相殺・本線発火・受けるを1つの探索で比べる。
 - **フィーバー中**：すべての手順を「このフィーバーが終わるまでに見込める得点」で比べる（方針 `value`）。
-- **確認の範囲**：Fever系の自動テスト236件、記録済み要求の再生、オフラインの計測まで。上の2つの判断を入れた後の実機での入力・勝敗は、文書上は未確認。代表キャラでの先行対戦（[BATTLE_ROADMAP.md](BATTLE_ROADMAP.md) の順序4）は、2026-10-06にユーザーが完了といってよい状態と申告している。
-- **リファクタリング**：[REFACTOR_PLAN.md](REFACTOR_PLAN.md) のR0〜R6（R3・R6は一部）と、[SEARCH_PLAN.md](SEARCH_PLAN.md) の探索の再編（P0〜P5、P6は一部）を実施した。残りと理由は各書の末尾の節にある。
+- **確認の範囲**：Fever系の自動テスト220件、記録済み要求の再生、オフラインの計測まで。上の2つの判断を入れた後の実機での入力・勝敗は、文書上は未確認。代表キャラでの先行対戦（[BATTLE_ROADMAP.md](BATTLE_ROADMAP.md) の順序4）は、2026-10-06にユーザーが完了といってよい状態と申告している。
+- **リファクタリング**：[REFACTOR_PLAN.md](REFACTOR_PLAN.md) のR0〜R6（R3・R6は一部）と、[SEARCH_PLAN.md](SEARCH_PLAN.md) の探索の再編（P0〜P6）を実施した。残りと理由は各書の末尾の節にある。
 - **検証の入口**：`python tools/fever_check.py test`（全テスト）、`python tools/fever_check.py replay`（記録済み要求と同じ返答をするか）、`python tools/bench_fever_baseline.py`（計測）。
 
 ## 現在の方針
@@ -46,7 +46,7 @@ amaを土台に、ぷよぷよeスポーツ（Steam版）のフィーバール�
 | [FEVER_MODE_ENGINE.md](FEVER_MODE_ENGINE.md) | **現行仕様。** protocol 3 のエンジンの構成、要求と返答、通常盤面とフィーバー中の判断、値の構成、出典、検証方法、未確認事項 |
 | [FEVER_MODE_LIVE.md](FEVER_MODE_LIVE.md) | protocol 3 の操作接続（起動、先読みと先行入力、未知のおじゃま履歴、確認範囲） |
 | [FEVER_MODE_OBSERVATION.md](FEVER_MODE_OBSERVATION.md) | モード状態・時計・予告・保管盤面の実機観測と残件 |
-| [FEVER_MARGIN_TIME.md](FEVER_MARGIN_TIME.md) | マージンタイムの出典と扱い、放置対戦の収録。失敗発火の延期と復旧の規則（明示指定の `extend` でだけ使われる） |
+| [FEVER_MARGIN_TIME.md](FEVER_MARGIN_TIME.md) | マージンタイムの出典と扱い、放置対戦の収録。失敗発火の延期と復旧の規則（2026-10-07に削除した当時の記録） |
 | [FEVER_BATTLE_RULES.md](FEVER_BATTLE_RULES.md) | 通常倍率・攻撃・相殺・落下・全消しの試作仕様と出典、実機での未確認事項 |
 | [FEVER_TIMING.md](FEVER_TIMING.md) | 接地・ちぎり・連鎖中落下の実測、探索に採用した範囲、対CPU測定への切替 |
 | [SPEED_REFACTOR.md](SPEED_REFACTOR.md) | 共通基盤の速度改善の変更・測定・再現手順 |

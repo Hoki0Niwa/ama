@@ -63,7 +63,7 @@ class DeadlineSearchTests(unittest.TestCase):
         with self.assertRaises(ValueError):authorize_mode_reply(req,reply,latest)
 
     def test_award_opportunity_requires_end_but_includes_new_time(self):
-        req=request(); req['seed_options']['strategy']='quick'
+        req=request()
         req['self']['remaining_frames']=350
         last=self.engine.answer(req)['seed_forecast']['path'][-1]
         self.assertTrue(last['completed_before_timeout'])
@@ -113,14 +113,14 @@ class DeadlineSearchTests(unittest.TestCase):
         self.assertLess(last['fire_at']+8,120)
         self.assertGreater(last['end_at'],120)
         self.assertEqual(last['time_reward_frames'],0)
-        from tools.verify_fever_extension import verify
+        from fever_battle.seed_solver import verify
         verify(self.engine.native,self.engine.scoring,req['self'],forecast)
 
     def test_small_failed_chain_does_not_replace_larger_final_chain_for_tiny_renewal(self):
         own=side('fever',fixtures.seed_with_small_green(),['2:GY'])
         own.update(seed_chain=5,seed_base=5,remaining_frames=230)
         # Solver alone (no stored-board comparison): the larger final chain stays.
-        result=self.engine.seed_solver.solve(own,120,True,dict(strategy='extend',budget_ms=500,max_nodes=20000),
+        result=self.engine.seed_solver.solve(own,120,True,dict(budget_ms=500,max_nodes=20000),
             match_id='mode-test')
         self.assertEqual(result['choice']['chain'],3)
         self.assertFalse(result['path'][-1]['next_seed_input_fits'])

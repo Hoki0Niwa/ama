@@ -1,6 +1,6 @@
 """Replay recorded protocol-3 requests through the current tactics and list what changed.
 
-python tools/replay_fever_tactics.py --native bin/t15/fever-tactics.exe --output REPORT.json
+python tools/replay_fever_tactics.py --output REPORT.json
 Offline only: nothing here shows that the game accepts or benefits from a move.
 """
 import argparse

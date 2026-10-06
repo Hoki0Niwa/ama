@@ -28,11 +28,7 @@ class FinalFailureTests(unittest.TestCase):
         reply = self.engine.answer(req)
         self.assertEqual(reply['seed_forecast']['strategy'], 'value')
         self.assertFalse(reply['seed_forecast']['choice']['dead'])
-        # The explicit extension strategy still defers the early failed clear.
-        req['seed_options']['strategy'] = 'extend'
-        kept = self.engine.answer(req)
-        self.assertEqual(kept['chain'], 0)
-        self.assertTrue(kept['seed_forecast']['early_failure_deferred'])
+        self.assertIn('expected_points', reply['seed_forecast']['choice'])
 
     def test_last_active_piece_fires_even_after_clock_zero_without_new_time(self):
         for remaining in (20, 0):
@@ -55,9 +51,9 @@ class FinalFailureTests(unittest.TestCase):
     def test_cached_build_cannot_spend_last_active_piece_after_a_late_spawn(self):
         own = self.one_chain(50)['self']
         reply = dict(fire=False, seed_forecast=dict(choice=dict(end_at=28)))
-        self.assertTrue(self.engine._failure_build_allows(own, reply))
+        self.assertTrue(self.engine._stacking_still_fits(own, reply))
         own['remaining_frames']=30
-        self.assertFalse(self.engine._failure_build_allows(own, reply))
+        self.assertFalse(self.engine._stacking_still_fits(own, reply))
 
     def test_margin_boundary_converts_enemy_pop_before_drop_in_both_models(self):
         own = side('fever', queue=['2:RG'])

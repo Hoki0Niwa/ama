@@ -104,7 +104,7 @@ def verify(source, native, limit=20):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--input',type=Path,required=True)
-    parser.add_argument('--native',type=Path,default=ROOT/'bin/t15/fever_battle.exe')
+    parser.add_argument('--native',type=Path,default=ROOT/'bin/fever_battle/fever_battle.exe')
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--limit',type=int,default=20)
     args=parser.parse_args()
