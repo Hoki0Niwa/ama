@@ -2066,3 +2066,15 @@ T7：Steam実機での全26キャラの周期照合（実機が必要）。段�
 - 未実施：実機での確認。Tsuの `test_engine_protocol.py` と `bench` 比較（`core/`・`ai/`・`pvp/` は未変更）。`fever.exe`（単独エンジン）は再ビルドしていない。
 - 途中の誤り：フィクスチャの分離で `test_fever_deadlines.py` の読み込み先を誤って変え、1ファイルが読み込みに失敗した。元の読み込み先へ戻して226件成功を確認した。
 - 次：R3・R4（PythonとnativeとJSONの境界、プロセス構成）。その前に `irregular-form` 側の未コミット変更の扱いをユーザーに確認する。
+
+### 2026-10-07 irregular-formの区切り、R4（単一バイナリ化）、R3（検査の共通化）
+
+- 依頼：`C:\Users\ho_ki\git\ama` はコミット・pushしてよい。R3・R4へ進む。
+- `irregular-form`：未コミットの変更（19ファイルと新規ファイル。フレーム単位のPVP審判、`build.clear_cost`、NEXT数の計測、速度改善とそのテスト）を内容確認のうえ `1fd53ff` としてコミットし、`origin/irregular-form` へpushした。ビルド・テストは実行していない。コードは変更していない。
+- R4（`c74d6a3`）：単独エンジンの要求処理を `fever/engine.cpp` へ移し、対戦用バイナリが `op: "solo"` で答えるようにした。Pythonは `fever.exe` を起動しない。`build.ps1` の `fever_battle` のソース構成を `bench_fever` と同じにした。確認：単独要求491件が両経路で一致、2124要求の再生で差分0、Fever系226件成功、突入計測は同じ値、Tsuプロトコル8件成功。
+- R3：`BattleEngine.observed_side` へ共通の検査をまとめ、`mode_side` の偽の複製（`normal_view`）をなくした。226件成功、再生差分0。
+- 方針の修正：Pythonの判断ロジックをそのままC++へ写すことはしない。SEARCH_PLANのP3・P5でnativeの探索に置き換える際に移す。理由と残作業は `doc/REFACTOR_PLAN.md` 8.3。
+- 反映：既定の `fever_battle.exe` と `fever.exe` を置き換え、旧版を `*.pre-refactor-r4-20261007.exe` に退避。基準を取り直した。ブリッジは未変更（`--solo` は受け取るだけになった）。
+- 途中の誤り：`fever/main.cpp` の書き換えで文字列リテラルを壊し、`fever` ターゲットのビルドが一度失敗した。修正後にビルドと比較を行った。
+- 未実施：実機での確認。Tsuの `bench` 固定シード比較（共有コードは `build.ps1` 以外未変更）。`bench_fever.exe` は `bin/r4/` にビルドしただけで既定は置き換えていない。仕様書（`FEVER_MODE_ENGINE.md` など）のプロセス構成の記述は未更新（R9）。
+- 次：SEARCH_PLANのP2（相殺ストック関数と構築探索の重みセット）。共有エンジン側（R5・R6）は、`fever` にだけある共有ファイルの変更を `irregular-form` で作り直す作業から。
