@@ -71,10 +71,10 @@ public:
         if (best.alive && e.state.gauge<7 && !(e.clear && e.state.field.is_empty())) {
             const int drop = e.clear ? 0 : std::min(30,e.state.fixed);
             bool first = true;
-            each_remainder_drop(e.state.field, drop, [&](Field board, bool overflow) {
+            each_remainder_drop(e.state.field, drop, [&](Field board) {
                 auto next=e.state; next.field=board;
                 next.fixed-=drop;
-                auto value = overflow ? Value{false,next.gauge} : leaf(next);
+                auto value = leaf(next);
                 if (value.alive && depth+1<limit) value=solve(next,depth+1,limit);
                 if (first || value.rank()<best.rank()) best=value;
                 first=false;
