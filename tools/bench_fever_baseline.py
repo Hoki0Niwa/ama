@@ -2,11 +2,15 @@
 
 python tools/bench_fever_baseline.py seed  --output REPORT.json
 python tools/bench_fever_baseline.py entry --output REPORT.json
+python tools/bench_fever_baseline.py fever --output REPORT.json
 
 seed:  each public reference seed is played on a Fever board with the pieces
        of the prototype colour model, until its first clear or the clock ends.
 entry: a normal board is built while a scripted opponent adds a few confirmed
        nuisance every few pieces; the run ends on gauge 7, death or the limit.
+fever: one whole Fever on the model clock. Each clear is followed by the public
+       reference seed of the next level (one link up on success, down on a
+       failure, two more on an all clear), until the clock or the board ends it.
 
 Prototype colour model and modelled clocks, no opponent board and no input:
 neither figure is a live success rate or a battle result.
@@ -103,6 +107,86 @@ def seed_bench(engine, args):
     return summary, rows
 
 
+def fever_run(engine, character, colours, args, seeds, limit=120):
+    """One Fever from its first seed to the end of the clock: points, seeds and chains."""
+    from fever_battle.mode import next_seed
+    timing = ChainTiming.for_mode('fever')
+    queue = engine.native.ask(dict(op='queue', character=character, seed=colours, count=limit+3))['queue']
+    kinds = sorted({s['kind'] for s in seeds})
+    def seed_of(level, number):
+        for shift in range(len(kinds)):
+            found = next((s for s in seeds if s['kind'] == kinds[(number+shift) % len(kinds)]
+                          and s['seed_chain'] == level), None)
+            if found:
+                return found
+    own, enemy = side(character), side(character)
+    enemy['queue'] = queue[:3]
+    level, number, clock = args.level, 0, args.clock
+    own.update(mode='fever', gauge=7, stored_field=list(EMPTY), clock_running=True, mode_generation=1,
+        field=seed_of(level, 0)['field'], seed_base=level, seed_chain=level, seed_id=1, remaining_frames=clock,
+        normal_confirmed=args.held)
+    row = dict(colours=colours, points=0, seeds=0, success=0, all_clears=0, chains=[], held_left=args.held)
+    since = 0
+    for move in range(limit):
+        own.update(queue=queue[move:move+3], dropset_index=move % 16, piece_id=move, moves_since_chain=since)
+        req = request(f'fever-{colours}', move, own, enemy, 1)
+        if args.strategy:
+            req['seed_options'] = dict(strategy=args.strategy)
+        try:
+            reply = engine.answer(req)
+        except ValueError as error:
+            return dict(row, end=str(error), moves=move)
+        if reply.get('action') != 'place':
+            return dict(row, end=reply.get('reason'), moves=move)
+        result = engine.native.ask(dict(op='transition', field=own['field'], piece=own['queue'][0],
+                                        x=reply['x'], r=reply['r']))
+        if result['dead']:
+            return dict(row, end='dead', moves=move+1)
+        choice = reply['seed_forecast']['choice']
+        since += 1
+        if result['links']:
+            points = engine.scoring.chain(character, result['links'], 'fever')
+            chain = len(points)
+            row['points'] += sum(points); row['seeds'] += 1; row['chains'].append(chain)
+            row['success'] += chain >= level; row['all_clears'] += result['all_clear']
+            for point in points:
+                amount, own['remainder'], _ = convert(point, own['remainder'], 120, own['normal_confirmed'])
+                own['normal_confirmed'] -= min(own['normal_confirmed'], amount)
+            row['held_left'] = own['normal_confirmed']
+            # The clock after the chain and its awards, by the solver's own model.
+            clock = choice['remaining_after_rewards'] - timing.chain_ready_frames
+            if clock <= 0 or choice['end_at'] >= own['remaining_frames']:
+                return dict(row, end='clock', moves=move+1)
+            level = next_seed(level, chain, result['all_clear'])
+            number += 1; since = 0
+            own.update(field=seed_of(level, number)['field'], seed_base=level, seed_chain=level,
+                       seed_id=number+1, remaining_frames=clock)
+            continue
+        split = timing.split_extra_frames[max(result['split_distances'], default=0)]
+        own['remaining_frames'] = max(0, own['remaining_frames'] - timing.placement_frames - timing.spawn_frames - split)
+        own['field'] = result['field']
+        if not own['remaining_frames']:
+            return dict(row, end='clock', moves=move+1)
+    return dict(row, end='limit', moves=limit)
+
+
+def fever_bench(engine, args):
+    seeds = json.loads((ROOT/'data/fever/seeds/namoko-reference.json').read_text(encoding='utf-8'))['seeds']
+    rows = [fever_run(engine, args.character, colours, args, seeds) for colours in range(1, args.queues+1)]
+    ends = {}
+    for r in rows:
+        ends[r['end']] = ends.get(r['end'], 0) + 1
+    fired = sum(r['seeds'] for r in rows)
+    summary = dict(character=args.character, clock=args.clock, first_level=args.level, held=args.held,
+        samples=len(rows), ends=ends, mean_points=round(statistics.mean(r['points'] for r in rows)),
+        median_points=round(statistics.median(r['points'] for r in rows)),
+        mean_seeds=round(fired/len(rows), 2), success_rate=round(sum(r['success'] for r in rows)/max(1, fired), 4),
+        mean_longest_chain=round(statistics.mean(max(r['chains'], default=0) for r in rows), 2),
+        all_clears=sum(r['all_clears'] for r in rows),
+        mean_held_left=round(statistics.mean(r['held_left'] for r in rows), 1))
+    return summary, rows
+
+
 def entry_run(engine, character, colours, args, limit=90):
     """Build on a normal board while nuisance arrives; stop at gauge 7."""
     queue = engine.native.ask(dict(op='queue', character=character, seed=colours, count=limit+3))['queue']
@@ -179,12 +263,16 @@ def entry_bench(engine, args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('bench', choices=('seed', 'entry'))
+    parser.add_argument('bench', choices=('seed', 'entry', 'fever'))
     parser.add_argument('--native', type=Path, default=ROOT/'bin/fever_battle/fever_battle.exe')
     parser.add_argument('--solo', type=Path, default=ROOT/'bin/fever/fever.exe')
     parser.add_argument('--character', default='raffina')
     parser.add_argument('--queues', type=int, default=4, help='colour sequences per condition')
     parser.add_argument('--clock', type=int, default=900, help='seed: frames on the Fever clock at the first piece')
+    parser.add_argument('--level', type=int, default=5, help='fever: chain length of the first seed')
+    parser.add_argument('--held', type=int, default=0, help='fever: nuisance held for the normal board')
+    parser.add_argument('--strategy', choices=('quick', 'extend', 'value'),
+                        help='fever: seed strategy for every seed, in place of the engine choice')
     parser.add_argument('--start', type=int, default=12, help='entry: piece at which nuisance first arrives')
     parser.add_argument('--every', type=int, default=3, help='entry: pieces between arrivals')
     parser.add_argument('--amount', type=int, default=4, help='entry: confirmed nuisance per arrival')
@@ -196,7 +284,7 @@ def main():
     if args.objective:
         engine.policy['normal_build']['objective'] = args.objective
     try:
-        summary, rows = (seed_bench if args.bench == 'seed' else entry_bench)(engine, args)
+        summary, rows = dict(seed=seed_bench, entry=entry_bench, fever=fever_bench)[args.bench](engine, args)
     finally:
         engine.close()
     summary.update(bench=args.bench, objective=engine.policy['normal_build']['objective'], native_sha256=hashlib.sha256(args.native.read_bytes()).hexdigest(),

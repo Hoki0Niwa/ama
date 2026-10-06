@@ -1,7 +1,7 @@
 """Offset stock: links a board pops trigger after trigger, and the aim objective's wiring."""
 import unittest
 
-from fever_fixtures import NATIVE, ROOT, SOLO, request, side
+from fever_fixtures import NATIVE, ROOT, SOLO, request, seed3, side
 from fever_battle.model import EMPTY
 from fever_battle.mode_engine import ModeBattleEngine
 from fever_battle.worker import JsonProcess
@@ -83,6 +83,19 @@ class AimObjectiveTests(unittest.TestCase):
     def test_aim_objective_needs_a_gauge_that_can_fill(self):
         self.engine.policy['normal_build']['objective'] = 'fever_aim'
         self.assertNotIn('aim', self.options(gain=0))
+
+    def test_value_seed_strategy_is_off_by_default_and_fires_a_seed_it_can(self):
+        own = side('fever', seed3(), ['2:BB', '2:RY', 'L:GGB'])
+        reply = self.engine.answer(request(own))
+        self.assertNotEqual(reply['seed_forecast']['strategy'], 'value')
+        self.engine.policy['fever_seed']['strategy'] = 'value'
+        reply = self.engine.answer(request(own))
+        forecast = reply['seed_forecast']
+        self.assertEqual((forecast['strategy'], forecast['objective']),
+                         ('value', 'expected_points_by_the_end_of_this_fever'))
+        self.assertEqual(reply['seed_strategy_reason'], 'expected_points_by_the_end_of_this_fever')
+        self.assertFalse(reply['selected_move_loses'])
+        self.assertFalse(forecast['early_failure_deferred'] or forecast['quiet_fever_end'])
 
     def test_aim_build_places_a_piece(self):
         self.engine.policy['normal_build']['objective'] = 'fever_aim'
