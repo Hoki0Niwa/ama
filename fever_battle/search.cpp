@@ -1,4 +1,5 @@
 #include "search.h"
+#include "rate_schedule.h"
 #include "../fever/search.h"
 #include "../fever/text.h"
 #include "physics.h"
@@ -66,6 +67,7 @@ json links_and_points(avec<Field, 19>& masks, const json& powers, const json& bo
 json search(Field field, const json& request) {
     const auto width = number(request, "width", 1, 1000);
     const auto rate = number(request, "target_point", 1, 100000);
+    const RateSchedule rates(request, int(rate));
     const auto weights = request.at("weights");
     const auto w = weights.get<beam::eval::Weight>();
     fever::Configs configs; configs.hill = weights.value("hill", 0);
@@ -126,7 +128,8 @@ json search(Field field, const json& request) {
             if (event["type"] == "end") { state.fixed += state.flying; state.flying = 0; }
             else {
                 i64 total = event["points"].get<i64>() + state.enemy_remainder;
-                i64 amount = total / rate; state.enemy_remainder = total % rate;
+                const int active_rate = rates.at(event["frame"].get<int>(), true);
+                i64 amount = total / active_rate; state.enemy_remainder = total % active_rate;
                 if (state.enemy_fixed + state.enemy_flying && amount == 0) amount = 1;
                 auto n = std::min(state.enemy_fixed, amount); state.enemy_fixed -= n; amount -= n;
                 n = std::min(state.enemy_flying, amount); state.enemy_flying -= n; amount -= n;
@@ -170,7 +173,8 @@ json search(Field field, const json& request) {
                     for (const auto& point : detail["points"]) {
                         advance(child, child.frame + score_offset);
                         i64 total = point.get<i64>() + child.remainder;
-                        i64 amount = total / rate; child.remainder = total % rate;
+                        const int active_rate = rates.at(child.frame);
+                        i64 amount = total / active_rate; child.remainder = total % active_rate;
                         if (child.fixed + child.flying && amount == 0) amount = 1;
                         auto n = std::min(child.fixed, amount); child.fixed -= n; amount -= n; cancelled += n;
                         n = std::min(child.flying, amount); child.flying -= n; amount -= n; cancelled += n;
@@ -186,6 +190,8 @@ json search(Field field, const json& request) {
                     child.credit += i64(popped.get_size()) * w.chain;
                     child.seed = child.node.field.is_empty();
                 } else {
+                    // Delivery is checked after lock/split, not at first contact.
+                    advance(child, child.frame + timing.value("nuisance_check_frames", 0));
                     dropped = int(std::min<i64>(30, child.fixed)); child.fixed -= dropped;
                     discarded = garbage(child.node.field, dropped, child.phase);
                     if (dropped) child.phase = (child.phase + dropped) % 6;
@@ -216,7 +222,8 @@ json search(Field field, const json& request) {
                     best = child; best_depth = survives;
                 }
                 if (!child.seed) {
-                    advance(child, child.frame + (popped.get_size() ? chain_ready_frames : spawn_frames));
+                    advance(child, child.frame + (popped.get_size() ? chain_ready_frames :
+                        std::max(0, spawn_frames-timing.value("nuisance_check_frames", 0))));
                     next.push_back(std::move(child));
                 }
             }

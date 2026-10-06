@@ -15,8 +15,8 @@ inline int contact_frames(const nlohmann::json& feature) {
     }
     return result;
 }
-inline int link_frames(const nlohmann::json& feature, bool terminal) {
+inline int link_frames(const nlohmann::json& feature, bool terminal, int pop=55, int settle=14) {
     const int fall=contact_frames(feature);
-    return terminal && !fall ? 55 : 69+fall;
+    return terminal && !fall ? pop : pop+settle+fall;
 }
 }

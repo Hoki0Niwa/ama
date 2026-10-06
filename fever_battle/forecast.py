@@ -14,7 +14,7 @@ class GarbageSearch:
         self.scoring = Scoring()
 
     def search(self, character, rows, queue, confirmed, unconfirmed, remainder, rate, garbage_phase, width=80,
-               enemy_events=None, enemy_confirmed=0, enemy_unconfirmed=0, enemy_remainder=0, timing=None):
+               enemy_events=None, enemy_confirmed=0, enemy_unconfirmed=0, enemy_remainder=0, timing=None, margin=None):
         if character not in self.scoring.data['characters']:
             raise ValueError('observed character ID required for offset scoring')
         result = self.native.ask(dict(op='garbage_search', field=settled_field(rows), queue=queue,
@@ -24,6 +24,8 @@ class GarbageSearch:
             target_point=integer(rate, 'target_point', 1, 100000),
             garbage_phase=integer(garbage_phase, 'garbage_phase', 0, 5),
             enemy_events=enemy_events or [], enemy_confirmed=enemy_confirmed,
+            rate_events=(margin or {}).get('rate_events', []),
+            enemy_rate_events=(margin or {}).get('enemy_rate_events', []),
             enemy_unconfirmed=enemy_unconfirmed, enemy_remainder=enemy_remainder,
             timing=(timing or ChainTiming()).native(),
             width=integer(width, 'width', 1, 1000), weights=self.weights,

@@ -41,7 +41,7 @@ def benchmark(native, reference):
                 confirmed=0, unconfirmed=0, held_pending=0, remainder=0, garbage_phase=0,
                 target_point=120, remaining_frames=1800, seed_chain=seed['seed_chain'],
                 safety_frames=8, count_chain_frames=True, strategy='quick', width=64,
-                budget_ms=50, max_nodes=8000, timing=ChainTiming().native(),
+                budget_ms=50, max_nodes=8000, timing=ChainTiming.for_mode('fever').native(),
                 powers=score.data['characters']['raffina']['fever'], bonuses=score.data['bonuses']))
             first = result['choice']
             transition = native.ask(dict(op='transition', field=seed['field'], piece=piece,

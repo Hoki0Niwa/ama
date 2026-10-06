@@ -27,7 +27,11 @@ def verify(native, scoring, own, result):
         if not step['dropped']:
             assert actual['field'] == step['field']
         elif step.get('post_drop_field_known', True):
-            before_phase = (step['garbage_phase'] - step['dropped']) % 6
+            if step['garbage_phase'] is None:
+                assert step['dropped'] % 6 == 0  # full rows do not depend on remainder order
+                before_phase = 0
+            else:
+                before_phase = (step['garbage_phase'] - step['dropped']) % 6
             dropped, _ = drop_garbage(actual['field'], step['dropped'], before_phase)
             assert dropped == step['field']
         field = step['field']
