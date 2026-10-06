@@ -3,6 +3,7 @@
 #include "../fever/text.h"
 #include "physics.h"
 #include "timing.h"
+#include "color_needs.h"
 #include <unordered_set>
 
 namespace fever_battle {
@@ -14,6 +15,7 @@ struct State {
     beam::node::Data node;
     i64 fixed = 0, flying = 0, remainder = 0, sent = 0;
     i64 credit = 0, value = 0;
+    int needed_loss = 0;
     int phase = 0;
     int frame = 0, event_index = 0;
     i64 enemy_fixed = 0, enemy_flying = 0, enemy_remainder = 0;
@@ -134,6 +136,7 @@ json search(Field field, const json& request) {
         state.frame = until;
     };
     if (field.is_dead(rules)) throw std::invalid_argument("already dead field");
+    const auto needs = color_needs(field);
     std::vector<State> layer{root};
     std::optional<State> best;
     size_t best_depth = 0, expanded = 0, deaths = 0;
@@ -154,6 +157,8 @@ json search(Field field, const json& request) {
                 advance(child, child.frame + split_extra);
                 const auto before_pop = child.node.field;
                 auto popped = child.node.field.pop();
+                for (int k = 0; k < popped.get_size(); ++k) for (int c = 0; c < 4; ++c)
+                    child.needed_loss += popped[k].data[c].get_count() * needs.reserve[c];
                 const auto falls = fall_distances(before_pop, popped);
                 const auto features = fall_features(before_pop,popped);
                 auto detail = links_and_points(popped, powers, bonus);
@@ -190,7 +195,8 @@ json search(Field field, const json& request) {
                 fever::evaluate(child.node, w, configs);
                 // Apply the existing per-puyo nuisance penalty to held packets as well as terrain.
                 child.value = i64(child.node.score.eval) + child.node.score.action + child.credit
-                    + std::min<i64>(78, child.fixed + child.flying) * w.nuisance;
+                    + std::min<i64>(78, child.fixed + child.flying) * w.nuisance
+                    + color_needs(child.node.field).quality(pieces, depth + 1) - child.needed_loss * 80;
                 child.path.push_back({{"x", locks[i].x}, {"r", std::string(1, fever::text::from_direction(locks[i].r))},
                     {"links", detail["links"]}, {"link_points", detail["points"]},
                     {"placement_field", placement_field}, {"field", fever::text::from_field(child.node.field)},
@@ -203,6 +209,7 @@ json search(Field field, const json& request) {
                     {"split_distances", splits}, {"split_extra_frames", split_extra},
                     {"split_time_source", split_measured ? (split_rows<=9 ? "measured_rows_0_to_9" : "sqrt_extrapolation") : "prototype_extrapolation"},
                     {"all_clear_requires_observed_seed", child.seed}});
+                child.path.back()["needed_color_consumed"] = child.needed_loss;
                 // An all-clear ends at an unknown seed, never at a fictional empty-board continuation.
                 const size_t survives = child.seed ? pieces.size() : depth + 1;
                 if (!best || survives > best_depth || (survives == best_depth && child.value > best->value)) {
@@ -232,6 +239,7 @@ json search(Field field, const json& request) {
         {"searched_visible", pieces.size()}, {"completed_moves", best->path.size()},
         {"horizon_complete", best->path.size() == pieces.size()}, {"stopped_at_unknown_seed", best->seed},
         {"expanded", expanded}, {"rejected_dead", deaths}, {"beam_width", width},
+        {"color_needs", needs.describe(pieces, 0)},
         {"future_unconfirmed_arrival", events.empty() ? "unscheduled_not_dropped" : "predicted_chain_timeline"}};
 }
 }
