@@ -1,0 +1,87 @@
+{
+ "native_sha256": "9273efe1200a1c08a6cf5dd46c6ff734b991e01849a58d8dbe0d44eb64abbd0c",
+ "solo_sha256": "9ca69c255ae83dde5d2ed0e3a78843bbfe054e9a427f07694c0facc8658dff25",
+ "head": "19848e9bad852276f12345a537bbee59a1c1ee50",
+ "tests": {
+  "test_fever_battle.py": 23,
+  "test_fever_build_prefetch.py": 10,
+  "test_fever_calibrate.py": 7,
+  "test_fever_counter.py": 13,
+  "test_fever_deadlines.py": 11,
+  "test_fever_final_failure.py": 10,
+  "test_fever_forecast.py": 15,
+  "test_fever_garbage_repair.py": 9,
+  "test_fever_long_extension.py": 7,
+  "test_fever_mode.py": 82,
+  "test_fever_piece.py": 2,
+  "test_fever_protocol.py": 7,
+  "test_fever_queue.py": 3,
+  "test_fever_tactics.py": 15,
+  "test_fever_timing_mode.py": 7,
+  "test_fever_transition.py": 2,
+  "test_fever_watch.py": 3
+ },
+ "tests_total": 226,
+ "native_cases": 2091,
+ "native_stable": 2091,
+ "native_by_exe_op": {
+  "native:closing_transition": {
+   "cases": 2,
+   "stable": 2
+  },
+  "native:finish_probe": {
+   "cases": 10,
+   "stable": 10
+  },
+  "native:garbage_search": {
+   "cases": 216,
+   "stable": 216
+  },
+  "native:gauge_wait": {
+   "cases": 23,
+   "stable": 23
+  },
+  "native:normal_colors": {
+   "cases": 45,
+   "stable": 45
+  },
+  "native:placements": {
+   "cases": 231,
+   "stable": 231
+  },
+  "native:queue": {
+   "cases": 81,
+   "stable": 81
+  },
+  "native:resolve": {
+   "cases": 52,
+   "stable": 52
+  },
+  "native:seed_search": {
+   "cases": 499,
+   "stable": 499
+  },
+  "native:transition": {
+   "cases": 350,
+   "stable": 350
+  },
+  "native:validate": {
+   "cases": 91,
+   "stable": 91
+  },
+  "solo:think": {
+   "cases": 491,
+   "stable": 491
+  }
+ },
+ "engine_cases": 34,
+ "engine_stable": 33,
+ "volatile_fields": [
+  "elapsed_ms",
+  "prepare_ms",
+  "search_ms",
+  "think_ms",
+  "time_ms"
+ ],
+ "status": "offline_replay_baseline_not_live_acceptance"
+}
