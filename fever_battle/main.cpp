@@ -6,6 +6,7 @@
 #include "physics.h"
 #include "gauge_wait.h"
 #include "color_needs.h"
+#include "transition.h"
 #include <stdexcept>
 #include <chrono>
 #include <bit>
@@ -139,20 +140,11 @@ json answer(const json& request)
         }
         const auto surviving_drops = [](Field source, int count) {
             std::vector<Field> result;
-            const int whole = count / 6, extra = count % 6;
-            for (unsigned mask = 0; mask < 64; ++mask) {
-                if (std::popcount(mask) != extra) continue;
-                auto copy = source;
-                u8 height[6]; copy.get_heights(height);
-                for (int x = 0; x < 6; ++x) {
-                    const int amount = whole + ((mask >> x) & 1);
-                    for (int i = 0; i < amount && height[x] < 13; ++i)
-                        copy.set_cell(x, height[x]++, cell::Type::GARBAGE);
-                }
-                // Side-column overflow alone is not proof of loss. Keep the
-                // supported 13 rows and require a filled central death column.
+            // Side-column overflow alone is not proof of loss. Keep the
+            // supported 13 rows and require a filled central death column.
+            fever_battle::each_remainder_drop(source, count, [&](Field copy, bool) {
                 if (!copy.is_dead(rule::FEVER)) result.push_back(copy);
-            }
+            });
             return result;
         };
         std::map<std::vector<std::string>, bool> last_cache;

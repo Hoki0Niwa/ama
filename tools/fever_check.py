@@ -1,6 +1,6 @@
 """One entry point for the Fever checks: the test files, and a golden replay.
 
-python tools/fever_check.py test
+python tools/fever_check.py test              # --native/--solo choose the binaries under test
 python tools/fever_check.py record            # rewrite data/fever/golden from the current binaries
 python tools/fever_check.py replay            # compare the current binaries with data/fever/golden
 python tools/fever_check.py replay --native bin/x/fever_battle.exe --solo bin/x/fever.exe
@@ -228,7 +228,9 @@ def main():
     parser.add_argument('--show', type=int, default=20, help='replay: differences to list')
     args = parser.parse_args()
     if args.command == 'test':
-        rows = run_tests()
+        # Every Fever test file takes the battle worker from AMA_BATTLE_NATIVE.
+        rows = run_tests({**os.environ, 'AMA_BATTLE_NATIVE': str(args.native.resolve()),
+                          'AMA_TEST_FEVER_ENGINE': str(args.solo.resolve())})
         print(f'{sum(ran for _, ran, _, _ in rows)} tests in {len(rows)} files, '
               f'{sum(not ok for _, _, ok, _ in rows)} files failed, {sum(s for *_, s in rows):.0f}s')
         return 1 if any(not ok for _, _, ok, _ in rows) else 0

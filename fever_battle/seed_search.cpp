@@ -4,6 +4,7 @@
 #include "timing.h"
 #include "color_needs.h"
 #include "rate_schedule.h"
+#include "transition.h"
 #include <chrono>
 #include <bit>
 #include <tuple>
@@ -13,12 +14,6 @@
 namespace fever_battle {
 using json = nlohmann::json;
 namespace {
-int number(const json& j, const char* key, int low, int high) {
-    const auto& v = j.at(key);
-    if (!v.is_number_integer() || v < low || v > high)
-        throw std::invalid_argument(std::string(key) + " out of range");
-    return v.get<int>();
-}
 struct Potential { int chain = 0, needed = 4, residue = 78; };
 // One placement of a line, kept as plain data while the search runs. Only the
 // line that is returned is written out as JSON: building (and copying) a JSON
@@ -123,32 +118,11 @@ bool repair_workspace(Field field) {
     for (auto h : heights) space += std::max(0, 11-int(h));
     return space >= 4 && std::max(heights[2], heights[3]) < 10;
 }
-void drop_nuisance(Field& field, int count, int phase) {
-    constexpr int order[] = {0, 3, 2, 5, 1, 4};
-    u8 heights[6]; field.get_heights(heights);
-    int amounts[6]; for (auto& n : amounts) n = count / 6;
-    for (int i = 0; i < count % 6; ++i) ++amounts[order[(phase + i) % 6]];
-    for (int x = 0; x < 6; ++x) for (int i = 0; i < amounts[x]; ++i)
-        if (heights[x] < 13) field.set_cell(x, heights[x]++, cell::Type::GARBAGE);
-}
-std::vector<i64> points_for(avec<Field, 19>& masks, const json& powers, const json& bonuses) {
+std::vector<i64> points_for(avec<Field, 19>& masks, const std::vector<int>& powers, const Bonuses& bonuses) {
     std::vector<i64> points;
     for (int i = 0; i < masks.get_size(); ++i) {
         if (i >= int(powers.size())) throw std::invalid_argument("missing Fever chain power; no normal fallback");
-        auto mask = masks[i]; int colors = 0, count = 0, bonus = 0;
-        for (int c = 0; c < cell::COUNT - 1; ++c) {
-            if (mask.data[c].is_empty()) continue;
-            ++colors;
-            while (!mask.data[c].is_empty()) {
-                auto group = mask.data[c].get_mask_group_lsb();
-                int n = group.get_count(); count += n;
-                bonus += bonuses.at("group").at(std::min(11, n)).get<int>();
-                mask.data[c] = mask.data[c] & ~group;
-            }
-        }
-        int multiplier = std::clamp(powers.at(i).get<int>() + bonus + bonuses.at("color").at(colors).get<int>(),
-            bonuses.at("multiplier_min").get<int>(), bonuses.at("multiplier_max").get<int>());
-        points.push_back(10 * count * multiplier);
+        points.push_back(score_link(masks[i], powers[i], bonuses).points);
     }
     return points;
 }
@@ -190,11 +164,13 @@ json seed_search(Field field, const json& request) {
         throw std::invalid_argument("split timing must have 14 entries");
     for (const auto& v : split_costs) if (!v.is_number_integer() || v < 0 || v > 10000)
         throw std::invalid_argument("explicit split timing required");
-    const auto powers = request.at("powers"), bonuses = request.at("bonuses");
+    const auto powers = request.at("powers");
     if (!powers.is_array() || powers.size() != 17)
         throw std::invalid_argument("17 Fever powers required");
     for (const auto& v : powers) if (!v.is_number_integer() || v < 0 || v > 999)
         throw std::invalid_argument("invalid Fever power");
+    const auto power_table = powers.get<std::vector<int>>();
+    const Bonuses bonuses(request.at("bonuses"));
     if (!request.at("count_chain_frames").is_boolean())
         throw std::invalid_argument("explicit chain clock policy required");
     const bool count_chain = request.at("count_chain_frames").get<bool>();
@@ -231,19 +207,8 @@ json seed_search(Field field, const json& request) {
         if (event.at("type") == "link") number(event, "points", 0, 1000000000);
     }
     const auto advance = [&](SeedNode& state, int until) {
-        while (state.event_index < events.size() && events[state.event_index]["frame"].get<int>() <= until) {
-            const auto& event = events[state.event_index++];
-            if (event["type"] == "end") { state.confirmed += state.flying; state.flying = 0; }
-            else {
-                i64 total = event["points"].get<i64>() + state.enemy_remainder;
-                const int active_rate = rates.at(event["frame"].get<int>(), true);
-                i64 amount = total / active_rate; state.enemy_remainder = total % active_rate;
-                if (state.enemy_fixed + state.enemy_flying && amount == 0) amount = 1;
-                auto n = std::min(state.enemy_fixed, amount); state.enemy_fixed -= n; amount -= n;
-                n = std::min(state.enemy_flying, amount); state.enemy_flying -= n; amount -= n;
-                state.flying += int(amount);
-            }
-        }
+        advance_enemy(events, rates, until, state.event_index, state.confirmed, state.flying,
+            state.enemy_fixed, state.enemy_flying, state.enemy_remainder);
         state.frame = until;
     };
     const auto start = std::chrono::steady_clock::now();
@@ -405,7 +370,7 @@ json seed_search(Field field, const json& request) {
                 auto locked = child.field;
                 auto masks = child.field.pop();
                 auto features = fall_features(locked, masks);
-                auto points = points_for(masks, powers, bonuses);
+                auto points = points_for(masks, power_table, bonuses);
                 const int chain = masks.get_size();
                 int fire_at = child.frame + (chain ? first_link : 0);
                 int end_at = fire_at;
@@ -439,18 +404,8 @@ json seed_search(Field field, const json& request) {
                         // remainder board; return one move and reobserve it.
                         drop_cases = 0;
                         std::tuple<int,int,int,int> worst{100, 0, 0, 0};
-                        for (unsigned mask = 0; mask < 64; ++mask) {
-                            if (std::popcount(mask) != dropped % 6) continue;
+                        each_remainder_drop(observed_result, dropped, [&](Field outcome, bool overflow) {
                             ++drop_cases;
-                            auto outcome = observed_result;
-                            u8 heights[6]; outcome.get_heights(heights);
-                            bool overflow = false;
-                            for (int x = 0; x < 6; ++x) {
-                                int amount = dropped / 6 + ((mask >> x) & 1);
-                                overflow |= heights[x] + amount > 13;
-                                for (int n = 0; n < amount && heights[x] < 13; ++n)
-                                    outcome.set_cell(x, heights[x]++, cell::Type::GARBAGE);
-                            }
                             bool survives = !overflow && !outcome.is_dead(rules);
                             drop_alive &= survives;
                             drop_boards.push_back(outcome);
@@ -460,7 +415,7 @@ json seed_search(Field field, const json& request) {
                             auto rank = std::make_tuple(int(survives),
                                 build_value(outcome, p, int(child.path.size()) + 1, child.frame), p.chain, -p.residue);
                             if (rank < worst) { worst = rank; child.field = outcome; }
-                        }
+                        });
                     } else {
                         drop_nuisance(child.field, dropped, child.phase);
                         if (dropped) {
@@ -551,12 +506,8 @@ json seed_search(Field field, const json& request) {
         });
         std::unordered_set<std::string> seen; layer.clear();
         for (auto& n : next) {
-            std::string key;
-            for (const auto& row : fever::text::from_field(n.field)) key += row;
-            key += json{{"frame",n.frame},{"confirmed",n.confirmed},{"flying",n.flying},
-                {"held",n.held},{"remainder",n.remainder},{"phase",n.phase},
-                {"event_index",n.event_index},{"enemy_fixed",n.enemy_fixed},
-                {"enemy_flying",n.enemy_flying},{"enemy_remainder",n.enemy_remainder}}.dump();
+            auto key = state_key(n.field, n.frame, n.confirmed, n.flying, n.held, n.remainder, n.phase,
+                n.event_index, n.enemy_fixed, n.enemy_flying, n.enemy_remainder);
             if (seen.insert(key).second) layer.push_back(std::move(n));
             if (layer.size() >= size_t(width)) break;
         }
