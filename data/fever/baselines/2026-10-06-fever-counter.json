@@ -1,0 +1,4955 @@
+{
+  "status": "controlled_builder_move_public_seed_model_not_live_acceptance",
+  "native_sha256": "9273efe1200a1c08a6cf5dd46c6ff734b991e01849a58d8dbe0d44eb64abbd0c",
+  "cases": [
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....R",
+            ".....B",
+            ".....B",
+            "G..BRR",
+            "G.YYBB",
+            "G.YBRR"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:GY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 20,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 20,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "GB....",
+            "YYG...",
+            "GGRR..",
+            "YYGRY.",
+            "BBRYGG",
+            "BGGRYY",
+            "GRRYGG"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        },
+        "enemy_chain": {
+          "trigger_field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "GB.R..",
+            "YYGR..",
+            "GGRR..",
+            "YYGRY.",
+            "BBRYGG",
+            "BGGRYY",
+            "GRRYGG"
+          ],
+          "elapsed": 0,
+          "scored_links": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        }
+      },
+      "enemy_events": [
+        {
+          "type": "link",
+          "frame": 0,
+          "points": 50
+        },
+        {
+          "type": "link",
+          "frame": 68,
+          "points": 320
+        },
+        {
+          "type": "link",
+          "frame": 139,
+          "points": 680
+        },
+        {
+          "type": "link",
+          "frame": 209,
+          "points": 920
+        },
+        {
+          "type": "link",
+          "frame": 279,
+          "points": 1440
+        },
+        {
+          "type": "link",
+          "frame": 347,
+          "points": 2960
+        },
+        {
+          "type": "link",
+          "frame": 415,
+          "points": 5000
+        },
+        {
+          "type": "link",
+          "frame": 486,
+          "points": 7680
+        },
+        {
+          "type": "end",
+          "frame": 556
+        }
+      ],
+      "fixed_solo_proposal": {
+        "x": 1,
+        "r": "U",
+        "chain": 3
+      },
+      "mainline_projection": {
+        "x": 1,
+        "r": "U",
+        "field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B"
+        ],
+        "locked_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "G..BRR",
+          "GYYYBB",
+          "GGYBRR"
+        ],
+        "chain": 3,
+        "link_points": [
+          160,
+          320,
+          680
+        ],
+        "all_clear": false,
+        "fire_at": 29,
+        "end_at": 254,
+        "in_time": true,
+        "dead": false,
+        "dropped": 0,
+        "cancelled": 9,
+        "sent": 0,
+        "offset_links": 3,
+        "pending_after_observed_chains": 169,
+        "exchange_at": 556,
+        "garbage_phase": null,
+        "post_drop_field_known": true,
+        "possible_drop_boards": 1,
+        "uncertainty": "all_remainder_column_subsets",
+        "nuisance_check_at": null
+      },
+      "reply": {
+        "x": 4,
+        "r": "U",
+        "shape": "2",
+        "reason": "fever_wait_hoard_until_drop",
+        "fire": false,
+        "chain": 0,
+        "next_chain": 0,
+        "next_score": 0,
+        "link_points": [],
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          "....YB",
+          "....GB",
+          "G..BRR",
+          "G.YYBB",
+          "G.YBRR"
+        ],
+        "next_all_clear": false,
+        "selected_move_loses": false,
+        "decision_dependencies": [
+          "self",
+          "enemy"
+        ],
+        "normal_color_needs": {
+          "mainline": [
+            {
+              "chain": 3,
+              "color": "R",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 4
+            },
+            {
+              "chain": 3,
+              "color": "Y",
+              "height": 0,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 3,
+              "color": "Y",
+              "height": 2,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 2
+            }
+          ],
+          "mainline_chain": 3,
+          "offsets": [
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 7,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 5
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 3,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 0
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 0,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 2,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 2
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 3
+            },
+            {
+              "chain": 2,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 4
+            }
+          ],
+          "quality": 1180,
+          "reserve_weights": {
+            "B": 0,
+            "G": 0,
+            "R": 2,
+            "Y": 2
+          },
+          "status": "reachable_color_completion_heuristic_not_executable_future",
+          "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+        },
+        "needed_color_consumed": 0,
+        "searched_visible": 1,
+        "hoard_forecast": {
+          "source": "stock_heuristic_builder_move_unavailable",
+          "ready_triggers": 3,
+          "mainline_chain": 3,
+          "incoming_estimate": 178,
+          "nuisance_check_at": 30,
+          "candidates": 13,
+          "status": "no_drop_predicted_on_this_placement_reobserve_next_piece"
+        },
+        "mainline_counter_forecast": {
+          "rejected_move": {
+            "x": 1,
+            "r": "U",
+            "chain": 3
+          },
+          "cancelled": 9,
+          "sent": 0,
+          "pending_after_observed_chains": 169,
+          "gauge_after": 3,
+          "exchange_at": 556,
+          "status": "insufficient_counter_preserve_mainline_until_offset_needed"
+        },
+        "gauge_forecast": {
+          "gauge_after": 0,
+          "offset_links": 0,
+          "cancelled": 0,
+          "remaining_pending": 20
+        },
+        "entry_pending_after_chain": false,
+        "action": "place",
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "mode": "normal",
+        "decision_identity": {
+          "match_id": "mode-test",
+          "frame": 0,
+          "piece_id": 0,
+          "dropset_index": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        },
+        "model_status": "prototype_unverified_on_local_steam",
+        "provenance": {
+          "power": "player_measurement_transcribed",
+          "bonuses": "cross_title_reference_unverified_on_local_steam",
+          "local_steam_verified": false
+        },
+        "search_ms": 15.000000013969839,
+        "mode_timing_status": "normal_calibrated_input_estimated",
+        "margin_forecast": {
+          "rate_events": [],
+          "enemy_rate_events": [],
+          "status": "observed_rate_only_margin_setting_unknown",
+          "observed_target_point": 120,
+          "observed_changes": 0,
+          "margin_start_frame_bounds": null
+        }
+      },
+      "search_ms": 33.96030003204942
+    },
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....R",
+            ".....B",
+            ".....B",
+            "G..BRR",
+            "G.YYBB",
+            "G.YBRR"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:GY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 1,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 1,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "GB....",
+            "YYG...",
+            "GGRR..",
+            "YYGRY.",
+            "BBRYGG",
+            "BGGRYY",
+            "GRRYGG"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        },
+        "enemy_chain": {
+          "trigger_field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "GB.R..",
+            "YYGR..",
+            "GGRR..",
+            "YYGRY.",
+            "BBRYGG",
+            "BGGRYY",
+            "GRRYGG"
+          ],
+          "elapsed": 0,
+          "scored_links": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        }
+      },
+      "enemy_events": [
+        {
+          "type": "link",
+          "frame": 0,
+          "points": 50
+        },
+        {
+          "type": "link",
+          "frame": 68,
+          "points": 320
+        },
+        {
+          "type": "link",
+          "frame": 139,
+          "points": 680
+        },
+        {
+          "type": "link",
+          "frame": 209,
+          "points": 920
+        },
+        {
+          "type": "link",
+          "frame": 279,
+          "points": 1440
+        },
+        {
+          "type": "link",
+          "frame": 347,
+          "points": 2960
+        },
+        {
+          "type": "link",
+          "frame": 415,
+          "points": 5000
+        },
+        {
+          "type": "link",
+          "frame": 486,
+          "points": 7680
+        },
+        {
+          "type": "end",
+          "frame": 556
+        }
+      ],
+      "fixed_solo_proposal": {
+        "x": 1,
+        "r": "U",
+        "chain": 3
+      },
+      "mainline_projection": {
+        "x": 1,
+        "r": "U",
+        "field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B"
+        ],
+        "locked_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "G..BRR",
+          "GYYYBB",
+          "GGYBRR"
+        ],
+        "chain": 3,
+        "link_points": [
+          160,
+          320,
+          680
+        ],
+        "all_clear": false,
+        "fire_at": 29,
+        "end_at": 254,
+        "in_time": true,
+        "dead": false,
+        "dropped": 0,
+        "cancelled": 9,
+        "sent": 0,
+        "offset_links": 3,
+        "pending_after_observed_chains": 150,
+        "exchange_at": 556,
+        "garbage_phase": null,
+        "post_drop_field_known": true,
+        "possible_drop_boards": 1,
+        "uncertainty": "all_remainder_column_subsets",
+        "nuisance_check_at": null
+      },
+      "reply": {
+        "x": 4,
+        "r": "U",
+        "shape": "2",
+        "reason": "fever_wait_hoard_until_drop",
+        "fire": false,
+        "chain": 0,
+        "next_chain": 0,
+        "next_score": 0,
+        "link_points": [],
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          "....YB",
+          "....GB",
+          "G..BRR",
+          "G.YYBB",
+          "G.YBRR"
+        ],
+        "next_all_clear": false,
+        "selected_move_loses": false,
+        "decision_dependencies": [
+          "self",
+          "enemy"
+        ],
+        "normal_color_needs": {
+          "mainline": [
+            {
+              "chain": 3,
+              "color": "R",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 4
+            },
+            {
+              "chain": 3,
+              "color": "Y",
+              "height": 0,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 3,
+              "color": "Y",
+              "height": 2,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 2
+            }
+          ],
+          "mainline_chain": 3,
+          "offsets": [
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 7,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 5
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 3,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 0
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 0,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 2,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 2
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 3
+            },
+            {
+              "chain": 2,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 4
+            }
+          ],
+          "quality": 1180,
+          "reserve_weights": {
+            "B": 0,
+            "G": 0,
+            "R": 2,
+            "Y": 2
+          },
+          "status": "reachable_color_completion_heuristic_not_executable_future",
+          "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+        },
+        "needed_color_consumed": 0,
+        "searched_visible": 1,
+        "hoard_forecast": {
+          "source": "stock_heuristic_builder_move_unavailable",
+          "ready_triggers": 3,
+          "mainline_chain": 3,
+          "incoming_estimate": 159,
+          "nuisance_check_at": 30,
+          "candidates": 13,
+          "status": "no_drop_predicted_on_this_placement_reobserve_next_piece"
+        },
+        "mainline_counter_forecast": {
+          "rejected_move": {
+            "x": 1,
+            "r": "U",
+            "chain": 3
+          },
+          "cancelled": 9,
+          "sent": 0,
+          "pending_after_observed_chains": 150,
+          "gauge_after": 3,
+          "exchange_at": 556,
+          "status": "insufficient_counter_preserve_mainline_until_offset_needed"
+        },
+        "gauge_forecast": {
+          "gauge_after": 0,
+          "offset_links": 0,
+          "cancelled": 0,
+          "remaining_pending": 1
+        },
+        "entry_pending_after_chain": false,
+        "action": "place",
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "mode": "normal",
+        "decision_identity": {
+          "match_id": "mode-test",
+          "frame": 0,
+          "piece_id": 0,
+          "dropset_index": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        },
+        "model_status": "prototype_unverified_on_local_steam",
+        "provenance": {
+          "power": "player_measurement_transcribed",
+          "bonuses": "cross_title_reference_unverified_on_local_steam",
+          "local_steam_verified": false
+        },
+        "search_ms": 30.999999959021807,
+        "mode_timing_status": "normal_calibrated_input_estimated",
+        "margin_forecast": {
+          "rate_events": [],
+          "enemy_rate_events": [],
+          "status": "observed_rate_only_margin_setting_unknown",
+          "observed_target_point": 120,
+          "observed_changes": 0,
+          "margin_start_frame_bounds": null
+        }
+      },
+      "search_ms": 36.67739999946207
+    },
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....R",
+            ".....B",
+            ".....B",
+            "G..BRR",
+            "G.YYBB",
+            "G.YBRR"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:GY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 1,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 1,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "RRR..."
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        },
+        "enemy_chain": {
+          "trigger_field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "RRRR.."
+          ],
+          "elapsed": 0,
+          "scored_links": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        }
+      },
+      "enemy_events": [
+        {
+          "type": "link",
+          "frame": 0,
+          "points": 40
+        },
+        {
+          "type": "end",
+          "frame": 55
+        }
+      ],
+      "fixed_solo_proposal": {
+        "x": 1,
+        "r": "U",
+        "chain": 3
+      },
+      "mainline_projection": {
+        "x": 1,
+        "r": "U",
+        "field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B"
+        ],
+        "locked_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "G..BRR",
+          "GYYYBB",
+          "GGYBRR"
+        ],
+        "chain": 3,
+        "link_points": [
+          160,
+          320,
+          680
+        ],
+        "all_clear": false,
+        "fire_at": 29,
+        "end_at": 254,
+        "in_time": true,
+        "dead": false,
+        "dropped": 0,
+        "cancelled": 1,
+        "sent": 8,
+        "offset_links": 1,
+        "pending_after_observed_chains": 0,
+        "exchange_at": 254,
+        "garbage_phase": null,
+        "post_drop_field_known": true,
+        "possible_drop_boards": 1,
+        "uncertainty": "all_remainder_column_subsets",
+        "nuisance_check_at": null
+      },
+      "reply": {
+        "x": 1,
+        "r": "U",
+        "shape": "2",
+        "reason": "fever_wait_builder_clear",
+        "fire": true,
+        "chain": 3,
+        "next_chain": 3,
+        "next_score": 1160,
+        "link_points": [
+          160,
+          320,
+          680
+        ],
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B"
+        ],
+        "next_all_clear": false,
+        "selected_move_loses": false,
+        "decision_dependencies": [
+          "self",
+          "enemy"
+        ],
+        "searched_visible": 1,
+        "normal_color_needs": {
+          "mainline": [
+            {
+              "chain": 3,
+              "color": "R",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 4
+            },
+            {
+              "chain": 3,
+              "color": "Y",
+              "height": 0,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 3,
+              "color": "Y",
+              "height": 2,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 2
+            }
+          ],
+          "mainline_chain": 3,
+          "offsets": [
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 7,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 5
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 3,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 0
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 0,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 2,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 2
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 3
+            },
+            {
+              "chain": 2,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 4
+            }
+          ],
+          "quality": 1180,
+          "reserve_weights": {
+            "B": 0,
+            "G": 0,
+            "R": 2,
+            "Y": 2
+          },
+          "status": "reachable_color_completion_heuristic_not_executable_future",
+          "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+        },
+        "needed_color_consumed": 16,
+        "gauge_forecast": {
+          "gauge_after": 1,
+          "offset_links": 1,
+          "cancelled": 1,
+          "remaining_pending": 0
+        },
+        "entry_pending_after_chain": false,
+        "action": "place",
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "mode": "normal",
+        "decision_identity": {
+          "match_id": "mode-test",
+          "frame": 0,
+          "piece_id": 0,
+          "dropset_index": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        },
+        "model_status": "prototype_unverified_on_local_steam",
+        "provenance": {
+          "power": "player_measurement_transcribed",
+          "bonuses": "cross_title_reference_unverified_on_local_steam",
+          "local_steam_verified": false
+        },
+        "search_ms": 16.00000006146729,
+        "mode_timing_status": "normal_calibrated_input_estimated",
+        "margin_forecast": {
+          "rate_events": [],
+          "enemy_rate_events": [],
+          "status": "observed_rate_only_margin_setting_unknown",
+          "observed_target_point": 120,
+          "observed_changes": 0,
+          "margin_start_frame_bounds": null
+        }
+      },
+      "search_ms": 7.005200022831559
+    },
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....R",
+            ".....B",
+            ".....B",
+            "G..BRR",
+            "G.YYBB",
+            "G.YBRR"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:GY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 200,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 200,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "GB....",
+            "YYG...",
+            "GGRR..",
+            "YYGRY.",
+            "BBRYGG",
+            "BGGRYY",
+            "GRRYGG"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        },
+        "enemy_chain": {
+          "trigger_field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "GB.R..",
+            "YYGR..",
+            "GGRR..",
+            "YYGRY.",
+            "BBRYGG",
+            "BGGRYY",
+            "GRRYGG"
+          ],
+          "elapsed": 0,
+          "scored_links": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        }
+      },
+      "enemy_events": [
+        {
+          "type": "link",
+          "frame": 0,
+          "points": 50
+        },
+        {
+          "type": "link",
+          "frame": 68,
+          "points": 320
+        },
+        {
+          "type": "link",
+          "frame": 139,
+          "points": 680
+        },
+        {
+          "type": "link",
+          "frame": 209,
+          "points": 920
+        },
+        {
+          "type": "link",
+          "frame": 279,
+          "points": 1440
+        },
+        {
+          "type": "link",
+          "frame": 347,
+          "points": 2960
+        },
+        {
+          "type": "link",
+          "frame": 415,
+          "points": 5000
+        },
+        {
+          "type": "link",
+          "frame": 486,
+          "points": 7680
+        },
+        {
+          "type": "end",
+          "frame": 556
+        }
+      ],
+      "fixed_solo_proposal": {
+        "x": 1,
+        "r": "U",
+        "chain": 3
+      },
+      "mainline_projection": {
+        "x": 1,
+        "r": "U",
+        "field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B"
+        ],
+        "locked_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "G..BRR",
+          "GYYYBB",
+          "GGYBRR"
+        ],
+        "chain": 3,
+        "link_points": [
+          160,
+          320,
+          680
+        ],
+        "all_clear": false,
+        "fire_at": 29,
+        "end_at": 254,
+        "in_time": true,
+        "dead": false,
+        "dropped": 0,
+        "cancelled": 9,
+        "sent": 0,
+        "offset_links": 3,
+        "pending_after_observed_chains": 349,
+        "exchange_at": 556,
+        "garbage_phase": null,
+        "post_drop_field_known": true,
+        "possible_drop_boards": 1,
+        "uncertainty": "all_remainder_column_subsets",
+        "nuisance_check_at": null
+      },
+      "reply": {
+        "x": 0,
+        "r": "U",
+        "shape": "2",
+        "reason": "fever_wait_conserve",
+        "fire": true,
+        "chain": 1,
+        "next_chain": 1,
+        "next_score": 40,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "Y.YBRR"
+        ],
+        "link_points": [
+          40
+        ],
+        "next_all_clear": false,
+        "selected_move_loses": false,
+        "decision_dependencies": [
+          "self"
+        ],
+        "gauge_forecast": {
+          "gauge_after": 7,
+          "offset_links": 1,
+          "cancelled": 1,
+          "remaining_pending": 199
+        },
+        "entry_pending_after_chain": true,
+        "wait_forecast": {
+          "candidates": [
+            {
+              "central_height": 3,
+              "gauge_after": 7,
+              "needed_color_consumed": 0,
+              "popped": 4,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 4,
+              "r": "U",
+              "roughness": 72,
+              "steps": 1,
+              "survives": true,
+              "x": 0
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 7,
+              "needed_color_consumed": 24,
+              "popped": 16,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 24,
+              "projected_popped": 16,
+              "r": "U",
+              "roughness": 16,
+              "steps": 1,
+              "survives": true,
+              "x": 1
+            },
+            {
+              "central_height": 4,
+              "gauge_after": 6,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 6,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "U",
+              "roughness": 92,
+              "steps": 1,
+              "survives": true,
+              "x": 2
+            },
+            {
+              "central_height": 5,
+              "gauge_after": 6,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 6,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "U",
+              "roughness": 96,
+              "steps": 1,
+              "survives": true,
+              "x": 3
+            },
+            {
+              "central_height": 3,
+              "gauge_after": 6,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 6,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "U",
+              "roughness": 96,
+              "steps": 1,
+              "survives": true,
+              "x": 4
+            },
+            {
+              "central_height": 3,
+              "gauge_after": 6,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 6,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "U",
+              "roughness": 112,
+              "steps": 1,
+              "survives": true,
+              "x": 5
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 7,
+              "needed_color_consumed": 24,
+              "popped": 16,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 24,
+              "projected_popped": 16,
+              "r": "R",
+              "roughness": 16,
+              "steps": 1,
+              "survives": true,
+              "x": 0
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 7,
+              "needed_color_consumed": 24,
+              "popped": 16,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 24,
+              "projected_popped": 16,
+              "r": "R",
+              "roughness": 16,
+              "steps": 1,
+              "survives": true,
+              "x": 1
+            },
+            {
+              "central_height": 4,
+              "gauge_after": 6,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 6,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "R",
+              "roughness": 92,
+              "steps": 1,
+              "survives": true,
+              "x": 2
+            },
+            {
+              "central_height": 4,
+              "gauge_after": 6,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 6,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "R",
+              "roughness": 94,
+              "steps": 1,
+              "survives": true,
+              "x": 3
+            },
+            {
+              "central_height": 3,
+              "gauge_after": 6,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 6,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "R",
+              "roughness": 102,
+              "steps": 1,
+              "survives": true,
+              "x": 4
+            },
+            {
+              "central_height": 3,
+              "gauge_after": 6,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 6,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 96,
+              "steps": 1,
+              "survives": true,
+              "x": 0
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 7,
+              "needed_color_consumed": 24,
+              "popped": 16,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 24,
+              "projected_popped": 16,
+              "r": "D",
+              "roughness": 16,
+              "steps": 1,
+              "survives": true,
+              "x": 1
+            },
+            {
+              "central_height": 1,
+              "gauge_after": 7,
+              "needed_color_consumed": 24,
+              "popped": 12,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 24,
+              "projected_popped": 12,
+              "r": "D",
+              "roughness": 26,
+              "steps": 1,
+              "survives": true,
+              "x": 2
+            },
+            {
+              "central_height": 5,
+              "gauge_after": 6,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 6,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 96,
+              "steps": 1,
+              "survives": true,
+              "x": 3
+            },
+            {
+              "central_height": 3,
+              "gauge_after": 6,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 6,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 96,
+              "steps": 1,
+              "survives": true,
+              "x": 4
+            },
+            {
+              "central_height": 3,
+              "gauge_after": 6,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 6,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 112,
+              "steps": 1,
+              "survives": true,
+              "x": 5
+            },
+            {
+              "central_height": 3,
+              "gauge_after": 7,
+              "needed_color_consumed": 0,
+              "popped": 4,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 4,
+              "r": "L",
+              "roughness": 72,
+              "steps": 1,
+              "survives": true,
+              "x": 1
+            },
+            {
+              "central_height": 1,
+              "gauge_after": 7,
+              "needed_color_consumed": 24,
+              "popped": 12,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 24,
+              "projected_popped": 12,
+              "r": "L",
+              "roughness": 26,
+              "steps": 1,
+              "survives": true,
+              "x": 2
+            },
+            {
+              "central_height": 1,
+              "gauge_after": 7,
+              "needed_color_consumed": 24,
+              "popped": 12,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 24,
+              "projected_popped": 12,
+              "r": "L",
+              "roughness": 26,
+              "steps": 1,
+              "survives": true,
+              "x": 3
+            },
+            {
+              "central_height": 4,
+              "gauge_after": 6,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 6,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "L",
+              "roughness": 94,
+              "steps": 1,
+              "survives": true,
+              "x": 4
+            },
+            {
+              "central_height": 3,
+              "gauge_after": 6,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 6,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "L",
+              "roughness": 102,
+              "steps": 1,
+              "survives": true,
+              "x": 5
+            }
+          ],
+          "color_needs": {
+            "mainline": [
+              {
+                "chain": 3,
+                "color": "R",
+                "height": 3,
+                "missing_visible_cells": 2,
+                "needed_cells": 2,
+                "visible_supply": 0,
+                "x": 4
+              },
+              {
+                "chain": 3,
+                "color": "Y",
+                "height": 0,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 1,
+                "x": 1
+              },
+              {
+                "chain": 3,
+                "color": "Y",
+                "height": 2,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 1,
+                "x": 2
+              }
+            ],
+            "mainline_chain": 3,
+            "offsets": [
+              {
+                "chain": 1,
+                "color": "R",
+                "height": 7,
+                "missing_visible_cells": 2,
+                "needed_cells": 2,
+                "visible_supply": 0,
+                "x": 5
+              },
+              {
+                "chain": 1,
+                "color": "G",
+                "height": 3,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 1,
+                "x": 0
+              },
+              {
+                "chain": 1,
+                "color": "G",
+                "height": 0,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 1,
+                "x": 1
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 2,
+                "missing_visible_cells": 3,
+                "needed_cells": 3,
+                "visible_supply": 0,
+                "x": 2
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 3,
+                "missing_visible_cells": 3,
+                "needed_cells": 3,
+                "visible_supply": 0,
+                "x": 3
+              },
+              {
+                "chain": 2,
+                "color": "B",
+                "height": 3,
+                "missing_visible_cells": 2,
+                "needed_cells": 2,
+                "visible_supply": 0,
+                "x": 4
+              }
+            ],
+            "quality": 1180,
+            "reserve_weights": {
+              "B": 0,
+              "G": 0,
+              "R": 2,
+              "Y": 2
+            },
+            "status": "reachable_color_completion_heuristic_not_executable_future",
+            "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+          },
+          "completed_depth": 1,
+          "cutoff": false,
+          "expanded": 22,
+          "unconfirmed_not_scheduled": true,
+          "visible": 1,
+          "choice": {
+            "central_height": 3,
+            "gauge_after": 7,
+            "needed_color_consumed": 0,
+            "popped": 4,
+            "projected_gauge": 7,
+            "projected_needed_color_consumed": 0,
+            "projected_popped": 4,
+            "r": "U",
+            "roughness": 72,
+            "steps": 1,
+            "survives": true,
+            "x": 0
+          }
+        },
+        "consumed_puyos": 4,
+        "normal_color_needs": {
+          "mainline": [
+            {
+              "chain": 3,
+              "color": "R",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 4
+            },
+            {
+              "chain": 3,
+              "color": "Y",
+              "height": 0,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 3,
+              "color": "Y",
+              "height": 2,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 2
+            }
+          ],
+          "mainline_chain": 3,
+          "offsets": [
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 7,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 5
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 3,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 0
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 0,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 2,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 2
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 3
+            },
+            {
+              "chain": 2,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 4
+            }
+          ],
+          "quality": 1180,
+          "reserve_weights": {
+            "B": 0,
+            "G": 0,
+            "R": 2,
+            "Y": 2
+          },
+          "status": "reachable_color_completion_heuristic_not_executable_future",
+          "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+        },
+        "needed_color_consumed": 0,
+        "searched_visible": 1,
+        "action": "place",
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "mode": "normal",
+        "decision_identity": {
+          "match_id": "mode-test",
+          "frame": 0,
+          "piece_id": 0,
+          "dropset_index": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        },
+        "model_status": "prototype_unverified_on_local_steam",
+        "provenance": {
+          "power": "player_measurement_transcribed",
+          "bonuses": "cross_title_reference_unverified_on_local_steam",
+          "local_steam_verified": false
+        },
+        "search_ms": 0.0,
+        "mode_timing_status": "normal_calibrated_input_estimated",
+        "margin_forecast": {
+          "rate_events": [],
+          "enemy_rate_events": [],
+          "status": "observed_rate_only_margin_setting_unknown",
+          "observed_target_point": 120,
+          "observed_changes": 0,
+          "margin_start_frame_bounds": null
+        }
+      },
+      "search_ms": 8.168400032445788
+    },
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....R",
+            ".....B",
+            ".....B",
+            "G..BRR",
+            "G.YYBB",
+            "G.YBRR"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:GY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 1,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 1,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "GB....",
+            "YYG...",
+            "GGRR..",
+            "YYGRY.",
+            "BBRYGG",
+            "BGGRYY",
+            "GRRYGG"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 1000,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 1000,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        },
+        "enemy_chain": {
+          "trigger_field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "GB.R..",
+            "YYGR..",
+            "GGRR..",
+            "YYGRY.",
+            "BBRYGG",
+            "BGGRYY",
+            "GRRYGG"
+          ],
+          "elapsed": 0,
+          "scored_links": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        }
+      },
+      "enemy_events": [
+        {
+          "type": "link",
+          "frame": 0,
+          "points": 50
+        },
+        {
+          "type": "link",
+          "frame": 68,
+          "points": 320
+        },
+        {
+          "type": "link",
+          "frame": 139,
+          "points": 680
+        },
+        {
+          "type": "link",
+          "frame": 209,
+          "points": 920
+        },
+        {
+          "type": "link",
+          "frame": 279,
+          "points": 1440
+        },
+        {
+          "type": "link",
+          "frame": 347,
+          "points": 2960
+        },
+        {
+          "type": "link",
+          "frame": 415,
+          "points": 5000
+        },
+        {
+          "type": "link",
+          "frame": 486,
+          "points": 7680
+        },
+        {
+          "type": "end",
+          "frame": 556
+        }
+      ],
+      "fixed_solo_proposal": {
+        "x": 1,
+        "r": "U",
+        "chain": 3
+      },
+      "mainline_projection": {
+        "x": 1,
+        "r": "U",
+        "field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B"
+        ],
+        "locked_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "G..BRR",
+          "GYYYBB",
+          "GGYBRR"
+        ],
+        "chain": 3,
+        "link_points": [
+          160,
+          320,
+          680
+        ],
+        "all_clear": false,
+        "fire_at": 29,
+        "end_at": 254,
+        "in_time": true,
+        "dead": false,
+        "dropped": 0,
+        "cancelled": 1,
+        "sent": 8,
+        "offset_links": 1,
+        "pending_after_observed_chains": 0,
+        "exchange_at": 556,
+        "garbage_phase": null,
+        "post_drop_field_known": true,
+        "possible_drop_boards": 1,
+        "uncertainty": "all_remainder_column_subsets",
+        "nuisance_check_at": null
+      },
+      "reply": {
+        "x": 1,
+        "r": "U",
+        "shape": "2",
+        "reason": "fever_wait_builder_clear",
+        "fire": true,
+        "chain": 3,
+        "next_chain": 3,
+        "next_score": 1160,
+        "link_points": [
+          160,
+          320,
+          680
+        ],
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B"
+        ],
+        "next_all_clear": false,
+        "selected_move_loses": false,
+        "decision_dependencies": [
+          "self",
+          "enemy"
+        ],
+        "searched_visible": 1,
+        "normal_color_needs": {
+          "mainline": [
+            {
+              "chain": 3,
+              "color": "R",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 4
+            },
+            {
+              "chain": 3,
+              "color": "Y",
+              "height": 0,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 3,
+              "color": "Y",
+              "height": 2,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 2
+            }
+          ],
+          "mainline_chain": 3,
+          "offsets": [
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 7,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 5
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 3,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 0
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 0,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 2,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 2
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 3
+            },
+            {
+              "chain": 2,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 4
+            }
+          ],
+          "quality": 1180,
+          "reserve_weights": {
+            "B": 0,
+            "G": 0,
+            "R": 2,
+            "Y": 2
+          },
+          "status": "reachable_color_completion_heuristic_not_executable_future",
+          "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+        },
+        "needed_color_consumed": 16,
+        "gauge_forecast": {
+          "gauge_after": 1,
+          "offset_links": 1,
+          "cancelled": 1,
+          "remaining_pending": 0
+        },
+        "entry_pending_after_chain": false,
+        "action": "place",
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "mode": "normal",
+        "decision_identity": {
+          "match_id": "mode-test",
+          "frame": 0,
+          "piece_id": 0,
+          "dropset_index": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        },
+        "model_status": "prototype_unverified_on_local_steam",
+        "provenance": {
+          "power": "player_measurement_transcribed",
+          "bonuses": "cross_title_reference_unverified_on_local_steam",
+          "local_steam_verified": false
+        },
+        "search_ms": 0.0,
+        "mode_timing_status": "normal_calibrated_input_estimated",
+        "margin_forecast": {
+          "rate_events": [],
+          "enemy_rate_events": [],
+          "status": "observed_rate_only_margin_setting_unknown",
+          "observed_target_point": 120,
+          "observed_changes": 0,
+          "margin_start_frame_bounds": null
+        }
+      },
+      "search_ms": 8.281600079499185
+    },
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "Y.....",
+            "Y.....",
+            "Y.....",
+            "R.....",
+            "GB....",
+            "BYY...",
+            "BBYB..",
+            "GGBRGG",
+            "GRRBRR",
+            "RBBRGG"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:YR"
+          ],
+          "confirmed": 1000,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 1000,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        }
+      },
+      "enemy_events": [],
+      "former_gauge_wait_choice": {
+        "x": 3,
+        "r": "R",
+        "shape": "2",
+        "reason": "fever_wait_conserve",
+        "fire": true,
+        "chain": 7,
+        "next_chain": 7,
+        "next_score": 11360,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "Y.....",
+          "Y.....",
+          "Y..BR."
+        ],
+        "link_points": [
+          40,
+          320,
+          680,
+          920,
+          1440,
+          2960,
+          5000
+        ],
+        "next_all_clear": false,
+        "selected_move_loses": false,
+        "decision_dependencies": [
+          "self"
+        ],
+        "gauge_forecast": {
+          "gauge_after": 7,
+          "offset_links": 7,
+          "cancelled": 95,
+          "remaining_pending": 905
+        },
+        "entry_pending_after_chain": true,
+        "wait_forecast": {
+          "candidates": [
+            {
+              "central_height": 5,
+              "gauge_after": 1,
+              "needed_color_consumed": 24,
+              "popped": 4,
+              "projected_gauge": 1,
+              "projected_needed_color_consumed": 24,
+              "projected_popped": 4,
+              "r": "U",
+              "roughness": 159,
+              "steps": 1,
+              "survives": true,
+              "x": 0
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "U",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 1
+            },
+            {
+              "central_height": 1,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 29,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 29,
+              "r": "U",
+              "roughness": 10,
+              "steps": 1,
+              "survives": true,
+              "x": 2
+            },
+            {
+              "central_height": 2,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 28,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 28,
+              "r": "U",
+              "roughness": 13,
+              "steps": 1,
+              "survives": true,
+              "x": 3
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "U",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 4
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "U",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 5
+            },
+            {
+              "central_height": 5,
+              "gauge_after": 1,
+              "needed_color_consumed": 24,
+              "popped": 4,
+              "projected_gauge": 1,
+              "projected_needed_color_consumed": 24,
+              "projected_popped": 4,
+              "r": "R",
+              "roughness": 157,
+              "steps": 1,
+              "survives": true,
+              "x": 0
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "R",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 1
+            },
+            {
+              "central_height": 2,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 28,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 28,
+              "r": "R",
+              "roughness": 13,
+              "steps": 1,
+              "survives": true,
+              "x": 2
+            },
+            {
+              "central_height": 1,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 28,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 28,
+              "r": "R",
+              "roughness": 11,
+              "steps": 1,
+              "survives": true,
+              "x": 3
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "R",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 4
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 0
+            },
+            {
+              "central_height": 5,
+              "gauge_after": 1,
+              "needed_color_consumed": 24,
+              "popped": 4,
+              "projected_gauge": 1,
+              "projected_needed_color_consumed": 24,
+              "projected_popped": 4,
+              "r": "D",
+              "roughness": 157,
+              "steps": 1,
+              "survives": true,
+              "x": 1
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 2
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 3
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 4
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 5
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "L",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 1
+            },
+            {
+              "central_height": 1,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 29,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 29,
+              "r": "L",
+              "roughness": 10,
+              "steps": 1,
+              "survives": true,
+              "x": 2
+            },
+            {
+              "central_height": 1,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 29,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 29,
+              "r": "L",
+              "roughness": 10,
+              "steps": 1,
+              "survives": true,
+              "x": 3
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "L",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 4
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "L",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 5
+            }
+          ],
+          "color_needs": {
+            "mainline": [
+              {
+                "chain": 7,
+                "color": "Y",
+                "height": 5,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 1,
+                "x": 2
+              },
+              {
+                "chain": 7,
+                "color": "Y",
+                "height": 4,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 1,
+                "x": 3
+              }
+            ],
+            "mainline_chain": 7,
+            "offsets": [
+              {
+                "chain": 1,
+                "color": "R",
+                "height": 6,
+                "missing_visible_cells": 2,
+                "needed_cells": 3,
+                "visible_supply": 1,
+                "x": 1
+              },
+              {
+                "chain": 1,
+                "color": "Y",
+                "height": 10,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 1,
+                "x": 0
+              },
+              {
+                "chain": 1,
+                "color": "Y",
+                "height": 6,
+                "missing_visible_cells": 1,
+                "needed_cells": 2,
+                "visible_supply": 1,
+                "x": 1
+              },
+              {
+                "chain": 1,
+                "color": "G",
+                "height": 3,
+                "missing_visible_cells": 2,
+                "needed_cells": 2,
+                "visible_supply": 0,
+                "x": 4
+              },
+              {
+                "chain": 1,
+                "color": "G",
+                "height": 3,
+                "missing_visible_cells": 2,
+                "needed_cells": 2,
+                "visible_supply": 0,
+                "x": 5
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 6,
+                "missing_visible_cells": 3,
+                "needed_cells": 3,
+                "visible_supply": 0,
+                "x": 1
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 5,
+                "missing_visible_cells": 3,
+                "needed_cells": 3,
+                "visible_supply": 0,
+                "x": 2
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 4,
+                "missing_visible_cells": 3,
+                "needed_cells": 3,
+                "visible_supply": 0,
+                "x": 3
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 3,
+                "missing_visible_cells": 3,
+                "needed_cells": 3,
+                "visible_supply": 0,
+                "x": 4
+              }
+            ],
+            "quality": 2780,
+            "reserve_weights": {
+              "B": 0,
+              "G": 0,
+              "R": 0,
+              "Y": 6
+            },
+            "status": "reachable_color_completion_heuristic_not_executable_future",
+            "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+          },
+          "completed_depth": 1,
+          "cutoff": false,
+          "expanded": 22,
+          "unconfirmed_not_scheduled": true,
+          "visible": 1,
+          "choice": {
+            "central_height": 1,
+            "gauge_after": 7,
+            "needed_color_consumed": 48,
+            "popped": 28,
+            "projected_gauge": 7,
+            "projected_needed_color_consumed": 48,
+            "projected_popped": 28,
+            "r": "R",
+            "roughness": 11,
+            "steps": 1,
+            "survives": true,
+            "x": 3
+          }
+        },
+        "consumed_puyos": 28,
+        "normal_color_needs": {
+          "mainline": [
+            {
+              "chain": 7,
+              "color": "Y",
+              "height": 5,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 2
+            },
+            {
+              "chain": 7,
+              "color": "Y",
+              "height": 4,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 3
+            }
+          ],
+          "mainline_chain": 7,
+          "offsets": [
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 6,
+              "missing_visible_cells": 2,
+              "needed_cells": 3,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "Y",
+              "height": 10,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 0
+            },
+            {
+              "chain": 1,
+              "color": "Y",
+              "height": 6,
+              "missing_visible_cells": 1,
+              "needed_cells": 2,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 4
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 5
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 6,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 5,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 2
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 4,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 3
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 4
+            }
+          ],
+          "quality": 2780,
+          "reserve_weights": {
+            "B": 0,
+            "G": 0,
+            "R": 0,
+            "Y": 6
+          },
+          "status": "reachable_color_completion_heuristic_not_executable_future",
+          "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+        },
+        "needed_color_consumed": 48,
+        "searched_visible": 1
+      },
+      "mainline_projection": {
+        "x": 3,
+        "r": "R",
+        "field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "Y.....",
+          "Y.....",
+          "Y..BR."
+        ],
+        "locked_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "Y.....",
+          "Y.....",
+          "Y.....",
+          "R.....",
+          "GB....",
+          "BYYY..",
+          "BBYBR.",
+          "GGBRGG",
+          "GRRBRR",
+          "RBBRGG"
+        ],
+        "chain": 7,
+        "link_points": [
+          40,
+          320,
+          680,
+          920,
+          1440,
+          2960,
+          5000
+        ],
+        "all_clear": false,
+        "fire_at": 42,
+        "end_at": 565,
+        "in_time": true,
+        "dead": false,
+        "dropped": 0,
+        "cancelled": 95,
+        "sent": 0,
+        "offset_links": 7,
+        "pending_after_observed_chains": 905,
+        "exchange_at": 565,
+        "garbage_phase": null,
+        "post_drop_field_known": true,
+        "possible_drop_boards": 1,
+        "uncertainty": "all_remainder_column_subsets",
+        "nuisance_check_at": null
+      },
+      "reply": {
+        "x": 0,
+        "r": "U",
+        "shape": "2",
+        "reason": "fever_small_offset_preserve_mainline",
+        "fire": true,
+        "chain": 1,
+        "next_chain": 1,
+        "next_score": 40,
+        "link_points": [
+          40
+        ],
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "R.....",
+          "R.....",
+          "GB....",
+          "BYY...",
+          "BBYB..",
+          "GGBRGG",
+          "GRRBRR",
+          "RBBRGG"
+        ],
+        "next_all_clear": false,
+        "selected_move_loses": false,
+        "decision_dependencies": [
+          "self"
+        ],
+        "searched_visible": 1,
+        "offset_forecast": {
+          "cancelled": 1,
+          "sent": 0,
+          "pending_after_observed_chains": 999,
+          "candidates": 3
+        },
+        "mainline_counter_forecast": {
+          "rejected_move": {
+            "x": 3,
+            "r": "R",
+            "chain": 7
+          },
+          "cancelled": 95,
+          "sent": 0,
+          "pending_after_observed_chains": 905,
+          "gauge_after": 7,
+          "exchange_at": 565,
+          "status": "insufficient_counter_preserve_mainline_until_offset_needed"
+        },
+        "preserved_mainline_chain": 7,
+        "normal_color_needs": {
+          "mainline": [
+            {
+              "chain": 7,
+              "color": "Y",
+              "height": 5,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 2
+            },
+            {
+              "chain": 7,
+              "color": "Y",
+              "height": 4,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 3
+            }
+          ],
+          "mainline_chain": 7,
+          "offsets": [
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 6,
+              "missing_visible_cells": 2,
+              "needed_cells": 3,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "Y",
+              "height": 10,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 0
+            },
+            {
+              "chain": 1,
+              "color": "Y",
+              "height": 6,
+              "missing_visible_cells": 1,
+              "needed_cells": 2,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 4
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 5
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 6,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 5,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 2
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 4,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 3
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 4
+            }
+          ],
+          "quality": 2780,
+          "reserve_weights": {
+            "B": 0,
+            "G": 0,
+            "R": 0,
+            "Y": 6
+          },
+          "status": "reachable_color_completion_heuristic_not_executable_future",
+          "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+        },
+        "needed_color_consumed": 24,
+        "gauge_forecast": {
+          "gauge_after": 1,
+          "offset_links": 1,
+          "cancelled": 1,
+          "remaining_pending": 999
+        },
+        "entry_pending_after_chain": false,
+        "action": "place",
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "mode": "normal",
+        "decision_identity": {
+          "match_id": "mode-test",
+          "frame": 0,
+          "piece_id": 0,
+          "dropset_index": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        },
+        "model_status": "prototype_unverified_on_local_steam",
+        "provenance": {
+          "power": "player_measurement_transcribed",
+          "bonuses": "cross_title_reference_unverified_on_local_steam",
+          "local_steam_verified": false
+        },
+        "search_ms": 0.0,
+        "mode_timing_status": "normal_calibrated_input_estimated",
+        "margin_forecast": {
+          "rate_events": [],
+          "enemy_rate_events": [],
+          "status": "observed_rate_only_margin_setting_unknown",
+          "observed_target_point": 120,
+          "observed_changes": 0,
+          "margin_start_frame_bounds": null
+        }
+      },
+      "search_ms": 12.115600053220987
+    },
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "Y.....",
+            "Y.....",
+            "Y.....",
+            "R.....",
+            "GB....",
+            "BYY...",
+            "BBYB..",
+            "GGBRGG",
+            "GRRBRR",
+            "RBBRGG"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:YR"
+          ],
+          "confirmed": 90,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 90,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        }
+      },
+      "enemy_events": [],
+      "former_gauge_wait_choice": {
+        "x": 3,
+        "r": "R",
+        "shape": "2",
+        "reason": "fever_wait_conserve",
+        "fire": true,
+        "chain": 7,
+        "next_chain": 7,
+        "next_score": 11360,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "Y.....",
+          "Y.....",
+          "Y..BR."
+        ],
+        "link_points": [
+          40,
+          320,
+          680,
+          920,
+          1440,
+          2960,
+          5000
+        ],
+        "next_all_clear": false,
+        "selected_move_loses": false,
+        "decision_dependencies": [
+          "self"
+        ],
+        "gauge_forecast": {
+          "gauge_after": 7,
+          "offset_links": 7,
+          "cancelled": 90,
+          "remaining_pending": 0
+        },
+        "entry_pending_after_chain": true,
+        "wait_forecast": {
+          "candidates": [
+            {
+              "central_height": 5,
+              "gauge_after": 1,
+              "needed_color_consumed": 24,
+              "popped": 4,
+              "projected_gauge": 1,
+              "projected_needed_color_consumed": 24,
+              "projected_popped": 4,
+              "r": "U",
+              "roughness": 159,
+              "steps": 1,
+              "survives": true,
+              "x": 0
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "U",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 1
+            },
+            {
+              "central_height": 1,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 29,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 29,
+              "r": "U",
+              "roughness": 10,
+              "steps": 1,
+              "survives": true,
+              "x": 2
+            },
+            {
+              "central_height": 2,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 28,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 28,
+              "r": "U",
+              "roughness": 13,
+              "steps": 1,
+              "survives": true,
+              "x": 3
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "U",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 4
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "U",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 5
+            },
+            {
+              "central_height": 5,
+              "gauge_after": 1,
+              "needed_color_consumed": 24,
+              "popped": 4,
+              "projected_gauge": 1,
+              "projected_needed_color_consumed": 24,
+              "projected_popped": 4,
+              "r": "R",
+              "roughness": 157,
+              "steps": 1,
+              "survives": true,
+              "x": 0
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "R",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 1
+            },
+            {
+              "central_height": 2,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 28,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 28,
+              "r": "R",
+              "roughness": 13,
+              "steps": 1,
+              "survives": true,
+              "x": 2
+            },
+            {
+              "central_height": 1,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 28,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 28,
+              "r": "R",
+              "roughness": 11,
+              "steps": 1,
+              "survives": true,
+              "x": 3
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "R",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 4
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 0
+            },
+            {
+              "central_height": 5,
+              "gauge_after": 1,
+              "needed_color_consumed": 24,
+              "popped": 4,
+              "projected_gauge": 1,
+              "projected_needed_color_consumed": 24,
+              "projected_popped": 4,
+              "r": "D",
+              "roughness": 157,
+              "steps": 1,
+              "survives": true,
+              "x": 1
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 2
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 3
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 4
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 5
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "L",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 1
+            },
+            {
+              "central_height": 1,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 29,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 29,
+              "r": "L",
+              "roughness": 10,
+              "steps": 1,
+              "survives": true,
+              "x": 2
+            },
+            {
+              "central_height": 1,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 29,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 29,
+              "r": "L",
+              "roughness": 10,
+              "steps": 1,
+              "survives": true,
+              "x": 3
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "L",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 4
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "L",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 5
+            }
+          ],
+          "color_needs": {
+            "mainline": [
+              {
+                "chain": 7,
+                "color": "Y",
+                "height": 5,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 1,
+                "x": 2
+              },
+              {
+                "chain": 7,
+                "color": "Y",
+                "height": 4,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 1,
+                "x": 3
+              }
+            ],
+            "mainline_chain": 7,
+            "offsets": [
+              {
+                "chain": 1,
+                "color": "R",
+                "height": 6,
+                "missing_visible_cells": 2,
+                "needed_cells": 3,
+                "visible_supply": 1,
+                "x": 1
+              },
+              {
+                "chain": 1,
+                "color": "Y",
+                "height": 10,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 1,
+                "x": 0
+              },
+              {
+                "chain": 1,
+                "color": "Y",
+                "height": 6,
+                "missing_visible_cells": 1,
+                "needed_cells": 2,
+                "visible_supply": 1,
+                "x": 1
+              },
+              {
+                "chain": 1,
+                "color": "G",
+                "height": 3,
+                "missing_visible_cells": 2,
+                "needed_cells": 2,
+                "visible_supply": 0,
+                "x": 4
+              },
+              {
+                "chain": 1,
+                "color": "G",
+                "height": 3,
+                "missing_visible_cells": 2,
+                "needed_cells": 2,
+                "visible_supply": 0,
+                "x": 5
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 6,
+                "missing_visible_cells": 3,
+                "needed_cells": 3,
+                "visible_supply": 0,
+                "x": 1
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 5,
+                "missing_visible_cells": 3,
+                "needed_cells": 3,
+                "visible_supply": 0,
+                "x": 2
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 4,
+                "missing_visible_cells": 3,
+                "needed_cells": 3,
+                "visible_supply": 0,
+                "x": 3
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 3,
+                "missing_visible_cells": 3,
+                "needed_cells": 3,
+                "visible_supply": 0,
+                "x": 4
+              }
+            ],
+            "quality": 2780,
+            "reserve_weights": {
+              "B": 0,
+              "G": 0,
+              "R": 0,
+              "Y": 6
+            },
+            "status": "reachable_color_completion_heuristic_not_executable_future",
+            "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+          },
+          "completed_depth": 1,
+          "cutoff": false,
+          "expanded": 22,
+          "unconfirmed_not_scheduled": true,
+          "visible": 1,
+          "choice": {
+            "central_height": 1,
+            "gauge_after": 7,
+            "needed_color_consumed": 48,
+            "popped": 28,
+            "projected_gauge": 7,
+            "projected_needed_color_consumed": 48,
+            "projected_popped": 28,
+            "r": "R",
+            "roughness": 11,
+            "steps": 1,
+            "survives": true,
+            "x": 3
+          }
+        },
+        "consumed_puyos": 28,
+        "normal_color_needs": {
+          "mainline": [
+            {
+              "chain": 7,
+              "color": "Y",
+              "height": 5,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 2
+            },
+            {
+              "chain": 7,
+              "color": "Y",
+              "height": 4,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 3
+            }
+          ],
+          "mainline_chain": 7,
+          "offsets": [
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 6,
+              "missing_visible_cells": 2,
+              "needed_cells": 3,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "Y",
+              "height": 10,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 0
+            },
+            {
+              "chain": 1,
+              "color": "Y",
+              "height": 6,
+              "missing_visible_cells": 1,
+              "needed_cells": 2,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 4
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 5
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 6,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 5,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 2
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 4,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 3
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 4
+            }
+          ],
+          "quality": 2780,
+          "reserve_weights": {
+            "B": 0,
+            "G": 0,
+            "R": 0,
+            "Y": 6
+          },
+          "status": "reachable_color_completion_heuristic_not_executable_future",
+          "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+        },
+        "needed_color_consumed": 48,
+        "searched_visible": 1
+      },
+      "mainline_projection": {
+        "x": 3,
+        "r": "R",
+        "field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "Y.....",
+          "Y.....",
+          "Y..BR."
+        ],
+        "locked_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "Y.....",
+          "Y.....",
+          "Y.....",
+          "R.....",
+          "GB....",
+          "BYYY..",
+          "BBYBR.",
+          "GGBRGG",
+          "GRRBRR",
+          "RBBRGG"
+        ],
+        "chain": 7,
+        "link_points": [
+          40,
+          320,
+          680,
+          920,
+          1440,
+          2960,
+          5000
+        ],
+        "all_clear": false,
+        "fire_at": 42,
+        "end_at": 565,
+        "in_time": true,
+        "dead": false,
+        "dropped": 0,
+        "cancelled": 90,
+        "sent": 5,
+        "offset_links": 7,
+        "pending_after_observed_chains": 0,
+        "exchange_at": 565,
+        "garbage_phase": null,
+        "post_drop_field_known": true,
+        "possible_drop_boards": 1,
+        "uncertainty": "all_remainder_column_subsets",
+        "nuisance_check_at": null
+      },
+      "reply": {
+        "x": 3,
+        "r": "R",
+        "shape": "2",
+        "reason": "fever_wait_conserve",
+        "fire": true,
+        "chain": 7,
+        "next_chain": 7,
+        "next_score": 11360,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "Y.....",
+          "Y.....",
+          "Y..BR."
+        ],
+        "link_points": [
+          40,
+          320,
+          680,
+          920,
+          1440,
+          2960,
+          5000
+        ],
+        "next_all_clear": false,
+        "selected_move_loses": false,
+        "decision_dependencies": [
+          "self"
+        ],
+        "gauge_forecast": {
+          "gauge_after": 7,
+          "offset_links": 7,
+          "cancelled": 90,
+          "remaining_pending": 0
+        },
+        "entry_pending_after_chain": true,
+        "wait_forecast": {
+          "candidates": [
+            {
+              "central_height": 5,
+              "gauge_after": 1,
+              "needed_color_consumed": 24,
+              "popped": 4,
+              "projected_gauge": 1,
+              "projected_needed_color_consumed": 24,
+              "projected_popped": 4,
+              "r": "U",
+              "roughness": 159,
+              "steps": 1,
+              "survives": true,
+              "x": 0
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "U",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 1
+            },
+            {
+              "central_height": 1,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 29,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 29,
+              "r": "U",
+              "roughness": 10,
+              "steps": 1,
+              "survives": true,
+              "x": 2
+            },
+            {
+              "central_height": 2,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 28,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 28,
+              "r": "U",
+              "roughness": 13,
+              "steps": 1,
+              "survives": true,
+              "x": 3
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "U",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 4
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "U",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 5
+            },
+            {
+              "central_height": 5,
+              "gauge_after": 1,
+              "needed_color_consumed": 24,
+              "popped": 4,
+              "projected_gauge": 1,
+              "projected_needed_color_consumed": 24,
+              "projected_popped": 4,
+              "r": "R",
+              "roughness": 157,
+              "steps": 1,
+              "survives": true,
+              "x": 0
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "R",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 1
+            },
+            {
+              "central_height": 2,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 28,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 28,
+              "r": "R",
+              "roughness": 13,
+              "steps": 1,
+              "survives": true,
+              "x": 2
+            },
+            {
+              "central_height": 1,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 28,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 28,
+              "r": "R",
+              "roughness": 11,
+              "steps": 1,
+              "survives": true,
+              "x": 3
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "R",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 4
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 0
+            },
+            {
+              "central_height": 5,
+              "gauge_after": 1,
+              "needed_color_consumed": 24,
+              "popped": 4,
+              "projected_gauge": 1,
+              "projected_needed_color_consumed": 24,
+              "projected_popped": 4,
+              "r": "D",
+              "roughness": 157,
+              "steps": 1,
+              "survives": true,
+              "x": 1
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 2
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 3
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 4
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "D",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 5
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "L",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 1
+            },
+            {
+              "central_height": 1,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 29,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 29,
+              "r": "L",
+              "roughness": 10,
+              "steps": 1,
+              "survives": true,
+              "x": 2
+            },
+            {
+              "central_height": 1,
+              "gauge_after": 7,
+              "needed_color_consumed": 48,
+              "popped": 29,
+              "projected_gauge": 7,
+              "projected_needed_color_consumed": 48,
+              "projected_popped": 29,
+              "r": "L",
+              "roughness": 10,
+              "steps": 1,
+              "survives": true,
+              "x": 3
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "L",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 4
+            },
+            {
+              "central_height": 0,
+              "gauge_after": 0,
+              "needed_color_consumed": 0,
+              "popped": 0,
+              "projected_gauge": 0,
+              "projected_needed_color_consumed": 0,
+              "projected_popped": 0,
+              "r": "L",
+              "roughness": 0,
+              "steps": 1,
+              "survives": false,
+              "x": 5
+            }
+          ],
+          "color_needs": {
+            "mainline": [
+              {
+                "chain": 7,
+                "color": "Y",
+                "height": 5,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 1,
+                "x": 2
+              },
+              {
+                "chain": 7,
+                "color": "Y",
+                "height": 4,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 1,
+                "x": 3
+              }
+            ],
+            "mainline_chain": 7,
+            "offsets": [
+              {
+                "chain": 1,
+                "color": "R",
+                "height": 6,
+                "missing_visible_cells": 2,
+                "needed_cells": 3,
+                "visible_supply": 1,
+                "x": 1
+              },
+              {
+                "chain": 1,
+                "color": "Y",
+                "height": 10,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 1,
+                "x": 0
+              },
+              {
+                "chain": 1,
+                "color": "Y",
+                "height": 6,
+                "missing_visible_cells": 1,
+                "needed_cells": 2,
+                "visible_supply": 1,
+                "x": 1
+              },
+              {
+                "chain": 1,
+                "color": "G",
+                "height": 3,
+                "missing_visible_cells": 2,
+                "needed_cells": 2,
+                "visible_supply": 0,
+                "x": 4
+              },
+              {
+                "chain": 1,
+                "color": "G",
+                "height": 3,
+                "missing_visible_cells": 2,
+                "needed_cells": 2,
+                "visible_supply": 0,
+                "x": 5
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 6,
+                "missing_visible_cells": 3,
+                "needed_cells": 3,
+                "visible_supply": 0,
+                "x": 1
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 5,
+                "missing_visible_cells": 3,
+                "needed_cells": 3,
+                "visible_supply": 0,
+                "x": 2
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 4,
+                "missing_visible_cells": 3,
+                "needed_cells": 3,
+                "visible_supply": 0,
+                "x": 3
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 3,
+                "missing_visible_cells": 3,
+                "needed_cells": 3,
+                "visible_supply": 0,
+                "x": 4
+              }
+            ],
+            "quality": 2780,
+            "reserve_weights": {
+              "B": 0,
+              "G": 0,
+              "R": 0,
+              "Y": 6
+            },
+            "status": "reachable_color_completion_heuristic_not_executable_future",
+            "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+          },
+          "completed_depth": 1,
+          "cutoff": false,
+          "expanded": 22,
+          "unconfirmed_not_scheduled": true,
+          "visible": 1,
+          "choice": {
+            "central_height": 1,
+            "gauge_after": 7,
+            "needed_color_consumed": 48,
+            "popped": 28,
+            "projected_gauge": 7,
+            "projected_needed_color_consumed": 48,
+            "projected_popped": 28,
+            "r": "R",
+            "roughness": 11,
+            "steps": 1,
+            "survives": true,
+            "x": 3
+          }
+        },
+        "consumed_puyos": 28,
+        "normal_color_needs": {
+          "mainline": [
+            {
+              "chain": 7,
+              "color": "Y",
+              "height": 5,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 2
+            },
+            {
+              "chain": 7,
+              "color": "Y",
+              "height": 4,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 3
+            }
+          ],
+          "mainline_chain": 7,
+          "offsets": [
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 6,
+              "missing_visible_cells": 2,
+              "needed_cells": 3,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "Y",
+              "height": 10,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 0
+            },
+            {
+              "chain": 1,
+              "color": "Y",
+              "height": 6,
+              "missing_visible_cells": 1,
+              "needed_cells": 2,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 4
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 2,
+              "visible_supply": 0,
+              "x": 5
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 6,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 5,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 2
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 4,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 3
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 3,
+              "needed_cells": 3,
+              "visible_supply": 0,
+              "x": 4
+            }
+          ],
+          "quality": 2780,
+          "reserve_weights": {
+            "B": 0,
+            "G": 0,
+            "R": 0,
+            "Y": 6
+          },
+          "status": "reachable_color_completion_heuristic_not_executable_future",
+          "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+        },
+        "needed_color_consumed": 48,
+        "searched_visible": 1,
+        "action": "place",
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "mode": "normal",
+        "decision_identity": {
+          "match_id": "mode-test",
+          "frame": 0,
+          "piece_id": 0,
+          "dropset_index": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        },
+        "model_status": "prototype_unverified_on_local_steam",
+        "provenance": {
+          "power": "player_measurement_transcribed",
+          "bonuses": "cross_title_reference_unverified_on_local_steam",
+          "local_steam_verified": false
+        },
+        "search_ms": 0.0,
+        "mode_timing_status": "normal_calibrated_input_estimated",
+        "margin_forecast": {
+          "rate_events": [],
+          "enemy_rate_events": [],
+          "status": "observed_rate_only_margin_setting_unknown",
+          "observed_target_point": 120,
+          "observed_changes": 0,
+          "margin_start_frame_bounds": null
+        }
+      },
+      "search_ms": 9.19929996598512
+    }
+  ]
+}

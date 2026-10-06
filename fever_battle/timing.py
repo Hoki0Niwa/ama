@@ -1,5 +1,7 @@
 """Steam 15209927 timing: measured boundaries and bounded geometry estimates."""
 from dataclasses import dataclass
+import json
+from pathlib import Path
 from .model import integer
 
 
@@ -13,11 +15,33 @@ class ChainTiming:
     score_offset_frames: int = 0
     status: str = 'steam_15209927_calibrated_chain_estimate_input_time_estimated'
     split_extra_frames: tuple = (0, 13, 18, 22, 25, 28, 30, 33, 35, 37, 39, 41, 43, 45)
+    mode: str = 'normal'
+    first_link_frames: int = 15
+    chain_ready_frames: int = 13
+    nuisance_check_frames: int = 16
+    nuisance_ready_frames: int = 0
+
+    @classmethod
+    def for_mode(cls, mode, placement_frames=14):
+        if mode == 'normal':
+            return cls(placement_frames=placement_frames)
+        if mode != 'fever':
+            raise ValueError('unknown timing mode')
+        data = json.loads((Path(__file__).resolve().parents[1] / 'data/fever/timing.json').read_text(encoding='utf-8'))['fever_clock']
+        return cls(mode=mode, placement_frames=placement_frames, status=data['status'],
+            nuisance_check_frames=14,
+            nuisance_ready_frames=data['nuisance_drop_to_operable_estimate_frames'],
+            pop_frames=data['pop_to_fall_frames'], settle_frames=data['after_contact_to_next_check_frames'],
+            spawn_frames=data['nonclearing_lock_to_operable_without_split_frames'],
+            first_link_frames=data['lock_to_first_link_without_split_frames'],
+            chain_ready_frames=data['seed_exchange_estimate_frames'],
+            split_extra_frames=tuple(data['split_extra_frames']))
 
     @property
     def geometry_enabled(self):
         # Explicit test/simulation constants retain their linear clock.
-        return (self.pop_frames,self.fall_frames_per_row,self.settle_frames)==(55,2,14)
+        expected = (43,2,11) if self.mode == 'fever' else (55,2,14)
+        return (self.pop_frames,self.fall_frames_per_row,self.settle_frames)==expected
 
     @property
     def effective_status(self):
@@ -34,7 +58,7 @@ class ChainTiming:
             return self.pop_frames+self.settle_frames+distance*self.fall_frames_per_row
         if features is None:features=dict(moving_distances_by_column=[[distance]] if distance else [[]])
         falling=self.fall_frames(features)
-        return 55 if terminal and not falling else 69+falling
+        return self.pop_frames if terminal and not falling else self.pop_frames+self.settle_frames+falling
 
     def native(self):
         result = {name: integer(getattr(self, name), name, 0, 10000)
@@ -47,8 +71,11 @@ class ChainTiming:
                                       for value in self.split_extra_frames]
         result['score_offset_frames']=integer(self.score_offset_frames,'score offset',0,self.pop_frames)
         result.update(geometry_timing=self.geometry_enabled,
-                      first_link_frames=15 if self.geometry_enabled else 0,
-                      chain_ready_frames=13 if self.geometry_enabled else self.spawn_frames)
+                      first_link_frames=integer(self.first_link_frames,'first link duration',0,10000) if self.geometry_enabled else 0,
+                      chain_ready_frames=integer(self.chain_ready_frames,'chain ready duration',0,10000) if self.geometry_enabled else self.spawn_frames,
+                      nuisance_check_frames=self.nuisance_check_frames if self.geometry_enabled else 0,
+                      nuisance_ready_frames=integer(self.nuisance_ready_frames,'nuisance ready duration',0,10000) if self.geometry_enabled else 0,
+                      mode=self.mode)
         return result
 
     def timeline(self, points, fall_distances, fall_features=None, start_offset=0):
@@ -73,6 +100,8 @@ class ChainTiming:
                               duration_frames=duration,fall_distance=distance))
         return dict(links=links, end_frame=now,end_frame_min=max(start_offset,now-uncertainty),
                     end_frame_max=now+uncertainty,ready_frame=now+constants['chain_ready_frames'],
+                    readiness_status=('seed_exchange_estimated_not_universal_bound' if self.mode=='fever'
+                                      else 'normal_chain_ready_calibrated_estimate'),
                     observed_error_budget_per_moving_link=2 if self.geometry_enabled else 0,
                     status=self.effective_status, constants=constants)
 

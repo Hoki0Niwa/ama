@@ -1,0 +1,2797 @@
+{
+  "recording_status": {
+    "started_at_utc": "2026-10-06T07:57:58.267535+00:00",
+    "seconds": 7200.0,
+    "controller": false,
+    "future_colors_read": false,
+    "state": "recording",
+    "elapsed_seconds": 980.0,
+    "recorded": {
+      "sample": 50307,
+      "read_error": 751
+    },
+    "closed_segments": [
+      "segment-000.jsonl.gz",
+      "segment-001.jsonl.gz",
+      "segment-002.jsonl.gz"
+    ]
+  },
+  "behaviour": {
+    "samples": 45918,
+    "observed_rounds": 10,
+    "maximum_frame": 10131,
+    "rate_changes": [],
+    "failed_chains_with_held_nuisance": []
+  },
+  "boundaries": {
+    "sources": [
+      {
+        "path": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "sha256": "b71d8c767e0acbd02c89922281e9dc66bef643b46c4e12e685365e1c797a0543"
+      },
+      {
+        "path": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "sha256": "3206732f177726804a2e986532b94f658a379f34b511d44ecd0d6c9909ab82d0"
+      },
+      {
+        "path": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "sha256": "98013be385b3aaa528b86d403b81c48551d0d118a5729fe53c4ced022c052f66"
+      }
+    ],
+    "awards": [
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 0,
+        "seat": 2,
+        "frame": 2927,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 90,
+        "old_clock": 442,
+        "clock": 531,
+        "old_link": 5,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 0,
+        "seat": 2,
+        "frame": 3443,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 120,
+        "old_clock": 16,
+        "clock": 135,
+        "old_link": 6,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 0,
+        "seat": 2,
+        "frame": 3459,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 300,
+        "old_clock": 120,
+        "clock": 419,
+        "old_link": 0,
+        "link": 0,
+        "since_chain_end": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 2843,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 120,
+        "old_clock": 491,
+        "clock": 610,
+        "old_link": 6,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 3396,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 150,
+        "old_clock": 58,
+        "clock": 207,
+        "old_link": 7,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 4240,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 180,
+        "old_clock": 496,
+        "clock": 675,
+        "old_link": 8,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 4876,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 210,
+        "old_clock": 40,
+        "clock": 249,
+        "old_link": 9,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 2,
+        "seat": 1,
+        "frame": 3916,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 180,
+        "old_clock": 364,
+        "clock": 543,
+        "old_link": 8,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 2741,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 120,
+        "old_clock": 484,
+        "clock": 603,
+        "old_link": 6,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 3303,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 150,
+        "old_clock": 42,
+        "clock": 191,
+        "old_link": 7,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 3319,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 300,
+        "old_clock": 176,
+        "clock": 475,
+        "old_link": 0,
+        "link": 0,
+        "since_chain_end": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 5175,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 180,
+        "old_clock": 868,
+        "clock": 1047,
+        "old_link": 8,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 5917,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 240,
+        "old_clock": 306,
+        "clock": 545,
+        "old_link": 10,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 7816,
+        "mode": "fever",
+        "exact_edge": false,
+        "gain": 270,
+        "old_clock": 1065,
+        "clock": 1324,
+        "old_link": 11,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 8709,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 330,
+        "old_clock": 432,
+        "clock": 761,
+        "old_link": 13,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 8725,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 300,
+        "old_clock": 746,
+        "clock": 1045,
+        "old_link": 0,
+        "link": 0,
+        "since_chain_end": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 2982,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 90,
+        "old_clock": 475,
+        "clock": 564,
+        "old_link": 5,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 2617,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 120,
+        "old_clock": 515,
+        "clock": 634,
+        "old_link": 6,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 2505,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 150,
+        "old_clock": 200,
+        "clock": 349,
+        "old_link": 7,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 4333,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 150,
+        "old_clock": 331,
+        "clock": 480,
+        "old_link": 7,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 2,
+        "seat": 1,
+        "frame": 4294,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 180,
+        "old_clock": 516,
+        "clock": 695,
+        "old_link": 8,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 4775,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 210,
+        "old_clock": 450,
+        "clock": 659,
+        "old_link": 9,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 2,
+        "seat": 1,
+        "frame": 4921,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 210,
+        "old_clock": 69,
+        "clock": 278,
+        "old_link": 9,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 3232,
+        "mode": "fever",
+        "exact_edge": false,
+        "gain": 90,
+        "old_clock": 791,
+        "clock": 870,
+        "old_link": 5,
+        "link": 0,
+        "since_chain_end": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 3975,
+        "mode": "fever",
+        "exact_edge": true,
+        "gain": 150,
+        "old_clock": 128,
+        "clock": 277,
+        "old_link": 7,
+        "link": 0,
+        "since_chain_end": 0
+      }
+    ],
+    "deliveries": [
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 0,
+        "seat": 2,
+        "frame": 2148,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 350,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 0,
+        "seat": 1,
+        "frame": 2392,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 26,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 0,
+        "seat": 1,
+        "frame": 2927,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 22,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 0,
+        "seat": 1,
+        "frame": 3443,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 34,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 1388,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 2224,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 8,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 2843,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 26,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 4093,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 70,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 4282,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 3,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 4508,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 4888,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 12,
+        "source_chain_end": false
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 5641,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 164,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 1506,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 1784,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 8,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 2,
+        "seat": 1,
+        "frame": 2529,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 440,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 2,
+        "seat": 1,
+        "frame": 2879,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 2,
+        "seat": 1,
+        "frame": 4702,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 3,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 2,
+        "seat": 1,
+        "frame": 4975,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 15,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 2,
+        "seat": 1,
+        "frame": 5360,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 4,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 1395,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 3,
+        "seat": 1,
+        "frame": 2265,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 87,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 2445,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 290,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 1457,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 2,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 1782,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 11,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 2062,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 11,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 2753,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 6,
+        "source_chain_end": false
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 2866,
+        "mode": "fever",
+        "exact_edge": false,
+        "count": 20,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 3102,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 3303,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 32,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 4153,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 168,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 4839,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 2,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 5146,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 2,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 5650,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 44,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 5929,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 4,
+        "source_chain_end": false
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 6732,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 226,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 8709,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 336,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 9715,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 539,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 2,
+        "seat": 1,
+        "frame": 1365,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 2183,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 382,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 2924,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 3,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 3043,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 3728,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 12,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 4060,
+        "mode": "normal",
+        "exact_edge": false,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 4356,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 3,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 688,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 3,
+        "seat": 1,
+        "frame": 1053,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 11,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 1129,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 1766,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 8,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 1876,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 0,
+        "seat": 2,
+        "frame": 2792,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 41,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 644,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 921,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 10,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 1181,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 1365,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 2,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 2505,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 41,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 3141,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 83,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 4526,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 91,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 4786,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 5059,
+        "mode": "normal",
+        "exact_edge": false,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 2,
+        "seat": 1,
+        "frame": 1332,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 23,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 1579,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 24,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 1762,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 2,
+        "seat": 1,
+        "frame": 3302,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 12,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 3473,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 69,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 4294,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 80,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 4921,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 80,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 5805,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 153,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 3,
+        "seat": 1,
+        "frame": 605,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 917,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 12,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 1040,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 2012,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 3,
+        "seat": 1,
+        "frame": 2353,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 3,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 2786,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 69,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 2917,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 1,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 4142,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 46,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 4510,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 2,
+        "source_chain_end": true
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 3,
+        "seat": 1,
+        "frame": 4645,
+        "mode": "normal",
+        "exact_edge": false,
+        "count": 7,
+        "source_chain_end": false
+      }
+    ],
+    "drops": [
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 0,
+        "seat": 1,
+        "frame": 3030,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 3014,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:RR",
+          "cells": [
+            [
+              1.0,
+              9.578125
+            ],
+            [
+              1.0,
+              10.578125
+            ]
+          ],
+          "rotation": 2,
+          "grounded": 0,
+          "placed": 32
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          "Y....B"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 0,
+        "seat": 1,
+        "frame": 3150,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 10,
+        "lock_frame": 3134,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:BY",
+          "cells": [
+            [
+              4.0,
+              5.734375
+            ],
+            [
+              4.0,
+              4.734375
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 33
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".#...#",
+          "##...#",
+          "######",
+          "######",
+          "######",
+          "#R###R",
+          "YR###B"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 0,
+        "seat": 1,
+        "frame": 3581,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 3565,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:RB",
+          "cells": [
+            [
+              1.0,
+              -0.3828125
+            ],
+            [
+              1.0,
+              -1.3828125
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 40
+        },
+        "old_board": [
+          "......",
+          "......",
+          "....Y.",
+          "BY..R.",
+          "YB..B.",
+          "RG..B.",
+          "##..##",
+          "####Y#",
+          "####B#",
+          "######",
+          "######",
+          "######",
+          "#R###R",
+          "YR###B"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 4892,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 12,
+        "lock_frame": 4858,
+        "lock_edge_exact": true,
+        "lock_to_drop": 34,
+        "old_pose": {
+          "piece": "2:RB",
+          "cells": [
+            [
+              3.0,
+              8.6171875
+            ],
+            [
+              4.0,
+              8.6171875
+            ]
+          ],
+          "rotation": 1,
+          "grounded": 0,
+          "placed": 38
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "B...G.",
+          "BGY.YY"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 2,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 5891,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 5875,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:GB",
+          "cells": [
+            [
+              0.0,
+              10.65625
+            ],
+            [
+              0.0,
+              9.65625
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 48
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "....B.",
+          ".GYRYY"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 6002,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 5986,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:RY",
+          "cells": [
+            [
+              2.0,
+              3.578125
+            ],
+            [
+              2.0,
+              4.578125
+            ]
+          ],
+          "rotation": 2,
+          "grounded": 0,
+          "placed": 49
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "#...#.",
+          "######",
+          "######",
+          "######",
+          "######",
+          "B###B#",
+          "GGYRYY"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 2,
+        "seat": 1,
+        "frame": 4881,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 4865,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "4:BBYY",
+          "cells": [
+            [
+              4.0,
+              8.6953125
+            ],
+            [
+              4.0,
+              7.6953125
+            ],
+            [
+              5.0,
+              8.6953125
+            ],
+            [
+              5.0,
+              7.6953125
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 45
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "R.....",
+          "R.....",
+          "G.....",
+          "B.....",
+          "B.....",
+          "R...GY",
+          "G...GR"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 2,
+        "seat": 1,
+        "frame": 4994,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 4978,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "J:YRY",
+          "cells": [
+            [
+              4.0,
+              1.7734375
+            ],
+            [
+              4.0,
+              0.7734375
+            ],
+            [
+              5.0,
+              1.7734375
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 46
+        },
+        "old_board": [
+          "......",
+          "......",
+          "#.....",
+          "#.....",
+          "#.....",
+          "#...##",
+          "#...##",
+          "R...##",
+          "R...##",
+          "G#####",
+          "B###BY",
+          "B###BY",
+          "R###GY",
+          "G###GR"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 2,
+        "seat": 1,
+        "frame": 5204,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 5188,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:GY",
+          "cells": [
+            [
+              1.0,
+              0.65625
+            ],
+            [
+              1.0,
+              -0.34375
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 48
+        },
+        "old_board": [
+          "......",
+          "#.....",
+          "#....#",
+          "#...##",
+          "##..YY",
+          "######",
+          "######",
+          "R#####",
+          "R#####",
+          "G#####",
+          "B###BY",
+          "B###BY",
+          "R###GY",
+          "G###GR"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 2485,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 2469,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:BR",
+          "cells": [
+            [
+              2.0,
+              9.578125
+            ],
+            [
+              2.0,
+              10.578125
+            ]
+          ],
+          "rotation": 2,
+          "grounded": 0,
+          "placed": 29
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "BR..BG",
+          "YY..YG",
+          "GR..BB"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 2601,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 2585,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:RY",
+          "cells": [
+            [
+              0.0,
+              2.8125
+            ],
+            [
+              0.0,
+              1.8125
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 30
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "##..##",
+          "###.##",
+          "###.##",
+          "######",
+          "######",
+          "BR##BG",
+          "YYB#YG",
+          "GRR#BB"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 3464,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 3450,
+        "lock_edge_exact": false,
+        "lock_to_drop": 14,
+        "old_pose": {
+          "piece": "2:YB",
+          "cells": [
+            [
+              4.0,
+              6.65625
+            ],
+            [
+              4.0,
+              5.65625
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 39
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....G",
+          ".....G",
+          ".....Y",
+          ".....G",
+          "YY...G"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 3580,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "lock_frame": 3564,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:GG",
+          "cells": [
+            [
+              1.0,
+              4.65625
+            ],
+            [
+              0.0,
+              4.65625
+            ]
+          ],
+          "rotation": 3,
+          "grounded": 0,
+          "placed": 40
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....#",
+          ".....#",
+          ".....#",
+          "....##",
+          "##..##",
+          "#####G",
+          "#####G",
+          "#####Y",
+          "####BG",
+          "YY##YG"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 6167,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 3,
+        "lock_frame": 6151,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:RY",
+          "cells": [
+            [
+              4.0,
+              9.7734375
+            ],
+            [
+              4.0,
+              8.7734375
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 52
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....G",
+          "YY...Y",
+          "RRGB.G",
+          "GGRRGG"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 8801,
+        "mode": "normal",
+        "exact_edge": false,
+        "count": 30,
+        "lock_frame": 8780,
+        "lock_edge_exact": true,
+        "lock_to_drop": 21,
+        "old_pose": {
+          "piece": "2:YB",
+          "cells": [
+            [
+              1.0,
+              3.6953125
+            ],
+            [
+              1.0,
+              4.6953125
+            ]
+          ],
+          "rotation": 2,
+          "grounded": 0,
+          "placed": 81
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".G....",
+          "YB....",
+          "GR....",
+          "#G..GY",
+          "##RGRG",
+          "YY##YG"
+        ],
+        "old_phase": 5,
+        "phase": 6,
+        "field_phase": 10
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 8907,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 8891,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:YG",
+          "cells": [
+            [
+              4.0,
+              2.7734375
+            ],
+            [
+              4.0,
+              1.7734375
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 82
+        },
+        "old_board": [
+          "......",
+          ".#....",
+          ".#....",
+          ".#....",
+          "##....",
+          "##....",
+          "#Y..##",
+          "#B####",
+          "#G####",
+          "YB####",
+          "GR####",
+          "#G##GY",
+          "##RGRG",
+          "YY##YG"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 3102,
+        "mode": "fever",
+        "exact_edge": false,
+        "count": 1,
+        "lock_frame": 3081,
+        "lock_edge_exact": true,
+        "lock_to_drop": 21,
+        "old_pose": {
+          "piece": "2:BR",
+          "cells": [
+            [
+              3.0,
+              6.578125
+            ],
+            [
+              3.0,
+              7.578125
+            ]
+          ],
+          "rotation": 2,
+          "grounded": 0,
+          "placed": 34
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "B.....",
+          "YG....",
+          "GGB...",
+          "YYGRBB",
+          "YBBGRR",
+          "BGGRBB"
+        ],
+        "old_phase": 5,
+        "phase": 6,
+        "field_phase": 10
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 3968,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 3952,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:YY",
+          "cells": [
+            [
+              1.0,
+              9.578125
+            ],
+            [
+              1.0,
+              10.578125
+            ]
+          ],
+          "rotation": 2,
+          "grounded": 0,
+          "placed": 39
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....B",
+          ".....B",
+          ".....Y",
+          "Y...RB",
+          "R...RB"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 4085,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 4069,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:BR",
+          "cells": [
+            [
+              0.0,
+              3.7734375
+            ],
+            [
+              1.0,
+              3.7734375
+            ]
+          ],
+          "rotation": 1,
+          "grounded": 0,
+          "placed": 40
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....#",
+          ".....#",
+          ".....#",
+          "##..##",
+          "##..##",
+          "#####B",
+          "#####B",
+          "#####Y",
+          "YY##RB",
+          "RY##RB"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 4288,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 4272,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:BG",
+          "cells": [
+            [
+              1.0,
+              -0.3828125
+            ],
+            [
+              1.0,
+              -1.3828125
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 42
+        },
+        "old_board": [
+          "......",
+          "#....#",
+          "#....#",
+          "##...#",
+          "##..##",
+          "######",
+          "BR####",
+          "######",
+          "######",
+          "#####B",
+          "#####B",
+          "#####Y",
+          "YY##RB",
+          "RY##RB"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 1166,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "lock_frame": 1150,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:BB",
+          "cells": [
+            [
+              5.0,
+              9.7734375
+            ],
+            [
+              5.0,
+              10.7734375
+            ]
+          ],
+          "rotation": 2,
+          "grounded": 0,
+          "placed": 13
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "YYB...",
+          "YGYGG."
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 0,
+        "seat": 2,
+        "frame": 2824,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 2810,
+        "lock_edge_exact": true,
+        "lock_to_drop": 14,
+        "old_pose": {
+          "piece": "2:BR",
+          "cells": [
+            [
+              0.0,
+              1.7734375
+            ],
+            [
+              0.0,
+              0.7734375
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 28
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "Y.....",
+          "R.....",
+          "YR....",
+          "RBY...",
+          "BGG...",
+          "BBGB..",
+          "RRBYRR",
+          "RYYBYY",
+          "YBBYRR"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 14
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 0,
+        "seat": 2,
+        "frame": 2911,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 11,
+        "lock_frame": 2897,
+        "lock_edge_exact": true,
+        "lock_to_drop": 14,
+        "old_pose": {
+          "piece": "2:GR",
+          "cells": [
+            [
+              2.0,
+              -0.5
+            ],
+            [
+              2.0,
+              -1.5
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 29
+        },
+        "old_board": [
+          "......",
+          "#.....",
+          "##....",
+          "R##...",
+          "B##...",
+          "Y###..",
+          "R#####",
+          "YR####",
+          "RBY###",
+          "BGG###",
+          "BBGB##",
+          "RRBYRR",
+          "RYYBYY",
+          "YBBYRR"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 14
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 2592,
+        "mode": "normal",
+        "exact_edge": false,
+        "count": 30,
+        "lock_frame": 2570,
+        "lock_edge_exact": true,
+        "lock_to_drop": 22,
+        "old_pose": {
+          "piece": "2:GY",
+          "cells": [
+            [
+              4.0,
+              8.65625
+            ],
+            [
+              5.0,
+              8.65625
+            ]
+          ],
+          "rotation": 1,
+          "grounded": 0,
+          "placed": 28
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".R....",
+          "BR....",
+          "BG..BG",
+          "BY..BB"
+        ],
+        "old_phase": 5,
+        "phase": 6,
+        "field_phase": 10
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 2704,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 11,
+        "lock_frame": 2688,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "4:BBRR",
+          "cells": [
+            [
+              4.0,
+              2.890625
+            ],
+            [
+              4.0,
+              1.890625
+            ],
+            [
+              5.0,
+              2.890625
+            ],
+            [
+              5.0,
+              1.890625
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 29
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".#....",
+          "##..##",
+          "##..##",
+          "##..##",
+          "######",
+          "#R####",
+          "BR##GY",
+          "BG##BG",
+          "BY##BB"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 5082,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 5066,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:RB",
+          "cells": [
+            [
+              0.0,
+              0.7734375
+            ],
+            [
+              0.0,
+              -0.2265625
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 48
+        },
+        "old_board": [
+          "......",
+          "......",
+          ".....#",
+          ".....#",
+          "B...#R",
+          "#...BR",
+          "##R.B#",
+          "##R.##",
+          "######",
+          "######",
+          "#R####",
+          "BR##GY",
+          "BG##BG",
+          "BY##BB"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 2010,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 15,
+        "lock_frame": 1994,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:BB",
+          "cells": [
+            [
+              4.0,
+              10.65625
+            ],
+            [
+              5.0,
+              10.65625
+            ]
+          ],
+          "rotation": 1,
+          "grounded": 0,
+          "placed": 22
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "BR...."
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 5134,
+        "mode": "fever",
+        "exact_edge": false,
+        "count": 30,
+        "lock_frame": 5120,
+        "lock_edge_exact": true,
+        "lock_to_drop": 14,
+        "old_pose": {
+          "piece": "2:GY",
+          "cells": [
+            [
+              0.0,
+              3.890625
+            ],
+            [
+              0.0,
+              2.890625
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 55
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "GR....",
+          "YYG...",
+          "GGBB..",
+          "YYGBY.",
+          "RRBYGG",
+          "RGGBYY",
+          "GBBYGG"
+        ],
+        "old_phase": 5,
+        "phase": 6,
+        "field_phase": 10
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 5238,
+        "mode": "fever",
+        "exact_edge": true,
+        "count": 30,
+        "lock_frame": 5214,
+        "lock_edge_exact": true,
+        "lock_to_drop": 24,
+        "old_pose": {
+          "piece": "2:YR",
+          "cells": [
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "rotation": 1,
+          "grounded": 1,
+          "placed": 56
+        },
+        "old_board": [
+          "......",
+          "#.....",
+          "##....",
+          "###...",
+          "####..",
+          "Y####.",
+          "G#####",
+          "GR####",
+          "YYG###",
+          "GGBB##",
+          "YYGBY#",
+          "RRBYGG",
+          "RGGBYY",
+          "GBBYGG"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 1,
+        "lock_to_check_without_split": 14
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 1128,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "lock_frame": 1112,
+        "lock_edge_exact": true,
+        "lock_to_drop": 16,
+        "old_pose": {
+          "piece": "2:RB",
+          "cells": [
+            [
+              5.0,
+              10.734375
+            ],
+            [
+              5.0,
+              9.734375
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 13
+        },
+        "old_board": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".B....",
+          "YY....",
+          "GRR.B."
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10,
+        "split_rows": 0,
+        "lock_to_check_without_split": 16
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 2032,
+        "mode": "normal",
+        "exact_edge": true,
+        "count": 1,
+        "lock_frame": 2024,
+        "lock_edge_exact": false,
+        "lock_to_drop": 8,
+        "old_pose": {
+          "piece": "2:YR",
+          "cells": [
+            [
+              4.0,
+              5.734375
+            ],
+            [
+              5.0,
+              5.734375
+            ]
+          ],
+          "rotation": 1,
+          "grounded": 0,
+          "placed": 28
+        },
+        "old_board": [
+          "......",
+          "......",
+          ".B....",
+          ".Y....",
+          ".G....",
+          ".GY...",
+          "YRY...",
+          "YGR...",
+          "BGRB..",
+          "GYYG..",
+          "GYBYRB",
+          "#BBYRB",
+          "YYYBYB",
+          "GRRRBR"
+        ],
+        "old_phase": 6,
+        "phase": 6,
+        "field_phase": 10
+      }
+    ],
+    "expired_active": [],
+    "expired_chain_ends": [
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 4093,
+        "mode": "fever",
+        "exact_edge": true,
+        "chain": 9,
+        "old_clock": 0,
+        "clock": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 5641,
+        "mode": "fever",
+        "exact_edge": true,
+        "chain": 10,
+        "old_clock": 0,
+        "clock": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+        "epoch": 2,
+        "seat": 1,
+        "frame": 4607,
+        "mode": "fever",
+        "exact_edge": true,
+        "chain": 9,
+        "old_clock": 0,
+        "clock": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 4153,
+        "mode": "fever",
+        "exact_edge": true,
+        "chain": 10,
+        "old_clock": 0,
+        "clock": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 6732,
+        "mode": "fever",
+        "exact_edge": true,
+        "chain": 11,
+        "old_clock": 0,
+        "clock": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+        "epoch": 2,
+        "seat": 2,
+        "frame": 3668,
+        "mode": "fever",
+        "exact_edge": true,
+        "chain": 7,
+        "old_clock": 0,
+        "clock": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 1,
+        "seat": 2,
+        "frame": 3141,
+        "mode": "fever",
+        "exact_edge": true,
+        "chain": 8,
+        "old_clock": 0,
+        "clock": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 1,
+        "seat": 1,
+        "frame": 4999,
+        "mode": "fever",
+        "exact_edge": true,
+        "chain": 8,
+        "old_clock": 0,
+        "clock": 0
+      },
+      {
+        "source": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+        "epoch": 3,
+        "seat": 2,
+        "frame": 4626,
+        "mode": "fever",
+        "exact_edge": true,
+        "chain": 8,
+        "old_clock": 0,
+        "clock": 0
+      }
+    ]
+  }
+}

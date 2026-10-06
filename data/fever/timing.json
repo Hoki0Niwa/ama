@@ -1,9 +1,9 @@
 {
-  "schema_version": 3,
+  "schema_version": 5,
   "unit": "game_frame",
   "fps": 60,
   "steam_build": "15209927",
-  "scope": "adopted_chain_split_clock_v1; input and unobserved high split heights remain explicit estimates",
+  "scope": "Mode-specific measured chain clocks; input, Fever seed exchange and unobserved split heights remain explicit estimates",
   "source": "ama-memory-bridge/FEVER_FRAMES.md, recording frames-20261005-024341.jsonl",
   "measured": {
     "soft_drop_rows_per_frame": 0.5,
@@ -17,7 +17,6 @@
   "not_calibrated": [
     "lateral_soft_drop_interaction",
     "garbage_fall_frames",
-    "attack_delivery_frames",
     "normal_all_clear_seed_frames"
   ],
   "battle_cost_defaults": null,
@@ -309,7 +308,9 @@
         }
       },
       "sample_role": "fit and consistency validation from existing captures; no independent new live acceptance run"
-    }
+    },
+    "mode": "normal",
+    "scope": "Fever rule normal board; not Fever-mode animation"
   },
   "estimated_or_outside_calibration": [
     "input_route_time",
@@ -318,5 +319,196 @@
     "garbage_fall_frames",
     "attack_delivery_frames",
     "normal_all_clear_seed_frames"
-  ]
+  ],
+  "fever_clock": {
+    "source": "baselines/2026-10-06-fever-chain-timing.json",
+    "mode": "fever",
+    "status": "steam_15209927_fever_measured_chain_estimate_input_and_seed_exchange_estimated",
+    "pop_to_fall_frames": 43,
+    "after_contact_to_next_check_frames": 11,
+    "column_contact_formula": "2*max_distance - 1 + (ceil(3*(moving_count-1)/2)+1 if moving_count>1 else 0)",
+    "last_link_without_fall_to_end_frames": 43,
+    "lock_to_first_link_without_split_frames": 13,
+    "nonclearing_lock_to_operable_without_split_frames": 26,
+    "seed_exchange_estimate_frames": 100,
+    "seed_exchange_status": "Estimated budget covering measured range; not a proven upper bound; includes seed replacement and next operation, not chain end.",
+    "uncertainty_frames_per_moving_link": 2,
+    "split_extra_frames": [
+      0,
+      10,
+      14,
+      17,
+      25,
+      28,
+      30,
+      33,
+      35,
+      37,
+      39,
+      41,
+      43,
+      45
+    ],
+    "split_rows_0_to_3": "Measured in Fever mode",
+    "split_rows_4_to_13": "Unmeasured Fever split: conservative normal-mode reference estimates, not Fever calibration.",
+    "scope": "Observed Steam Fever-mode chains, input route and unknown next-seed geometry are estimates; no character-specific timing adjustment.",
+    "validation": {
+      "all": {
+        "links": {
+          "n": 49,
+          "min": -1,
+          "median": 0,
+          "max": 2,
+          "mae": 0.7346938775510204
+        },
+        "terminals": {
+          "n": 6,
+          "min": 0,
+          "median": 1.0,
+          "max": 2,
+          "mae": 1.0
+        }
+      },
+      "first_round_fit": {
+        "links": {
+          "n": 22,
+          "min": -1,
+          "median": 0.0,
+          "max": 2,
+          "mae": 0.5
+        },
+        "terminals": {
+          "n": 2,
+          "min": 2,
+          "median": 2.0,
+          "max": 2,
+          "mae": 2.0
+        }
+      },
+      "later_round_consistency": {
+        "links": {
+          "n": 27,
+          "min": -1,
+          "median": 1,
+          "max": 2,
+          "mae": 0.9259259259259259
+        },
+        "terminals": {
+          "n": 4,
+          "min": 0,
+          "median": 0.5,
+          "max": 1,
+          "mae": 0.5
+        }
+      }
+    },
+    "measurements": {
+      "links": 49,
+      "terminal_links": 6,
+      "ready_edges": 3,
+      "interval": {
+        "n": 49,
+        "min": 56,
+        "median": 60,
+        "max": 65
+      },
+      "interval_minus_normal_contact": {
+        "n": 49,
+        "min": 52,
+        "median": 54,
+        "max": 55
+      },
+      "internal_boundary": {
+        "n": 41,
+        "min": 43,
+        "median": 43,
+        "max": 43
+      },
+      "no_fall_terminal": {
+        "n": 2,
+        "min": 43,
+        "median": 43.0,
+        "max": 43
+      },
+      "end_to_ready": {
+        "n": 3,
+        "min": 91,
+        "median": 94,
+        "max": 98
+      },
+      "lock_to_first_link_by_split": {
+        "0": {
+          "n": 8,
+          "min": 13,
+          "median": 13.0,
+          "max": 13
+        },
+        "1": {
+          "n": 1,
+          "min": 23,
+          "median": 23,
+          "max": 23
+        }
+      },
+      "nonclearing_lock_to_ready_by_split": {
+        "0": {
+          "n": 12,
+          "min": 26,
+          "median": 26.0,
+          "max": 26
+        },
+        "1": {
+          "n": 3,
+          "min": 36,
+          "median": 36,
+          "max": 36
+        },
+        "2": {
+          "n": 2,
+          "min": 40,
+          "median": 40.0,
+          "max": 40
+        },
+        "3": {
+          "n": 3,
+          "min": 43,
+          "median": 43,
+          "max": 43
+        }
+      }
+    },
+    "seed_exchange_measured_range_frames": [
+      91,
+      98
+    ],
+    "seed_exchange_samples": 3,
+    "nuisance_drop_to_operable_estimate_frames": 80,
+    "nuisance_drop_to_operable_status": "observed_max_71_plus_9_margin_not_universal_bound",
+    "nuisance_drop_to_operable_source": "baselines/2026-10-06-fever-garbage-ready.json"
+  },
+  "deadline_boundaries": {
+    "source": "baselines/2026-10-06-fever-deadlines.json",
+    "steam_build": "15209927",
+    "fever_chain_award_boundary": "last_link_to_zero_same_frame_while_clock_positive",
+    "chain_award_frames": "max(0, chain-2)*30",
+    "chain_award_exact_samples": 5,
+    "fever_all_clear_award_after_chain_end_frames": 16,
+    "all_clear_exact_samples": 2,
+    "delivery_after_source_chain_end_frames": 0,
+    "delivery_exact_samples": 22,
+    "normal_nonclear_lock_to_nuisance_check_frames": 16,
+    "normal_exact_geometry_samples": 7,
+    "normal_checked_split_rows": [
+      0,
+      6
+    ],
+    "fever_nonclear_lock_to_nuisance_check_estimate_frames": 14,
+    "fever_nonclear_lock_to_nuisance_check_frames": 14,
+    "fever_nuisance_check_status": "measured_steam_15209927_exact_geometry_rows0_and1",
+    "fever_nuisance_check_source": "baselines/2026-10-06-fever-watch-initial.json",
+    "fever_nuisance_check_exact_samples": 3,
+    "fever_nuisance_check_split_rows": [0, 1],
+    "clock_zero_input_policy": "continue_only_same_observed_controllable_piece_until_actual_lock_or_transition",
+    "normal_offset_time_reward_scope": "not_measured_by_this_request"
+  }
 }

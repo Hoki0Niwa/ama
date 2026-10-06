@@ -400,9 +400,9 @@ class NativeModeTests(unittest.TestCase):
         self.assertEqual(plan['field'],first['next_field'])
         self.assertEqual((plan['queue'],plan['source_queue']),(original['self']['queue'][1:],original['self']['queue']))
         current=copy.deepcopy(original)
-        # The clock ran on by the solver's own estimate for one placement (14 + 28 frames).
+        # Fever mode: estimated input 14 + measured nonclearing lock-to-ready 26.
         current['self'].update(field=first['next_field'],queue=original['self']['queue'][1:]+['2:BY'],
-            piece_id=1,dropset_index=1,moves_since_chain=1,remaining_frames=remaining-42)
+            piece_id=1,dropset_index=1,moves_since_chain=1,remaining_frames=remaining-40)
         return current,plan
 
     def seed_searches(self, current):
@@ -426,22 +426,24 @@ class NativeModeTests(unittest.TestCase):
     def test_fever_prefetch_misses_on_another_board_piece_seed_or_delivery(self):
         for change in ('board','queue','seed_id','delivery'):
             current,_=self.prepared_seed_request()
-            if change=='board':current['self']['field'][-1]='G'+current['self']['field'][-1][1:]
+            if change=='board':current['self']['field'][-1]=('B' if current['self']['field'][-1][0]=='G' else 'G')+current['self']['field'][-1][1:]
             elif change=='queue':current['self']['queue'][0]='2:BB'
             elif change=='seed_id':current['self']['seed_id']+=1
             else:current['self'].update(confirmed=4,fever_confirmed=4)
             reply,searches=self.seed_searches(current)
             self.assertEqual((searches,reply['seed_search_reused']),(1,False),change)
 
-    def test_fever_prefetch_survives_nuisance_that_cannot_fall_on_the_seed(self):
-        # In flight, or held back for the normal board: every piece of a Fever under attack was
-        # searched after it had appeared because of these (44 of 73 misses, 2026-10-06).
+    def test_fever_prefetch_rechecks_flying_and_held_nuisance_for_strategy_selection(self):
         current,plan=self.prepared_seed_request()
         self.assertEqual(plan['nuisance'],dict(confirmed=0))
-        current['self'].update(unconfirmed=54,fever_unconfirmed=54,normal_unconfirmed=12,remainder=31)
+        current['self'].update(unconfirmed=54,fever_unconfirmed=54,remainder=31)
         reply,searches=self.seed_searches(current)
-        self.assertEqual((searches,reply['seed_search_reused']),(0,True))
+        self.assertEqual((searches,reply['seed_search_reused']),(1,False))
         self.assertTrue(authorize_mode_reply(current,reply,current))
+        current,_=self.prepared_seed_request()
+        current['self']['normal_unconfirmed']=12
+        reply,searches=self.seed_searches(current)
+        self.assertEqual((searches,reply['seed_search_reused']),(1,False))
 
     def test_one_preparation_serves_both_modes_from_an_observed_board(self):
         # After a chain, a delivery or a new seed there is no placement to predict from: the board
@@ -498,7 +500,7 @@ class NativeModeTests(unittest.TestCase):
         self.assertEqual(self.seed_searches(current)[1],0)
         # Short of time (the seed is being fired): 30 frames of slack, then it is searched again.
         for late,searches in ((30,0),(31,1)):
-            current,_=self.prepared_seed_request(remaining=330)
+            current,_=self.prepared_seed_request(remaining=230)
             current['seed_options']['strategy']='extend'
             current['self']['remaining_frames']-=late
             self.assertEqual(self.seed_searches(current)[1],searches,late)
@@ -557,7 +559,7 @@ class NativeModeTests(unittest.TestCase):
         own.update(confirmed=3, fever_confirmed=3)
         reply = self.engine.answer(request(own))
         self.assertEqual(len(reply['seed_forecast']['path']), 1)
-        self.assertEqual(reply['seed_forecast']['strategy'], 'extend')
+        self.assertEqual(reply['seed_forecast']['strategy'], 'quick')
         self.assertEqual(reply['seed_forecast']['garbage_phase_status'], 'unknown_all_remainder_column_subsets')
         rows=list(EMPTY); rows[-1]='RRR...'
         own.update(field=rows,queue=['2:RR'],normal_confirmed=500)
@@ -667,14 +669,17 @@ class NativeModeTests(unittest.TestCase):
         req['reachable_placements']=[]
         with self.assertRaisesRegex(ValueError,'requires observed'):self.engine.answer(req)
 
-    def test_threatened_seed_ignores_enemy_motion_but_rejects_own_nuisance_changes(self):
-        req=request(); req['self'].update(unconfirmed=206,fever_unconfirmed=206)
+    def test_threatened_seed_ignores_enemy_motion_and_flying_packets_but_rejects_delivery(self):
+        req=request(side('fever', seed3(), ['2:GG'])); req['self'].update(unconfirmed=206,fever_unconfirmed=206)
         reply=self.engine.answer(req)
+        self.assertFalse(reply['fire'])
         self.assertEqual(reply['decision_dependencies'],['self'])
         latest=copy.deepcopy(req)
         latest['enemy'].update(piece_id=2,queue=['2:BG'],field=seed3(),phase='placing',remainder=3)
         self.assertTrue(authorize_mode_reply(req,reply,latest))
         latest['self'].update(unconfirmed=205,fever_unconfirmed=205)
+        self.assertTrue(authorize_mode_reply(req,reply,latest))
+        latest['self'].update(confirmed=1,fever_confirmed=1)
         with self.assertRaisesRegex(ValueError,'self state changed'):
             authorize_mode_reply(req,reply,latest)
 
@@ -706,8 +711,10 @@ class NativeModeTests(unittest.TestCase):
         rows[-1] = 'RRR#BB'
         own = side('fever', rows, ['2:RY'])
         own['seed_base'] = own['seed_chain'] = 5
+        own['remaining_frames'] = 40  # No time to draw another piece for repair.
         req = request(own); req['seed_options']['strategy'] = 'quick'
-        result = self.engine.answer(req)['seed_forecast']
+        # Solver alone; in a battle this idle clean-up fire is skipped (test_fever_tactics).
+        result = self.engine.seed_solver.solve(req['self'], 120, True, req['seed_options'], match_id='mode-test')
         self.assertFalse(result['solved'])
         self.assertTrue(all(p['chain'] == 0 for p in result['path'][:-1]))
         self.assertEqual(result['path'][-1]['chain'], 1)
@@ -716,13 +723,14 @@ class NativeModeTests(unittest.TestCase):
 
     def test_low_seed_builds_beyond_visible_fire_and_reports_only_a_heuristic(self):
         req = request()
+        req['seed_options']['strategy']='extend'
         reply = self.engine.answer(req)
         forecast = reply['seed_forecast']
         self.assertFalse(reply['fire'])
         self.assertFalse(forecast['solved'])
         self.assertFalse(forecast['requires_new_seed_after_clear'])
         self.assertEqual(forecast['objective'], 'max_chain_for_next_fever_entry')
-        self.assertEqual(forecast['desired_chain'], 6)
+        self.assertEqual(forecast['desired_chain'], 15)
         self.assertTrue(forecast['choice']['target_ignition_preserved'])
         self.assertGreater(forecast['choice']['all_clear_setup_bonus'], 0)
         self.assertEqual(forecast['choice']['extension_potential']['status'],
@@ -742,34 +750,34 @@ class NativeModeTests(unittest.TestCase):
                             p['visible_supply'] == 1 for p in needs['offsets']))
         self.assertGreater(needs['reserve_weights']['Y'], needs['reserve_weights']['G'])
 
-    def test_mainline_builder_keeps_trigger_for_the_actual_next_color(self):
+    def test_mainline_builder_move_stands_when_nothing_is_incoming(self):
         own = side('normal', seed3(), ['2:GB', '2:RR', '2:BB']); own['character'] = 'arle'
         req = request(own); req['match_id'] = 'protect-next-red'
         self.engine.prepared = None
-        # This legal move keeps a geometric three-chain but buries the red
-        # trigger needed by the visible NEXT; only the unavailable yellow remains.
+        # The one-piece colour heuristic would move this elsewhere to keep the
+        # red trigger. Measured builds were shorter with that override (9.0
+        # against 12.7 links), so the needs are reported and the move kept.
         with patch.object(self.engine.solo, 'ask', return_value=dict(x=4, r='R')):
             reply = self.engine.answer(req)
-        self.assertEqual(reply['reason'], 'normal_preserve_needed_colors')
-        self.assertNotEqual((reply['x'], reply['r']), (4, 'R'))
-        self.assertEqual(reply['normal_color_forecast']['remaining_chain'], 3)
+        self.assertEqual(reply['reason'], 'normal_build_or_fire')
+        self.assertEqual((reply['x'], reply['r']), (4, 'R'))
+        self.assertEqual(reply['normal_color_needs']['mainline_chain'], 3)
         self.assertFalse(reply['fire'])
         self.assertTrue(authorize_mode_reply(req, reply, req))
 
-    def test_prepared_normal_choice_keeps_the_visible_trigger_color(self):
+    def test_prepared_normal_choice_is_the_builder_move_and_is_reused(self):
         own = side('normal', seed3(), ['2:GB', '2:RR', '2:BB']); own['character'] = 'arle'
         req = request(own); req['match_id'] = 'prepared-protect-next-red'
         preparation = copy.deepcopy(req); preparation['op'] = 'prepare_observed'
         with patch.object(self.engine.solo, 'ask', return_value=dict(x=4, r='R')):
             prepared = self.engine.answer(preparation)
         self.assertTrue(prepared['prepared'])
-        self.assertEqual(prepared['plan']['reason'], 'normal_preserve_needed_colors')
-        self.assertNotEqual(prepared['plan']['placement'], dict(x=4, r='R'))
+        self.assertEqual(prepared['plan']['reason'], 'normal_build_or_fire')
+        self.assertEqual(prepared['plan']['placement'], dict(x=4, r='R'))
         with patch.object(self.engine.solo, 'ask', side_effect=AssertionError('unexpected new search')):
             reply = self.engine.answer(req)
         self.assertTrue(reply['normal_search_reused'])
-        self.assertEqual(reply['reason'], 'normal_preserve_needed_colors')
-        self.assertEqual(reply['normal_color_forecast']['remaining_chain'], 3)
+        self.assertEqual(reply['reason'], 'normal_build_or_fire')
         self.assertEqual(reply['searched_visible'], 2)
         self.assertTrue(authorize_mode_reply(req, reply, req))
 
@@ -804,16 +812,19 @@ class NativeModeTests(unittest.TestCase):
         self.assertGreaterEqual(reply['chain'], 3)
         self.assertFalse(reply.get('intentional_small_clear', False))
 
-    def test_seed_failure_holds_drop_when_building_loses_required_ignition(self):
+    def test_losing_immediate_target_port_does_not_force_seed_failure_while_an_ignition_survives(self):
         own = side('fever', seed_with_small_green(), ['2:GB'])
         own.update(confirmed=18, fever_confirmed=18, garbage_phase=None, garbage_phase_status='unknown')
         reply = self.engine.answer(request(own))
-        self.assertEqual(reply['chain'], 1)
-        self.assertEqual(reply['reason'], 'fever_intentional_failure_hold_nuisance')
-        self.assertTrue(reply['intentional_seed_failure'])
+        self.assertEqual(reply['chain'], 0)
+        self.assertFalse(reply.get('intentional_seed_failure', False))
+        first = reply['seed_forecast']['choice']
+        self.assertEqual(first['dropped'], 18)
+        self.assertFalse(first['dead'])
+        self.assertGreater(first['extension_potential']['chain'], 0)
+        self.assertTrue(reply['seed_forecast']['early_failure_deferred'])
         self.assertFalse(reply['seed_forecast']['solved'])
-        self.assertEqual(reply['seed_forecast']['choice']['dropped'], 0)
-        self.assertTrue(reply['replaces_seed_on_clear'])
+        self.assertFalse(reply['replaces_seed_on_clear'])
         self.assertEqual(len(reply['seed_forecast']['path']), 1)
 
     def test_offline_seed_geometry_keeps_missing_history_explicit(self):
@@ -824,31 +835,35 @@ class NativeModeTests(unittest.TestCase):
         self.assertTrue(result['solved'])
         self.assertEqual(result['extension_history_status'], 'unavailable_offline_single_seed')
 
-    def test_extension_patience_counts_placements_and_resets_for_next_seed(self):
+    def test_extension_history_does_not_force_fire_and_resets_for_next_seed(self):
         req = request(); req['match_id'] = 'extension-patience'
+        req['seed_options']['strategy']='extend'
         first = self.engine.answer(req)['seed_forecast']
         self.assertEqual(first['extension_moves'], 0)
         self.assertEqual(self.engine.answer(req)['seed_forecast']['extension_moves'], 0)
-        req['self']['piece_id'] += first['extension_patience']
-        self.assertTrue(self.engine.answer(req)['fire'])
+        req['self']['piece_id'] += first['extension_patience'] + 20
+        self.assertFalse(self.engine.answer(req)['fire'])
+        self.assertEqual(self.engine.answer(req)['seed_forecast']['extension_stop_policy'],
+                         'time_and_space_no_fixed_move_limit')
         req['self']['seed_id'] += 1
         reset = self.engine.answer(req)['seed_forecast']
         self.assertEqual(reset['extension_moves'], 0)
         self.assertEqual(reset['choice']['chain'], 0)
 
-    def test_lower_seeds_get_more_extension_attempts(self):
+    def test_seed_goal_is_large_extension_instead_of_a_small_fixed_gain(self):
         results = []
         for target in (3, 9, 15):
             own = side('fever', seed3()); own.update(seed_chain=target, seed_base=target)
             results.append(self.engine.answer(request(own))['seed_forecast'])
         self.assertEqual([r['extension_patience'] for r in results], [12, 6, 0])
-        self.assertEqual([r['desired_chain'] for r in results], [6, 10, 15])
+        self.assertEqual([r['desired_chain'] for r in results], [15, 15, 15])
 
     def test_seed_accepts_two_garbage_rows_when_target_ignition_remains(self):
         for count in (6, 12):
             own = side('fever', seed3())
             own.update(confirmed=count, fever_confirmed=count, garbage_phase=None, garbage_phase_status='unknown')
-            reply = self.engine.answer(request(own)); first = reply['seed_forecast']['choice']
+            req=request(own);req['seed_options']['strategy']='extend'
+            reply = self.engine.answer(req); first = reply['seed_forecast']['choice']
             self.assertEqual(first['chain'], 0)
             self.assertEqual(first['dropped'], count)
             self.assertTrue(first['target_ignition_preserved'])
@@ -878,6 +893,7 @@ class NativeModeTests(unittest.TestCase):
 
     def test_fever_recovery_keeps_extension_inside_observed_reachable_moves(self):
         req = request(); req.update(op='recover_placement', reachable_placements=[dict(x=2, r='U')])
+        req['seed_options']['strategy']='extend'
         reply = self.engine.answer(req)
         self.assertEqual((reply['x'], reply['r']), (2, 'U'))
         self.assertFalse(reply['fire'])
@@ -937,12 +953,12 @@ class NativeModeTests(unittest.TestCase):
         latest['self']['remaining_frames'] -= 5
         self.assertTrue(authorize_mode_reply(req, reply, latest))
 
-    def test_short_timer_wait_and_expired_timer_never_place(self):
+    def test_short_and_expired_timer_finish_the_observed_active_piece(self):
         req = request()
         req['self']['remaining_frames'] = 1
-        self.assertEqual(self.engine.answer(req)['action'], 'wait')
+        self.assertEqual(self.engine.answer(req)['action'], 'place')
         req['self']['remaining_frames'] = 0
-        self.assertEqual(self.engine.answer(req)['action'], 'wait')
+        self.assertEqual(self.engine.answer(req)['action'], 'place')
 
     def test_normal_return_uses_normal_scoring_with_fever_enemy(self):
         req = request(side(), side('fever', seed3()))
@@ -1082,7 +1098,7 @@ class NativeModeTests(unittest.TestCase):
         self.assertEqual(seed_strategy(own, enemy, 100)[0], 'extend')
         own['fever_confirmed'] = 0
         own['remaining_frames'] = 120
-        self.assertEqual(seed_strategy(own, enemy, 100)[0], 'quick')
+        self.assertEqual(seed_strategy(own, enemy, 100)[0], 'extend')
 
     def test_countdown_can_finish_active_chain_but_never_accept_stale_deadline(self):
         req = request()
@@ -1097,8 +1113,7 @@ class NativeModeTests(unittest.TestCase):
         for who in ('self', 'enemy'):
             latest[who]['observed_frame'] = elapsed
         latest['self']['remaining_frames'] -= elapsed
-        with self.assertRaises(ValueError):
-            authorize_mode_reply(req, reply, latest)
+        self.assertTrue(authorize_mode_reply(req, reply, latest))
 
     def test_json_lines_refuses_non_object_and_keeps_session_alive(self):
         with JsonProcess([sys.executable, '-m', 'fever_battle.mode_engine', '--native', NATIVE,

@@ -12,5 +12,15 @@
     "patience_step": 3
   },
   "reset_moves_at_chain": 4,
+  "fever_defense": {
+    "status": "prototype_heuristic_not_battle_tuned",
+    "hoard_max_central_height": 8,
+    "mainline_min_chain": 13
+  },
+  "fever_end": {
+    "status": "prototype_heuristic_not_battle_tuned",
+    "harmless_carry": 5,
+    "min_attack": 30
+  },
   "note": "One shared policy for all characters. Immediate offset can override solo construction. Actual battle timing and threat tactics remain uncalibrated."
 }

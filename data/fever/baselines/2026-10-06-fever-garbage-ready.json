@@ -1,0 +1,169 @@
+{
+  "status": "steam_observed_fever_nonclear_drop_to_next_operable_piece_not_universal_bound",
+  "source_report": "data\\fever\\baselines\\2026-10-06-fever-watch-latest.json",
+  "source_report_sha256": "e8f2f12144094e48926ad11cd40fd5c9eb02a34937b326344fe6a7ca6eba2812",
+  "sources": [
+    {
+      "path": "bin\\t15\\fever-watch-20261006-1659\\segment-000.jsonl.gz",
+      "sha256": "b71d8c767e0acbd02c89922281e9dc66bef643b46c4e12e685365e1c797a0543"
+    },
+    {
+      "path": "bin\\t15\\fever-watch-20261006-1659\\segment-001.jsonl.gz",
+      "sha256": "3206732f177726804a2e986532b94f658a379f34b511d44ecd0d6c9909ab82d0"
+    },
+    {
+      "path": "bin\\t15\\fever-watch-20261006-1659\\segment-002.jsonl.gz",
+      "sha256": "98013be385b3aaa528b86d403b81c48551d0d118a5729fe53c4ced022c052f66"
+    },
+    {
+      "path": "bin\\t15\\fever-watch-20261006-1659\\segment-003.jsonl.gz",
+      "sha256": "9bac327dc26d17a538a589229948291c4564f9b9b037a16483a08628b6553000"
+    },
+    {
+      "path": "bin\\t15\\fever-watch-20261006-1659\\segment-004.jsonl.gz",
+      "sha256": "a78923fbdf7dc5f45cbda8004e2a92670348a6e186c7683a89ab15615b54bb0b"
+    },
+    {
+      "path": "bin\\t15\\fever-watch-20261006-1659\\segment-005.jsonl.gz",
+      "sha256": "5feb539bd8c9308f4384189fb15ed9218d1f868264a1ea38ec233525f1c0505a"
+    },
+    {
+      "path": "bin\\t15\\fever-watch-20261006-1659\\segment-006.jsonl.gz",
+      "sha256": "cbcd3ffb125235072bcb66e278390f56f18e0c402f4be3c41d953ae77c33b9dd"
+    },
+    {
+      "path": "bin\\t15\\fever-watch-20261006-1659\\segment-007.jsonl.gz",
+      "sha256": "ce280f0c2d38060694be4aee1592d0efd12afdd0f7a8f514d4c393a1e67d7301"
+    },
+    {
+      "path": "bin\\t15\\fever-watch-20261006-1659\\segment-008.jsonl.gz",
+      "sha256": "4dfacfc513db1e554b3b77fb9d68e70b471a4c2916b172a2bd342c157da9de13"
+    }
+  ],
+  "measurements": [
+    {
+      "epoch": 5,
+      "seat": 2,
+      "drop_frame": 3102,
+      "drop_edge_exact": false,
+      "count": 1,
+      "placed": 35,
+      "queue_index": 2,
+      "ready_frame": 3143,
+      "ready_edge_exact": true,
+      "drop_to_operable_frames": 41
+    },
+    {
+      "epoch": 6,
+      "seat": 2,
+      "drop_frame": 2824,
+      "drop_edge_exact": true,
+      "count": 30,
+      "placed": 29,
+      "queue_index": 12,
+      "ready_frame": 2895,
+      "ready_edge_exact": true,
+      "drop_to_operable_frames": 71
+    },
+    {
+      "epoch": 8,
+      "seat": 2,
+      "drop_frame": 5134,
+      "drop_edge_exact": false,
+      "count": 30,
+      "placed": 56,
+      "queue_index": 7,
+      "ready_frame": 5205,
+      "ready_edge_exact": true,
+      "drop_to_operable_frames": 71
+    },
+    {
+      "epoch": 15,
+      "seat": 2,
+      "drop_frame": 5801,
+      "drop_edge_exact": true,
+      "count": 12,
+      "placed": 64,
+      "queue_index": 15,
+      "ready_frame": 5856,
+      "ready_edge_exact": true,
+      "drop_to_operable_frames": 55
+    },
+    {
+      "epoch": 15,
+      "seat": 2,
+      "drop_frame": 5898,
+      "drop_edge_exact": true,
+      "count": 4,
+      "placed": 65,
+      "queue_index": 0,
+      "ready_frame": 5948,
+      "ready_edge_exact": true,
+      "drop_to_operable_frames": 50
+    },
+    {
+      "epoch": 22,
+      "seat": 2,
+      "drop_frame": 3043,
+      "drop_edge_exact": true,
+      "count": 1,
+      "placed": 36,
+      "queue_index": 3,
+      "ready_frame": 3089,
+      "ready_edge_exact": true,
+      "drop_to_operable_frames": 46
+    }
+  ],
+  "exact_measurements": [
+    {
+      "epoch": 6,
+      "seat": 2,
+      "drop_frame": 2824,
+      "drop_edge_exact": true,
+      "count": 30,
+      "placed": 29,
+      "queue_index": 12,
+      "ready_frame": 2895,
+      "ready_edge_exact": true,
+      "drop_to_operable_frames": 71
+    },
+    {
+      "epoch": 15,
+      "seat": 2,
+      "drop_frame": 5801,
+      "drop_edge_exact": true,
+      "count": 12,
+      "placed": 64,
+      "queue_index": 15,
+      "ready_frame": 5856,
+      "ready_edge_exact": true,
+      "drop_to_operable_frames": 55
+    },
+    {
+      "epoch": 15,
+      "seat": 2,
+      "drop_frame": 5898,
+      "drop_edge_exact": true,
+      "count": 4,
+      "placed": 65,
+      "queue_index": 0,
+      "ready_frame": 5948,
+      "ready_edge_exact": true,
+      "drop_to_operable_frames": 50
+    },
+    {
+      "epoch": 22,
+      "seat": 2,
+      "drop_frame": 3043,
+      "drop_edge_exact": true,
+      "count": 1,
+      "placed": 36,
+      "queue_index": 3,
+      "ready_frame": 3089,
+      "ready_edge_exact": true,
+      "drop_to_operable_frames": 46
+    }
+  ],
+  "estimate_frames": 80,
+  "estimate_status": "observed_max_71_plus_9_margin_not_universal_bound"
+}

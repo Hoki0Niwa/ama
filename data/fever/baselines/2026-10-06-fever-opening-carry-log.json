@@ -1,0 +1,1253 @@
+{
+  "status": "historical_log_not_post_fix_live_acceptance",
+  "log_bytes": 892602,
+  "log_sha256": "f8e51726e3c5c57526855b124fc88b94893985326a3ca0eafe97c3d7fc562c4a",
+  "event_counts": {
+    "duel ready": 1,
+    "battle settings": 1,
+    "null": 2,
+    "controller assignment": 5,
+    "planning": 666,
+    "locked": 256,
+    "big puyo: the other turn button": 2,
+    "fire": 41,
+    "pre-input released": 14,
+    "repeated": 20,
+    "paused": 8,
+    "resumed": 6,
+    "analysis failed, retrying": 1
+  },
+  "anomaly_count": 8,
+  "anomalies": [
+    {
+      "index": 217,
+      "event": {
+        "auto": "locked",
+        "pair": 27,
+        "placed": 27,
+        "index": 11,
+        "piece": "0:R",
+        "mode": "normal",
+        "x": 4,
+        "r": "U",
+        "target": [
+          4,
+          "R"
+        ],
+        "chain": 0,
+        "score": 0,
+        "next_chain": 0,
+        "color": "R",
+        "pre": "RD",
+        "pre_ms": [
+          47,
+          47,
+          null
+        ],
+        "on_target": true,
+        "aligned": true,
+        "aim_ms": 141,
+        "way": "direct",
+        "stopped_short": true,
+        "path": [
+          [
+            0,
+            2.0,
+            -0.5,
+            "R",
+            10
+          ],
+          [
+            16,
+            2.5,
+            -0.46,
+            "R",
+            10
+          ],
+          [
+            32,
+            3.0,
+            -0.42,
+            "R",
+            10
+          ],
+          [
+            78,
+            3.0,
+            1.08,
+            "R",
+            2
+          ],
+          [
+            94,
+            3.0,
+            1.58,
+            "R",
+            10
+          ],
+          [
+            125,
+            3.5,
+            2.12,
+            "R",
+            2
+          ]
+        ],
+        "frame": 2532,
+        "lock_ms": 375,
+        "ai": 1,
+        "t": 67.687
+      },
+      "preceding_planning": {
+        "auto": "planning",
+        "cache": "prepare",
+        "prepared": true,
+        "observed": false,
+        "mode": "normal",
+        "normal_build_prepared": false,
+        "search_ms": 155.9999999590218,
+        "reason": null,
+        "ai": 1,
+        "t": 67.625
+      }
+    },
+    {
+      "index": 535,
+      "event": {
+        "auto": "locked",
+        "pair": 20,
+        "placed": 20,
+        "index": 4,
+        "piece": "2:GB",
+        "mode": "normal",
+        "x": 0,
+        "r": "D",
+        "target": [
+          0,
+          2
+        ],
+        "chain": 0,
+        "score": 0,
+        "next_chain": 0,
+        "pre": "LT",
+        "pre_ms": [
+          47,
+          null,
+          47
+        ],
+        "on_target": true,
+        "aligned": true,
+        "aim_ms": 141,
+        "way": "direct",
+        "stopped_short": true,
+        "path": [
+          [
+            0,
+            2.0,
+            -0.5,
+            1,
+            4
+          ],
+          [
+            0,
+            1.5,
+            -0.46,
+            1,
+            4
+          ],
+          [
+            16,
+            1.0,
+            -0.42,
+            1,
+            4
+          ],
+          [
+            31,
+            1.0,
+            -0.42,
+            1,
+            8196
+          ],
+          [
+            31,
+            1.0,
+            -0.38,
+            2,
+            4
+          ],
+          [
+            63,
+            1.0,
+            -0.3,
+            2,
+            0
+          ],
+          [
+            78,
+            1.0,
+            -0.27,
+            2,
+            4
+          ],
+          [
+            125,
+            0.5,
+            -0.19,
+            2,
+            0
+          ]
+        ],
+        "frame": 1321,
+        "lock_ms": 297,
+        "ai": 1,
+        "t": 199.906
+      },
+      "preceding_planning": {
+        "auto": "planning",
+        "cache": "prepare",
+        "prepared": true,
+        "observed": false,
+        "mode": "normal",
+        "normal_build_prepared": false,
+        "search_ms": 94.0000000409782,
+        "reason": null,
+        "ai": 1,
+        "t": 199.844
+      }
+    },
+    {
+      "index": 558,
+      "event": {
+        "auto": "locked",
+        "pair": 24,
+        "placed": 24,
+        "index": 8,
+        "piece": "2:YG",
+        "mode": "normal",
+        "x": 0,
+        "r": "R",
+        "target": [
+          0,
+          1
+        ],
+        "chain": 0,
+        "score": 0,
+        "next_chain": 0,
+        "pre": "LT",
+        "pre_ms": [
+          47,
+          null,
+          47
+        ],
+        "on_target": true,
+        "aligned": true,
+        "aim_ms": 140,
+        "way": "direct",
+        "stopped_short": true,
+        "path": [
+          [
+            0,
+            2.0,
+            -0.5,
+            1,
+            4
+          ],
+          [
+            0,
+            1.5,
+            -0.46,
+            1,
+            4
+          ],
+          [
+            15,
+            1.0,
+            -0.42,
+            1,
+            4
+          ],
+          [
+            78,
+            1.0,
+            -0.3,
+            1,
+            0
+          ],
+          [
+            94,
+            1.0,
+            -0.27,
+            1,
+            4
+          ],
+          [
+            125,
+            0.5,
+            -0.19,
+            1,
+            0
+          ]
+        ],
+        "frame": 1527,
+        "lock_ms": 328,
+        "ai": 2,
+        "t": 203.328
+      },
+      "preceding_planning": {
+        "auto": "planning",
+        "cache": "prepare",
+        "prepared": true,
+        "observed": false,
+        "mode": "normal",
+        "normal_build_prepared": false,
+        "search_ms": 79.00000002700835,
+        "reason": null,
+        "ai": 2,
+        "t": 203.219
+      }
+    },
+    {
+      "index": 561,
+      "event": {
+        "auto": "locked",
+        "pair": 24,
+        "placed": 24,
+        "index": 8,
+        "piece": "2:BY",
+        "mode": "normal",
+        "x": 0,
+        "r": "R",
+        "target": [
+          0,
+          1
+        ],
+        "chain": 0,
+        "score": 0,
+        "next_chain": 0,
+        "pre": "LT",
+        "pre_ms": [
+          31,
+          null,
+          31
+        ],
+        "on_target": true,
+        "aligned": true,
+        "aim_ms": 141,
+        "way": "direct",
+        "stopped_short": true,
+        "path": [
+          [
+            16,
+            2.0,
+            -0.5,
+            1,
+            4
+          ],
+          [
+            16,
+            1.5,
+            -0.46,
+            1,
+            4
+          ],
+          [
+            31,
+            1.0,
+            -0.42,
+            1,
+            4
+          ],
+          [
+            94,
+            1.0,
+            -0.3,
+            1,
+            0
+          ],
+          [
+            94,
+            1.0,
+            -0.27,
+            1,
+            4
+          ],
+          [
+            141,
+            0.5,
+            -0.19,
+            1,
+            0
+          ]
+        ],
+        "frame": 1578,
+        "lock_ms": 219,
+        "ai": 1,
+        "t": 204.047
+      },
+      "preceding_planning": {
+        "auto": "planning",
+        "mode": "normal",
+        "pair": 24,
+        "cache": "prefetched",
+        "wait_ms": 0.0,
+        "search_ms": 0.0,
+        "search_reused": true,
+        "normal_build_search_reused": false,
+        "normal_build_searched_visible": null,
+        "searched_visible": 2,
+        "beam_width": 250,
+        "beam_depth": 8,
+        "margin": 1,
+        "trigger": 15,
+        "panic_chain": 13,
+        "panic_count": 70,
+        "panic_step": 2,
+        "patience": 46,
+        "queue": [
+          "2:BY",
+          "4:GGBB",
+          "L:BBY"
+        ],
+        "field": "....../....../....../....RB/#..GGB/B..YRR/G..YBG/BY.RBY/RY.RRY/RG.YYG/RYGRBG/BGRRGB/BBYYGB/GGYRRB",
+        "move": "0R",
+        "reason": "normal_build_or_fire",
+        "nuisance": [
+          0,
+          0
+        ],
+        "gauge": 1,
+        "remaining_frames": 0,
+        "decision_identity": {
+          "match_id": "202737473cb6479a807dc655d34e30fd-round-2",
+          "frame": 1569,
+          "piece_id": 24,
+          "dropset_index": 8,
+          "mode_generation": 0,
+          "seed_id": 0
+        },
+        "ai": 1,
+        "t": 203.828
+      }
+    },
+    {
+      "index": 777,
+      "event": {
+        "auto": "locked",
+        "pair": 21,
+        "placed": 21,
+        "index": 5,
+        "piece": "2:RB",
+        "mode": "normal",
+        "x": 0,
+        "r": "D",
+        "target": [
+          0,
+          2
+        ],
+        "chain": 0,
+        "score": 0,
+        "next_chain": 0,
+        "pre": "LT",
+        "pre_ms": [
+          47,
+          null,
+          47
+        ],
+        "on_target": true,
+        "aligned": true,
+        "aim_ms": 141,
+        "way": "direct",
+        "stopped_short": true,
+        "path": [
+          [
+            0,
+            2.0,
+            -0.5,
+            1,
+            4
+          ],
+          [
+            0,
+            1.5,
+            -0.46,
+            1,
+            4
+          ],
+          [
+            16,
+            1.0,
+            -0.42,
+            1,
+            4
+          ],
+          [
+            31,
+            1.0,
+            -0.42,
+            1,
+            8196
+          ],
+          [
+            31,
+            1.0,
+            -0.38,
+            2,
+            4
+          ],
+          [
+            63,
+            1.0,
+            -0.3,
+            2,
+            0
+          ],
+          [
+            78,
+            1.0,
+            -0.27,
+            2,
+            4
+          ],
+          [
+            109,
+            0.5,
+            -0.19,
+            2,
+            0
+          ]
+        ],
+        "frame": 1338,
+        "lock_ms": 328,
+        "ai": 1,
+        "t": 251.859
+      },
+      "preceding_planning": {
+        "auto": "planning",
+        "cache": "prepare",
+        "prepared": true,
+        "observed": false,
+        "mode": "normal",
+        "normal_build_prepared": false,
+        "search_ms": 31.00000007543713,
+        "reason": null,
+        "ai": 1,
+        "t": 251.719
+      }
+    },
+    {
+      "index": 784,
+      "event": {
+        "auto": "locked",
+        "pair": 23,
+        "placed": 23,
+        "index": 7,
+        "piece": "2:GB",
+        "mode": "normal",
+        "x": 4,
+        "r": "D",
+        "target": [
+          4,
+          2
+        ],
+        "chain": 0,
+        "score": 0,
+        "next_chain": 0,
+        "pre": "RT",
+        "pre_ms": [
+          31,
+          null,
+          31
+        ],
+        "on_target": true,
+        "aligned": true,
+        "aim_ms": 141,
+        "way": "direct",
+        "stopped_short": true,
+        "path": [
+          [
+            0,
+            2.0,
+            -0.5,
+            1,
+            8
+          ],
+          [
+            16,
+            2.5,
+            -0.46,
+            1,
+            8
+          ],
+          [
+            31,
+            3.0,
+            -0.42,
+            1,
+            8200
+          ],
+          [
+            47,
+            3.0,
+            -0.38,
+            2,
+            8
+          ],
+          [
+            78,
+            3.0,
+            -0.3,
+            2,
+            0
+          ],
+          [
+            94,
+            3.0,
+            -0.27,
+            2,
+            8
+          ],
+          [
+            125,
+            3.5,
+            -0.19,
+            2,
+            0
+          ]
+        ],
+        "frame": 1389,
+        "lock_ms": 344,
+        "ai": 2,
+        "t": 252.703
+      },
+      "preceding_planning": {
+        "auto": "planning",
+        "cache": "prepare",
+        "prepared": true,
+        "observed": false,
+        "mode": "normal",
+        "normal_build_prepared": false,
+        "search_ms": 47.0000000204891,
+        "reason": null,
+        "ai": 2,
+        "t": 252.547
+      }
+    },
+    {
+      "index": 870,
+      "event": {
+        "auto": "locked",
+        "pair": 29,
+        "placed": 29,
+        "index": 13,
+        "piece": "4:GGYY",
+        "mode": "normal",
+        "x": 0,
+        "r": "D",
+        "target": [
+          0,
+          2
+        ],
+        "chain": 0,
+        "score": 0,
+        "next_chain": 0,
+        "pre": "LT",
+        "pre_ms": [
+          47,
+          null,
+          47
+        ],
+        "on_target": true,
+        "aligned": true,
+        "aim_ms": 125,
+        "way": "direct",
+        "stopped_short": true,
+        "path": [
+          [
+            0,
+            2.0,
+            -0.5,
+            1,
+            4
+          ],
+          [
+            0,
+            1.5,
+            -0.46,
+            1,
+            4
+          ],
+          [
+            16,
+            1.0,
+            -0.42,
+            1,
+            4
+          ],
+          [
+            32,
+            1.0,
+            -0.42,
+            1,
+            8196
+          ],
+          [
+            32,
+            1.0,
+            -0.38,
+            2,
+            4
+          ],
+          [
+            63,
+            1.0,
+            -0.3,
+            2,
+            0
+          ],
+          [
+            78,
+            1.0,
+            -0.27,
+            2,
+            4
+          ],
+          [
+            110,
+            0.5,
+            -0.19,
+            2,
+            0
+          ]
+        ],
+        "frame": 2807,
+        "lock_ms": 297,
+        "ai": 1,
+        "t": 275.984
+      },
+      "preceding_planning": {
+        "auto": "planning",
+        "cache": "prepare",
+        "prepared": true,
+        "observed": false,
+        "mode": "normal",
+        "normal_build_prepared": false,
+        "search_ms": 93.99999992456287,
+        "reason": null,
+        "ai": 1,
+        "t": 275.922
+      }
+    },
+    {
+      "index": 1016,
+      "event": {
+        "auto": "locked",
+        "pair": 52,
+        "placed": 52,
+        "index": 4,
+        "piece": "2:BB",
+        "mode": "normal",
+        "x": 5,
+        "r": "U",
+        "target": [
+          5,
+          0
+        ],
+        "chain": 0,
+        "score": 0,
+        "next_chain": 0,
+        "pre": "R",
+        "pre_ms": [
+          46,
+          null,
+          null
+        ],
+        "on_target": true,
+        "aligned": true,
+        "aim_ms": 188,
+        "way": "direct",
+        "stopped_short": true,
+        "path": [
+          [
+            0,
+            2.0,
+            -0.5,
+            0,
+            8
+          ],
+          [
+            0,
+            2.5,
+            -0.46,
+            0,
+            8
+          ],
+          [
+            16,
+            3.0,
+            -0.42,
+            0,
+            8
+          ],
+          [
+            63,
+            3.0,
+            -0.3,
+            0,
+            0
+          ],
+          [
+            79,
+            3.0,
+            -0.27,
+            0,
+            8
+          ],
+          [
+            110,
+            3.5,
+            -0.19,
+            0,
+            0
+          ],
+          [
+            141,
+            4.0,
+            -0.15,
+            0,
+            8
+          ],
+          [
+            172,
+            4.5,
+            -0.07,
+            0,
+            0
+          ]
+        ],
+        "frame": 4341,
+        "lock_ms": 297,
+        "ai": 1,
+        "t": 301.187
+      },
+      "preceding_planning": {
+        "auto": "planning",
+        "cache": "prepare",
+        "prepared": true,
+        "observed": false,
+        "mode": "normal",
+        "normal_build_prepared": false,
+        "search_ms": 15.999999945051968,
+        "reason": null,
+        "ai": 1,
+        "t": 301.094
+      }
+    }
+  ],
+  "opening_decisions": [
+    {
+      "auto": "planning",
+      "mode": "normal",
+      "pair": 0,
+      "cache": "miss",
+      "wait_ms": 187.0,
+      "search_ms": 187.00000003445894,
+      "search_reused": false,
+      "normal_build_search_reused": false,
+      "normal_build_searched_visible": null,
+      "searched_visible": 3,
+      "beam_width": 250,
+      "beam_depth": 8,
+      "margin": 1,
+      "trigger": 15,
+      "panic_chain": 13,
+      "panic_count": 70,
+      "panic_step": 2,
+      "patience": 46,
+      "queue": [
+        "2:RG",
+        "2:BB",
+        "2:GG"
+      ],
+      "field": "....../....../....../....../....../....../....../....../....../....../....../....../....../......",
+      "move": "5U",
+      "reason": "normal_build_or_fire",
+      "nuisance": [
+        0,
+        0
+      ],
+      "gauge": 0,
+      "remaining_frames": 0,
+      "decision_identity": {
+        "match_id": "202737473cb6479a807dc655d34e30fd-round-1",
+        "frame": 13,
+        "piece_id": 0,
+        "dropset_index": 0,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "ai": 1,
+      "t": 26.187
+    },
+    {
+      "auto": "planning",
+      "mode": "normal",
+      "pair": 0,
+      "cache": "miss",
+      "wait_ms": 187.0,
+      "search_ms": 187.00000003445894,
+      "search_reused": false,
+      "normal_build_search_reused": false,
+      "normal_build_searched_visible": null,
+      "searched_visible": 3,
+      "beam_width": 250,
+      "beam_depth": 8,
+      "margin": 1,
+      "trigger": 15,
+      "panic_chain": 13,
+      "panic_count": 70,
+      "panic_step": 2,
+      "patience": 46,
+      "queue": [
+        "2:RG",
+        "2:BB",
+        "2:GG"
+      ],
+      "field": "....../....../....../....../....../....../....../....../....../....../....../....../....../......",
+      "move": "1D",
+      "reason": "normal_build_or_fire",
+      "nuisance": [
+        0,
+        0
+      ],
+      "gauge": 0,
+      "remaining_frames": 0,
+      "decision_identity": {
+        "match_id": "be5aeaf21bcd4136b4ff8fbd2a86a884-round-1",
+        "frame": 13,
+        "piece_id": 0,
+        "dropset_index": 0,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "ai": 2,
+      "t": 26.187
+    },
+    {
+      "auto": "planning",
+      "mode": "normal",
+      "pair": 0,
+      "cache": "miss",
+      "wait_ms": 203.0,
+      "search_ms": 202.9999999795109,
+      "search_reused": false,
+      "normal_build_search_reused": false,
+      "normal_build_searched_visible": null,
+      "searched_visible": 3,
+      "beam_width": 250,
+      "beam_depth": 8,
+      "margin": 1,
+      "trigger": 15,
+      "panic_chain": 13,
+      "panic_count": 70,
+      "panic_step": 2,
+      "patience": 46,
+      "queue": [
+        "2:RG",
+        "2:BB",
+        "2:GB"
+      ],
+      "field": "....../....../....../....../....../....../....../....../....../....../....../....../....../......",
+      "move": "4D",
+      "reason": "normal_build_or_fire",
+      "nuisance": [
+        0,
+        0
+      ],
+      "gauge": 0,
+      "remaining_frames": 0,
+      "decision_identity": {
+        "match_id": "be5aeaf21bcd4136b4ff8fbd2a86a884-round-2",
+        "frame": 13,
+        "piece_id": 0,
+        "dropset_index": 0,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "ai": 2,
+      "t": 115.281
+    },
+    {
+      "auto": "planning",
+      "mode": "normal",
+      "pair": 0,
+      "cache": "miss",
+      "wait_ms": 219.0,
+      "search_ms": 218.99999992456287,
+      "search_reused": false,
+      "normal_build_search_reused": false,
+      "normal_build_searched_visible": null,
+      "searched_visible": 3,
+      "beam_width": 250,
+      "beam_depth": 8,
+      "margin": 1,
+      "trigger": 15,
+      "panic_chain": 13,
+      "panic_count": 70,
+      "panic_step": 2,
+      "patience": 46,
+      "queue": [
+        "2:RG",
+        "2:BB",
+        "2:GB"
+      ],
+      "field": "....../....../....../....../....../....../....../....../....../....../....../....../....../......",
+      "move": "4U",
+      "reason": "normal_build_or_fire",
+      "nuisance": [
+        0,
+        0
+      ],
+      "gauge": 0,
+      "remaining_frames": 0,
+      "decision_identity": {
+        "match_id": "202737473cb6479a807dc655d34e30fd-round-2",
+        "frame": 13,
+        "piece_id": 0,
+        "dropset_index": 0,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "ai": 1,
+      "t": 115.297
+    },
+    {
+      "auto": "planning",
+      "mode": "normal",
+      "pair": 0,
+      "cache": "miss",
+      "wait_ms": 235.0,
+      "search_ms": 219.0000000409782,
+      "search_reused": false,
+      "normal_build_search_reused": false,
+      "normal_build_searched_visible": null,
+      "searched_visible": 3,
+      "beam_width": 250,
+      "beam_depth": 8,
+      "margin": 1,
+      "trigger": 15,
+      "panic_chain": 13,
+      "panic_count": 70,
+      "panic_step": 2,
+      "patience": 46,
+      "queue": [
+        "2:RG",
+        "2:BR",
+        "2:YB"
+      ],
+      "field": "....../....../....../....../....../....../....../....../....../....../....../....../....../......",
+      "move": "5L",
+      "reason": "normal_build_or_fire",
+      "nuisance": [
+        0,
+        0
+      ],
+      "gauge": 0,
+      "remaining_frames": 0,
+      "decision_identity": {
+        "match_id": "202737473cb6479a807dc655d34e30fd-round-3",
+        "frame": 13,
+        "piece_id": 0,
+        "dropset_index": 0,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "ai": 1,
+      "t": 230.047
+    },
+    {
+      "auto": "planning",
+      "mode": "normal",
+      "pair": 0,
+      "cache": "miss",
+      "wait_ms": 235.0,
+      "search_ms": 219.0000000409782,
+      "search_reused": false,
+      "normal_build_search_reused": false,
+      "normal_build_searched_visible": null,
+      "searched_visible": 3,
+      "beam_width": 250,
+      "beam_depth": 8,
+      "margin": 1,
+      "trigger": 15,
+      "panic_chain": 13,
+      "panic_count": 70,
+      "panic_step": 2,
+      "patience": 46,
+      "queue": [
+        "2:RG",
+        "2:BR",
+        "2:YB"
+      ],
+      "field": "....../....../....../....../....../....../....../....../....../....../....../....../....../......",
+      "move": "1R",
+      "reason": "normal_build_or_fire",
+      "nuisance": [
+        0,
+        0
+      ],
+      "gauge": 0,
+      "remaining_frames": 0,
+      "decision_identity": {
+        "match_id": "be5aeaf21bcd4136b4ff8fbd2a86a884-round-3",
+        "frame": 13,
+        "piece_id": 0,
+        "dropset_index": 0,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "ai": 2,
+      "t": 230.047
+    }
+  ],
+  "analysis_failures": [
+    {
+      "auto": "analysis failed, retrying",
+      "reason": "placement is no longer reachable from the observed pose",
+      "move": "0D",
+      "piece": "L:BBR",
+      "field": "....../....../....../....../....../....../.....G/.....G/....BR/...GGR/...RBB/...YYB/BR.RYR/BRRGGR",
+      "trace": [],
+      "decision_identity": {
+        "match_id": "202737473cb6479a807dc655d34e30fd-round-3",
+        "frame": 635,
+        "piece_id": 10,
+        "dropset_index": 10,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "ai": 1,
+      "t": 240.125
+    }
+  ],
+  "pre_input_releases": [
+    {
+      "auto": "pre-input released",
+      "why": "chain",
+      "state": "invalid",
+      "held_ms": null,
+      "ai": 2,
+      "t": 47.781
+    },
+    {
+      "auto": "pre-input released",
+      "why": "chain",
+      "state": "invalid",
+      "held_ms": 156,
+      "ai": 1,
+      "t": 82.812
+    },
+    {
+      "auto": "pre-input released",
+      "why": "not ours to press",
+      "state": "invalid",
+      "held_ms": 422,
+      "ai": 2,
+      "t": 122.719
+    },
+    {
+      "auto": "pre-input released",
+      "why": "chain",
+      "state": "invalid",
+      "held_ms": 188,
+      "ai": 1,
+      "t": 193.719
+    },
+    {
+      "auto": "pre-input released",
+      "why": "chain",
+      "state": "invalid",
+      "held_ms": null,
+      "ai": 2,
+      "t": 196.5
+    },
+    {
+      "auto": "pre-input released",
+      "why": "chain",
+      "state": "invalid",
+      "held_ms": 140,
+      "ai": 2,
+      "t": 201.562
+    },
+    {
+      "auto": "pre-input released",
+      "why": "nuisance",
+      "state": "invalid",
+      "held_ms": null,
+      "ai": 1,
+      "t": 202.078
+    },
+    {
+      "auto": "pre-input released",
+      "why": "chain",
+      "state": "invalid",
+      "held_ms": null,
+      "ai": 1,
+      "t": 206.703
+    },
+    {
+      "auto": "pre-input released",
+      "why": "nuisance",
+      "state": "invalid",
+      "held_ms": 235,
+      "ai": 2,
+      "t": 207.094
+    },
+    {
+      "auto": "pre-input released",
+      "why": "chain",
+      "state": "invalid",
+      "held_ms": 109,
+      "ai": 2,
+      "t": 209.484
+    },
+    {
+      "auto": "pre-input released",
+      "why": "chain",
+      "state": "invalid",
+      "held_ms": 188,
+      "ai": 1,
+      "t": 250.047
+    },
+    {
+      "auto": "pre-input released",
+      "why": "nuisance",
+      "state": "invalid",
+      "held_ms": null,
+      "ai": 2,
+      "t": 250.453
+    },
+    {
+      "auto": "pre-input released",
+      "why": "chain",
+      "state": "invalid",
+      "held_ms": 219,
+      "ai": 1,
+      "t": 289.922
+    },
+    {
+      "auto": "pre-input released",
+      "why": "chain",
+      "state": "invalid",
+      "held_ms": 203,
+      "ai": 1,
+      "t": 302.031
+    }
+  ],
+  "limitations": [
+    "Historical rejection logs do not name changed state keys.",
+    "Animation-boundary pre-input releases are necessary, not classified as bugs.",
+    "A stopped-short trace can still end at the correct target.",
+    "Counts describe this byte snapshot only; the log may continue growing."
+  ]
+}

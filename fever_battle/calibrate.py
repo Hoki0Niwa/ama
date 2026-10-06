@@ -6,6 +6,7 @@ timing constants. Reject reset boundaries, CPU scratch boards and missed edges.
 import argparse
 from collections import defaultdict
 import hashlib
+import gzip
 import json
 import math
 from pathlib import Path
@@ -41,7 +42,9 @@ def epochs(path):
 
 
 def records(path):
-    with Path(path).open(encoding='utf-8') as source:
+    path = Path(path)
+    context = gzip.open(path, 'rt', encoding='utf-8') if path.suffix == '.gz' else path.open(encoding='utf-8')
+    with context as source:
         for line in source:
             if not line.endswith('\n'):
                 # A recording in progress may have an unfinished final write.

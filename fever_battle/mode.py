@@ -36,6 +36,7 @@ class ModePlayer(Player):
     seed_chain: int = 5
     next_seed_chain: int = 5
     normal_all_clear_entry_bonus: bool = False
+    all_clear_reward_at: int | None = None
 
     def pending(self, confirmed=None):
         # During Fever, offset Fever-side nuisance before held normal nuisance.
@@ -77,8 +78,16 @@ class ModeReferee(Referee):
         frame = integer(event['frame'], 'frame')
         elapsed = max(0, frame - max(0, self.last_key[0]))
         for p in self.players:
-            if p.mode == 'fever' and p.clock_running:
-                p.remaining_frames = max(0, p.remaining_frames - elapsed)
+            if p.mode == 'fever':
+                running_elapsed = elapsed if p.clock_running else 0
+                if p.all_clear_reward_at is not None and p.all_clear_reward_at <= frame:
+                    before_award = max(0, p.all_clear_reward_at-max(0, self.last_key[0])) if p.clock_running else 0
+                    p.remaining_frames = max(0, p.remaining_frames-before_award)
+                    self._reward(p, self.config['all_clear_time_reward_frames'])
+                    p.remaining_frames = max(0, p.remaining_frames-max(0, running_elapsed-before_award))
+                    p.all_clear_reward_at = None
+                else:
+                    p.remaining_frames = max(0, p.remaining_frames - running_elapsed)
         kind = event['type']
         if kind == 'rate':
             return super()._apply(event)
@@ -122,6 +131,7 @@ class ModeReferee(Referee):
                 actor.mode_generation += 1
                 actor.gauge = 0
                 actor.clock_running = False
+                actor.all_clear_reward_at = None
                 actor.prepared_frames = self.config['initial_time_frames']
                 actor.awaiting_seed = False
                 actor.all_clear = False
@@ -160,7 +170,7 @@ class ModeReferee(Referee):
                 actor.normal_all_clear_entry_bonus = False
             return {**effect, 'seed_id': seed_id, 'seed_chain': level}
         if kind == 'place':
-            if actor.mode == 'fever' and actor.remaining_frames == 0:
+            if actor.mode == 'fever' and actor.remaining_frames == 0 and event.get('observed_active_piece') is not True:
                 raise ValueError('expired timer requires exit before another placement')
             # Parent's drop must use only active-board packets, never stored ones.
             held = actor.held_packets
@@ -198,8 +208,12 @@ class ModeReferee(Referee):
             elif all_clear:
                 actor.normal_all_clear_entry_bonus = True
             if all_clear:
-                self._reward(actor, self.config['all_clear_time_reward_frames'])
+                if actor.mode == 'fever':
+                    actor.all_clear_reward_at = frame + self.config['fever_all_clear_reward_delay_frames']
+                else:
+                    self._reward(actor, self.config['all_clear_time_reward_frames'])
             return {**effect, 'awaiting_seed': actor.awaiting_seed, 'seed_chain': actor.seed_chain,
+                    'all_clear_reward_at': actor.all_clear_reward_at,
                     'remaining_frames': actor.remaining_frames, 'prepared_frames': actor.prepared_frames,
                     'entry_pending': actor.mode == 'normal' and actor.gauge == self.config['gauge_max'],
                     'exit_pending': actor.mode == 'fever' and actor.remaining_frames == 0}
@@ -212,6 +226,7 @@ class ModeReferee(Referee):
                       mode_rules_sha256=hashlib.sha256(json.dumps(self.config, sort_keys=True).encode()).hexdigest())
         for data, p in zip(result['players'], self.players):
             data.update(mode=p.mode, mode_generation=p.mode_generation, seed_id=p.seed_id,
+                        all_clear_reward_at=p.all_clear_reward_at,
                         stored_field=p.stored_rows, remaining_frames=p.remaining_frames,
                         prepared_frames=p.prepared_frames, clock_running=p.clock_running,
                         seed_base=p.seed_base, seed_chain=p.seed_chain, next_seed_chain=p.next_seed_chain,

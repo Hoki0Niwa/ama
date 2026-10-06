@@ -1,0 +1,19 @@
+{
+  "status": "reference_not_verified_steam_curve_or_live_settings",
+  "initial_target_point": 120,
+  "default_start_seconds": 192,
+  "interval_frames": 960,
+  "rates_after_start": [90, 60, 45, 30, 22, 15, 10, 7, 5, 3, 2, 1],
+  "sources": [
+    {
+      "url": "https://puyo.sega.jp/portal/topics/info/20181217_001796/",
+      "published": "2018-12-17",
+      "scope": "SEGA PS4/Switch eSports version 1.02 default Fever margin setting 192; not observation of Steam match settings"
+    },
+    {
+      "url": "https://www.inosendo.com/puyo/margintime.html",
+      "published": "2004-06-01",
+      "scope": "Original PS2 Fever measurements; 16-second discrete rates, score conversion at pop, carried remainder; Steam curve unverified"
+    }
+  ]
+}

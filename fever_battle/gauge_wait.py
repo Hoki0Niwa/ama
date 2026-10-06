@@ -15,7 +15,10 @@ def choose(native, scoring, own, rate, gain, allowed=None, budget_ms=12):
     safe = [c for c in forecast['candidates'] if c['survives'] and c['projected_gauge'] > own['gauge']]
     if not safe:
         return None
-    choice = max(safe, key=lambda c:(c['projected_gauge'], -c['projected_needed_color_consumed'], -c['projected_popped'],
+    # Entering Fever comes first. Short of that, a link of the main chain is
+    # worth more than the gauge step it would buy: singles earn the same steps.
+    choice = max(safe, key=lambda c:(c['projected_gauge'] >= 7, -c['projected_needed_color_consumed'],
+        c['projected_gauge'], -c['projected_popped'],
         -c['steps'], -c['popped'], -c['central_height'], -c['roughness']))
     current = native.ask(dict(op='transition', field=own['field'], piece=own['queue'][0],
                               x=choice['x'], r=choice['r']))

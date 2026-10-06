@@ -1,5 +1,6 @@
 """Garbage is a state transition, including future chain links and offset timing."""
 import json
+import os
 from pathlib import Path
 import sys
 import unittest
@@ -16,7 +17,7 @@ from fever_battle.worker import JsonProcess
 class Tests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.native = JsonProcess([ROOT/'bin/fever_battle/fever_battle.exe'], cwd=ROOT)
+        cls.native = JsonProcess([Path(os.environ.get('AMA_BATTLE_NATIVE', ROOT/'bin/fever_battle/fever_battle.exe'))], cwd=ROOT)
         cls.search = GarbageSearch(cls.native, ROOT/'config.json')
 
     @classmethod
@@ -80,7 +81,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(result['choice']['garbage_phase'],2)
 
     def test_known_chain_end_changes_later_search_board_before_it_ends(self):
-        timing=ChainTiming(placement_frames=10,spawn_frames=0)
+        timing=ChainTiming(placement_frames=10,spawn_frames=0,nuisance_check_frames=0)
         events=[dict(type='link',frame=5,points=1200),dict(type='end',frame=15)]
         result=self.forecast(0,3,queue=['2:RG','2:BY','2:GY'],enemy_events=events,timing=timing)
         self.assertEqual(result['path'][0]['dropped'],0)
@@ -149,7 +150,7 @@ class Tests(unittest.TestCase):
             geometry=self.native.ask(dict(op='transition',field=rows,piece='2:RG',x=step['x'],r=step['r']))
             expected=timing.split_extra_frames[max(geometry['split_distances'])]
             self.assertEqual(step['split_extra_frames'],expected)
-            self.assertEqual(step['frame'],timing.placement_frames+expected)
+            self.assertEqual(step['frame'],timing.placement_frames+expected+timing.nuisance_check_frames)
 
     def test_all_clear_stops_at_unknown_seed(self):
         rows=list(EMPTY);rows[-1]='RR....'

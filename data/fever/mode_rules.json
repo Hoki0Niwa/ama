@@ -16,5 +16,9 @@
   "max_seed_chain": 15,
   "normal_all_clear_seed_chain": 4,
   "clock_policy": "explicit_running_flag_and_observed_clock_events",
-  "transition_policy": "explicit_enter_seed_exit_events_no_guessed_animation_durations"
+  "transition_policy": "explicit_enter_seed_exit_events_no_guessed_animation_durations",
+  "fever_chain_reward_boundary": "chain_end_while_remaining_positive",
+  "fever_all_clear_reward_delay_frames": 16,
+  "reward_timing_source": "baselines/2026-10-06-fever-deadlines.json",
+  "reward_timing_status": "chain_end_5_exact_edges_all_clear_2_exact_edges_ally"
 }

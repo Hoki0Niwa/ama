@@ -27,6 +27,11 @@ def apply(native, scoring, own, rate, reply, analysis=None, preserve_choice=Fals
             reply['chain'] >= before or reply.get('reason') not in
             ('normal_build_or_fire', 'unknown_nuisance_one_move_then_reobserve', 'observed_reachable_recovery')):
         return reply
+    if not pending and reply.get('reason') == 'normal_build_or_fire':
+        # With nothing incoming the chain builder's move stands. Replacing it
+        # by this one-piece colour heuristic cost the build its length: 9.0
+        # links against 12.7 over six seeds (tools/bench_fever_normal_build.py).
+        return reply
     candidates = [c for c in analysis['candidates'] if c['survives']]
     if allowed is not None:
         candidates = [c for c in candidates if (c['x'], c['r']) in allowed]
