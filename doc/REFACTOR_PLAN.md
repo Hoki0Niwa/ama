@@ -1,6 +1,6 @@
 # リポジトリ全体のリファクタリング計画
 
-作成：2026-10-06。状態：**R0・R1の基準固定・R2（遷移部品の共通化と列あふれ規則の統一）を実施済み。R3以降は未着手。** 実機での確認はしていない。 探索と評価の再編は [SEARCH_PLAN.md](SEARCH_PLAN.md) に分けてあり、本書はそれを含むリポジトリ全体の範囲・順序・規則を定める。
+作成：2026-10-06。状態：**R0・R1の基準固定・R2・R4と、R3の一部（プロトコル検査の共通化）を実施済み。** R3の残り（判断をnativeへ寄せる）は探索の再編（SEARCH_PLANのP3・P5）と一体で行う。実機での確認はしていない。 探索と評価の再編は [SEARCH_PLAN.md](SEARCH_PLAN.md) に分けてあり、本書はそれを含むリポジトリ全体の範囲・順序・規則を定める。
 
 依頼（2026-10-06）：順序4（代表キャラの実機受入れ）は完了といってよい状態。リファクタリングは後付け実装だけでなく、リポジトリ全体を対象にする。
 
@@ -217,4 +217,33 @@ python tools/bench_fever_baseline.py entry --queues 12 --output REPORT.json
 
 - テストファイルのモジュール単位への並べ直し：226件の移動は挙動に関係しない一方で差分が大きい。フィクスチャの分離にとどめた。R3でPython側の構成が変わるので、そのときに合わせて行う。
 - 既存の検証スクリプト9本の統合：過去の記録の再現手順として作業記録が参照している。回帰の確認は `fever_check.py replay` が担うので、スクリプトは残した。削除・統合するかはユーザーの判断による。
+
+## 8. R4とR3の実施結果（2026-10-07）
+
+### 8.1 R4：構築と戦術を1つのバイナリから呼ぶ（挙動は同じ、コミット `c74d6a3`）
+
+- 単独エンジンの要求処理を `fever/main.cpp` から `fever/engine.cpp`（`fever::answer`・`fever::load_weights`）へ移した。`fever/main.cpp` は入出力だけを持つ。
+- 対戦用バイナリが `fever/` の探索・発火方針・要求処理をリンクし、`op: "solo"` で同じ要求に答える。重みセットは要求に含める（`{"op":"solo","weights":…,"request":…}`）。
+- Python側は `fever.exe` を起動せず、`SoloBuilder` が対戦用バイナリへ問い合わせる。対戦時のnativeプロセスは1つになった。
+- `bin/fever/fever.exe` とそのプロトコルは残した。`BattleEngine`・`ModeBattleEngine` の引数 `solo` と `--solo` は、ブリッジ（`ama-memory-bridge/fever_mode_bridge.py`）が渡しているため受け取るだけにしてある。ブリッジ側を直すときに引数を削除する。
+- 確認：記録済みの単独要求491件が、再ビルドした `fever.exe` と対戦用バイナリの `op: "solo"` の両方で同じ返答。2124要求の再生で差分0。Fever系226件成功。突入計測は同じ値（12/12、平均8.83手、最長156ms）。Tsuの `test_engine_protocol.py` 8件成功。
+- `build.ps1`：`fever_battle` が `bench_fever` と同じソース構成（共有エンジン＋`fever/` の `main.cpp` 以外）を使う。個別ファイルの手書き列挙をなくした。
+
+### 8.2 R3：プロトコル検査の共通化（挙動は同じ）
+
+- `BattleEngine.observed_side` に、protocol 2 と 3 が共通して要求する検査（キャラ、可視ツモと周期の一致、盤面、予告、履歴）をまとめた。
+- protocol 3 の `mode_side` は、モードとゲージを偽った複製（`normal_view`）を親クラスへ渡すのをやめ、`observed_side(side, unknown_history=True, blocked_spawn=True)` を呼ぶ。
+- 複数の誤りを同時に含む要求で、最初に報告される誤りの順序が変わる場合がある。テスト226件と再生は差分なし。
+
+### 8.3 R3の残りの扱い（方針の修正）
+
+第3節R3の「判断はnativeへ」は、**現在のPython実装をそのままC++へ写す形では行わない。** `fever_defense.py`・`uncertainty.py`・`gauge_wait.py`・`normal_colors.py`・`mode_tactics.py` と `mode_engine._normal` の梯子は、SEARCH_PLANのP3（通常・予告ありの戦術探索の統合）とP5（フィーバー中の順位の置き換え）で、1つの尺度を持つnativeの探索に置き換わる。先に写してから置き換えると同じ箇所を二度書くことになるため、nativeへの移行はP3・P5の実装として行う。
+
+R3として今後も残る作業：`model.py`（入力検査・得点・審判の同居）の分割。P3・P5でPythonから消える部分が決まってから行う。
+
+### 8.4 反映
+
+既定の `bin/fever_battle/fever_battle.exe`（SHA256 `a667e86d…710f5`）と `bin/fever/fever.exe`（`42e5d5f5…95fb8`）を置き換えた。置き換え前は同じフォルダーの `*.pre-refactor-r4-20261007.exe`。フィーバー用のプロセスが動いていないことを確認してから行った。基準 `data/fever/golden/` は取り直し済み（2091要求すべて安定、再生は差分0）。
+
+ブリッジ側は変更していない。ブリッジは従来どおり `--solo` を渡して起動でき、エンジンはそれを使わない。
 

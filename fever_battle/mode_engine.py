@@ -138,23 +138,9 @@ class ModeBattleEngine(BattleEngine):
         if (side['confirmed'], side['unconfirmed']) != (side[side['mode'] + '_confirmed'],
                                                        side[side['mode'] + '_unconfirmed']):
             raise ValueError('active nuisance disagrees with observed mode')
-        # Share character/visible-piece/board validation, without changing the
-        # caller's gauge or treating the mode as a normal-mode observation.
-        normal_view = {**side, 'mode': 'normal', 'gauge': 0}
         # A live blocked spawn can still receive DOWN even when the normal
-        # search's death threshold has been reached. Validate the real board,
-        # and validate character/queue/types through the shared normal schema.
-        settled_field(side['field'])
-        if self.native.ask(dict(op='validate', field=side['field']))['dead']:
-            normal_view['field'] = ['......'] * 14
-        for key in ('garbage_phase', 'moves_since_chain'):
-            if side[key] is None:
-                if side.get(key + '_status') != 'unknown':
-                    raise ValueError(f'{key} needs explicit unknown provenance')
-                # Validate all the other shared fields; this local placeholder
-                # is never passed as an observed history or a nuisance forecast.
-                normal_view[key] = 0
-        super().side(normal_view)
+        # search's death threshold has been reached.
+        self.observed_side(side, unknown_history=True, blocked_spawn=True)
         if type(side.get('awaiting_seed', False)) is not bool:
             raise ValueError('awaiting_seed must be boolean')
         return side

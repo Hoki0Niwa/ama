@@ -50,12 +50,16 @@ class BattleEngine:
     def close(self):
         self.native.close()
 
-    def side(self, side):
+    def observed_side(self, side, unknown_history=False, blocked_spawn=False):
+        """What every protocol requires of a side: character, visible pieces, board and nuisance.
+
+        unknown_history: garbage_phase and moves_since_chain may be None when
+        their `_status` says "unknown". blocked_spawn: a board already past the
+        death test is accepted (the piece in hand can still be dropped).
+        """
         character = side['character']
         if character not in self.patterns:
             raise ValueError('unknown character; a character ID cannot be inferred solely from its cycle')
-        if side.get('mode') != 'normal' or type(side.get('gauge')) is not int or side['gauge'] != 0:
-            raise ValueError('this prototype requires observed normal mode and gauge=0 for both players')
         index = integer(side['dropset_index'], 'dropset_index')
         queue = side['queue']
         if not isinstance(queue, list) or not 1 <= len(queue) <= 3:
@@ -64,18 +68,30 @@ class BattleEngine:
             if not isinstance(text, str) or text[:1] != self.patterns[character][(index + k) % 16]:
                 raise ValueError('visible piece does not match dropset position')
         rows = settled_field(side['field'])
-        self.native.ask({'op': 'validate', 'field': rows})
+        dead = self.native.ask({'op': 'validate', 'field': rows})['dead']
         # Native parser validates colors and orientation as well as geometry.
-        self.native.ask({'op': 'placements', 'field': rows, 'piece': queue[0]})
+        self.native.ask({'op': 'placements', 'field': ['......'] * 14 if dead and blocked_spawn else rows,
+                         'piece': queue[0]})
         for text in queue[1:]:
             self.native.ask({'op': 'placements', 'field': ['......'] * 14, 'piece': text})
         integer(side['confirmed'], 'confirmed nuisance')
         integer(side['unconfirmed'], 'unconfirmed nuisance')
         integer(side['remainder'], 'unconverted points')
         integer(side['piece_id'], 'piece_id')
-        integer(side['moves_since_chain'], 'moves_since_chain')
-        integer(side['garbage_phase'], 'garbage_phase', 0, 5)
+        for key, high in (('moves_since_chain', 10**12), ('garbage_phase', 5)):
+            if side[key] is None and unknown_history:
+                if side.get(key + '_status') != 'unknown':
+                    raise ValueError(f'{key} needs explicit unknown provenance')
+            else:
+                integer(side[key], key, 0, high)
         return side
+
+    def side(self, side):
+        if side['character'] not in self.patterns:
+            raise ValueError('unknown character; a character ID cannot be inferred solely from its cycle')
+        if side.get('mode') != 'normal' or type(side.get('gauge')) is not int or side['gauge'] != 0:
+            raise ValueError('this prototype requires observed normal mode and gauge=0 for both players')
+        return self.observed_side(side)
 
     def answer(self, request):
         op = request.get('op', 'think')

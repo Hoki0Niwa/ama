@@ -1,7 +1,7 @@
 {
- "native_sha256": "dc99d5e732db1ef2c4760ba4053a2750d7dc5453fca53aa46d29f24477948999",
- "solo_sha256": "9ca69c255ae83dde5d2ed0e3a78843bbfe054e9a427f07694c0facc8658dff25",
- "head": "e1d77c36e99da105a3d6e016d103da39d89df0c5",
+ "native_sha256": "a667e86d6ee678971bed6d16dca7ec127faaa37b8fe13fa26001fad415e710f5",
+ "solo_sha256": "42e5d5f5e7fd437ce67c3adb5eba1a821611ba7ee062951b58b20cabf9295fb8",
+ "head": "c74d6a3193b2602f5ef778fee1695dcbe8ecb19c",
  "tests": {
   "test_fever_battle.py": 23,
   "test_fever_build_prefetch.py": 10,
@@ -61,6 +61,10 @@
    "cases": 499,
    "stable": 499
   },
+  "native:solo": {
+   "cases": 491,
+   "stable": 491
+  },
   "native:transition": {
    "cases": 350,
    "stable": 350
@@ -68,10 +72,6 @@
   "native:validate": {
    "cases": 91,
    "stable": 91
-  },
-  "solo:think": {
-   "cases": 491,
-   "stable": 491
   }
  },
  "engine_cases": 34,
