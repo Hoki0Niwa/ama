@@ -26,7 +26,7 @@
   },
   "normal_tactics": {
     "status": "prototype_heuristic_not_battle_tuned",
-    "max_nodes": 3000,
+    "max_nodes": 1500,
     "budget_ms": 100,
     "width": 12,
     "weights": {
