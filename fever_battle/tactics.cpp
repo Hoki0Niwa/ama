@@ -59,7 +59,7 @@ public:
     const Weights* w = nullptr;
     rule::Rule rules = rule::FEVER;
     bool unknown_phase = false, geometry = false;
-    int gain = 1, root_gauge = 0, root_longest = 0, width = 16, expanded = 0, max_nodes = 6000;
+    int gain = 1, root_gauge = 0, root_longest = 0, width = 16, expanded = 0, max_nodes = 1500;
     int placement = 14, pop = 55, settle = 14, fall = 2, spawn = 28, score_offset = 0;
     int first_link = 0, chain_ready = 0, check = 0;
     json split_costs = json::array();
@@ -320,9 +320,18 @@ json tactics(Field field, const json& request) {
     }
     if (firsts.empty()) throw std::invalid_argument("no conservative legal placement");
     std::vector<Outcome> values(firsts.size());
-    int completed = 0; bool cutoff = false;
+    int completed = 0; bool cutoff = false, skipped = false;
     try {
         for (int limit = 1; limit <= int(search.pieces.size()); ++limit) {
+            // A deeper pass is started only when the placements left can finish it:
+            // one cut off half way is thrown away, and its time with it.
+            i64 needed = 0, branch = i64(moves.get_size());
+            for (int d = 1; d < limit; ++d) {
+                needed += branch;
+                branch = std::min<i64>(search.width, moves.get_size()) * moves.get_size();
+            }
+            needed *= i64(firsts.size());
+            if (limit > 1 && needed > i64(search.max_nodes) - search.expanded) { skipped = true; break; }
             std::vector<Outcome> layer(firsts.size());
             for (size_t i = 0; i < firsts.size(); ++i) {
                 search.tick();
@@ -358,6 +367,7 @@ json tactics(Field field, const json& request) {
     }
     return {{"choice", candidates[best]}, {"candidates", candidates},
         {"completed_depth", completed}, {"visible", queue.size()}, {"expanded", search.expanded}, {"cutoff", cutoff},
+        {"deeper_pass_skipped", skipped},
         {"root_stock", {{"units", root_stock.units}, {"links", root_stock.links},
             {"colors", root_stock.colors}, {"longest", root_stock.longest}}},
         {"unknown_drop_policy", "worst_column_choice_then_reobserve"},

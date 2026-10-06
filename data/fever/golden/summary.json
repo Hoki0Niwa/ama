@@ -1,7 +1,7 @@
 {
- "native_sha256": "9484ef2067f002e784bf45b654ebb187e34bb6c11b252aee5ebd7dfe70f668e4",
- "solo_sha256": "b14d030a80515117f46bf1fbaa49432e77523aff3f6f515e730300fa0c9d549e",
- "head": "94d48d531bdf743c88f632f1e64f8197b82971ff",
+ "native_sha256": "c26e40ba086e466b7dacf36f80d63132189a39cc70cf6353971363bb6a65128e",
+ "solo_sha256": "cbd5ad395ee4dd4e2966509b229dea3bae0506e6a9380e6785fc33431629076b",
+ "head": "4bb72f11c6bd53895c911b20aaf827f71176df8a",
  "tests": {
   "test_fever_battle.py": 23,
   "test_fever_build_prefetch.py": 10,
