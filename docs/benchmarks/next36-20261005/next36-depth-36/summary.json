@@ -1,0 +1,20 @@
+{
+  "36": {
+    "games": 10,
+    "fired": 10,
+    "over130": 10,
+    "over150": 1,
+    "non_firing": 0,
+    "mean_score": 138571,
+    "mean_fired_score": 138571,
+    "mean_single_clears": 0.7,
+    "mean_small_clears": 1,
+    "max_single_clears": 3,
+    "mean_moves": 39.9,
+    "mean_fired_moves": 39.9,
+    "total_game_ms": 55245,
+    "total_moves": 399,
+    "approx_ms_per_move": 138.45864661654136,
+    "max_decision_ms": 435
+  }
+}

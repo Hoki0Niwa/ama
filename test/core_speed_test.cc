@@ -1,5 +1,6 @@
 #include "../core/core.h"
 #include "../ai/search/beam/quiet.h"
+#include "../ai/search/beam/eval.h"
 #include "../ai/search/beam/table.h"
 #include <random>
 #include <stdexcept>
@@ -119,6 +120,46 @@ int main()
                           scored[i].key == lengths[i].key && scored[i].remain == lengths[i].remain,
                           "quiet candidate order and evaluated inputs are identical");
                     check(lengths[i].chain.score == 0, "count-only path omits point score");
+                    bool reconstructed = false;
+                    for (u8 color = 0; color < cell::COUNT - 1; ++color) {
+                        auto candidate = original;
+                        u8 heights[6];
+                        candidate.get_heights(heights);
+                        for (i32 added = 0; added < scored[i].key; ++added)
+                            candidate.data[color].set_bit(scored[i].x, heights[scored[i].x] + added);
+                        auto links = candidate.pop();
+                        if (links.get_size() != scored[i].chain.count || !(candidate == scored[i].remain)) continue;
+                        bool sizes_match = true;
+                        for (i32 link = 0; link < links.get_size(); ++link)
+                            sizes_match &= scored[i].popped[link] == links[link].get_count();
+                        auto points = chain::get_score(links);
+                        reconstructed |= sizes_match && points.score == scored[i].chain.score;
+                    }
+                    check(reconstructed, "quiet preserves link sizes before score consumes masks");
+                }
+                for (i32 score_weight : {0, 1000}) {
+                    beam::eval::Weight weight;
+                    weight.chain = 100;
+                    weight.score = score_weight;
+                    i32 expected_eval = INT32_MIN;
+                    for (const auto& result : scored) {
+                        i32 value = result.chain.count * weight.chain;
+                        if (score_weight != 0) {
+                            i32 pure = 40;
+                            for (i32 link = 1; link < result.chain.count; ++link)
+                                pure += 40 * chain::POWER[link];
+                            i32 excess = 0;
+                            for (i32 link = 1; link < result.chain.count; ++link)
+                                excess += std::max(0, i32(result.popped[link]) - 4);
+                            value += result.chain.score - pure - excess * 10 * chain::POWER[std::min(result.chain.count, 18)];
+                        }
+                        expected_eval = std::max(expected_eval, value);
+                    }
+                    beam::node::Data node;
+                    node.field = original;
+                    beam::eval::evaluate(node, weight);
+                    check(node.score.eval == (scored.empty() ? 0 : expected_eval),
+                          "evaluation retains detailed efficiency and count-only behavior");
                 }
                 quiet_results += i32(scored.size());
             }
