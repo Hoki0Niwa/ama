@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+import os
+from pathlib import Path
 import queue
 import subprocess
 import threading
@@ -14,6 +16,9 @@ class JsonProcess:
                                         text=True, encoding='utf-8',
                                         creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         self.lines = queue.Queue()
+        # AMA_NATIVE_TRACE: append every request and reply as one JSON line (tools/fever_check.py).
+        self.trace = os.environ.get('AMA_NATIVE_TRACE')
+        self.name = Path(str(command[0])).stem
         self.lock = threading.Lock()
         def read():
             for line in self.process.stdout:
@@ -36,6 +41,9 @@ class JsonProcess:
             if line is None:
                 raise RuntimeError('engine closed its output')
             reply = json.loads(line)
+            if self.trace:
+                with open(self.trace, 'a', encoding='utf-8') as log:
+                    log.write(json.dumps(dict(exe=self.name, request=request, reply=reply), ensure_ascii=False) + '\n')
             if 'error' in reply:
                 raise ValueError(reply['error'])
             return reply

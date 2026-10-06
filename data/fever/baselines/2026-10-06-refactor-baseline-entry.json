@@ -1,0 +1,215 @@
+{
+ "summary": {
+  "character": "raffina",
+  "attack": {
+   "start": 12,
+   "every": 3,
+   "amount": 4
+  },
+  "samples": 12,
+  "ends": {
+   "entry": 12
+  },
+  "entry_rate": 1.0,
+  "mean_moves_after_first_attack": 8.83,
+  "mean_dropped_before_entry": 3.08,
+  "mean_gauge_when_not_entered": null,
+  "slowest_ms": 157,
+  "bench": "entry",
+  "native_sha256": "9273efe1200a1c08a6cf5dd46c6ff734b991e01849a58d8dbe0d44eb64abbd0c",
+  "solo_sha256": "9ca69c255ae83dde5d2ed0e3a78843bbfe054e9a427f07694c0facc8658dff25"
+ },
+ "runs": [
+  {
+   "colours": 1,
+   "end": "entry",
+   "moves": 20,
+   "moves_after_first_attack": 8,
+   "offset_links": 7,
+   "dropped": 3,
+   "biggest_chain": 4,
+   "reasons": {
+    "normal_build_or_fire": 14,
+    "fever_wait_conserve": 5,
+    "garbage_state_search": 1
+   },
+   "board_cells": 11,
+   "slowest_ms": 125
+  },
+  {
+   "colours": 2,
+   "end": "entry",
+   "moves": 20,
+   "moves_after_first_attack": 8,
+   "offset_links": 7,
+   "dropped": 0,
+   "biggest_chain": 2,
+   "reasons": {
+    "normal_build_or_fire": 16,
+    "fever_wait_conserve": 4
+   },
+   "board_cells": 17,
+   "slowest_ms": 47
+  },
+  {
+   "colours": 3,
+   "end": "entry",
+   "moves": 23,
+   "moves_after_first_attack": 11,
+   "offset_links": 7,
+   "dropped": 6,
+   "biggest_chain": 4,
+   "reasons": {
+    "normal_build_or_fire": 16,
+    "garbage_state_search": 2,
+    "fever_wait_conserve": 5
+   },
+   "board_cells": 12,
+   "slowest_ms": 125
+  },
+  {
+   "colours": 4,
+   "end": "entry",
+   "moves": 19,
+   "moves_after_first_attack": 7,
+   "offset_links": 7,
+   "dropped": 2,
+   "biggest_chain": 4,
+   "reasons": {
+    "normal_build_or_fire": 14,
+    "fever_wait_conserve": 4,
+    "garbage_state_search": 1
+   },
+   "board_cells": 13,
+   "slowest_ms": 109
+  },
+  {
+   "colours": 5,
+   "end": "entry",
+   "moves": 18,
+   "moves_after_first_attack": 6,
+   "offset_links": 7,
+   "dropped": 0,
+   "biggest_chain": 2,
+   "reasons": {
+    "normal_build_or_fire": 13,
+    "fever_wait_conserve": 5
+   },
+   "board_cells": 14,
+   "slowest_ms": 63
+  },
+  {
+   "colours": 6,
+   "end": "entry",
+   "moves": 22,
+   "moves_after_first_attack": 10,
+   "offset_links": 7,
+   "dropped": 2,
+   "biggest_chain": 4,
+   "reasons": {
+    "normal_build_or_fire": 16,
+    "fever_wait_conserve": 5,
+    "garbage_state_search": 1
+   },
+   "board_cells": 9,
+   "slowest_ms": 157
+  },
+  {
+   "colours": 7,
+   "end": "entry",
+   "moves": 22,
+   "moves_after_first_attack": 10,
+   "offset_links": 7,
+   "dropped": 4,
+   "biggest_chain": 3,
+   "reasons": {
+    "normal_build_or_fire": 16,
+    "fever_wait_conserve": 5,
+    "garbage_state_search": 1
+   },
+   "board_cells": 14,
+   "slowest_ms": 141
+  },
+  {
+   "colours": 8,
+   "end": "entry",
+   "moves": 20,
+   "moves_after_first_attack": 8,
+   "offset_links": 7,
+   "dropped": 4,
+   "biggest_chain": 2,
+   "reasons": {
+    "normal_build_or_fire": 12,
+    "fever_wait_conserve": 6,
+    "garbage_state_search": 2
+   },
+   "board_cells": 17,
+   "slowest_ms": 141
+  },
+  {
+   "colours": 9,
+   "end": "entry",
+   "moves": 22,
+   "moves_after_first_attack": 10,
+   "offset_links": 7,
+   "dropped": 5,
+   "biggest_chain": 2,
+   "reasons": {
+    "normal_build_or_fire": 14,
+    "fever_wait_conserve": 6,
+    "garbage_state_search": 2
+   },
+   "board_cells": 24,
+   "slowest_ms": 141
+  },
+  {
+   "colours": 10,
+   "end": "entry",
+   "moves": 22,
+   "moves_after_first_attack": 10,
+   "offset_links": 7,
+   "dropped": 5,
+   "biggest_chain": 5,
+   "reasons": {
+    "normal_build_or_fire": 15,
+    "fever_wait_conserve": 6,
+    "garbage_state_search": 1
+   },
+   "board_cells": 17,
+   "slowest_ms": 125
+  },
+  {
+   "colours": 11,
+   "end": "entry",
+   "moves": 19,
+   "moves_after_first_attack": 7,
+   "offset_links": 7,
+   "dropped": 0,
+   "biggest_chain": 2,
+   "reasons": {
+    "normal_build_or_fire": 13,
+    "fever_wait_conserve": 6
+   },
+   "board_cells": 16,
+   "slowest_ms": 63
+  },
+  {
+   "colours": 12,
+   "end": "entry",
+   "moves": 23,
+   "moves_after_first_attack": 11,
+   "offset_links": 7,
+   "dropped": 6,
+   "biggest_chain": 4,
+   "reasons": {
+    "normal_build_or_fire": 16,
+    "fever_wait_conserve": 4,
+    "garbage_state_search": 2,
+    "fever_small_offset_preserve_mainline": 1
+   },
+   "board_cells": 16,
+   "slowest_ms": 110
+  }
+ ],
+ "status": "offline_prototype_colour_model_modelled_clock_not_live"
+}
