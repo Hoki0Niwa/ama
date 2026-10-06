@@ -5,6 +5,7 @@
 #include <string>
 #include <iomanip>
 #include "../../../lib/nlohmann/json.hpp"
+#include "../terrain.h"
 using json = nlohmann::json;
 using order_json = nlohmann::ordered_json;
 
@@ -50,21 +51,22 @@ Result evaluate(Field& field, i32 tear, i32 waste, const Weight& w);
 
 i32 get_static(Field& field, const Weight& w);
 
-i32 get_chi(u8 heights[6], i8 x);
+// Shared with the other evaluation (ai/search/terrain.h)
+using terrain::get_chi;
+using terrain::get_well;
+using terrain::get_bump;
+using terrain::get_link;
+using terrain::get_link_23;
+using terrain::get_waste_14;
 
 i32 get_shape(u8 heights[6], const i32 coef[6]);
 
-i32 get_well(u8 heights[6]);
 
-i32 get_bump(u8 heights[6]);
 
 i32 get_u(u8 heights[6]);
 
-i32 get_link(Field& field);
 
-std::pair<i32, i32> get_link_23(Field& field);
 
-i32 get_waste_14(u8 row14);
 
 Field get_mobility(const Field& field);
 
