@@ -6,6 +6,7 @@
 #include "search.h"
 #include "physics.h"
 #include "gauge_wait.h"
+#include "tactics.h"
 #include "color_needs.h"
 #include "transition.h"
 #include <functional>
@@ -189,12 +190,13 @@ json answer(const json& request)
     if (op == "garbage_search") return fever_battle::search(field, request);
     if (op == "seed_search") return fever_battle::seed_search(field, request);
     if (op == "gauge_wait") return fever_battle::gauge_wait(field, request);
+    if (op == "tactics") return fever_battle::tactics(field, request);
     if (op == "normal_colors") return fever_battle::normal_colors(field, request);
     if (op == "validate") return {{"valid", true}, {"dead", field.is_dead(rule::FEVER)}};
     if (op == "stock") {
         // Offset stock of a board (fever/stock.h), for tests and measurements.
         const auto stock = fever::stock::evaluate(field, bounded_integer(request.at("want"), 1, 7, "want"));
-        return {{"units", stock.units}, {"links", stock.links}, {"colors", stock.colors}};
+        return {{"units", stock.units}, {"links", stock.links}, {"colors", stock.colors}, {"longest", stock.longest}};
     }
     if (op == "resolve") return resolve(field);
     if (op != "placements" && op != "transition" && op != "finish_probe" && op != "closing_transition") throw std::invalid_argument("unknown operation");

@@ -22,6 +22,7 @@ from .normal_colors import apply as apply_normal_colors
 from .uncertainty import choose as uncertain_move
 from .finish import choose as fast_finish
 from .fever_defense import HOARD_REASON, choose as defend
+from . import tactics
 from .uncertainty import outcomes
 from .margin import MarginForecast
 
@@ -371,6 +372,25 @@ class ModeBattleEngine(BattleEngine):
             self.policy.get('fever_defense'), allowed, self._enemy_events(request, enemy), enemy,
             self.margin, offset_search=not self.margin.get('rate_events'), build=build)
 
+    def _tactics(self, request, own, enemy, rate, build=None, allowed=None):
+        """The single search's reply to a threat on the normal board, or None to leave it to the rest."""
+        policy = self.policy.get('normal_tactics', {})
+        events = self._enemy_events(request, enemy)
+        if (policy.get('mode') != 'unified' or request['gauge_gain_on_offset'] <= 0
+                or own['gauge'] >= self.mode_rules['gauge_max']
+                or not (own['confirmed'] + own['unconfirmed'] or events)):
+            return None
+        builder = None
+        if build is not None:
+            try:
+                builder = build()
+            except ValueError:
+                builder = None      # nothing the builder plays survives; the search decides alone
+        reply = tactics.choose(self.native, self.scoring, own, rate, request['gauge_gain_on_offset'],
+            policy, events, enemy, self.margin, allowed, builder)
+        # A position every placement loses belongs to the finish probe below.
+        return None if reply is None or reply['selected_move_loses'] else reply
+
     def _quiet_carry_limit(self, own):
         """Nuisance the stored normal board takes on return without harm, on every column subset."""
         for count in range(self.policy.get('fever_end', {}).get('harmless_carry', 5), 0, -1):
@@ -402,6 +422,9 @@ class ModeBattleEngine(BattleEngine):
         def build():
             result = self._solo_build(own, options)
             return result['x'], result['r']
+        unified = self._tactics(request, own, enemy, rate, build)
+        if unified is not None:
+            return unified
         waiting = self._defend(request, own, enemy, rate, build=build)
         if waiting is not None:
             return waiting
@@ -598,6 +621,7 @@ class ModeBattleEngine(BattleEngine):
                                  own['remainder'], rate, own['gauge'], request['gauge_gain_on_offset'])
             central_height = max(sum(row[x] != '.' for row in own['field']) for x in (2, 3))
             if (own['confirmed'] >= 30 or central_height >= 9) and gauge['gauge_after'] < 7 and (
+                    'tactics_forecast' not in reply) and (
                     reply['reason'] not in ('no_rescue_fast_finish', 'fever_wait_conserve', HOARD_REASON,
                                            'fever_small_offset_preserve_mainline')):
                 # Preserve normal construction as the default. Under a large

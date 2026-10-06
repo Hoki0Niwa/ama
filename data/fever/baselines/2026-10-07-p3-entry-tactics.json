@@ -1,0 +1,172 @@
+{
+ "date": "2026-10-07",
+ "bench": "tools/bench_fever_baseline.py entry",
+ "character": "raffina",
+ "queues_per_condition": 48,
+ "totals": {
+  "ladder+mainline": {
+   "entry": 94,
+   "dead": 50
+  },
+  "ladder+fever_aim": {
+   "entry": 100,
+   "dead": 44
+  },
+  "unified+mainline": {
+   "entry": 94,
+   "dead": 50
+  },
+  "unified+fever_aim": {
+   "entry": 105,
+   "dead": 39
+  }
+ },
+ "conditions": [
+  {
+   "start": 6,
+   "every": 2,
+   "amount": 6,
+   "tactics": "ladder",
+   "objective": "mainline",
+   "entry": 33,
+   "dead": 15,
+   "mean_moves_after_first_attack": 14.3,
+   "mean_dropped_before_entry": 29.79,
+   "slowest_ms": 156
+  },
+  {
+   "start": 6,
+   "every": 2,
+   "amount": 6,
+   "tactics": "ladder",
+   "objective": "fever_aim",
+   "entry": 34,
+   "dead": 14,
+   "mean_moves_after_first_attack": 13.88,
+   "mean_dropped_before_entry": 29.41,
+   "slowest_ms": 141
+  },
+  {
+   "start": 8,
+   "every": 5,
+   "amount": 20,
+   "tactics": "ladder",
+   "objective": "mainline",
+   "entry": 20,
+   "dead": 28,
+   "mean_moves_after_first_attack": 10.55,
+   "mean_dropped_before_entry": 20.7,
+   "slowest_ms": 172
+  },
+  {
+   "start": 8,
+   "every": 5,
+   "amount": 20,
+   "tactics": "ladder",
+   "objective": "fever_aim",
+   "entry": 20,
+   "dead": 28,
+   "mean_moves_after_first_attack": 11.6,
+   "mean_dropped_before_entry": 28.7,
+   "slowest_ms": 125
+  },
+  {
+   "start": 10,
+   "every": 1,
+   "amount": 3,
+   "tactics": "ladder",
+   "objective": "mainline",
+   "entry": 41,
+   "dead": 7,
+   "mean_moves_after_first_attack": 10.29,
+   "mean_dropped_before_entry": 18.29,
+   "slowest_ms": 172
+  },
+  {
+   "start": 10,
+   "every": 1,
+   "amount": 3,
+   "tactics": "ladder",
+   "objective": "fever_aim",
+   "entry": 46,
+   "dead": 2,
+   "mean_moves_after_first_attack": 7.87,
+   "mean_dropped_before_entry": 10.43,
+   "slowest_ms": 172
+  },
+  {
+   "start": 6,
+   "every": 2,
+   "amount": 6,
+   "tactics": "unified",
+   "objective": "mainline",
+   "entry": 31,
+   "dead": 17,
+   "mean_moves_after_first_attack": 13.87,
+   "mean_dropped_before_entry": 29.55,
+   "slowest_ms": 110
+  },
+  {
+   "start": 6,
+   "every": 2,
+   "amount": 6,
+   "tactics": "unified",
+   "objective": "fever_aim",
+   "entry": 35,
+   "dead": 13,
+   "mean_moves_after_first_attack": 15.09,
+   "mean_dropped_before_entry": 31.8,
+   "slowest_ms": 157
+  },
+  {
+   "start": 8,
+   "every": 5,
+   "amount": 20,
+   "tactics": "unified",
+   "objective": "mainline",
+   "entry": 17,
+   "dead": 31,
+   "mean_moves_after_first_attack": 10.94,
+   "mean_dropped_before_entry": 22.41,
+   "slowest_ms": 94
+  },
+  {
+   "start": 8,
+   "every": 5,
+   "amount": 20,
+   "tactics": "unified",
+   "objective": "fever_aim",
+   "entry": 24,
+   "dead": 24,
+   "mean_moves_after_first_attack": 10.67,
+   "mean_dropped_before_entry": 24.67,
+   "slowest_ms": 141
+  },
+  {
+   "start": 10,
+   "every": 1,
+   "amount": 3,
+   "tactics": "unified",
+   "objective": "mainline",
+   "entry": 46,
+   "dead": 2,
+   "mean_moves_after_first_attack": 10.28,
+   "mean_dropped_before_entry": 18.33,
+   "slowest_ms": 110
+  },
+  {
+   "start": 10,
+   "every": 1,
+   "amount": 3,
+   "tactics": "unified",
+   "objective": "fever_aim",
+   "entry": 46,
+   "dead": 2,
+   "mean_moves_after_first_attack": 7.15,
+   "mean_dropped_before_entry": 8.39,
+   "slowest_ms": 157
+  }
+ ],
+ "status": "offline_prototype_colour_model_scripted_nuisance_not_live_and_not_a_battle_result",
+ "note": "no observed enemy chain in this bench; the scripted nuisance arrives already confirmed"
+}
