@@ -5,7 +5,7 @@ import sys
 import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT)); sys.path.insert(0, str(ROOT/'test'))
-from test_fever_mode import NATIVE, SOLO, request, side
+from fever_fixtures import NATIVE, SOLO, request, side
 from fever_battle.mode_engine import ModeBattleEngine
 from fever_battle.margin import MarginForecast, rate_at
 from fever_battle.uncertainty import choose

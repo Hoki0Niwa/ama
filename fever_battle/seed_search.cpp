@@ -404,9 +404,9 @@ json seed_search(Field field, const json& request) {
                         // remainder board; return one move and reobserve it.
                         drop_cases = 0;
                         std::tuple<int,int,int,int> worst{100, 0, 0, 0};
-                        each_remainder_drop(observed_result, dropped, [&](Field outcome, bool overflow) {
+                        each_remainder_drop(observed_result, dropped, [&](Field outcome) {
                             ++drop_cases;
-                            bool survives = !overflow && !outcome.is_dead(rules);
+                            bool survives = !outcome.is_dead(rules);
                             drop_alive &= survives;
                             drop_boards.push_back(outcome);
                             auto p = potential(outcome, rules);

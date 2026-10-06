@@ -15,15 +15,14 @@ def outcomes(rows, count):
     whole, extra = divmod(count, 6)
     for columns in combinations(range(6), extra):
         board = [list(row) for row in rows]
-        overflow = False
         for x in range(6):
             height = sum(row[x] != '.' for row in rows[1:])
             amount = whole + (x in columns)
-            overflow |= height + amount > 13
             for y in range(height, min(13, height + amount)):
                 board[13-y][x] = '#'
         result = [''.join(row) for row in board]
-        yield result, overflow or dead(result)
+        # Nuisance above row 13 vanishes; a full side column is no loss.
+        yield result, dead(result)
 
 
 def choose(native, scoring, side, rate, options=None, allowed_placements=None,

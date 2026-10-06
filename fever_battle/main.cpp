@@ -7,6 +7,7 @@
 #include "gauge_wait.h"
 #include "color_needs.h"
 #include "transition.h"
+#include <functional>
 #include <stdexcept>
 #include <chrono>
 #include <bit>
@@ -64,6 +65,96 @@ json resolve(Field field)
             {"fall_distances", distances},
             {"fall_features", features},
             {"dead", field.is_dead(rule::FEVER)}, {"all_clear", field.is_empty()}};
+}
+
+// Whether every visible placement loses to the confirmed nuisance, and the
+// placements that then end the game before a third drop.
+template <class Moves>
+json finish_probe(const json& request, Moves& moves, const rule::Rule& rules,
+                  const std::function<json(const move::Placement&)>& transition)
+{
+    const int pending = bounded_integer(request.at("confirmed"), 1, 1000000000, "confirmed");
+    const int budget = bounded_integer(request.at("budget_ms"), 0, 1000, "budget_ms");
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(budget);
+    std::optional<piece::Piece> next;
+    std::optional<piece::Piece> last;
+    if (request.contains("next_piece")) {
+        next = fever::text::to_piece(request.at("next_piece").get<std::string>());
+        if (!next) throw std::invalid_argument("invalid next piece");
+    }
+    if (request.contains("last_piece")) {
+        last = fever::text::to_piece(request.at("last_piece").get<std::string>());
+        if (!last) throw std::invalid_argument("invalid last piece");
+    }
+    const auto surviving_drops = [](Field source, int count) {
+        std::vector<Field> result;
+        fever_battle::each_remainder_drop(source, count, [&](Field copy) {
+            if (!copy.is_dead(rule::FEVER)) result.push_back(copy);
+        });
+        return result;
+    };
+    std::map<std::vector<std::string>, bool> last_cache;
+    const auto last_has_chance = [&](Field board) -> std::optional<bool> {
+        if (!last || pending <= 60) return true;
+        auto key = fever::text::from_field(board);
+        if (last_cache.contains(key)) return last_cache.at(key);
+        auto choices = move::generate(board, *last, rules);
+        for (int k = 0; k < choices.get_size(); ++k) {
+            if (std::chrono::steady_clock::now() >= deadline) return std::nullopt;
+            auto copy = board;
+            if (!copy.drop_piece(choices[k].x, choices[k].r, *last, rules))
+                throw std::runtime_error("generated last placement failed");
+            auto clear = copy.pop();
+            if (!copy.is_dead(rule::FEVER) && (clear.get_size() ||
+                    !surviving_drops(copy, std::min(30, pending - 60)).empty())) {
+                last_cache[key] = true;
+                return true;
+            }
+        }
+        last_cache[key] = false;
+        return false;
+    };
+    json candidates = json::array();
+    for (int i = 0; i < moves.get_size(); ++i) {
+        if (std::chrono::steady_clock::now() >= deadline)
+            return {{"proved", false}, {"reason", "budget_inconclusive"}};
+        json c = transition(moves[i]);
+        if (!c["dead"].get<bool>() && !c["links"].empty())
+            return {{"proved", false}, {"reason", "current_clear_can_survive"}};
+        int drops = c["dead"].get<bool>() ? 0 : 1;
+        if (drops) {
+            auto after = read_field(c["field"]);
+            for (auto board : surviving_drops(after, std::min(30, pending))) {
+                if (!next || pending <= 30)
+                    return {{"proved", false}, {"reason", "another_visible_or_unknown_chance"}};
+                auto following = move::generate(board, *next, rules);
+                for (int j = 0; j < following.get_size(); ++j) {
+                    if (std::chrono::steady_clock::now() >= deadline)
+                        return {{"proved", false}, {"reason", "budget_inconclusive"}};
+                    auto copy = board;
+                    if (!copy.drop_piece(following[j].x, following[j].r, *next, rules))
+                        throw std::runtime_error("generated next placement failed");
+                    auto clear = copy.pop();
+                    if (!copy.is_dead(rule::FEVER)) {
+                        if (clear.get_size())
+                            return {{"proved", false}, {"reason", "next_clear_can_survive"}};
+                        for (auto second : surviving_drops(copy, std::min(30, pending - 30))) {
+                            auto chance = last_has_chance(second);
+                            if (!chance) return {{"proved", false}, {"reason", "budget_inconclusive"}};
+                            if (*chance) return {{"proved", false}, {"reason", "last_visible_chance"}};
+                            drops = 3;
+                        }
+                    }
+                }
+                drops = std::max(drops, 2);
+            }
+        }
+        c["finish_after_drops"] = drops;
+        // Proof examines all three visible pieces, but a closing placement
+        // must end before a third nuisance drop on every column subset.
+        if (drops <= 2) candidates.push_back(c);
+    }
+    return {{"proved", !candidates.empty()}, {"placements", candidates}};
 }
 
 json answer(const json& request)
@@ -124,92 +215,7 @@ json answer(const json& request)
         result["discarded"] = drop->discarded;
         return result;
     };
-    if (op == "finish_probe") {
-        const int pending = bounded_integer(request.at("confirmed"), 1, 1000000000, "confirmed");
-        const int budget = bounded_integer(request.at("budget_ms"), 0, 1000, "budget_ms");
-        const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(budget);
-        std::optional<piece::Piece> next;
-        std::optional<piece::Piece> last;
-        if (request.contains("next_piece")) {
-            next = fever::text::to_piece(request.at("next_piece").get<std::string>());
-            if (!next) throw std::invalid_argument("invalid next piece");
-        }
-        if (request.contains("last_piece")) {
-            last = fever::text::to_piece(request.at("last_piece").get<std::string>());
-            if (!last) throw std::invalid_argument("invalid last piece");
-        }
-        const auto surviving_drops = [](Field source, int count) {
-            std::vector<Field> result;
-            // Side-column overflow alone is not proof of loss. Keep the
-            // supported 13 rows and require a filled central death column.
-            fever_battle::each_remainder_drop(source, count, [&](Field copy, bool) {
-                if (!copy.is_dead(rule::FEVER)) result.push_back(copy);
-            });
-            return result;
-        };
-        std::map<std::vector<std::string>, bool> last_cache;
-        const auto last_has_chance = [&](Field board) -> std::optional<bool> {
-            if (!last || pending <= 60) return true;
-            auto key = fever::text::from_field(board);
-            if (last_cache.contains(key)) return last_cache.at(key);
-            auto choices = move::generate(board, *last, rules);
-            for (int k = 0; k < choices.get_size(); ++k) {
-                if (std::chrono::steady_clock::now() >= deadline) return std::nullopt;
-                auto copy = board;
-                if (!copy.drop_piece(choices[k].x, choices[k].r, *last, rules))
-                    throw std::runtime_error("generated last placement failed");
-                auto clear = copy.pop();
-                if (!copy.is_dead(rule::FEVER) && (clear.get_size() ||
-                        !surviving_drops(copy, std::min(30, pending - 60)).empty())) {
-                    last_cache[key] = true;
-                    return true;
-                }
-            }
-            last_cache[key] = false;
-            return false;
-        };
-        json candidates = json::array();
-        for (int i = 0; i < moves.get_size(); ++i) {
-            if (std::chrono::steady_clock::now() >= deadline)
-                return {{"proved", false}, {"reason", "budget_inconclusive"}};
-            auto c = transition(moves[i]);
-            if (!c["dead"].get<bool>() && !c["links"].empty())
-                return {{"proved", false}, {"reason", "current_clear_can_survive"}};
-            int drops = c["dead"].get<bool>() ? 0 : 1;
-            if (drops) {
-                auto after = read_field(c["field"]);
-                for (auto board : surviving_drops(after, std::min(30, pending))) {
-                    if (!next || pending <= 30)
-                        return {{"proved", false}, {"reason", "another_visible_or_unknown_chance"}};
-                    auto following = move::generate(board, *next, rules);
-                    for (int j = 0; j < following.get_size(); ++j) {
-                        if (std::chrono::steady_clock::now() >= deadline)
-                            return {{"proved", false}, {"reason", "budget_inconclusive"}};
-                        auto copy = board;
-                        if (!copy.drop_piece(following[j].x, following[j].r, *next, rules))
-                            throw std::runtime_error("generated next placement failed");
-                        auto clear = copy.pop();
-                        if (!copy.is_dead(rule::FEVER)) {
-                            if (clear.get_size())
-                                return {{"proved", false}, {"reason", "next_clear_can_survive"}};
-                            for (auto second : surviving_drops(copy, std::min(30, pending - 30))) {
-                                auto chance = last_has_chance(second);
-                                if (!chance) return {{"proved", false}, {"reason", "budget_inconclusive"}};
-                                if (*chance) return {{"proved", false}, {"reason", "last_visible_chance"}};
-                                drops = 3;
-                            }
-                        }
-                    }
-                    drops = std::max(drops, 2);
-                }
-            }
-            c["finish_after_drops"] = drops;
-            // Proof examines all three visible pieces, but a closing placement
-            // must end before a third nuisance drop on every column subset.
-            if (drops <= 2) candidates.push_back(c);
-        }
-        return {{"proved", !candidates.empty()}, {"placements", candidates}};
-    }
+    if (op == "finish_probe") return finish_probe(request, moves, rules, transition);
     if (op == "placements") {
         json results = json::array();
         for (int index = 0; index < moves.get_size(); ++index) results.push_back(transition(moves[index]));

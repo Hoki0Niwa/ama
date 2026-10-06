@@ -1,6 +1,6 @@
 # リポジトリ全体のリファクタリング計画
 
-作成：2026-10-06。状態：**R0（全体調査）とR1（検証の土台）を実施済み。R2以降は未着手。** 判断・探索のコードは変更していない。 探索と評価の再編は [SEARCH_PLAN.md](SEARCH_PLAN.md) に分けてあり、本書はそれを含むリポジトリ全体の範囲・順序・規則を定める。
+作成：2026-10-06。状態：**R0・R1の基準固定・R2（遷移部品の共通化と列あふれ規則の統一）を実施済み。R3以降は未着手。** 実機での確認はしていない。 探索と評価の再編は [SEARCH_PLAN.md](SEARCH_PLAN.md) に分けてあり、本書はそれを含むリポジトリ全体の範囲・順序・規則を定める。
 
 依頼（2026-10-06）：順序4（代表キャラの実機受入れ）は完了といってよい状態。リファクタリングは後付け実装だけでなく、リポジトリ全体を対象にする。
 
@@ -178,4 +178,43 @@ python tools/fever_check.py replay
 python tools/bench_fever_baseline.py seed --queues 2 --output REPORT.json
 python tools/bench_fever_baseline.py entry --queues 12 --output REPORT.json
 ```
+
+## 7. R2とR1残りの実施結果（2026-10-06）
+
+### 7.1 遷移部品の共通化（挙動を変えない変更、コミット `e1d77c3`）
+
+`fever_battle/transition.h` を新設し、次を1か所にまとめた。`search.cpp`・`seed_search.cpp`・`gauge_wait.cpp`・`color_needs.cpp`・`main.cpp` の各自の実装を置き換えた。
+
+| 部品 | 置き換えた重複 |
+| --- | --- |
+| `number` | 範囲つき整数の読み取り（3か所） |
+| `drop_nuisance` | 位相が既知のおじゃま落下（2か所） |
+| `each_remainder_drop` | 端数列の全組合せ（4か所） |
+| `score_link`・`Bonuses` | リンクの得点（3か所）。ボーナス表を要求ごとに1回だけ読む |
+| `advance_enemy` | 相手連鎖イベントの進行（2か所） |
+| `state_key` | 探索ノードの重複排除キー（2か所）。JSON文字列の生成をやめた |
+
+確認：再ビルドしたバイナリで、記録済み2124要求の再生が差分0。Fever系226件成功。
+
+対象外として残したもの：`main.cpp` の `bounded_integer`（エラー文言が異なるため別関数のまま）、`seed_search.cpp` の `potential` と `color_needs.cpp` の発火口検査（高さの上限と選び方が異なり、同一ではない。SEARCH_PLANのP5で置き換える）、`search.cpp` の経路をノードごとにJSONで複製する処理（性能だけの問題で、今回は触れていない）、Pythonの `uncertainty.py`・`model.py` 側の同等処理（R3でnativeへ寄せる）。
+
+### 7.2 列あふれ規則の統一（挙動を変える変更）
+
+「おじゃまが13段を超えた分は消滅し、列あふれだけでは敗北としない」へ統一した。変更箇所は `gauge_wait.cpp`、`seed_search.cpp`、`uncertainty.outcomes`（Python）。`each_remainder_drop` からあふれの通知を外し、敗北は盤面の敗北判定だけで決める。
+
+- 根拠：ツモについてのユーザー確認（14段目に置かれたぷよは消滅する）。おじゃまへの適用は解釈で、実機照合はしていない。
+- 影響：記録済み2124要求のうち11件で返答が変化。配置が変わったのは2件で、いずれも「おじゃまを受けると敗北する」という判定が外れ、規定未満の発火（タネの失敗）から非消去の積みへ変わった。残り9件は生存候補の数や内部の予測だけの変化。一覧は `data/fever/baselines/2026-10-06-refactor-overflow-rule.json`。
+- テスト226件は変更なしで成功。タネ計測・突入計測の値は6.5の基準と同じ。
+
+### 7.3 その他
+
+- `main.cpp` の `finish_probe` を `answer` から独立した関数へ分けた（挙動は同じ。再生で確認）。
+- `test/fever_fixtures.py` を新設し、テスト間で共有する盤面・席・要求の生成を `test_fever_mode.py` から移した。7ファイルがテストモジュールではなくこのモジュールを読む。`test_fever_deadlines.py` は `ModeTests` の補助メソッドを使うため従来のまま。
+- `tools/fever_check.py` の `test`・`record` が `--native`／`--solo` で指定したバイナリを対象にする。
+- 既定の `bin/fever_battle/fever_battle.exe` を新しいバイナリ（SHA256 `dc99d5e7…48999`）へ置き換えた。置き換え前は `bin/fever_battle/fever_battle.pre-refactor-r2-20261006.exe` に退避。基準 `data/fever/golden/` は新しいバイナリで取り直した（2091要求すべて安定、エンジン34中33が安定、再生は差分0）。
+
+### 7.4 R1で実施しなかったこと
+
+- テストファイルのモジュール単位への並べ直し：226件の移動は挙動に関係しない一方で差分が大きい。フィクスチャの分離にとどめた。R3でPython側の構成が変わるので、そのときに合わせて行う。
+- 既存の検証スクリプト9本の統合：過去の記録の再現手順として作業記録が参照している。回帰の確認は `fever_check.py replay` が担うので、スクリプトは残した。削除・統合するかはユーザーの判断による。
 

@@ -1,0 +1,156 @@
+{
+ "date": "2026-10-06",
+ "change": "nuisance_overflow_above_row_13_is_not_a_loss",
+ "basis": "user_confirmed_rule_for_pieces_applied_to_nuisance_by_interpretation_not_measured_on_steam",
+ "before_native_sha256": "137a52a36bdf2b1f0bf0452378c3ec0e334333c1bd979c6f35fadce2e7eb91ae",
+ "after_native_sha256": "dc99d5e732db1ef2c4760ba4053a2750d7dc5453fca53aa46d29f24477948999",
+ "compared": 2124,
+ "differences": 11,
+ "cases": [
+  {
+   "kind": "native",
+   "op": "gauge_wait",
+   "golden_index": 1002,
+   "changed": "candidates",
+   "survivors_before": 9,
+   "survivors_after": 21
+  },
+  {
+   "kind": "native",
+   "op": "gauge_wait",
+   "golden_index": 1003,
+   "changed": "candidates",
+   "survivors_before": 9,
+   "survivors_after": 21
+  },
+  {
+   "kind": "native",
+   "op": "gauge_wait",
+   "golden_index": 1937,
+   "changed": "candidates",
+   "survivors_before": 0,
+   "survivors_after": 0
+  },
+  {
+   "kind": "native",
+   "op": "gauge_wait",
+   "golden_index": 2074,
+   "changed": "candidates",
+   "survivors_before": 15,
+   "survivors_after": 15
+  },
+  {
+   "kind": "engine",
+   "case": "2026-10-06-fever-counter.json/cases/6/request",
+   "before": {
+    "x": 3,
+    "r": "R",
+    "chain": 7,
+    "reason": "fever_wait_conserve"
+   },
+   "after": {
+    "x": 3,
+    "r": "R",
+    "chain": 7,
+    "reason": "fever_wait_conserve"
+   }
+  },
+  {
+   "kind": "engine",
+   "case": "2026-10-06-fever-small-garbage-replay.json/results/2/request",
+   "before": {
+    "x": 1,
+    "r": "U",
+    "chain": 1,
+    "reason": "fever_intentional_failure_hold_nuisance"
+   },
+   "after": {
+    "x": 4,
+    "r": "U",
+    "chain": 0,
+    "reason": "fever_seed_search"
+   }
+  },
+  {
+   "kind": "engine",
+   "case": "2026-10-06-fever-small-garbage-replay.json/results/3/request",
+   "before": {
+    "x": 4,
+    "r": "R",
+    "chain": 1,
+    "reason": "fever_intentional_failure_hold_nuisance"
+   },
+   "after": {
+    "x": 5,
+    "r": "L",
+    "chain": 0,
+    "reason": "fever_seed_search"
+   }
+  },
+  {
+   "kind": "engine",
+   "case": "2026-10-06-fever-small-garbage-replay.json/results/6/request",
+   "before": {
+    "x": 1,
+    "r": "U",
+    "chain": 0,
+    "reason": "fever_end_without_pointless_fire"
+   },
+   "after": {
+    "x": 1,
+    "r": "U",
+    "chain": 0,
+    "reason": "fever_end_without_pointless_fire"
+   }
+  },
+  {
+   "kind": "engine",
+   "case": "2026-10-06-normal-colors.json/cases/3/request",
+   "before": {
+    "x": 0,
+    "r": "R",
+    "chain": 1,
+    "reason": "fever_wait_conserve"
+   },
+   "after": {
+    "x": 0,
+    "r": "R",
+    "chain": 1,
+    "reason": "fever_wait_conserve"
+   }
+  },
+  {
+   "kind": "engine",
+   "case": "2026-10-06-normal-colors.json/cases/13/request",
+   "before": {
+    "x": 3,
+    "r": "R",
+    "chain": 1,
+    "reason": "fever_wait_conserve"
+   },
+   "after": {
+    "x": 3,
+    "r": "R",
+    "chain": 1,
+    "reason": "fever_wait_conserve"
+   }
+  },
+  {
+   "kind": "engine",
+   "case": "2026-10-06-normal-colors.json/cases/14/request",
+   "before": {
+    "x": 3,
+    "r": "D",
+    "chain": 1,
+    "reason": "fever_small_offset"
+   },
+   "after": {
+    "x": 3,
+    "r": "D",
+    "chain": 1,
+    "reason": "fever_wait_conserve"
+   }
+  }
+ ],
+ "status": "offline_replay_not_live_acceptance"
+}

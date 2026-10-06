@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT), str(ROOT/'test')]
-from test_fever_mode import NATIVE, SOLO, request, side, seed_with_small_green
+from fever_fixtures import NATIVE, SOLO, request, side, seed_with_small_green
 from fever_battle.mode_engine import ModeBattleEngine
 from fever_battle.fever_defense import choose as defend
 from fever_battle.uncertainty import choose

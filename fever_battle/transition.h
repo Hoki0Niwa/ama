@@ -39,9 +39,10 @@ inline int drop_nuisance(Field& field, int count, int phase) {
     return discarded;
 }
 
-// Calls visit(board, overflow) for every choice of the columns that take the
-// partial row, when the position in the column order is not known. `overflow`
-// tells that some nuisance found its column full.
+// Calls visit(board) for every choice of the columns that take the partial
+// row, when the position in the column order is not known. Nuisance that finds
+// its column full vanishes above row 13, as a piece placed there does: a full
+// side column is no loss, and only the board's own death test decides.
 template <class Visit>
 void each_remainder_drop(const Field& source, int count, Visit visit) {
     const int whole = count / 6, extra = count % 6;
@@ -49,14 +50,12 @@ void each_remainder_drop(const Field& source, int count, Visit visit) {
         if (std::popcount(mask) != extra) continue;
         auto board = source;
         u8 heights[6]; board.get_heights(heights);
-        bool overflow = false;
         for (int x = 0; x < 6; ++x) {
             const int amount = whole + ((mask >> x) & 1);
-            overflow |= heights[x] + amount > 13;
             for (int i = 0; i < amount && heights[x] < 13; ++i)
                 board.set_cell(x, heights[x]++, cell::Type::GARBAGE);
         }
-        visit(board, overflow);
+        visit(board);
     }
 }
 

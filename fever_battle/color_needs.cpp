@@ -102,7 +102,7 @@ json normal_colors(Field field, const json& request) {
         int dropped = masks.get_size() ? 0 : std::min(30, fixed);
         bool alive = !child.is_dead(rules);
         int worst_quality = 1000000, worst_chain = 100;
-        each_remainder_drop(child, dropped, [&](Field board, bool) {
+        each_remainder_drop(child, dropped, [&](Field board) {
             alive &= !board.is_dead(rules);
             auto needs = color_needs(board);
             worst_quality = std::min(worst_quality, needs.quality(queue, 1));

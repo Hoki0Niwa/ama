@@ -5,7 +5,7 @@ import sys
 import unittest
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT));sys.path.insert(0,str(ROOT/'test'))
-from test_fever_mode import NATIVE,SOLO,side,request,seed3
+from fever_fixtures import NATIVE,SOLO,side,request,seed3
 from fever_battle.mode_engine import ModeBattleEngine
 from fever_battle.mode_tactics import seed_turnover_plan
 from tools.verify_fever_extension import verify

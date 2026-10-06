@@ -74,10 +74,11 @@ def role(exe):
     return None
 
 
-def trace_once():
+def trace_once(native, solo):
     with tempfile.TemporaryDirectory() as folder:
         log = Path(folder)/'trace.jsonl'
-        rows = run_tests({**os.environ, 'AMA_NATIVE_TRACE': str(log)}, quiet=True)
+        rows = run_tests({**os.environ, 'AMA_NATIVE_TRACE': str(log), 'AMA_BATTLE_NATIVE': str(Path(native).resolve()),
+                          'AMA_TEST_FEVER_ENGINE': str(Path(solo).resolve())}, quiet=True)
         entries = [json.loads(line) for line in log.read_text(encoding='utf-8').splitlines()] if log.exists() else []
     return rows, entries
 
@@ -116,7 +117,7 @@ def sha(path):
 
 
 def record(args):
-    runs = [trace_once(), trace_once()]
+    runs = [trace_once(args.native, args.solo), trace_once(args.native, args.solo)]
     for rows, _ in runs:
         failed = [name for name, _, ok, _ in rows if not ok]
         if failed:

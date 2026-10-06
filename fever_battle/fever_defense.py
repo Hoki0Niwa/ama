@@ -21,7 +21,7 @@ def _heights(rows):
 
 def _stands(rows, count):
     """Every column subset of a drop leaves the board alive (a full side column is no loss)."""
-    return all(not dead(board) for board, _ in outcomes(rows, count))
+    return all(not losing for _, losing in outcomes(rows, count))
 
 
 def choose(native, scoring, own, rate, gain, policy=None, allowed=None,
