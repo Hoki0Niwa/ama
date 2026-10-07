@@ -90,7 +90,7 @@ class IntegrationTests(unittest.TestCase):
     def test_seed_search_end_and_next_seed_deadline_match_mode_prediction(self):
         field = list(EMPTY)
         field[-7:] = ['.....R','.....R','.....B','.....B','...BRR','..YYBB','..YBRR']
-        own = dict(character='raffina', field=field, queue=['2:RY'],
+        own = dict(character='raffina', field=field, queue=['2:RY', '2:GG'],
             fever_confirmed=0, fever_unconfirmed=0, normal_confirmed=0, normal_unconfirmed=0,
             remainder=0, garbage_phase=0, remaining_frames=900, seed_chain=3)
         solver = SeedSolver(self.native, self.scoring)

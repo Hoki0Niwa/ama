@@ -52,7 +52,9 @@
     "value_model": {
       "seed_odds": 0.85,
       "carried_level": 0.5,
-      "color_odds": [0.75, 0.45, 0.25],
+      "piece_odds": 0.5,
+      "wait_cells": 3,
+      "crowded_cells": 6,
       "harmful_carry": 10
     }
   },

@@ -19,7 +19,7 @@ class LongExtensionTests(unittest.TestCase):
 
     def test_engine_uses_the_value_measure_whatever_the_held_packet(self):
         for held in (10,1000):
-            own=side('fever',seed3(),['2:RY']);own.update(normal_confirmed=held)
+            own=side('fever',seed3(),['2:RY','2:GG']);own.update(normal_confirmed=held)
             reply=self.engine.answer(request(own))
             self.assertEqual(reply['seed_forecast']['strategy'],'value')
             self.assertEqual(reply['seed_strategy_reason'],'expected_points_by_the_end_of_this_fever')

@@ -48,3 +48,4 @@
 | `2026-10-07-p3-entry-tactics.json` | 3 | offline_prototype_colour_model_scripted_nuisance_not_live_and_not_a_battle_result | tools/bench_fever_baseline.py entry |
 | `2026-10-07-p4-entry-tactics.json` | 2 | offline_prototype_colour_model_scripted_nuisance_not_live_and_not_a_battle_result | tools/bench_fever_baseline.py entry |
 | `2026-10-07-p5-fever-strategies.json` | 5 | offline_prototype_colour_model_public_reference_seeds_modelled_clock_not_live | tools/bench_fever_baseline.py fever |
+| `2026-10-07-fever-wait-value.json` | 24 | offline_prototype_colour_model_public_reference_seeds_modelled_clock_not_live | tools/bench_fever_baseline.py fever（7条件、変更前後） |
