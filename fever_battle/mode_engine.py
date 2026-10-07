@@ -591,10 +591,10 @@ class ModeBattleEngine(BattleEngine):
             gauge = offset_gauge(reply['link_points'], own['confirmed'] + own['unconfirmed'],
                                  own['remainder'], rate, own['gauge'], request['gauge_gain_on_offset'])
             reply.update(gauge_forecast=gauge, entry_pending_after_chain=gauge['gauge_after'] == 7)
-            if not request.get('enemy_chain') and reply['reason'] in (
-                    'normal_build_or_fire', 'unknown_nuisance_one_move_then_reobserve',
-                    'no_rescue_fast_finish', 'observed_current_pose_drop'):
-                reply['decision_dependencies'] = ['self']
+            # A reply that says nothing of what it rests on used only this side, unless an enemy
+            # chain was given; the nuisance search (garbage_search) reads the opponent's packets.
+            if not request.get('enemy_chain') and 'nuisance_forecast' not in reply:
+                reply.setdefault('decision_dependencies', ['self'])
         if reply['shape'] == '0':
             # Every policy branch, including unknown nuisance and seed search,
             # uses the native absolute big-puyo color encoded as U/R/D/L.
