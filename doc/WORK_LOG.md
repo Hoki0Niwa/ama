@@ -2154,3 +2154,12 @@ T7：Steam実機での全26キャラの周期照合（実機が必要）。段�
 - 反映：エンジンのプロセスが動いていないことを確認して既定の `fever_battle.exe` を置き換え、基準を取り直した。
 - 文書：`FEVER_MODE_ENGINE.md` 5.2、`FEVER_MARGIN_TIME.md` の注記、`README.md`、`SEARCH_PLAN.md` 第11節。
 - 未確認：修正後の実機。
+
+### 2026-10-07 共有部品の共通化、理由文字列の分岐、記録の訂正
+
+- 変更（`irregular-form` `aec0f97`、`fever` へ取り込み）：`dfs::eval` と `beam::eval` に同じ内容で定義されていた6関数を `ai/search/terrain.h` へ移した。`C:\Users\ho_ki\git\ama` の作業用ビルド（`bin\r5`・`r6b`・`r6c`）は削除した。
+- 変更（`fever`）：`mode_engine._think` の理由文字列による分岐を、返答の内容で決める形にした。
+- 確認：`irregular-form` で `bench` シード1〜4の一致と共有テスト5種。取り込み後の `fever` で、Fever系220件成功、再生1964件差分0、同じTsu側の確認。
+- 訂正：固定シードの対戦ログの一致は確認として当てにならない。変更していないバイナリでも5回中2回は手が異なった。`ai::think` の分割（`7f7b096`）の根拠は、ブロックを一字一句移したことと `bench`・テストである。`doc/REFACTOR_PLAN.md` 11.2 に記載。
+- 反映：エンジンのプロセスが動いていないことを確認して `fever` の既定バイナリを取り込み後のビルドへ更新し、基準を取り直した。
+- 残り：`doc/REFACTOR_PLAN.md` 11.3。
