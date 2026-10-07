@@ -304,13 +304,17 @@ class ModeBattleEngine(BattleEngine):
         (after a chain, a delivery, a new seed). Only the two pieces visible by
         then are used. The decision is kept for one `think` that finds the side
         as predicted; that think then costs no search.
+
+        While an enemy chain is observed, or a rate change is near, what the
+        opponent delivers by the time the piece appears cannot be told. The plan
+        is then `speculative`: where the piece goes if nothing changes, for keys
+        to be held towards before it appears. It is not kept: the `think` at the
+        spawn decides on what is observed then, as the fork's origin decides
+        every piece, and the keys carry on only if it names the same placement.
         """
         self.prepared = None
         refresh_margin = bool(self.margin.get('rate_events') or self.margin.get('enemy_rate_events'))
-        if refresh_margin and own['mode'] != 'normal':
-            return dict(prepared=False, reason='margin_boundary_requires_current_piece_observation')
-        if request.get('enemy_chain') and own['mode'] != 'normal':
-            return dict(prepared=False, reason='enemy_delivery_requires_current_piece_observation')
+        speculative = bool(request.get('enemy_chain') or refresh_margin)
         if observed:
             if len(own['queue']) not in (2, 3):
                 return dict(prepared=False, reason='cannot_predict_next_board')
@@ -326,16 +330,11 @@ class ModeBattleEngine(BattleEngine):
         ahead['self'] = future
         started = time.monotonic()
         reply = self._think(ahead, future, enemy, rate, policy, 'think')
-        if request.get('enemy_chain') or refresh_margin:
-            # The board/queue construction work is retained, but relative
-            # delivery times must be refreshed on spawn. No speculative
-            # preinput hint is authorized by this partial preparation.
-            return dict(prepared=False, normal_build_prepared=self.normal_build_used,
-                searched_visible=len(future['queue']), search_ms=(time.monotonic()-started)*1000,
-                reason='normal_build_prepared_refresh_battle_tactics_on_spawn')
         if reply.get('action') != 'place' or reply.get('selected_move_loses'):
-            return dict(prepared=False, reason=reply.get('reason'))
-        self.prepared = (self._signature(ahead, future), future['remaining_frames'], reply)
+            return dict(prepared=False, reason=reply.get('reason'),
+                        **({'normal_build_prepared': self.normal_build_used} if speculative else {}))
+        if not speculative:
+            self.prepared = (self._signature(ahead, future), future['remaining_frames'], reply)
         placement = dict(x=reply['x'], r=reply['r'])
         if 'color' in reply:
             placement['color'] = reply['color']
@@ -347,6 +346,11 @@ class ModeBattleEngine(BattleEngine):
             nuisance={key: future[key] for key in active}, reason=reply['reason'], placement=placement)
         if not observed:
             plan.update(source_queue=own['queue'], source_index=own['dropset_index'])
+        if speculative:
+            plan['speculative'] = True
+            return dict(prepared=True, speculative=True, normal_build_prepared=self.normal_build_used,
+                searched_visible=len(future['queue']), search_ms=(time.monotonic()-started)*1000,
+                controller=False, plan=plan, reason='speculative_plan_decided_again_on_spawn')
         return dict(prepared=True, searched_visible=len(future['queue']),
             search_ms=(time.monotonic()-started)*1000, controller=False, plan=plan)
 

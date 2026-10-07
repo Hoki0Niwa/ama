@@ -27,9 +27,11 @@ class BuildPrefetchTests(unittest.TestCase):
     def prepared(self):
         req = self.active(); ahead = copy.deepcopy(req); ahead['op'] = 'prepare_observed'
         result = self.engine.answer(ahead)
-        self.assertFalse(result['prepared'])  # Delivery tactics cannot authorize a preinput hint.
+        # What the opponent delivers by the spawn cannot be told: the plan is where the piece goes
+        # if nothing changes, for keys to be held towards. The decision itself is made on spawn.
+        self.assertTrue(result['prepared'] and result['speculative'] and result['plan']['speculative'])
         self.assertTrue(result['normal_build_prepared'])
-        self.assertNotIn('plan', result)
+        self.assertIsNone(self.engine.prepared)
         req['self']['queue'].append('L:RRY')
         req['frame'] = 10; req['observation'].update(frame_before=10, frame_after=10)
         for p in ('self', 'enemy'): req[p]['observed_frame'] = 10
@@ -74,7 +76,8 @@ class BuildPrefetchTests(unittest.TestCase):
         current['margin_policy'] = dict(start_frame=50, initial_target_point=120)
         ahead = copy.deepcopy(current); ahead['op'] = 'prepare_observed'
         result = self.engine.answer(ahead)
-        self.assertFalse(result['prepared'])
+        self.assertTrue(result['prepared'] and result['speculative'])
+        self.assertIsNone(self.engine.prepared)
         self.assertTrue(result['normal_build_prepared'])
         current['self']['queue'].append('L:RRY')
         with patch.object(self.engine.solo, 'ask', wraps=self.engine.solo.ask) as build:
@@ -97,6 +100,25 @@ class BuildPrefetchTests(unittest.TestCase):
                 self.engine.answer(current)
             build.assert_called_once()
 
+    def test_speculative_plan_names_the_placement_the_spawn_decides_when_nothing_changed(self):
+        req = self.active(); ahead = copy.deepcopy(req); ahead['op'] = 'prepare_observed'
+        plan = self.engine.answer(ahead)['plan']
+        req['self']['queue'].append('L:RRY')
+        reply = self.engine.answer(req)
+        self.assertFalse(reply.get('search_reused', False))      # decided on what the spawn shows
+        self.assertEqual((reply['x'], reply['r']), (plan['placement']['x'], plan['placement']['r']))
+
+    def test_fever_seed_under_an_enemy_chain_gets_a_speculative_plan(self):
+        enemy = side('fever', ['......']*13+['RRR...'])
+        req = request(side('fever', seed3(), ['2:BB', '2:RY']), enemy)
+        req['enemy_chain'] = dict(trigger_field=['......']*13+['RRRR..'],
+            elapsed=0, scored_links=0, mode_generation=1, seed_id=1)
+        req['op'] = 'prepare_observed'
+        result = self.engine.answer(req)
+        self.assertTrue(result['prepared'] and result['speculative'])
+        self.assertEqual(result['plan']['mode'], 'fever')
+        self.assertIsNone(self.engine.prepared)
+
     def test_prediction_is_refused_if_enemy_end_can_deliver_on_current_placement(self):
         req = self.active(); req['self']['queue'].append('L:RRY')
         req['enemy_chain']['elapsed'] = 30
@@ -109,7 +131,8 @@ class BuildPrefetchTests(unittest.TestCase):
         req = self.active(); req['self']['queue'].append('L:RRY')
         req.update(op='prepare', placement=dict(x=5, r='U'))
         result = self.engine.answer(req)
-        self.assertFalse(result['prepared'])
+        self.assertTrue(result['prepared'] and result['speculative'])
+        self.assertIsNone(self.engine.prepared)
         self.assertTrue(result['normal_build_prepared'])
         self.assertEqual(result['searched_visible'], 2)
 
