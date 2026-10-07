@@ -1,6 +1,7 @@
 #pragma once
 #include "../core/core.h"
 #include "../lib/nlohmann/json.hpp"
+#include "timing.h"
 
 namespace fever_battle {
 inline std::vector<int> split_distances(Field& field, const piece::Piece& piece,
@@ -44,6 +45,27 @@ inline nlohmann::json fall_features(Field field, avec<Field, 19>& pops) {
                           {"max_fall", max_fall}, {"moving_columns", columns},
                           {"moving_distances_by_column", moving_distances},
                           {"cleared_including_garbage", mask.get_count()}});
+        for (int c = 0; c < cell::COUNT; ++c) field.data[c].pop(mask);
+    }
+    return result;
+}
+// contact_frames of each link, as from fall_features, without building its JSON:
+// a search asks this for every line it weighs.
+inline std::vector<int> contact_frames_by_link(Field field, avec<Field, 19>& pops) {
+    std::vector<int> result;
+    for (int i = 0; i < pops.get_size(); ++i) {
+        auto mask = pops[i].get_mask();
+        mask = mask | (mask.get_expand() & field.data[static_cast<int>(cell::Type::GARBAGE)]);
+        int frames = 0;
+        for (int x = 0; x < 6; ++x) {
+            int holes = 0, moved = 0, distance = 0;
+            for (int y = 0; y < 13; ++y) {
+                if (mask.get_bit(x, y)) ++holes;
+                else if (holes && field.is_occupied(x, y)) { ++moved; distance = std::max(distance, holes); }
+            }
+            if (moved) frames = std::max(frames, column_contact_frames(distance, moved - 1));
+        }
+        result.push_back(frames);
         for (int c = 0; c < cell::COUNT; ++c) field.data[c].pop(mask);
     }
     return result;

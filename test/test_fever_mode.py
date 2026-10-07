@@ -22,6 +22,10 @@ from fever_battle.normal_colors import inspect as inspect_colors
 from fever_fixtures import NATIVE, SOLO, request, seed3, seed_with_small_green, side
 
 
+# With only 2:RY in sight the search would rather thicken the seed's last group and
+# wait; the piece that follows shows there is nothing to wait for.
+FIRES = ['2:RY', '2:GG']
+
 class ModeTests(unittest.TestCase):
     def setUp(self):
         self.ref = ModeReferee(['raffina', 'ally'])
@@ -595,7 +599,7 @@ class NativeModeTests(unittest.TestCase):
             self.engine.answer(req)
 
     def test_three_chain_native_path_matches_scoring(self):
-        req = request()
+        req = request(side('fever', seed3(), FIRES))
         reply = self.engine.answer(req)
         self.assertTrue(reply['seed_forecast']['solved'])
         self.assertGreaterEqual(reply['chain'], 3)
@@ -744,18 +748,86 @@ class NativeModeTests(unittest.TestCase):
         self.assertEqual(first['dropped'], 0 if reply['chain'] else 18)
 
     def test_offline_seed_geometry_keeps_missing_history_explicit(self):
-        own = side('fever', seed3())
+        own = side('fever', seed3(), FIRES)
         for key in ('mode_generation','seed_id','piece_id'):
             del own[key]
         result = self.engine.seed_solver.solve(own, 120, True, {})
         self.assertTrue(result['solved'])
 
     def test_unconfirmed_pressure_does_not_stop_a_seed_fired_at_its_level(self):
-        own = side('fever', seed3())
+        own = side('fever', seed3(), FIRES)
         own.update(unconfirmed=206, fever_unconfirmed=206)
         reply = self.engine.answer(request(own))
         self.assertGreaterEqual(reply['chain'], own['seed_chain'])
         self.assertEqual(reply['seed_forecast']['choice']['dropped'], 0)
+
+    def live_seed5(self, queue, remaining):
+        # A 5-chain seed of the 2026-10-07 session log, where a 4-chain was fired.
+        rows = list(EMPTY)
+        rows[-7:] = ['.....B', '.....B', '.....G', '..YRBG', '..YYBB', '.GGRRG', '.GYRBG']
+        own = side('fever', rows, queue)
+        own.update(seed_base=5, seed_chain=5, remaining_frames=remaining)
+        return self.engine.seed_solver.solve(own, 120, True, dict(budget_ms=500))
+
+    def test_a_seed_that_can_be_fired_at_its_level_is_not_fired_below_it(self):
+        result = self.live_seed5(['2:RG', 'L:BBY', '2:RB'], 1353)
+        kinds = result['alternatives']
+        self.assertEqual(kinds['regular_fire']['chain'], 5)
+        self.assertEqual(kinds['short_fire']['chain'], 4)
+        self.assertGreater(kinds['regular_fire']['expected_points'], kinds['short_fire']['expected_points'])
+        self.assertNotIn(result['path'][-1]['chain'], range(1, 5))
+
+    def test_a_seed_whose_colour_is_not_in_sight_is_kept_while_the_clock_is_long(self):
+        result = self.live_seed5(['L:YYY', '2:RB', '2:RY'], 873)
+        self.assertNotIn('regular_fire', result['alternatives'])
+        self.assertEqual([step['chain'] for step in result['path']], [0, 0, 0])
+        last = result['path'][-1]
+        self.assertGreaterEqual(last['extension_potential']['chain'], 5)
+        self.assertGreater(last['extension_potential']['odds'], 0.9)
+        # On the last piece of the clock there is nothing to wait for: what can be fired is.
+        self.assertGreater(self.live_seed5(['L:YYY', '2:RB', '2:RY'], 40)['choice']['chain'], 0)
+
+    def test_a_placement_followed_by_a_visible_piece_is_ranked_by_what_follows(self):
+        result = self.live_seed5(['L:YYY', '2:RB', '2:RY'], 873)
+        self.assertFalse(result['cutoff'])
+        self.assertEqual(result['alternatives']['no_pop']['placements'], 3)
+
+    def test_an_enemy_chain_still_scoring_does_not_make_a_short_fire_look_better(self):
+        # 2026-10-07 session log: a 9-chain seed was popped for one link while the opponent's
+        # chain was landing. The whole of that chain arrives whichever line is played.
+        rows = list(EMPTY)
+        rows[-11:] = ['R.....', 'G.....', 'Y.....', 'G.....', 'RG....', 'GR....',
+                      'GRRYBY', 'GBYRYY', 'RGBYRB', 'RGBYRB', 'RGBYRB']
+        own = side('fever', rows, ['0:Y', '2:BB', '2:RG'])
+        own.update(seed_base=9, seed_chain=9, remaining_frames=137, unconfirmed=26, fever_unconfirmed=26)
+        events = [dict(type='link', frame=30, points=6000), dict(type='link', frame=100, points=9000),
+                  dict(type='link', frame=170, points=12000), dict(type='link', frame=240, points=12000),
+                  dict(type='end', frame=300)]
+        result = self.engine.seed_solver.solve(own, 120, True, dict(budget_ms=500), enemy_events=events)
+        self.assertEqual(result['choice']['chain'], 9)
+        fired, short = result['choice'], result['alternatives']['short_fire']
+        self.assertEqual(short['chain'], 1)
+        self.assertGreater(fired['expected_points'], short['expected_points'])
+        # 26 on the tray and 325 still to come, less what each line offsets.
+        self.assertEqual(fired['carried_nuisance'], 26 + 325 - fired['cancelled'])
+
+    def test_a_large_seed_is_fired_at_its_level_rather_than_built_on(self):
+        rows = list(EMPTY)
+        rows[-11:] = ['...YRG', 'RBRGYB', 'GBBYRR', 'BGRRYY', 'BGRYRR', 'YYGRYY', 'GGRBBY',
+                      'YYGRRB', 'BBRYGG', 'BGGRYY', 'GRRYGG']
+        own = side('fever', rows, ['J:RBR', '2:YB', '2:RY'])
+        own.update(seed_base=14, seed_chain=14, remaining_frames=214)
+        solver = self.engine.seed_solver
+        result = solver.solve(own, 120, True, dict(budget_ms=500))
+        self.assertEqual([step['chain'] for step in result['path']], [14])
+        # Without the risk of placing on a nearly full board, two more pieces are stacked for a 15-chain.
+        model = solver.value_model
+        try:
+            solver.value_model = dict(model, crowded_cells=0)
+            free = solver.solve(own, 120, True, dict(budget_ms=500))
+        finally:
+            solver.value_model = model
+        self.assertEqual([step['chain'] for step in free['path']], [0, 0, 15])
 
     def test_uncertain_seed_drop_checks_all_subsets_before_reobservation(self):
         own = side('fever', seed3(), ['2:GG'])
@@ -780,7 +852,7 @@ class NativeModeTests(unittest.TestCase):
         self.assertFalse(reply['seed_forecast']['solved'])
 
     def test_deadline_scores_whole_chain_and_separates_next_seed_opportunity(self):
-        req = request(); req['self']['remaining_frames'] = 50
+        req = request(side('fever', seed3(), FIRES)); req['self']['remaining_frames'] = 50
         reply = self.engine.answer(req); last = reply['seed_forecast']['path'][-1]
         self.assertEqual(reply['chain'], 3)
         self.assertGreater(last['end_at'], 50)
@@ -827,7 +899,7 @@ class NativeModeTests(unittest.TestCase):
         self.assertEqual(reply['link_points'], self.engine.scoring.chain('raffina', result['links']))
 
     def test_active_and_held_queues_and_observation_fields_required(self):
-        req = request()
+        req = request(side('fever', seed3(), FIRES))
         req['self']['normal_confirmed'] = 100
         reply = self.engine.answer(req)
         self.assertTrue(reply['seed_forecast']['solved'])

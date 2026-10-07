@@ -1,10 +1,10 @@
 {
- "native_sha256": "6298e5dcfdf0092039fd075252b86e6d9ebbd2671deb1096ed23f48b902b234e",
+ "native_sha256": "9e6990ec02b35cf5732f24b95d2ff8558bc49d46f95f39cdec9b7301818e5957",
  "solo_sha256": "bbf87be2c236a1417df08ae2a2c2c591b10344e37c225af89e7ebc4bd8df67b8",
- "head": "e5773502127faa53fcd702712cfb6c27c764afd5",
+ "head": "1bbf1c25c2105bd9c67d6af7f845423033e91807",
  "tests": {
   "test_fever_battle.py": 23,
-  "test_fever_build_prefetch.py": 10,
+  "test_fever_build_prefetch.py": 12,
   "test_fever_calibrate.py": 7,
   "test_fever_counter.py": 13,
   "test_fever_deadlines.py": 11,
@@ -12,7 +12,7 @@
   "test_fever_forecast.py": 15,
   "test_fever_garbage_repair.py": 4,
   "test_fever_long_extension.py": 2,
-  "test_fever_mode.py": 74,
+  "test_fever_mode.py": 79,
   "test_fever_piece.py": 2,
   "test_fever_protocol.py": 7,
   "test_fever_queue.py": 3,
@@ -22,9 +22,9 @@
   "test_fever_transition.py": 2,
   "test_fever_watch.py": 3
  },
- "tests_total": 220,
- "native_cases": 1930,
- "native_stable": 1930,
+ "tests_total": 227,
+ "native_cases": 1942,
+ "native_stable": 1942,
  "native_by_exe_op": {
   "native:closing_transition": {
    "cases": 2,
@@ -55,8 +55,8 @@
    "stable": 52
   },
   "native:seed_search": {
-   "cases": 381,
-   "stable": 381
+   "cases": 390,
+   "stable": 390
   },
   "native:solo": {
    "cases": 500,
@@ -67,12 +67,12 @@
    "stable": 8
   },
   "native:tactics": {
-   "cases": 42,
-   "stable": 42
+   "cases": 43,
+   "stable": 43
   },
   "native:transition": {
-   "cases": 285,
-   "stable": 285
+   "cases": 287,
+   "stable": 287
   },
   "native:validate": {
    "cases": 88,
