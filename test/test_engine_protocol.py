@@ -42,6 +42,58 @@ class EngineProtocolTests(unittest.TestCase):
             self.assertIn('eval', reply)
             self.assertIn('trigger', reply)
 
+    def test_buried_enemy_rebuilds_without_small_followups(self):
+        req = dict(request(), include_next=True, beam_width=25, beam_depth=8)
+        req['self'].update(field=['......'] * 11 + ['R.....'] * 3,
+                           queue=['RB', 'GY', 'YB'])
+        req['enemy']['field'] = ['......'] * 11 + ['######'] * 3
+        reply, = replies(req)
+        self.assertTrue(reply['wait_for_enemy'])
+        self.assertEqual(reply['build_search'], 'beam')
+        self.assertEqual(reply['next_chain'], 0)
+
+    def test_wait_requires_no_fire_through_all_three_visible_pairs(self):
+        req = dict(request(), beam_width=12, beam_depth=3)
+        req['enemy'].update(field=['......'] * 9 + ['R.....'] * 2 + ['######'] * 3,
+                            queue=['GB', 'YB', 'RR'])
+        reply, = replies(req)
+        self.assertFalse(reply['wait_for_enemy'])
+        self.assertEqual(reply['build_search'], 'beam')
+
+    def test_fixed_garbage_forecast_and_live_fire_before_it(self):
+        req = dict(request(), beam_width=12, beam_depth=3)
+        req['self']['attack'] = 18
+        req['enemy']['dropping'] = 18
+        blocked = copy.deepcopy(req)
+        req['enemy'].update(field=['......'] * 11 + ['R.....'] * 3,
+                            queue=['RB', 'GY', 'YB'])
+        waiting, recoverable = replies(blocked, req)
+        self.assertTrue(waiting['wait_for_enemy'])
+        self.assertFalse(recoverable['wait_for_enemy'])
+
+    def test_wait_is_disabled_for_defence_running_chains_and_solo(self):
+        req = dict(request(), beam_width=12, beam_depth=3)
+        req['enemy']['field'] = ['......'] * 11 + ['######'] * 3
+        running = copy.deepcopy(req)
+        running['enemy']['attack_frame'] = 4
+        threatened = copy.deepcopy(req)
+        threatened['enemy']['attack'] = 30
+        dropping = copy.deepcopy(req)
+        dropping['self']['dropping'] = 6
+        for reply in replies(running, threatened, dropping, dict(req, solo=True)):
+            self.assertFalse(reply['wait_for_enemy'])
+
+    def test_wait_is_recomputed_when_cached_enemy_recovers(self):
+        req = dict(request(), beam_width=12, beam_depth=3)
+        req['enemy']['field'] = ['......'] * 11 + ['######'] * 3
+        recovered = copy.deepcopy(req)
+        recovered['enemy'].update(field=['......'] * 11 + ['R.....'] * 3,
+                                  queue=['RB', 'GY', 'YB'])
+        waiting, active = replies(req, dict(recovered, reuse_search=True))
+        self.assertTrue(waiting['wait_for_enemy'])
+        self.assertTrue(active['search_reused'])
+        self.assertFalse(active['wait_for_enemy'])
+
     def test_route_and_prediction_match_a_real_firing_placement(self):
         req = request()
         req['self'].update(field=['......'] * 11 + ['R.....'] * 3,

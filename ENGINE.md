@@ -56,6 +56,17 @@ visible queue, not necessarily a chain fired by the first placement.
 Versus replies expose `search_reused`, `search_reusable` and `build_search`.
 `search_ms` is the engine response computation time. Extra fields are additive.
 
+`wait_for_enemy` (default false) asks the client to release DOWN while still
+steering the selected placement and letting it fall naturally. In Tsu versus,
+an opponent obstructed by garbage makes the AI rebuild its normal chain rather
+than prefer short follow-up attacks. Waiting additionally requires no enemy
+chain running, no incoming fixed garbage on us, and no surviving firing line
+within the opponent's three visible pairs on either its current board or the
+board after the next garbage drop (capped at 30, without counting fixed garbage
+twice). This is a visible-queue estimate, not a proof of victory. Each new
+request recomputes it, including when construction search is reused. Solo
+replies keep it false. Clients that do not read it retain their existing speed.
+
 Paths assume the spawn position; the real client must verify the current
 position and handle falling, timing and unreachable targets. A partial queue
 match intentionally permits a guessed tail and does not promise equivalence

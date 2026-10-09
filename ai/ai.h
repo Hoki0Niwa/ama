@@ -55,6 +55,7 @@ struct Result
     move::Placement placement = move::Placement();
     i32 eval = INT32_MIN;
     Update update = Update();
+    bool wait_for_enemy = false;
 };
 
 constexpr Result RESULT_DEFAULT = Result {

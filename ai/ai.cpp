@@ -1057,13 +1057,13 @@ Result think(
     // Gets attack balance
     i32 balance = self.attack - enemy.attack;
 
-    // Speculates enemy's garbage dropping
-    if (enemy.attack_frame > 0 && balance >= 3) {
-        enemy.field.drop_garbage(balance);
-    }
-
-    if (enemy.dropping >= 3) {
-        enemy.field.drop_garbage(balance);
+    // Fixed nuisance is already included in the outgoing attack gauge. Forecast
+    // just one Tsu drop (at most 30), rather than adding the same garbage twice.
+    auto enemy_before_drop = enemy.field;
+    i32 enemy_drop = std::min(30, std::max(enemy.dropping,
+        enemy.attack_frame > 0 ? std::max(0, balance) : 0));
+    if (enemy_drop > 0) {
+        enemy.field.drop_garbage(enemy_drop);
     }
 
     // Gets attacks
@@ -1088,6 +1088,22 @@ Result think(
     i32 enemy_harass = enemy_gaze.harass.score / target_point;
     i32 enemy_early_attack = enemy_gaze.early.score / target_point;
 
+    // An obstructed opponent calls for rebuilding, not repeated small follow-ups.
+    // Only slow down when neither the current board nor the forecast board can
+    // fire with the visible pairs. A running enemy chain must finish first.
+    bool rebuild = balance >= 0 && enemy_garbage_obstruct;
+    bool wait_for_enemy = false;
+    if (rebuild && enemy.attack_frame == 0 && self.dropping == 0) {
+        auto visible = cell::Queue(enemy.queue.begin(), enemy.queue.begin() +
+            std::min(enemy.queue.size(), ai::QUEUE_VISIBLE));
+        auto future_attacks = dfs::attack::search(enemy.field, visible, false);
+        wait_for_enemy = future_attacks.candidates.empty();
+        if (wait_for_enemy && enemy_drop > 0) {
+            auto current_attacks = dfs::attack::search(enemy_before_drop, visible, false);
+            wait_for_enemy = current_attacks.candidates.empty();
+        }
+    }
+
     // The decisions, in order: the first that has an answer gives it
     auto situation = Situation {
         self, enemy, bsearch, configs, target_point, style, trigger, stretch, prepare,
@@ -1096,6 +1112,9 @@ Result think(
     };
 
     for (auto decide : { defend, counter, kill, harass }) {
+        if (rebuild && decide != defend) {
+            continue;
+        }
         if (auto result = decide(situation)) {
             return *result;
         }
@@ -1105,19 +1124,14 @@ Result think(
     auto build_type = search::Type::BUILD;
     bool form = true;
 
-    if (enemy_garbage_obstruct) {
-        build_type = search::Type::FAST;
-        form = false;
-    }
-
     // Build fast if our resource is low
-    if (gaze::is_small_field(self.field, enemy.field)) {
+    if (!rebuild && gaze::is_small_field(self.field, enemy.field)) {
         build_type = search::Type::AC;
         form = false;
     }
 
     // Build all clear
-    if (enemy.all_clear) {
+    if (!rebuild && enemy.all_clear) {
         build_type = search::Type::AC;
         form = false;
     }
@@ -1137,7 +1151,7 @@ Result think(
         self_attacks,
         build_type,
         trigger,
-        true,
+        !rebuild,
         stretch
     );
 
@@ -1145,6 +1159,7 @@ Result think(
     //     ai_build.update.form = false;
     // }
 
+    ai_build.wait_for_enemy = wait_for_enemy;
     return ai_build;
 };
 

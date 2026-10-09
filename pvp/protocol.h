@@ -176,6 +176,7 @@ struct Reply
     std::optional<i32> trigger = {};
     std::vector<move::Placement> alternatives;
     bool build_required = false;
+    bool wait_for_enemy = false;
 };
 
 json request_to_json(Request& request)
@@ -222,6 +223,7 @@ json reply_to_json(const Reply& reply)
     js["x"] = reply.placement.x;
     js["r"] = std::string(1, direction_to_char(reply.placement.r));
     js["eval"] = reply.eval;
+    js["wait_for_enemy"] = reply.wait_for_enemy;
     if (!reply.alternatives.empty()) {
         js["alternatives"] = json::array();
         for (auto& p : reply.alternatives) {
@@ -246,6 +248,7 @@ Reply reply_from_json(const json& js)
     reply.placement.x = js.at("x").get<i32>();
     reply.placement.r = direction_from_char(js.at("r").get<std::string>()[0]);
     reply.eval = js.at("eval").get<i32>();
+    reply.wait_for_enemy = js.value("wait_for_enemy", false);
 
     if (!js.at("trigger").is_null()) {
         reply.trigger = js.at("trigger").get<i32>();

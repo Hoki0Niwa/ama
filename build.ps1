@@ -18,6 +18,12 @@ try {
     & $compilerPath '-std=c++20' '-O2' '-msse4.1' '-DNDEBUG' '-static' '-s' @sources '-o' $outputPath
     if ($LASTEXITCODE -ne 0) { throw "Ama $Target build failed: $LASTEXITCODE" }
     Write-Output "Built $outputPath"
+    # Observed-pose operation ABI, owned and rebuilt with this checkout.
+    $operationPath = Join-Path (Split-Path $outputPath) 'operations.dll'
+    & $compilerPath '-std=c++20' '-O2' '-shared' '-static' '-s' (Join-Path $PSScriptRoot 'core/operation.cpp') '-o' $operationPath
+    if ($LASTEXITCODE -ne 0) { throw "Ama operation library build failed: $LASTEXITCODE" }
+    Write-Output "Built $operationPath"
+
 } finally {
     $env:PATH = $savedPath
 }

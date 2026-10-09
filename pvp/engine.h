@@ -103,7 +103,8 @@ public:
         return Reply {
             .placement = result.placement,
             .eval = result.eval,
-            .trigger = result.update.trigger
+            .trigger = result.update.trigger,
+            .wait_for_enemy = result.wait_for_enemy
         };
         }
         catch (const BuildRequired&) {
