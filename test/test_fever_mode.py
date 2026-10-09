@@ -724,7 +724,7 @@ class NativeModeTests(unittest.TestCase):
     def test_fever_wait_preserves_mainline_colors_with_the_same_small_counter(self):
         own = side('normal', seed_with_small_green(), ['2:GB'])
         own.update(gauge=6, unconfirmed=200, normal_unconfirmed=200)
-        reply = self.engine.answer(request(own))
+        reply = self.engine.answer(request(own, side('fever', seed3())))
         self.assertEqual(reply['chain'], 1)
         self.assertTrue(reply['entry_pending_after_chain'])
         self.assertEqual(reply['needed_color_consumed'], 0)
@@ -929,8 +929,10 @@ class NativeModeTests(unittest.TestCase):
         own = side()
         own['gauge'] = 6
         own['field'][-1] = 'RRR.BB'
-        own['confirmed'] = own['normal_confirmed'] = 30
-        reply = self.engine.answer(request(own))
+        # Above the sparse board's 30-puyo acceptance: an actual necessary
+        # offset forecasts entry, rather than forcing one for a safe packet.
+        own['confirmed'] = own['normal_confirmed'] = 31
+        reply = self.engine.answer(request(own, side('fever', seed3())))
         self.assertTrue(reply['entry_pending_after_chain'])
         self.assertEqual(reply['gauge_forecast']['gauge_after'], 7)
 
@@ -941,12 +943,15 @@ class NativeModeTests(unittest.TestCase):
     def test_entry_spends_four_puyos_when_four_are_enough(self):
         own=side('normal',list(EMPTY[:-1])+['RRRBBB'],['2:RB','2:RY','2:GY'])
         own.update(character='arle',gauge=6,unconfirmed=100,normal_unconfirmed=100)
-        reply=self.engine.answer(request(own))
+        reply=self.engine.answer(request(own, side('fever', seed3())))
         self.assertEqual(reply['reason'],'tactics_offset')
         self.assertTrue(reply['entry_pending_after_chain'])
         candidates=reply['tactics_forecast']['candidates']
-        self.assertTrue(any(self.popped(c)==8 and c['gauge_after']==7 for c in candidates))
-        self.assertEqual(self.popped(reply['tactics_forecast']['choice']),4)
+        self.assertTrue(any(self.popped(c)==4 and c['gauge_after']==7 for c in candidates))
+        # Four would enter Fever; the eight that also clear the board whole are taken (2026-10-08).
+        choice=reply['tactics_forecast']['choice']
+        self.assertEqual(self.popped(choice),8)
+        self.assertTrue(choice['all_clear'])
 
     def test_search_reads_next2_and_never_a_fourth_piece(self):
         own=side('normal',list(EMPTY[:-2])+['RRRBBB','GGGYYY'],['2:RB','2:GG','2:RR'])
@@ -967,8 +972,12 @@ class NativeModeTests(unittest.TestCase):
         self.assertTrue(reply['entry_pending_after_chain'])
         self.assertTrue(choice['survives'])
         self.assertEqual((choice['gauge_after'],choice['projected_gauge']),(7,7))
+        # With nothing pending the same piece clears the board whole, and that is taken (2026-10-08):
+        # under the Fever rule a four-chain seed drops for it.
         own.update(confirmed=0,normal_confirmed=0)
-        self.assertNotIn('tactics_forecast',self.engine.answer(request(own)))
+        quiet=self.engine.answer(request(own))
+        self.assertEqual(quiet['reason'],'tactics_all_clear')
+        self.assertTrue(quiet['next_all_clear'])
 
     def test_nothing_is_forecast_on_an_unknown_all_clear_seed(self):
         own=side('normal',list(EMPTY[:-1])+['RRRBBB'],['2:RB','2:RR','2:BB'])
@@ -987,7 +996,8 @@ class NativeModeTests(unittest.TestCase):
         self.assertEqual((reply['x'],reply['r']),(5,'U'))
         self.assertTrue(reply['recovery'])
         self.assertEqual(reply['chain'],0)
-        self.assertEqual(reply['tactics_forecast']['choice']['projected_gauge'],7)
+        self.assertEqual(reply['tactics_forecast']['choice']['projected_gauge'],6)
+        self.assertFalse(reply.get('entry_pending_after_chain', False))
 
     def test_reference_metadata_and_decoder_do_not_guess_missing_entries(self):
         data = json.loads((ROOT/'data/fever/seeds/namoko-reference.json').read_text(encoding='utf-8'))

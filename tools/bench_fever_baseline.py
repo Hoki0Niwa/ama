@@ -16,6 +16,7 @@ Prototype colour model and modelled clocks, no opponent board and no input:
 neither figure is a live success rate or a battle result.
 """
 import argparse
+from unittest.mock import patch
 import hashlib
 import json
 from pathlib import Path
@@ -120,6 +121,9 @@ def fever_run(engine, character, colours, args, seeds, limit=120):
             if found:
                 return found
     own, enemy = side(character), side(character)
+    if args.opponent == 'chain':
+        # An opponent who holds a main chain: the seed is built on, not fired at once to land on them.
+        enemy['field'] = next(s['field'] for s in seeds if s['seed_chain'] == 12)
     enemy['queue'] = queue[:3]
     level, number, clock = args.level, 0, args.clock
     own.update(mode='fever', gauge=7, stored_field=list(EMPTY), clock_running=True, mode_generation=1,
@@ -189,18 +193,38 @@ def entry_run(engine, character, colours, args, limit=90):
     queue = engine.native.ask(dict(op='queue', character=character, seed=colours, count=limit+3))['queue']
     own, enemy = side(character), side(character)
     enemy['queue'] = queue[:3]
+    enemy['gauge'] = 6      # one offset from Fever: nothing sent kills, so the scripted packets alone decide
     row = dict(colours=colours)
     reasons, offsets, dropped, biggest, since_chain, slowest = {}, 0, 0, 0, 0, 0.0
     first_attack = None
+    longest = lambda rows: engine.native.ask(dict(op='stock', field=rows, want=7))['longest']
+    built = 0       # the longest chain the board held when nuisance first arrived
+    due = {}        # move at which an arrival seen earlier is confirmed
+    timing = ChainTiming().native()
+    piece_frames = timing['placement_frames'] + timing['spawn_frames']
+    # The main chain while nuisance is pending: moves on which this piece could fire it whole
+    # (within one link of the longest, four links or more), whether it was, and what it then sent.
+    main = dict(could_fire=0, fired=False, fired_chain=0, fired_points=0, broken=False)
+    decisions = {}
     for move in range(limit):
         if move >= args.start and (move - args.start) % args.every == 0:
-            own['confirmed'] += args.amount
-            first_attack = move if first_attack is None else first_attack
-        own['normal_confirmed'] = own['confirmed']
+            # With a warning the packet is first seen unconfirmed, as one sent by a chain still running.
+            own['unconfirmed'] += args.amount
+            due[move + args.warning] = due.get(move + args.warning, 0) + args.amount
+            if first_attack is None:
+                first_attack, built = move, longest(own['field'])
+        landed = min(own['unconfirmed'], due.pop(move, 0))
+        own['unconfirmed'] -= landed
+        own['confirmed'] += landed
+        own['normal_confirmed'], own['normal_unconfirmed'] = own['confirmed'], own['unconfirmed']
         own.update(queue=queue[move:move+3], dropset_index=move % 16, piece_id=move, moves_since_chain=since_chain)
         started = time.monotonic()
+        # An unconfirmed packet comes with the end of the chain that sends it, as an observed chain gives it.
+        lands = [dict(type='end', frame=(min(due) - move) * piece_frames)] if due and own['unconfirmed'] else []
         try:
-            reply = engine.answer(request(f'entry-{colours}', move, own, enemy, 1))
+            told = own if not args.unknown_phase else dict(own, garbage_phase=None, garbage_phase_status='unknown')
+            with patch.object(engine, '_enemy_events', return_value=lands):
+                reply = engine.answer(request(f'entry-{colours}', move, told, enemy, 1))
         except ValueError as error:      # the engine found no placement that survives
             reply = dict(error=str(error))
         slowest = max(slowest, time.monotonic()-started)
@@ -210,6 +234,30 @@ def entry_run(engine, character, colours, args, limit=90):
         reasons[reply['reason']] = reasons.get(reply['reason'], 0) + 1
         result = engine.native.ask(dict(op='transition', field=own['field'], piece=own['queue'][0],
                                         x=reply['x'], r=reply['r']))
+        if own['confirmed'] + own['unconfirmed'] and not main['fired']:
+            whole = max(4, longest(own['field']) - 1)
+            main['could_fire'] += any(len(p['links']) >= whole and not p['dead'] for p in engine.native.ask(
+                dict(op='placements', field=own['field'], piece=own['queue'][0]))['placements'])
+            if len(result['links']) >= whole:
+                main.update(fired=True, fired_chain=len(result['links']),
+                            fired_points=sum(engine.scoring.chain(character, result['links'])))
+            elif result['links'] and not result['dead'] and longest(result['field']) < whole:
+                main['broken'] = True
+        row['main'] = main
+        if own['confirmed'] + own['unconfirmed']:
+            # What this decision did to the main chain, as tools/analyze_fever_matches.py counts it in live logs.
+            held = longest(own['field'])
+            chain = len(result['links'])
+            if held >= 4 and chain >= held - 1:
+                what = 'main chain fired whole'
+            elif held >= 4 and chain and not result['dead'] and longest(result['field']) < held - 1:
+                what = 'main chain broken by a smaller clear'
+            elif chain:
+                what = 'smaller clear, main chain kept' if held >= 4 else 'clear, no main chain held'
+            else:
+                what = 'no clear'
+            decisions[what] = decisions.get(what, 0) + 1
+        row['decisions'] = decisions
         if result['dead']:
             return dict(row, end='dead', moves=move+1, gauge=own['gauge'], reasons=reasons)
         board = result['field']
@@ -219,16 +267,21 @@ def entry_run(engine, character, colours, args, limit=90):
             if len(result['links']) >= engine.policy['reset_moves_at_chain']:
                 since_chain = 0
             for point in engine.scoring.chain(character, result['links']):
-                amount, own['remainder'], _ = convert(point, own['remainder'], 120, own['confirmed'])
+                amount, own['remainder'], _ = convert(point, own['remainder'], 120,
+                                                      own['confirmed'] + own['unconfirmed'])
                 taken = min(own['confirmed'], amount)
                 own['confirmed'] -= taken
+                flying = min(own['unconfirmed'], amount - taken)
+                own['unconfirmed'] -= flying
+                taken += flying
                 if taken:
                     offsets += 1
                     own['gauge'] = min(7, own['gauge'] + 1)
             if own['gauge'] == 7:
                 return dict(row, end='entry', moves=move+1, moves_after_first_attack=move+1-first_attack,
                     offset_links=offsets, dropped=dropped, biggest_chain=biggest, reasons=reasons,
-                    board_cells=sum(c != '.' for r in board for c in r), slowest_ms=round(slowest*1000))
+                    board_cells=sum(c != '.' for r in board for c in r), slowest_ms=round(slowest*1000),
+                    built_chain=built, kept_chain=longest(board), held=own['confirmed'] + own['unconfirmed'])
         elif own['confirmed']:
             count = min(30, own['confirmed'])
             board, _ = drop_garbage(board, count, own['garbage_phase'])
@@ -248,10 +301,28 @@ def entry_bench(engine, args):
     ends = {}
     for r in rows:
         ends[r['end']] = ends.get(r['end'], 0) + 1
-    summary = dict(character=args.character, attack=dict(start=args.start, every=args.every, amount=args.amount),
+    def kind(r):
+        m = r.get('main', dict(fired=False, could_fire=0))
+        return 'fired_whole' if m['fired'] else 'could_fire_and_did_not' if m['could_fire'] else 'never_could_fire'
+    main = {}
+    for r in rows:
+        end = 'dead' if r['end'] == 'dead' else 'cleared' if r.get('held') == 0 else 'held' if r['end'] == 'entry' else r['end']
+        main.setdefault(kind(r), {}).setdefault(end, 0)
+        main[kind(r)][end] += 1
+    fired = [r['main'] for r in rows if r.get('main', {}).get('fired')]
+    summary = dict(character=args.character,
+        attack=dict(start=args.start, every=args.every, amount=args.amount, warning=args.warning),
         samples=len(rows), ends=ends, entry_rate=round(len(entered)/len(rows), 4),
         mean_moves_after_first_attack=round(statistics.mean(r['moves_after_first_attack'] for r in entered), 2) if entered else None,
         mean_dropped_before_entry=round(statistics.mean(r['dropped'] for r in entered), 2) if entered else None,
+        mean_built_chain=round(statistics.mean(r['built_chain'] for r in entered), 2) if entered else None,
+        mean_kept_chain=round(statistics.mean(r['kept_chain'] for r in entered), 2) if entered else None,
+        mean_held_at_entry=round(statistics.mean(r['held'] for r in entered), 2) if entered else None,
+        decisions_under_a_packet={what: sum(r.get('decisions', {}).get(what, 0) for r in rows)
+            for what in sorted({k for r in rows for k in r.get('decisions', {})})},
+        main_chain=main, main_chain_broken=sum(r.get('main', {}).get('broken', False) for r in rows),
+        mean_fired_chain=round(statistics.mean(m['fired_chain'] for m in fired), 2) if fired else None,
+        mean_fired_points=round(statistics.mean(m['fired_points'] for m in fired)) if fired else None,
         mean_gauge_when_not_entered=round(statistics.mean(r['gauge'] for r in rows if r['end'] != 'entry'), 2)
             if len(entered) < len(rows) else None,
         slowest_ms=max((r.get('slowest_ms', 0) for r in rows), default=0))
@@ -271,6 +342,12 @@ def main():
     parser.add_argument('--start', type=int, default=12, help='entry: piece at which nuisance first arrives')
     parser.add_argument('--every', type=int, default=3, help='entry: pieces between arrivals')
     parser.add_argument('--amount', type=int, default=4, help='entry: confirmed nuisance per arrival')
+    parser.add_argument('--opponent', choices=('empty', 'chain'), default='chain',
+                        help='fever: the opponent on a normal board, empty or holding a 12 chain')
+    parser.add_argument('--unknown-phase', action='store_true',
+                        help='entry: the engine is not told which columns take a partial row, as in live play')
+    parser.add_argument('--warning', type=int, default=0,
+                        help='entry: pieces an arrival stays unconfirmed before it is confirmed')
     parser.add_argument('--objective', choices=('mainline', 'fever_aim'),
                         help='entry: normal build objective, in place of the policy file')
     parser.add_argument('--output', type=Path)

@@ -29,6 +29,14 @@ try {
     & $compilerPath @flags @sources '-o' $outputPath
     if ($LASTEXITCODE -ne 0) { throw "Ama $Target build failed: $LASTEXITCODE" }
     Write-Output "Built $outputPath"
+    # Observed-pose operation ABI, owned and rebuilt with this checkout.
+    $operationPath = Join-Path (Split-Path $outputPath) 'operations.dll'
+    $operationFlags = @('-std=c++20', '-O2', '-shared', '-static', '-s')
+    if ($Target -in 'fever', 'fever_battle', 'bench_fever') { $operationFlags += '-DAMA_FEVER_OPERATION' }
+    & $compilerPath @operationFlags (Join-Path $PSScriptRoot 'core/operation.cpp') '-o' $operationPath
+    if ($LASTEXITCODE -ne 0) { throw "Ama operation library build failed: $LASTEXITCODE" }
+    Write-Output "Built $operationPath"
+
 } finally {
     $env:PATH = $savedPath
 }

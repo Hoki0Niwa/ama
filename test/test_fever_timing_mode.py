@@ -81,6 +81,7 @@ class IntegrationTests(unittest.TestCase):
         # Exercise the actual protocol-3 prediction function without starting the solo worker.
         engine = object.__new__(ModeBattleEngine)
         engine.native, engine.scoring = self.native, self.scoring
+        engine.chain_predictions = {}
         normal = engine._prediction('raffina', board, 'normal')
         fever = engine._prediction('raffina', board, 'fever')
         self.assertLess(fever['end_frame'], normal['end_frame'])

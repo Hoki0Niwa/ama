@@ -2,9 +2,11 @@
 #include "../fever/text.h"
 #include "physics.h"
 #include "timing.h"
+#include "disruption.h"
 #include "color_needs.h"
 #include "rate_schedule.h"
 #include "transition.h"
+#include "nuisance.h"
 #include <chrono>
 #include <cmath>
 #include <limits>
@@ -32,9 +34,13 @@ struct Step {
     bool has_extension = false, target_preserved = false;
     int time_reward = 0, remaining_after_rewards = 0;
     i64 carry = 0;      // nuisance left for the normal board if Fever ended after this step
+    i64 landed = 0;     // nuisance on the opponent once their observed chain has run out
+    EnemyTrays enemy_trays;
     Potential extension;
     i64 extension_points = 0; int extension_frames = 0; double extension_odds = 0;
     i64 worth = 0;      // points expected by the end of the Fever
+    double disrupt = 0;
+    std::string disruption_kind = "none";
     bool all_cases_preserve() const { return !has_all_cases || all_cases; }
     json describe() {
         json j = {{"x", x}, {"r", std::string(1, r)},
@@ -47,7 +53,7 @@ struct Step {
             {"points_before_timeout", timely_points}, {"total_points", total_points},
             {"completed_before_timeout", completed}, {"next_seed_input_fits", next_fits},
             {"time_reward_frames", time_reward}, {"remaining_after_rewards", remaining_after_rewards},
-            {"carried_nuisance", carry}};
+            {"carried_nuisance", carry}, {"enemy_trays", enemy_trays.json()}, {"enemy_fever_landed", landed}};
         if (has_all_cases) {
             j["all_drop_cases_preserve_target"] = all_cases;
             j["all_drop_cases_keep_ignition"] = keeps_ignition;
@@ -59,15 +65,18 @@ struct Step {
             j["target_ignition_preserved"] = target_preserved;
         }
         j["expected_points"] = worth;
+        j["projected_disrupt"] = disrupt;
+        j["disruption_kind"] = disruption_kind;
         return j;
     }
 };
 using Rank = std::tuple<int, i64, int, int, int, i64>;
 struct SeedNode {
     Field field;
-    int frame = 0, confirmed = 0, flying = 0, held = 0, phase = 0;
+    int frame = 0, confirmed = 0, flying = 0, held_fixed = 0, held_flying = 0, phase = 0;
     i64 remainder = 0;
-    i64 enemy_fixed = 0, enemy_flying = 0, enemy_remainder = 0;
+    EnemyTrays enemy;
+    i64 enemy_remainder = 0;
     size_t event_index = 0;
     std::vector<Step> path;
     int value = 0;      // of the line so far: which nodes go on to the next piece
@@ -118,7 +127,6 @@ std::vector<i64> points_for(avec<Field, 19>& masks, const std::vector<int>& powe
 json seed_search(Field field, const json& request) {
     const int width = number(request, "width", 1, 1000);
     const int max_nodes = number(request, "max_nodes", 1, 100000);
-    const int budget_ms = number(request, "budget_ms", 1, 1000);
     // Steam build 15209927's internal Fever timer caps at 1860 frames.
     // The Python protocol validates the caller's explicit clock domain.
     const int remaining = number(request, "remaining_frames", 0, 1860);
@@ -164,16 +172,16 @@ json seed_search(Field field, const json& request) {
         if (!p) throw std::invalid_argument("invalid piece");
         pieces.push_back(*p);
     }
-    auto rules = rule::FEVER; rules.plain_pairs = true;
+    auto rules = rule::FEVER; rules.plain_pairs = true; rules.special_moves = true;
     if (field.is_dead(rules)) throw std::invalid_argument("already dead field");
     SeedNode root; root.field = field;
     root.confirmed = number(request, "confirmed", 0, 1000000000);
     root.flying = number(request, "unconfirmed", 0, 1000000000);
-    root.held = number(request, "held_pending", 0, 1000000000);
+    root.held_fixed = request.contains("held_confirmed") ? number(request, "held_confirmed", 0, 1000000000) : number(request, "held_pending", 0, 1000000000);
+    root.held_flying = request.contains("held_unconfirmed") ? number(request, "held_unconfirmed", 0, 1000000000) : 0;
     root.remainder = number(request, "remainder", 0, 1000000000);
     root.phase = number(request, "garbage_phase", 0, 5);
-    root.enemy_fixed = request.contains("enemy_confirmed") ? number(request, "enemy_confirmed", 0, 1000000000) : 0;
-    root.enemy_flying = request.contains("enemy_unconfirmed") ? number(request, "enemy_unconfirmed", 0, 1000000000) : 0;
+    root.enemy = EnemyTrays(request);
     root.enemy_remainder = request.contains("enemy_remainder") ? number(request, "enemy_remainder", 0, 1000000000) : 0;
     const auto events = request.value("enemy_events", json::array());
     if (!events.is_array()) throw std::invalid_argument("enemy_events must be an array");
@@ -187,10 +195,16 @@ json seed_search(Field field, const json& request) {
         if (event.at("type") == "link") number(event, "points", 0, 1000000000);
     }
     const auto advance = [&](SeedNode& state, int until) {
+        const auto before = state.event_index;
         advance_enemy(events, rates, until, state.event_index, state.confirmed, state.flying,
-            state.enemy_fixed, state.enemy_flying, state.enemy_remainder);
+            state.enemy, state.enemy_remainder);
+        for (auto i = before; i < state.event_index; ++i)
+            if (events[i]["type"] == "end") { state.held_fixed += state.held_flying; state.held_flying = 0; }
         state.frame = until;
     };
+    auto enemy_baseline = root;
+    advance(enemy_baseline, std::numeric_limits<int>::max());
+    const i64 enemy_seed_baseline = enemy_baseline.enemy.seed();
     const auto start = std::chrono::steady_clock::now();
     std::vector<SeedNode> layer{root};
     std::vector<Step> best_path;
@@ -232,7 +246,9 @@ json seed_search(Field field, const json& request) {
     const double CARRIED_LEVEL = model_number("carried_level", 0.5);   // the level kept for the next Fever, in its first seed's points
     const double PIECE_ODDS = model_number("piece_odds", 0.5);         // one piece brings a colour that is waited for
     if (PIECE_ODDS <= 0 || PIECE_ODDS > 1) throw std::invalid_argument("piece_odds out of range");
-    const int piece_frames = placement + spawn;
+    // A piece takes the model's time or, when the caller has measured its own pieces, that.
+    const int piece_frames = std::max(placement + spawn,
+        request.contains("pace_frames") ? number(request, "pace_frames", 1, 10000) : 0);
     const int setup_frames = int(piece_frames / PIECE_ODDS);            // the pieces a seed takes to fire, on average
     // Pieces that can still be placed with an ignition before the clock runs out.
     const auto pieces_left = [&](int clock) {
@@ -248,6 +264,26 @@ json seed_search(Field field, const json& request) {
     // a large one is fired as it stands rather than built on. Keeping a seed
     // for its own level is not charged: there the alternative is to waste it.
     const double CROWDED = model_number("crowded_cells", 6);
+    // The seed is built on, towards the next seed's level, by the measure
+    // below. The caller names the cases in which it is fired at once instead
+    // (`press`): what it sends lands on the opponent's normal board and takes
+    // their time to build, or both sides are in Fever and the opponent has
+    // nuisance held for their normal board. A fire at the seed's level then
+    // ranks above every other line, the earlier the higher, and one that
+    // clears the board above those: the all clear is taken wherever it shows.
+    const bool press = request.value("press", false);
+    const bool enemy_fever = request.value("enemy_fever", false);
+    const int their_end = request.contains("their_end") ? number(request, "their_end", 0, 1000000) : -1;
+    const int window = request.contains("disrupt_window") ? number(request, "disrupt_window", 0, 100000) : disruption::WINDOW;
+    const int enemy_level = request.contains("enemy_seed_level") ? number(request, "enemy_seed_level", 3, 15) : 5;
+    const i64 seed_reply = request.contains("enemy_reply_nuisance") ? number(request, "enemy_reply_nuisance", 0, 1000000000) : template_points(enemy_level) / rate;
+    const bool skip_jab = request.value("enemy_skip_jab", false);
+    const bool current_attack = std::any_of(events.begin(), events.end(), [](const json& e) {
+        return e.at("type") == "link" && e.value("points", i64(0)) > 0;
+    });
+    const auto seed_defense=request.value("enemy_seed_defense",json::array());
+    const bool extending=request.value("enemy_extending",false);
+    const double PRESSED = 10 * double(template_points(15));
     const auto holds = [&](Field& board) {
         const double share = CROWDED / std::max(1, 72 - int(board.get_count()));
         return 1 - std::min(0.9, share * share * share);
@@ -297,6 +333,34 @@ json seed_search(Field field, const json& request) {
             const int clock = last.completed ? last.remaining_after_rewards - chain_ready : 0;
             const auto later = future(next_level(chain, last.all_clear), clock);
             worth = double(last.total_points) + later.points + later.level - danger(last.carry, later.points);
+            // A fire at the seed's level that leaves a packet on a Fever opponent once their chain has
+            // run out: waiting for them when their next seed comes it disrupts for sure, otherwise
+            // it makes them fire early. Worth half their seed at the first, a quarter at the second.
+            if (enemy_fever && chain >= target && in_time && sent > 0) {
+                i64 reply_capacity=seed_reply; bool counter_unknown=false;
+                if(extending && seed_defense.size()==31) {
+                    const auto& counter=seed_defense[std::min<i64>(30,last.landed)];
+                    if(counter.value("checked",false) && counter.value("regular_after_drop",false)) {
+                        reply_capacity=std::max(reply_capacity,counter.value("reply_nuisance",seed_reply));
+                        counter_unknown=!counter.value("counter_complete",false);
+                    }
+                }
+                auto rating = disruption::rate(last.landed, enemy_seed_baseline, reply_capacity,
+                    disruption::timed(end_at, their_end, window), true, skip_jab, false, current_attack);
+                if(extending && last.landed>enemy_seed_baseline && seed_defense.size()==31) {
+                    if(counter_unknown && std::string(rating.kind)!="jab") rating={};
+                    const auto& response=seed_defense[std::min<i64>(30,last.landed)];
+                    const auto& existing=seed_defense[std::min<i64>(30,enemy_seed_baseline)];
+                    const bool already_blocked=enemy_seed_baseline>0 && existing.value("checked",false) && !existing.value("regular_after_drop",false);
+                    const auto pressure=disruption::extension(last.landed-enemy_seed_baseline,!already_blocked,
+                        response.value("checked",false),response.value("regular_after_drop",false),skip_jab);
+                    if(pressure.value>rating.value) rating=pressure;
+                }
+                last.disrupt = rating.value; last.disruption_kind = rating.kind;
+                worth += double(template_points(enemy_level)) * 0.5 * rating.value;
+            }
+            if (press && chain >= target && in_time)
+                worth += PRESSED * (last.all_clear ? 2 : 1) - double(fire_at) * PRESSED / (2.0 * maximum);
         } else {
             const auto p = potential(node.field, rules);
             last.has_extension = true; last.extension = p;
@@ -326,23 +390,55 @@ json seed_search(Field field, const json& request) {
             // PIECE_ODDS / needed.
             const int room = int(std::max(0, 72 - int(node.field.get_count())) / WAIT_CELLS);
             const double held = p.chain > target ? holds(node.field) : 1;
-            const int pieces = p.chain ? std::min(pieces_left(remaining - end_at), room) : 0;
+            const int count = p.chain ? std::min(pieces_left(remaining - end_at), room) : 0;
             const int level = next_level(p.chain, false);
             const double one = PIECE_ODDS / p.needed;
-            double odds = 0, ways = 1;
-            for (int j = p.needed; j <= pieces; ++j) {
-                const double now = ways * std::pow(one, p.needed) * std::pow(1 - one, j - p.needed) *
-                    std::pow(held, j - 1);
-                ways = ways * j / (j - p.needed + 1);
+            double odds = 0;
+            // Fired with the j-th piece from here, at the odds `now`.
+            const auto fires = [&](int j, double now) {
                 int clock = remaining - end_at - j * piece_frames - running;
                 if (clock > 0) clock = std::min(maximum, clock + std::max(0, p.chain - 2) * 30) - chain_ready;
                 const auto later = future(level, clock);
                 const double points = double(built) + later.points;
                 worth += now * (points + later.level - danger(last.carry, points));
                 odds += now;
+            };
+            // The pieces still visible are known: one that has the puyos fires,
+            // one that has not cannot. (A line reaches here with visible pieces
+            // left only where a drop ended it.) After them the colours are not
+            // known, and a piece brings one puyo at PIECE_ODDS / needed.
+            int seen = 0; bool known = false;
+            for (size_t k = node.path.size(); k < pieces.size() && seen < count && !known; ++k) {
+                ++seen;
+                int have = 0;
+                if (pieces[k].shape == piece::Shape::BIG) have = p.needed <= 2 ? p.needed : 0;
+                else for (const auto color : pieces[k].colors) have += color == p.color;
+                if (have >= p.needed) { fires(seen, std::pow(held, seen - 1)); known = true; }
             }
-            const double miss = CARRIED_LEVEL * template_points(target);
-            worth += (1 - odds) * (miss - danger(last.carry, 0));
+            if (!known) {
+                double ways = 1;
+                for (int j = p.needed; j <= count - seen; ++j) {
+                    const double now = ways * std::pow(one, p.needed) * std::pow(1 - one, j - p.needed) *
+                        std::pow(held, seen + j - 1);
+                    ways = ways * j / (j - p.needed + 1);
+                    fires(seen + j, now);
+                }
+            }
+            // The puyos never come: the seed is kept unfired with its level, or
+            // given up on the next piece for the seed two levels down, whichever
+            // is worth more. Any small pop gives it up, so a line that waits is
+            // never worth less than failing one piece later; what has dropped
+            // on this board meanwhile leaves with it.
+            const double miss = CARRIED_LEVEL * template_points(target) - danger(last.carry, 0);
+            double given_up = miss;
+            {
+                int clock = remaining - end_at - piece_frames - chain_frames(1);
+                if (clock > 0) {
+                    const auto later = future(next_level(1, false), clock - chain_ready);
+                    given_up = later.points + later.level - danger(last.carry, later.points);
+                }
+            }
+            worth += (1 - odds) * std::max(miss, given_up);
             last.extension_points = built; last.extension_frames = running; last.extension_odds = odds;
         }
         if (node.sound < 1 && (chain ? chain : last.extension.chain) > target) {
@@ -382,11 +478,9 @@ json seed_search(Field field, const json& request) {
                     if (!allowed) continue;
                 }
                 // Always establish an executable root fallback before honoring
-                // CPU/node cutoffs. Budget termination returns a complete JSON.
-                const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
-                    std::chrono::steady_clock::now() - start).count();
+                // node cutoffs. Node termination returns a complete JSON.
                 if ((!best_path.empty() || depth > 0 || !next.empty()) &&
-                    (expanded >= max_nodes || elapsed >= budget_ms)) {
+                    expanded >= max_nodes) {
                     cutoff = true; break;
                 }
                 ++expanded;
@@ -410,15 +504,16 @@ json seed_search(Field field, const json& request) {
                     i64 total = points[k] + child.remainder;
                     const int active_rate = rates.at(end_at);
                     i64 amount = total / active_rate; child.remainder = total % active_rate;
-                    if (i64(child.confirmed) + child.flying + child.held && amount == 0) amount = 1;
-                    for (int* pending : {&child.confirmed, &child.flying, &child.held}) {
+                    if (i64(child.confirmed) + child.flying + child.held_fixed + child.held_flying && amount == 0) amount = 1;
+                    for (int* pending : {&child.confirmed, &child.flying, &child.held_fixed, &child.held_flying}) {
                         int n = int(std::min<i64>(*pending, amount));
                         *pending -= n; amount -= n; cancelled += n;
                     }
                     sent += amount;
-                    child.enemy_flying += amount;
+                    child.enemy.send(amount, end_at);
                     end_at += link_frames(falls[k], k == chain - 1, pop_frames, settle_frames);
                 }
+                if (chain) child.enemy.confirm();
                 int dropped = 0, drop_cases = 1;
                 bool drop_alive = true, drop_target_preserved = true, drop_keeps_ignition = true;
                 std::vector<Field> drop_boards;
@@ -428,8 +523,8 @@ json seed_search(Field field, const json& request) {
                     dropped = std::min(30, child.confirmed); child.confirmed -= dropped;
                     if (unknown_phase && dropped % 6) {
                         // Every remainder subset must preserve both survival
-                        // and a reachable ignition. Never continue on a guessed
-                        // remainder board; return one move and reobserve it.
+                        // and a reachable ignition. The guessed board is not
+                        // returned; one move is, and the drop is observed.
                         drop_cases = 0;
                         // The board the line is weighed on: the worst the unknown columns can leave.
                         std::tuple<int,int,int,int> worst{100, 0, 0, 0};
@@ -492,12 +587,14 @@ json seed_search(Field field, const json& request) {
                 // than a short one for having watched more of it land.
                 auto ahead_index = child.event_index;
                 int ahead_fixed = child.confirmed, ahead_flying = child.flying;
-                i64 their_fixed = child.enemy_fixed, their_flying = child.enemy_flying, their_remainder = child.enemy_remainder;
+                auto their_trays = child.enemy; i64 their_remainder = child.enemy_remainder;
                 advance_enemy(events, rates, std::numeric_limits<int>::max(), ahead_index, ahead_fixed, ahead_flying,
-                    their_fixed, their_flying, their_remainder);
+                    their_trays, their_remainder);
                 // A drop taken on the Fever board leaves with it; one that locks
                 // after the clock has run out is not counted as taken.
-                step.carry = i64(child.held) + ahead_fixed + ahead_flying +
+                step.landed = their_trays.seed();
+                step.enemy_trays = their_trays;
+                step.carry = i64(child.held_fixed) + child.held_flying + ahead_fixed + ahead_flying +
                     (dropped && end_at + safety >= remaining ? dropped : 0);
                 child.path.push_back(std::move(step));
                 if (!chain) child.sound *= holds(parent.field);
@@ -507,9 +604,16 @@ json seed_search(Field field, const json& request) {
                     const auto& last = child.path.back();
                     root_build_preserves_target |= last.extension.chain >= target && last.all_cases_preserve();
                 }
-                if (depth + 1 < pieces.size() && alive && !chain && !dropped && field_known &&
-                    end_at + std::max(0, spawn-timing.value("nuisance_check_frames", 0)) + safety < remaining) {
-                    advance(child, end_at + std::max(0, spawn-timing.value("nuisance_check_frames", 0)));
+                // The line goes on to the next visible piece across a drop as well:
+                // what the pieces in sight then do is read, not estimated. On
+                // unknown columns it is read on the worst board they can leave
+                // (chosen above). That board weighs the line and is never
+                // returned: the caller places one piece and observes the drop.
+                const int ready = dropped ? timing.value("nuisance_ready_frames", 0)
+                    : std::max(0, spawn-timing.value("nuisance_check_frames", 0));
+                if (depth + 1 < pieces.size() && alive && !chain &&
+                    end_at + ready + safety < remaining) {
+                    advance(child, end_at + ready);
                     next.push_back(std::move(child));
                 } else offer(child);
             }
@@ -529,8 +633,8 @@ json seed_search(Field field, const json& request) {
         });
         std::unordered_set<std::string> seen; layer.clear();
         for (auto& n : next) {
-            auto key = state_key(n.field, n.frame, n.confirmed, n.flying, n.held, n.remainder, n.phase,
-                n.event_index, n.enemy_fixed, n.enemy_flying, n.enemy_remainder);
+            auto key = state_key(n.field, n.frame, n.confirmed, n.flying, n.held_fixed, n.held_flying, n.remainder, n.phase,
+                n.event_index, n.enemy.normal_fixed, n.enemy.normal_flying, n.enemy.fever_fixed, n.enemy.fever_flying, n.enemy.fever, n.enemy_remainder);
             if (seen.insert(key).second) layer.push_back(std::move(n));
             if (layer.size() >= size_t(width)) break;
         }
@@ -538,15 +642,24 @@ json seed_search(Field field, const json& request) {
     if (best_path.empty()) throw std::invalid_argument("no conservative legal placement");
     // The line ranked first stands: nothing is swapped in after the search.
     const auto& last = best_path.back();
-    const bool solved = !last.dead && last.chain >= target && last.fire_at + safety < remaining;
-    const bool deadline_failure = root.held && count_chain && !best_path[0].dead &&
+    bool on_known_boards = true;
+    for (size_t k = 0; k + 1 < best_path.size(); ++k) on_known_boards &= best_path[k].field_known;
+    const bool solved = on_known_boards && !last.dead && last.chain >= target && last.fire_at + safety < remaining;
+    const bool deadline_failure = (root.held_fixed + root.held_flying) && count_chain && !best_path[0].dead &&
         best_path[0].chain > 0 && best_path[0].chain < target &&
         best_path[0].end_at >= remaining + safety;
     const bool emergency_failure = root_complete && root.confirmed > 0 && !root_build_preserves_target &&
         !best_path[0].dead && best_path[0].chain > 0 && best_path[0].chain < target;
     const bool intentional_failure = deadline_failure || emergency_failure;
+    // What was read past a drop on unknown columns weighed the line; it is not
+    // a plan. The path returned ends at that drop, with the line's value.
     json line = json::array();
-    for (auto& step : best_path) line.push_back(step.describe());
+    bool guessed = false;
+    for (auto& step : best_path) {
+        line.push_back(step.describe());
+        if (!step.field_known && &step != &best_path.back()) { guessed = true; break; }
+    }
+    if (guessed) line.back()["expected_points"] = best_path.back().worth;
     // The best line of each kind, to read why the chosen one was ranked first.
     json alternatives = json::object();
     const char* kinds[3] = {"regular_fire", "short_fire", "no_pop"};
@@ -562,7 +675,7 @@ json seed_search(Field field, const json& request) {
         {"requires_new_seed_after_clear", best_path.back().chain > 0},
         {"new_seed_spawn_possible", last.chain > 0 && (count_chain ? last.end_at < remaining+safety : last.fire_at < remaining)},
         {"requires_reobservation_after_drop", best_path.back().dropped > 0},
-        {"searched_visible", queue.size()}, {"pending_arrival_status", events.empty() ? "unconfirmed_not_scheduled" : "observed_enemy_chain_timeline"},
+        {"searched_visible", queue.size()}, {"press", press}, {"pending_arrival_status", events.empty() ? "unconfirmed_not_scheduled" : "observed_enemy_chain_timeline"},
         {"strategy", "value"},
         {"seed_color_needs", color_needs(field).describe(pieces, 0)},
         {"intentional_seed_failure", intentional_failure},

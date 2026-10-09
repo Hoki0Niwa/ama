@@ -189,17 +189,28 @@ std::optional<Choice> think(
             .chain = decision->chain.count,
             .score = size_t(decision->chain.score),
             .fire = true,
-            .fire_moves = decision->moves
+            .fire_moves = decision->moves,
+            .search_depths = search.virtual_depths
         };
     }
 
-    auto& best = search.candidates.front();
+    auto chosen = search.candidates.begin();
+    if (configs.preserve_build) {
+        const auto quiet = std::find_if(search.candidates.begin(), search.candidates.end(), [&](const Candidate& candidate) {
+            auto next = field;
+            const auto& move = candidate.placement;
+            return next.drop_piece(move.x, move.r, queue[0], configs.rules) && next.pop().get_size() <= 2;
+        });
+        if (quiet != search.candidates.end()) chosen = quiet;
+    }
+    auto& best = *chosen;
 
     return Choice {
         .placement = best.placement,
         .chain = best.chain,
         .score = best.score / VIRTUAL_COUNT,
-        .fire = false
+        .fire = false,
+        .search_depths = search.virtual_depths
     };
 };
 

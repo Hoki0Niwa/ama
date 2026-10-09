@@ -26,7 +26,9 @@
   },
   "normal_tactics": {
     "status": "prototype_heuristic_not_battle_tuned",
-    "max_nodes": 1500,
+    "quiet": true,
+    "all_clear_puyos": 24,
+    "max_nodes": 3000,
     "budget_ms": 100,
     "width": 12,
     "weights": {
@@ -44,8 +46,16 @@
       "exposed": 700,
       "pending": 0,
       "uncountered": 2500,
-      "mainline_min": 4
-    }
+      "mainline_min": 4,
+      "arrival_pieces": 2,
+      "fever_reach": 100,
+      "growth_cells": 6,
+      "harass": 400,
+      "kill": 30000,
+      "all_clear": 5000,
+      "disrupt": 3000
+    },
+    "attack_policy": "main_resource_and_score"
   },
   "fever_seed": {
     "status": "prototype_heuristic_not_battle_tuned",
@@ -62,5 +72,12 @@
     "status": "prototype_heuristic_not_battle_tuned",
     "harmless_carry": 5
   },
-  "note": "One shared policy for all characters. Immediate offset can override solo construction. Actual battle timing and threat tactics remain uncalibrated."
+  "note": "One shared policy for all characters. Immediate offset can override solo construction. Actual battle timing and threat tactics remain uncalibrated.",
+  "fever_entry_timing": {
+    "normal_chain_end_to_destination_frames": 16,
+    "destination_to_first_control_frames": 96,
+    "disrupt_after_first_control_frames": 26,
+    "status": "steam_15209927_one_exact_entry_edge_2026_10_09",
+    "source": "data/fever/baselines/2026-10-09-nuisance-destinations-live.json"
+  }
 }

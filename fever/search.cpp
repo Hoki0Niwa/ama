@@ -54,7 +54,7 @@ void expand(
 };
 
 // Does 1 iteration of beam search from the parents layer to the children layer
-static void think(
+static bool think(
     const piece::Piece& piece,
     std::vector<Candidate>& candidates,
     beam::Layer& parents,
@@ -125,6 +125,7 @@ static void think(
             candidates[i].aim = AIM_LOST + i64(depth) * 1000000;
         }
     }
+    return true;
 };
 
 // Beam search
@@ -183,10 +184,12 @@ Result search(
     if (result.candidates.empty()) {
         return result;
     }
+    result.completed_depth = 1;
 
     // Searches
     for (size_t i = 0; i + 1 < queue.size(); ++i) {
-        fever::think(
+        const auto before = result.candidates;
+        const bool complete = fever::think(
             queue[i + 1],
             result.candidates,
             layers[i & 1],
@@ -196,11 +199,16 @@ Result search(
             configs,
             i + 1
         );
+        if (!complete) {
+            result.candidates = before; // Never rank roots by a half-finished layer
+            break;
+        }
+        result.completed_depth = i32(i + 2);
 
         bool enough = false;
 
         for (auto& c : result.candidates) {
-            if (c.chain >= configs.trigger) {
+            if (c.chain >= (configs.build_chain > 0 ? configs.build_chain : configs.trigger)) {
                 enough = true;
                 break;
             }
@@ -285,6 +293,9 @@ Result search_multi(
     }
 
     // Sorts candidates by their total accumulated scores
+    result.virtual_depths.clear();
+    for (const auto& b : results) result.virtual_depths.push_back(b.completed_depth);
+    result.completed_depth = *std::min_element(result.virtual_depths.begin(), result.virtual_depths.end());
     std::stable_sort(
         result.candidates.begin(),
         result.candidates.end(),

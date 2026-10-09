@@ -1,4 +1,5 @@
 #include "path.h"
+#include "../core/operation.h"
 
 namespace path
 {
@@ -25,40 +26,22 @@ bool Position::move_left(Field& field, u8 height[6])
 
 bool Position::move_cw(Field& field, u8 height[6])
 {
-    direction::Type new_direction = direction::Type((static_cast<u8>(this->r) + 1) & 0b11);
-
-    if (!field.is_colliding_pair(this->x, this->y, new_direction, height)) {
-        this->r = new_direction;
-        return true;
-    }
-
-    if (!field.is_colliding_pair(this->x - direction::get_offset_x(new_direction), this->y - direction::get_offset_y(new_direction), new_direction, height)) {
-        this->x -= direction::get_offset_x(new_direction);
-        this->y -= direction::get_offset_y(new_direction);
-        this->r = new_direction;
-        return true;
-    }
-
-    return false;
+    (void)field;
+    int h[6]; for (int i = 0; i < 6; ++i) h[i] = height[i];
+    const auto next = operation::rotate(h, 2, {x, 11 - y, int(r)}, 1, false);
+    if (!next || next->armed || next->r != ((int(r) + 1 + 4) % 4)) return false;
+    x = next->x; y = 11 - next->y; r = direction::Type(next->r);
+    return true;
 };
 
 bool Position::move_ccw(Field& field, u8 height[6])
 {
-    direction::Type new_direction = direction::Type((static_cast<u8>(this->r) + 3) & 0b11);
-    
-    if (!field.is_colliding_pair(this->x, this->y, new_direction, height)) {
-        this->r = new_direction;
-        return true;
-    }
-
-    if (!field.is_colliding_pair(this->x - direction::get_offset_x(new_direction), this->y - direction::get_offset_y(new_direction), new_direction, height)) {
-        this->x -= direction::get_offset_x(new_direction);
-        this->y -= direction::get_offset_y(new_direction);
-        this->r = new_direction;
-        return true;
-    }
-    
-    return false;
+    (void)field;
+    int h[6]; for (int i = 0; i < 6; ++i) h[i] = height[i];
+    const auto next = operation::rotate(h, 2, {x, 11 - y, int(r)}, -1, false);
+    if (!next || next->armed || next->r != ((int(r) + -1 + 4) % 4)) return false;
+    x = next->x; y = 11 - next->y; r = direction::Type(next->r);
+    return true;
 };
 
 bool Position::move_180(Field& field, u8 height[6])

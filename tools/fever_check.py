@@ -8,7 +8,10 @@ python tools/fever_check.py replay --native bin/x/fever_battle.exe --solo bin/x/
 record runs the test files twice with AMA_NATIVE_TRACE set and keeps every
 distinct request the native processes were asked. A request whose replies
 differed (a search cut off by its time budget) is kept as unstable and not
-compared. The saved protocol-3 requests of data/fever/baselines are answered
+compared. Legacy CPU budget keys are ignored by the current engines and no longer
+exclude a request from exact replay. Construction and battle timing remain
+separate: real Fever and attack delivery deadlines are still honored.
+The saved protocol-3 requests of data/fever/baselines are answered
 by a fresh engine each. Offline only: a matching replay says the binaries
 answer as before, not that the answers are good or that the game accepts them.
 """
@@ -136,13 +139,15 @@ def record(args):
     cases = []
     for kind, request in order:
         seen = replies[(kind, key(request))]
-        cases.append(dict(exe=kind, request=request, stable=len(seen) == 1,
-                          reply=json.loads(next(iter(seen))) if len(seen) == 1 else None))
+        stable = len(seen) == 1
+        cases.append(dict(exe=kind, request=request, stable=stable,
+                          reply=json.loads(next(iter(seen))) if stable else None))
     engine = []
     for name, request in engine_requests():
         first, second = (engine_answer(args.native, args.solo, request) for _ in range(2))
-        engine.append(dict(case=name, request=request, stable=first == second,
-                           reply=first if first == second else None))
+        stable = first == second
+        engine.append(dict(case=name, request=request, stable=stable,
+                           reply=first if stable else None))
     GOLDEN.mkdir(parents=True, exist_ok=True)
     with gzip.open(GOLDEN/'native.jsonl.gz', 'wt', encoding='utf-8') as out:
         for case in cases:

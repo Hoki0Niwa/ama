@@ -79,11 +79,15 @@ json answer(const json& input, const beam::eval::Weight& w, const json& set)
     configs.aim = input.value("aim", false);
 
     configs.trigger = input.value("trigger", configs.trigger);
+    configs.build_chain = input.value("build_chain", 0);
+    configs.preserve_build = input.value("preserve_build", false);
+    // Legacy budget_ms input is ignored: complete the configured construction search.
     configs.stretch = input.value("stretch", configs.stretch);
     configs.panic_count = input.value("panic_count", configs.panic_count);
     configs.panic_chain = input.value("panic_chain", configs.panic_chain);
     configs.shave_chain = input.value("shave_chain", configs.shave_chain);
     configs.rules.plain_pairs = input.value("plain_pairs", false);
+    configs.rules.special_moves = input.value("special_moves", false);
     configs.rules.margin = u8(std::clamp(input.value("margin", 0), 0, 6));
     configs.panic_step = input.value("panic_step", configs.panic_step);
     configs.moves = input.value("moves", 0);
@@ -136,6 +140,10 @@ json answer(const json& input, const beam::eval::Weight& w, const json& set)
         output["fire_moves"] = choice->fire_moves;
     }
     output["solo"] = true;
+    if (!choice->search_depths.empty()) {
+        output["search_virtual_depths"] = choice->search_depths;
+        output["search_completed_depth"] = *std::min_element(choice->search_depths.begin(),choice->search_depths.end());
+    }
 
     if (queue[0].shape == piece::Shape::BIG) {
         output["color"] = std::string(1, cell::to_char(cell::Type(static_cast<u8>(choice->placement.r))));

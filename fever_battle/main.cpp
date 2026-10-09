@@ -8,6 +8,7 @@
 #include "tactics.h"
 #include "color_needs.h"
 #include "transition.h"
+#include "main_attack.h"
 #include <functional>
 #include <stdexcept>
 #include <chrono>
@@ -75,8 +76,6 @@ json finish_probe(const json& request, Moves& moves, const rule::Rule& rules,
                   const std::function<json(const move::Placement&)>& transition)
 {
     const int pending = bounded_integer(request.at("confirmed"), 1, 1000000000, "confirmed");
-    const int budget = bounded_integer(request.at("budget_ms"), 0, 1000, "budget_ms");
-    const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(budget);
     std::optional<piece::Piece> next;
     std::optional<piece::Piece> last;
     if (request.contains("next_piece")) {
@@ -101,7 +100,6 @@ json finish_probe(const json& request, Moves& moves, const rule::Rule& rules,
         if (last_cache.contains(key)) return last_cache.at(key);
         auto choices = move::generate(board, *last, rules);
         for (int k = 0; k < choices.get_size(); ++k) {
-            if (std::chrono::steady_clock::now() >= deadline) return std::nullopt;
             auto copy = board;
             if (!copy.drop_piece(choices[k].x, choices[k].r, *last, rules))
                 throw std::runtime_error("generated last placement failed");
@@ -117,8 +115,6 @@ json finish_probe(const json& request, Moves& moves, const rule::Rule& rules,
     };
     json candidates = json::array();
     for (int i = 0; i < moves.get_size(); ++i) {
-        if (std::chrono::steady_clock::now() >= deadline)
-            return {{"proved", false}, {"reason", "budget_inconclusive"}};
         json c = transition(moves[i]);
         if (!c["dead"].get<bool>() && !c["links"].empty())
             return {{"proved", false}, {"reason", "current_clear_can_survive"}};
@@ -130,8 +126,6 @@ json finish_probe(const json& request, Moves& moves, const rule::Rule& rules,
                     return {{"proved", false}, {"reason", "another_visible_or_unknown_chance"}};
                 auto following = move::generate(board, *next, rules);
                 for (int j = 0; j < following.get_size(); ++j) {
-                    if (std::chrono::steady_clock::now() >= deadline)
-                        return {{"proved", false}, {"reason", "budget_inconclusive"}};
                     auto copy = board;
                     if (!copy.drop_piece(following[j].x, following[j].r, *next, rules))
                         throw std::runtime_error("generated next placement failed");
@@ -188,6 +182,7 @@ json answer(const json& request)
     auto field = read_field(request.at("field"));
     if (op == "garbage_search") return fever_battle::search(field, request);
     if (op == "seed_search") return fever_battle::seed_search(field, request);
+    if (op == "seed_defense") return fever_battle::seed_defense(field, request);
     if (op == "tactics") return fever_battle::tactics(field, request);
     if (op == "normal_colors") return fever_battle::normal_colors(field, request);
     if (op == "validate") return {{"valid", true}, {"dead", field.is_dead(rule::FEVER)}};
@@ -196,13 +191,24 @@ json answer(const json& request)
         const auto stock = fever::stock::evaluate(field, bounded_integer(request.at("want"), 1, 7, "want"));
         return {{"units", stock.units}, {"links", stock.links}, {"colors", stock.colors}, {"longest", stock.longest}};
     }
+    if (op == "normal_gaze") {
+        const auto powers = request.at("powers").get<std::vector<int>>();
+        const fever_battle::Bonuses bonuses(request.at("bonuses"));
+        const auto best = fever_battle::main_attack::potential(field, powers, bonuses);
+        return {{"score", best.first}, {"chain", best.second}, {"policy", "main_gaze_quiet_8_3_max_score"}};
+    }
+    if (op == "holding") {
+        // The longest chain one trigger of the board fires, link by link, for the caller to score.
+        const auto main = fever::stock::main_chain(field);
+        return {{"longest", main.longest}, {"links", main.longest ? resolve(main.fired)["links"] : json::array()}};
+    }
     if (op == "resolve") return resolve(field);
     if (op != "placements" && op != "transition" && op != "finish_probe" && op != "closing_transition") throw std::invalid_argument("unknown operation");
     auto piece = fever::text::to_piece(request.at("piece").get<std::string>());
     if (!piece) throw std::invalid_argument("invalid piece");
     if (field.is_dead(rule::FEVER) && op != "closing_transition") throw std::invalid_argument("already dead field");
     auto rules = rule::FEVER;
-    rules.plain_pairs = true;
+    rules.plain_pairs = true; rules.special_moves = true;
     if (op == "closing_transition") rules.death_columns = 0;
     auto moves = move::generate(field, *piece, rules);
     const auto transition = [&](const move::Placement& placement) {

@@ -39,10 +39,17 @@ def side(mode='normal', rows=None, queue=None):
                 normal_confirmed=0, normal_unconfirmed=0, fever_confirmed=0, fever_unconfirmed=0)
 
 
+def bystander():
+    """An opponent nothing is decided on: an empty normal board one offset from Fever, which nothing sent kills."""
+    enemy = side()
+    enemy['gauge'] = 6
+    return enemy
+
+
 def request(own=None, enemy=None):
     return dict(protocol_version=3, rule='fever_battle', match_id='mode-test', frame=0,
                 observation=dict(frame_before=0, frame_after=0, match_status='running'),
                 target_point=120, gauge_gain_on_offset=1,
                 clock_policy=dict(count_chain_frames=True), self=own or side('fever', seed3()),
-                enemy=enemy or side(), seed_options=dict(budget_ms=500, max_nodes=20000),
+                enemy=enemy or bystander(), seed_options=dict(budget_ms=500, max_nodes=20000),
                 solo_options=dict(beam_width=10, beam_depth=3))
