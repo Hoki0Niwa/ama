@@ -33,7 +33,7 @@ std::vector<piece::Piece> pieces(const json& request) {
 }
 ColorNeeds color_needs(Field field) {
     ColorNeeds result;
-    auto rules = rule::FEVER; rules.plain_pairs = true;
+    auto rules = rule::FEVER; rules.plain_pairs = true; rules.special_moves = true;
     if (field.is_dead(rules)) return result;
     for (int c = 0; c < 4; ++c) {
         if (field.data[c].is_empty()) continue;
@@ -90,7 +90,7 @@ json normal_colors(Field field, const json& request) {
     if (!pending.is_number_integer() || pending < 0 || pending > 1000000000)
         throw std::invalid_argument("invalid confirmed nuisance");
     int fixed = pending.get<int>();
-    auto rules = rule::FEVER; rules.plain_pairs = true;
+    auto rules = rule::FEVER; rules.plain_pairs = true; rules.special_moves = true;
     auto moves = move::generate(field, queue[0], rules);
     for (int i = 0; i < moves.get_size(); ++i) {
         auto child = field;

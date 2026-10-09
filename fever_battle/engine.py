@@ -157,7 +157,7 @@ class BattleEngine:
         if chosen is None:
             solo_request = dict(rule='fever', character=own['character'], dropset_index=own['dropset_index'],
                                 solo=True, self={'field': own['field'], 'queue': own['queue']},
-                                plain_pairs=True, include_next=True, **options)
+                                plain_pairs=True, special_moves=True, include_next=True, **options)
             result = self.solo.ask(solo_request, timeout=10)
             chosen = next((p for p in safe if p['x'] == result['x'] and p['r'] == result['r']), None)
             reason = 'build_or_solo_fire'

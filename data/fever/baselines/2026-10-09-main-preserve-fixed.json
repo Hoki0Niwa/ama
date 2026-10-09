@@ -1,0 +1,367 @@
+{
+ "native_sha256": "9cc30aa7ffa8b98226a2169f4c8053d59187fa90792c3c50169f9e3849e25d6f",
+ "status": "offline_same_local_requests_not_live_acceptance",
+ "cases": [
+  {
+   "t": 75.64,
+   "piece": 42,
+   "builder": {
+    "chain": 10,
+    "eval": 38146,
+    "fire": false,
+    "next_all_clear": false,
+    "next_chain": 0,
+    "next_discarded": 0,
+    "next_field": [
+     "......",
+     "......",
+     "....YG",
+     "....RG",
+     "...GGB",
+     "..GRBR",
+     "..RYBR",
+     "..BRRY",
+     "..BRYB",
+     ".RYYBY",
+     "GBYRBR",
+     "GRGGRR",
+     "GBRBYG",
+     "RBBYYG"
+    ],
+    "next_score": 0,
+    "r": "U",
+    "search_ms": 47.1374,
+    "shape": "L",
+    "solo": true,
+    "x": 0
+   },
+   "before": {
+    "all_clear": false,
+    "attack_end": -1,
+    "attack_kind": "side",
+    "cancelled": 0,
+    "chain": 1,
+    "confirmed": 0,
+    "disruption_kind": "main_pressure",
+    "drop_due": false,
+    "dropped": 0,
+    "enemy_trays": {
+     "destination": "fever",
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0,
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0
+    },
+    "enters_fever": false,
+    "field": [
+     "......",
+     "......",
+     ".....G",
+     "....YG",
+     "..R.RB",
+     "..GRBR",
+     "..RYBR",
+     "..BRRY",
+     "..BRYB",
+     "..YYBY",
+     ".BYRBR",
+     ".RGGRR",
+     "GBRBYG",
+     "RBBYYG"
+    ],
+    "frame": 115,
+    "gauge_after": 6,
+    "gauge_before": 6,
+    "invites_opponent_fever": false,
+    "link_points": [
+     40
+    ],
+    "links": [
+     {
+      "colors": 1,
+      "groups": [
+       4
+      ]
+     }
+    ],
+    "opponent_entry_possible": false,
+    "possible_drop_boards": 1,
+    "post_drop_field_known": true,
+    "projected_all_clear": false,
+    "projected_disrupt": 3.0,
+    "projected_gauge": 6,
+    "projected_kill": 0.0,
+    "projected_sent": 126,
+    "r": "R",
+    "redundancy": 2,
+    "remainder": 40,
+    "remaining_cells": 48,
+    "sent": 0,
+    "survives": true,
+    "unconfirmed": 0,
+    "value": 8000,
+    "x": 2
+   },
+   "after": {
+    "all_clear": false,
+    "attack_end": -1,
+    "attack_kind": "build",
+    "cancelled": 0,
+    "chain": 0,
+    "confirmed": 0,
+    "disruption_kind": "overpower",
+    "drop_due": false,
+    "dropped": 0,
+    "enemy_trays": {
+     "destination": "fever",
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0,
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0
+    },
+    "enters_fever": false,
+    "field": [
+     "......",
+     "......",
+     "....YG",
+     "....RG",
+     "..RGGB",
+     "..GRBR",
+     "..RYBR",
+     "..BRRY",
+     ".GBRYB",
+     ".GYYBY",
+     ".BYRBR",
+     ".RGGRR",
+     "GBRBYG",
+     "RBBYYG"
+    ],
+    "frame": 70,
+    "gauge_after": 6,
+    "gauge_before": 6,
+    "invites_opponent_fever": false,
+    "link_points": [],
+    "links": [],
+    "opponent_entry_possible": false,
+    "possible_drop_boards": 1,
+    "post_drop_field_known": true,
+    "projected_all_clear": false,
+    "projected_disrupt": 1.6666666666666665,
+    "projected_gauge": 6,
+    "projected_kill": 0.0,
+    "projected_sent": 64,
+    "r": "U",
+    "redundancy": 0,
+    "remainder": 0,
+    "remaining_cells": 52,
+    "sent": 0,
+    "survives": true,
+    "unconfirmed": 0,
+    "value": 4216,
+    "x": 1
+   }
+  },
+  {
+   "t": 77.421,
+   "piece": 43,
+   "builder": {
+    "chain": 9,
+    "color": "G",
+    "eval": 38830,
+    "fire": false,
+    "next_all_clear": false,
+    "next_chain": 0,
+    "next_discarded": 0,
+    "next_field": [
+     "......",
+     "......",
+     ".....G",
+     "....YG",
+     "..R.RB",
+     "..GRBR",
+     "..RYBR",
+     "..BRRY",
+     ".GBRYB",
+     ".GYYBY",
+     "GBYRBR",
+     "GRGGRR",
+     "GBRBYG",
+     "RBBYYG"
+    ],
+    "next_score": 0,
+    "r": "D",
+    "search_ms": 58.9601,
+    "shape": "0",
+    "solo": true,
+    "x": 0
+   },
+   "before": {
+    "all_clear": false,
+    "attack_end": 609,
+    "attack_kind": "main",
+    "cancelled": 0,
+    "chain": 7,
+    "confirmed": 0,
+    "disruption_kind": "main_pressure",
+    "drop_due": false,
+    "dropped": 0,
+    "enemy_trays": {
+     "destination": "fever",
+     "fever_confirmed": 126,
+     "fever_unconfirmed": 0,
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0
+    },
+    "enters_fever": false,
+    "field": [
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     ".....G",
+     ".....G",
+     "..B..B",
+     "..B..R",
+     "..G..R",
+     "G.G..G",
+     "RRRG.G"
+    ],
+    "frame": 622,
+    "gauge_after": 6,
+    "gauge_before": 6,
+    "invites_opponent_fever": false,
+    "link_points": [
+     50,
+     320,
+     850,
+     1200,
+     2730,
+     4740,
+     5280
+    ],
+    "links": [
+     {
+      "colors": 1,
+      "groups": [
+       5
+      ]
+     },
+     {
+      "colors": 1,
+      "groups": [
+       4
+      ]
+     },
+     {
+      "colors": 1,
+      "groups": [
+       5
+      ]
+     },
+     {
+      "colors": 1,
+      "groups": [
+       5
+      ]
+     },
+     {
+      "colors": 1,
+      "groups": [
+       7
+      ]
+     },
+     {
+      "colors": 1,
+      "groups": [
+       6
+      ]
+     },
+     {
+      "colors": 1,
+      "groups": [
+       4
+      ]
+     }
+    ],
+    "opponent_entry_possible": false,
+    "possible_drop_boards": 1,
+    "post_drop_field_known": true,
+    "projected_all_clear": false,
+    "projected_disrupt": 3.0,
+    "projected_gauge": 6,
+    "projected_kill": 0.0,
+    "projected_sent": 126,
+    "r": "L",
+    "redundancy": 10,
+    "remainder": 50,
+    "remaining_cells": 16,
+    "sent": 126,
+    "survives": true,
+    "unconfirmed": 0,
+    "value": 8448,
+    "x": 1
+   },
+   "after": {
+    "all_clear": false,
+    "attack_end": -1,
+    "attack_kind": "build",
+    "cancelled": 0,
+    "chain": 0,
+    "confirmed": 0,
+    "disruption_kind": "overpower",
+    "drop_due": false,
+    "dropped": 0,
+    "enemy_trays": {
+     "destination": "fever",
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0,
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0
+    },
+    "enters_fever": false,
+    "field": [
+     "......",
+     "......",
+     ".....G",
+     "....YG",
+     "..R.RB",
+     "..GRBR",
+     "..RYBR",
+     "..BRRY",
+     ".GBRYB",
+     ".GYYBY",
+     "GBYRBR",
+     "GRGGRR",
+     "GBRBYG",
+     "RBBYYG"
+    ],
+    "frame": 60,
+    "gauge_after": 6,
+    "gauge_before": 6,
+    "invites_opponent_fever": false,
+    "link_points": [],
+    "links": [],
+    "opponent_entry_possible": false,
+    "possible_drop_boards": 1,
+    "post_drop_field_known": true,
+    "projected_all_clear": false,
+    "projected_disrupt": 2.3,
+    "projected_gauge": 6,
+    "projected_kill": 0.0,
+    "projected_sent": 83,
+    "r": "D",
+    "redundancy": 0,
+    "remainder": 0,
+    "remaining_cells": 52,
+    "sent": 0,
+    "survives": true,
+    "unconfirmed": 0,
+    "value": 5833,
+    "x": 0
+   }
+  }
+ ]
+}

@@ -1,0 +1,536 @@
+{
+  "kind": "source investigation and offline reproductions; no game input",
+  "native_sha256": "e881a7d864cbb050cec27947bc8ee7b3fef5bd532983e183049864faf28aacfc",
+  "amount_cases": [
+    {
+      "rate": 30,
+      "enemy_hold": 0,
+      "chain": 1,
+      "sent": 1,
+      "attack_end": 105,
+      "projected_disrupt": 0.08333333333333333,
+      "value": -518,
+      "remaining_cells": 29,
+      "enemy_trays": {
+        "destination": "fever",
+        "fever_confirmed": 1,
+        "fever_unconfirmed": 0,
+        "normal_confirmed": 0,
+        "normal_unconfirmed": 0
+      }
+    },
+    {
+      "rate": 3,
+      "enemy_hold": 0,
+      "chain": 1,
+      "sent": 13,
+      "attack_end": 105,
+      "projected_disrupt": 1.0,
+      "value": 2232,
+      "remaining_cells": 29,
+      "enemy_trays": {
+        "destination": "fever",
+        "fever_confirmed": 13,
+        "fever_unconfirmed": 0,
+        "normal_confirmed": 0,
+        "normal_unconfirmed": 0
+      }
+    },
+    {
+      "rate": 30,
+      "enemy_hold": 1000,
+      "chain": 1,
+      "sent": 1,
+      "attack_end": 105,
+      "projected_disrupt": 0.08333333333333333,
+      "value": -518,
+      "remaining_cells": 29,
+      "enemy_trays": {
+        "destination": "fever",
+        "fever_confirmed": 1,
+        "fever_unconfirmed": 0,
+        "normal_confirmed": 0,
+        "normal_unconfirmed": 0
+      }
+    }
+  ],
+  "no_attack_cases": [
+    {
+      "case": "large_board_known_end",
+      "known_end": true,
+      "quiet_selected": false,
+      "chain": 1,
+      "sent": 1,
+      "attack_end": 105,
+      "attack_kind": "side",
+      "remaining_cells": 29,
+      "all_clear": false,
+      "projected_disrupt": 0.08333333333333333
+    },
+    {
+      "case": "small_board_known_end",
+      "known_end": true,
+      "quiet_selected": false,
+      "chain": 1,
+      "sent": 1,
+      "attack_end": 105,
+      "attack_kind": "main",
+      "remaining_cells": 16,
+      "all_clear": false,
+      "projected_disrupt": 0.08333333333333333
+    },
+    {
+      "case": "large_board_unknown_end",
+      "known_end": false,
+      "quiet_selected": false,
+      "chain": 1,
+      "sent": 1,
+      "attack_end": 105,
+      "attack_kind": "side",
+      "remaining_cells": 29,
+      "all_clear": false,
+      "projected_disrupt": 0.0
+    }
+  ],
+  "building_seed_target": {
+    "enemy_fever": true,
+    "enemy_seed_level": 3,
+    "enemy_fever_at": 0,
+    "enemy_reply_nuisance": 16,
+    "enemy_skip_jab": false,
+    "enemy_extending": true,
+    "enemy_seed_defense": [
+      {
+        "amount": 0,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 1,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 2,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 3,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 4,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 5,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 6,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 7,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 8,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 9,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 10,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 11,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 12,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 13,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 14,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 15,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 16,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 17,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 18,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 19,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 20,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 21,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 22,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 23,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 24,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 25,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 26,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 27,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 28,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 29,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      },
+      {
+        "amount": 30,
+        "checked": false,
+        "regular_after_drop": false,
+        "counter_points": 0
+      }
+    ],
+    "enemy_seed_geometry": {
+      "reference_ids": [
+        "hirazumi-3"
+      ],
+      "family": "hirazumi",
+      "checked_packets": 0,
+      "expanded": 0,
+      "status": "visible_queue_geometry_not_unknown_future_colors"
+    }
+  },
+  "entry_window_reuse": {
+    "current_target": {
+      "enemy_fever": true,
+      "enemy_seed_level": 3,
+      "enemy_fever_at": 0,
+      "their_end": 0,
+      "disrupt_window": 42,
+      "enemy_entry_status": "observed_destination_switch",
+      "enemy_reply_nuisance": 16,
+      "enemy_skip_jab": false,
+      "enemy_extending": true,
+      "enemy_seed_defense": [
+        {
+          "amount": 0,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 1,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 2,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 3,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 4,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 5,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 6,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 7,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 8,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 9,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 10,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 11,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 12,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 13,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 14,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 15,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 16,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 17,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 18,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 19,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 20,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 21,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 22,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 23,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 24,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 25,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 26,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 27,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 28,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 29,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        },
+        {
+          "amount": 30,
+          "checked": false,
+          "regular_after_drop": false,
+          "counter_points": 0
+        }
+      ],
+      "enemy_seed_geometry": {
+        "reference_ids": [
+          "hirazumi-3"
+        ],
+        "family": "hirazumi",
+        "checked_packets": 0,
+        "expanded": 0,
+        "status": "visible_queue_geometry_not_unknown_future_colors"
+      }
+    },
+    "attack_duration": 100,
+    "stored_window": 122,
+    "accepted": false,
+    "fits_current_window": false
+  },
+  "early_timing_guard": {
+    "elapsed": 150,
+    "enemy_seed_changed": true,
+    "accepted": false
+  },
+  "signature_without_enemy_chain": {
+    "enemy_seed_changed": true,
+    "same": true
+  },
+  "seed_fire_timing_guard": {
+    "accepted": false
+  },
+  "real_prepare_reuse": {
+    "prepared": true,
+    "reused": false,
+    "reason": "normal_build_or_fire",
+    "chain": 0,
+    "elapsed": 80,
+    "attack_end": null,
+    "current_window": 42,
+    "stored_window": null
+  }
+}

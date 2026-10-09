@@ -1,0 +1,192 @@
+{
+ "date": "2026-10-08",
+ "note": "Offline, prototype colour model. Scans: 180 positions (reference seeds of level 5, 6, 7 and 9, arle, 12 random queues each, 900 frames on the clock); first move classified.",
+ "under_level_fire_with_confirmed_nuisance_on_own_fever_side": {
+  "counted": "positions where the chosen first move fires below the level although a placement that pops nothing survives",
+  "known_columns": {
+   "before": {
+    "1": 5,
+    "3": 21,
+    "6": 37
+   },
+   "after": {
+    "1": 0,
+    "3": 6,
+    "6": 12
+   }
+  },
+  "unknown_columns": {
+   "after_reading_on_known_boards_only": {
+    "1": 33,
+    "3": 39,
+    "6": 12
+   },
+   "after": {
+    "1": 7,
+    "3": 10,
+    "6": 12
+   }
+  },
+  "before_is": "the build of 2026-10-08 morning and the build of 2026-10-07 morning alike"
+ },
+ "first_move_regular_fire_of_180": {
+  "opponent_empty_board_gauge_0": {
+   "no_nuisance": 18,
+   "held_60_for_own_normal_board": 13
+  },
+  "opponent_holding_12_chain": {
+   "no_nuisance": 12
+  },
+  "opponent_empty_board_gauge_6": {
+   "no_nuisance": 12
+  },
+  "note": "counts with the adopted measure before the last copy of the same source; none fires below the level"
+ },
+ "fever_bench": {
+  "tool": "tools/bench_fever_baseline.py fever --queues 40 (raffina, opponent an empty normal board at gauge 0)",
+  "before_press": {
+   "level5": 21252,
+   "level9": 60818,
+   "level12": 103863
+  },
+  "with_press_0_25": {
+   "level5": 19438,
+   "level9": 58907,
+   "level12": 102914
+  },
+  "adopted": {
+   "level5": {
+    "mean_points": 19865,
+    "mean_seeds": 2.0,
+    "success_rate": 0.975
+   },
+   "level9": {
+    "mean_points": 63346,
+    "mean_seeds": 2.0,
+    "success_rate": 0.9875
+   },
+   "level12": {
+    "mean_points": 104622,
+    "mean_seeds": 2.3,
+    "success_rate": 0.7935
+   }
+  }
+ },
+ "normal_build": {
+  "tool": "tools/bench_fever_normal_build.py --seeds 24",
+  "quiet_off_opponent_gauge_6": {
+   "arle": {
+    "mean_chain": 12.75,
+    "moves": 36.5,
+    "small_clears": 31
+   },
+   "raffina": {
+    "mean_chain": 11.67,
+    "moves": 33.0,
+    "small_clears": 57
+   }
+  },
+  "adopted_opponent_gauge_6": {
+   "arle": {
+    "mean_chain": 12.75,
+    "moves": 36.5,
+    "small_clears": 31
+   },
+   "raffina": {
+    "mean_chain": 11.67,
+    "moves": 33.0,
+    "small_clears": 57
+   }
+  },
+  "adopted_opponent_gauge_0": {
+   "arle": {
+    "mean_chain": 9.88,
+    "moves": 32.6,
+    "tactics_fire": 5,
+    "tactics_harass": 6
+   },
+   "raffina": {
+    "mean_chain": 8.0,
+    "moves": 25.5,
+    "tactics_fire": 10,
+    "tactics_harass": 6
+   }
+  },
+  "harass_400_opponent_gauge_6": {
+   "arle": {
+    "mean_chain": 12.29,
+    "moves": 36.9,
+    "small_clears": 34
+   },
+   "raffina": {
+    "mean_chain": 10.88,
+    "moves": 35.3,
+    "small_clears": 73
+   },
+   "sent_per_attack": [
+    1,
+    1,
+    1,
+    2,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    4,
+    4,
+    6,
+    6,
+    17,
+    20,
+    28
+   ],
+   "setups": 3
+  }
+ },
+ "entry_bench": "unchanged from 2026-10-07-main-chain-fire-odds.json (adopted_2026_10_08) with the opponent at gauge 6, apart from single games.",
+ "fever_bench_after_build_by_default": {
+  "note": "Later the same day the kill share was taken out of the seed search: the seed is built on, and fired at once in two named cases. raffina, 40 queues.",
+  "opponent_holding_12_chain_no_press": {
+   "level5": {
+    "mean_points": 20691,
+    "mean_seeds": 1.98,
+    "success_rate": 0.9873,
+    "all_clears": 14
+   },
+   "level9": {
+    "mean_points": 62768,
+    "mean_seeds": 1.95,
+    "success_rate": 0.9872,
+    "all_clears": 20
+   },
+   "level12": {
+    "mean_points": 104666,
+    "mean_seeds": 2.3,
+    "success_rate": 0.7935,
+    "all_clears": 32
+   }
+  },
+  "opponent_empty_board_press": {
+   "level5": {
+    "mean_points": 14865,
+    "mean_seeds": 2.62,
+    "success_rate": 1.0,
+    "all_clears": 28
+   },
+   "level9": {
+    "mean_points": 45429,
+    "mean_seeds": 1.95,
+    "success_rate": 1.0,
+    "all_clears": 15
+   },
+   "level12": {
+    "mean_points": 93841,
+    "mean_seeds": 2.27,
+    "success_rate": 0.8022,
+    "all_clears": 37
+   }
+  }
+ }
+}

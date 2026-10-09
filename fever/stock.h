@@ -96,6 +96,97 @@ inline Result evaluate(Field field, i32 want)
     return result;
 };
 
+// The longest chain one trigger of the board fires
+inline i32 longest(Field field)
+{
+    u8 heights[6];
+    field.get_heights(heights);
+
+    i32 best = 0;
+
+    for (i8 x = 0; x < 6; ++x) {
+        i32 drop_max = std::min(3, 12 - i32(heights[x]));
+
+        for (u8 p = 0; p < cell::COUNT - 1; ++p) {
+            auto plan = field;
+
+            for (i32 need = 1; need <= drop_max; ++need) {
+                plan.data[p].set_bit(x, heights[x] + need - 1);
+
+                if (plan.data[p].get_mask_group_4(x, heights[x]).get_count() < 4) {
+                    continue;
+                }
+
+                best = std::max(best, plan.pop_count());
+
+                break;
+            }
+        }
+    }
+
+    return best;
+};
+
+struct Main
+{
+    i32 longest = 0; // The longest chain any one trigger of the board fires
+    i32 need = 0;    // The fewest puyos that fire it, or the chain one link shorter
+    i32 colors = 0;  // Colors that fire it with that many puyos
+    u8 mask = 0;     // Those colors, one bit each
+    Field fired;     // The board with the longest chain's trigger placed
+};
+
+// How the board's main chain is fired: what the next pieces have to bring for it
+inline Main main_chain(Field field)
+{
+    u8 heights[6];
+    field.get_heights(heights);
+
+    i32 links[cell::COUNT - 1][4] = {};
+
+    Main result;
+
+    for (i8 x = 0; x < 6; ++x) {
+        i32 drop_max = std::min(3, 12 - i32(heights[x]));
+
+        for (u8 p = 0; p < cell::COUNT - 1; ++p) {
+            auto plan = field;
+
+            for (i32 need = 1; need <= drop_max; ++need) {
+                plan.data[p].set_bit(x, heights[x] + need - 1);
+
+                if (plan.data[p].get_mask_group_4(x, heights[x]).get_count() < 4) {
+                    continue;
+                }
+
+                auto remain = plan;
+                i32 count = remain.pop_count();
+
+                links[p][need] = std::max(links[p][need], count);
+
+                if (count > result.longest) {
+                    result.longest = count;
+                    result.fired = plan;
+                }
+
+                break;
+            }
+        }
+    }
+
+    for (i32 need = 1; need <= 3 && result.colors == 0; ++need) {
+        for (u8 p = 0; p < cell::COUNT - 1; ++p) {
+            if (links[p][need] > 0 && links[p][need] >= result.longest - 1) {
+                result.need = need;
+                result.colors += 1;
+                result.mask |= u8(1 << p);
+            }
+        }
+    }
+
+    return result;
+};
+
 };
 
 };

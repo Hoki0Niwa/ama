@@ -6,7 +6,9 @@
 #include "timing.h"
 #include "color_needs.h"
 #include "transition.h"
+#include "nuisance.h"
 #include <unordered_set>
+#include <chrono>
 
 namespace fever_battle {
 using json = nlohmann::json;
@@ -18,7 +20,8 @@ struct State {
     int needed_loss = 0;
     int phase = 0;
     int frame = 0, event_index = 0;
-    i64 enemy_fixed = 0, enemy_flying = 0, enemy_remainder = 0;
+    EnemyTrays enemy;
+    i64 enemy_remainder = 0;
     json path = json::array();
     bool seed = false;
 };
@@ -40,7 +43,7 @@ json search(Field field, const json& request) {
     const auto weights = request.at("weights");
     const auto w = weights.get<beam::eval::Weight>();
     fever::Configs configs; configs.hill = weights.value("hill", 0);
-    auto rules = rule::FEVER; rules.plain_pairs = true;
+    auto rules = rule::FEVER; rules.plain_pairs = true; rules.special_moves = true;
     const auto queue = request.at("queue").get<std::vector<std::string>>();
     if (queue.empty() || queue.size() > 3) throw std::invalid_argument("search uses current plus NEXT2 only");
     std::vector<piece::Piece> pieces;
@@ -88,14 +91,13 @@ json search(Field field, const json& request) {
     root.flying = number(request, "unconfirmed", 0, 1000000000);
     root.remainder = number(request, "remainder", 0, 1000000000);
     root.phase = int(number(request, "garbage_phase", 0, 5));
-    root.enemy_fixed = number(request, "enemy_confirmed", 0, 1000000000);
-    root.enemy_flying = number(request, "enemy_unconfirmed", 0, 1000000000);
+    root.enemy = EnemyTrays(request);
     root.enemy_remainder = number(request, "enemy_remainder", 0, 1000000000);
     // Process predicted opposing links causally. Offsetting now cannot erase a link
     // that the opponent has not scored yet; own excess attacks can offset it later.
     const auto advance = [&](State& state, int until) {
         advance_enemy(events, rates, until, state.event_index, state.fixed, state.flying,
-            state.enemy_fixed, state.enemy_flying, state.enemy_remainder);
+            state.enemy, state.enemy_remainder);
         state.frame = until;
     };
     if (field.is_dead(rules)) throw std::invalid_argument("already dead field");
@@ -103,7 +105,10 @@ json search(Field field, const json& request) {
     std::vector<State> layer{root};
     std::optional<State> best;
     size_t best_depth = 0, expanded = 0, deaths = 0;
+    bool cutoff = false;
     for (size_t depth = 0; depth < pieces.size() && !layer.empty(); ++depth) {
+        const auto saved_best = best;
+        const auto saved_depth = best_depth;
         std::vector<State> next;
         for (auto& parent : layer) {
             auto locks = move::generate(parent.node.field, pieces[depth], rules);
@@ -139,13 +144,13 @@ json search(Field field, const json& request) {
                         auto n = std::min(child.fixed, amount); child.fixed -= n; amount -= n; cancelled += n;
                         n = std::min(child.flying, amount); child.flying -= n; amount -= n; cancelled += n;
                         child.sent += amount; sent += amount;
-                        child.enemy_flying += amount;
+                        child.enemy.send(amount, child.frame);
                         const int duration=geometry_timing ? link_frames(features[link_index],link_index==popped.get_size()-1)
                             : pop_frames+settle_frames+falls[link_index]*fall_frames;
                         ++link_index;
                         advance(child,child.frame+duration-score_offset);
                     }
-                    child.enemy_fixed += child.enemy_flying; child.enemy_flying = 0;
+                    child.enemy.confirm();
                     // Credit the chain actually realized, using the adopted chain weight.
                     child.credit += i64(popped.get_size()) * w.chain;
                     child.seed = child.node.field.is_empty();
@@ -188,13 +193,14 @@ json search(Field field, const json& request) {
                 }
             }
         }
+        if (cutoff) { best = saved_best; best_depth = saved_depth; break; }
         std::stable_sort(next.begin(), next.end(), [](const State& a, const State& b) { return a.value > b.value; });
         // Merge only identical board AND nuisance/remainder states at this queue position.
         std::unordered_set<std::string> seen;
         layer.clear();
         for (auto& n : next) {
             auto key = state_key(n.node.field, n.fixed, n.flying, n.remainder, n.phase, n.frame,
-                n.event_index, n.enemy_fixed, n.enemy_flying, n.enemy_remainder);
+                n.event_index, n.enemy.normal_fixed, n.enemy.normal_flying, n.enemy.fever_fixed, n.enemy.fever_flying, n.enemy.fever, n.enemy_remainder);
             if (seen.insert(key).second) layer.push_back(std::move(n));
             if (layer.size() >= size_t(width)) break;
         }
@@ -204,6 +210,7 @@ json search(Field field, const json& request) {
         {"searched_visible", pieces.size()}, {"completed_moves", best->path.size()},
         {"horizon_complete", best->path.size() == pieces.size()}, {"stopped_at_unknown_seed", best->seed},
         {"expanded", expanded}, {"rejected_dead", deaths}, {"beam_width", width},
+        {"budget_exhausted", cutoff},
         {"color_needs", needs.describe(pieces, 0)},
         {"future_unconfirmed_arrival", events.empty() ? "unscheduled_not_dropped" : "predicted_chain_timeline"}};
 }

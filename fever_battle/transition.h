@@ -2,6 +2,7 @@
 #include "../core/core.h"
 #include "../lib/nlohmann/json.hpp"
 #include "rate_schedule.h"
+#include <algorithm>
 #include <bit>
 #include <cstring>
 #include <stdexcept>
@@ -112,6 +113,34 @@ void advance_enemy(const nlohmann::json& events, const RateSchedule& rates, int 
         flying += Own(amount);
     }
 }
+
+// What the opponent has against nuisance sent to them, as their normal board
+// stands: `hold` is what their own longest chain offsets, `kill` what fills the
+// board once it lands (0: no such board, as in Fever or with a chain running),
+// `links` the links they can pop one trigger after another, and `need` the
+// offsets that take their gauge into Fever, where nothing falls.
+struct Defense {
+    // Pieces it takes them to make one more link to offset with (an estimate, not measured).
+    static constexpr int PIECES_PER_LINK = 3;
+    i64 hold = 0, kill = 0;
+    int links = 0, need = 1;
+    Defense() = default;
+    explicit Defense(const nlohmann::json& j):
+        hold(number(j, "hold", 0, 1000000000)), kill(number(j, "kill", 0, 1000000000)),
+        links(number(j, "links", 0, 100)), need(number(j, "need", 0, 7)) {}
+    // The share of a kill that `pending` nuisance on them comes to, when the
+    // chain that sends it ends `frames` from now: what lands is what their
+    // chain does not offset; they escape by filling the gauge, with the links
+    // they have and one more for every PIECES_PER_LINK pieces they place until then.
+    double kills(i64 pending, int frames, int piece_frames) const {
+        if (kill <= 0) return 0.0;
+        const double landed = std::clamp(double(pending - hold) / double(kill), 0.0, 1.0);
+        const double escape = need <= 0 ? 1.0 : std::clamp(
+            (double(links) + double(frames) / double(PIECES_PER_LINK * std::max(1, piece_frames))) / double(need), 0.0, 1.0);
+        // Half of what fills the board is far less than half a kill: the share is squared.
+        return landed * landed * (1.0 - escape);
+    }
+};
 
 // Identity of a search state for merging: the board's cells and the numbers given.
 template <class... Numbers>

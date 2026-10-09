@@ -1,0 +1,136 @@
+{
+  "kind": "source investigation and offline reproductions; no game input",
+  "native_sha256": "90353c6fba534334f5658d0c6e3d7b2c8b835e428189e38b55b0d54f09fa6860",
+  "amount_cases": [
+    {
+      "rate": 30,
+      "enemy_hold": 0,
+      "chain": 1,
+      "sent": 1,
+      "attack_end": 105,
+      "projected_disrupt": 1.0,
+      "value": 2232,
+      "remaining_cells": 29,
+      "enemy_trays": {
+        "destination": "fever",
+        "fever_confirmed": 1,
+        "fever_unconfirmed": 0,
+        "normal_confirmed": 0,
+        "normal_unconfirmed": 0
+      }
+    },
+    {
+      "rate": 3,
+      "enemy_hold": 0,
+      "chain": 1,
+      "sent": 13,
+      "attack_end": 105,
+      "projected_disrupt": 1.0,
+      "value": 2232,
+      "remaining_cells": 29,
+      "enemy_trays": {
+        "destination": "fever",
+        "fever_confirmed": 13,
+        "fever_unconfirmed": 0,
+        "normal_confirmed": 0,
+        "normal_unconfirmed": 0
+      }
+    },
+    {
+      "rate": 30,
+      "enemy_hold": 1000,
+      "chain": 1,
+      "sent": 1,
+      "attack_end": 105,
+      "projected_disrupt": 1.0,
+      "value": 2232,
+      "remaining_cells": 29,
+      "enemy_trays": {
+        "destination": "fever",
+        "fever_confirmed": 1,
+        "fever_unconfirmed": 0,
+        "normal_confirmed": 0,
+        "normal_unconfirmed": 0
+      }
+    }
+  ],
+  "no_attack_cases": [
+    {
+      "case": "large_board_known_end",
+      "known_end": true,
+      "quiet_selected": true,
+      "chain": 1,
+      "sent": 1,
+      "attack_end": 105,
+      "attack_kind": "side",
+      "remaining_cells": 29,
+      "all_clear": false,
+      "projected_disrupt": 1.0
+    },
+    {
+      "case": "small_board_known_end",
+      "known_end": true,
+      "quiet_selected": false,
+      "chain": 1,
+      "sent": 1,
+      "attack_end": 105,
+      "attack_kind": "main",
+      "remaining_cells": 16,
+      "all_clear": false,
+      "projected_disrupt": 0.0
+    },
+    {
+      "case": "large_board_unknown_end",
+      "known_end": false,
+      "quiet_selected": false,
+      "chain": 1,
+      "sent": 1,
+      "attack_end": 105,
+      "attack_kind": "side",
+      "remaining_cells": 29,
+      "all_clear": false,
+      "projected_disrupt": 0.0
+    }
+  ],
+  "building_seed_target": {
+    "enemy_fever": true,
+    "enemy_seed_level": 3,
+    "enemy_fever_at": 0
+  },
+  "entry_window_reuse": {
+    "current_target": {
+      "enemy_fever": true,
+      "enemy_seed_level": 3,
+      "enemy_fever_at": 0,
+      "their_end": 0,
+      "disrupt_window": 42,
+      "enemy_entry_status": "observed_destination_switch"
+    },
+    "attack_duration": 100,
+    "stored_window": 122,
+    "accepted": true,
+    "fits_current_window": false
+  },
+  "early_timing_guard": {
+    "elapsed": 150,
+    "enemy_seed_changed": true,
+    "accepted": true
+  },
+  "signature_without_enemy_chain": {
+    "enemy_seed_changed": true,
+    "same": true
+  },
+  "seed_fire_timing_guard": {
+    "accepted": true
+  },
+  "real_prepare_reuse": {
+    "prepared": true,
+    "reused": true,
+    "reason": "tactics_disrupt",
+    "chain": 1,
+    "elapsed": 80,
+    "attack_end": 105,
+    "current_window": 42,
+    "stored_window": 122
+  }
+}

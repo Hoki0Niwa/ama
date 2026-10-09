@@ -1,0 +1,369 @@
+{
+ "date": "2026-10-08",
+ "tool": "tools/bench_fever_baseline.py entry --queues 48 --start 24 (one binary; --unknown-phase against the column order told)",
+ "note": "Scripted confirmed nuisance of 1 to 6 every 3 to 6 pieces from piece 24; opponent an empty board at gauge 6. decisions_under_a_packet as tools/analyze_fever_matches.py counts them.",
+ "arle_columns_unknown": [
+  {
+   "attack": {
+    "start": 24,
+    "every": 3,
+    "amount": 1,
+    "warning": 0
+   },
+   "ends": {
+    "entry": 38,
+    "dead": 5,
+    "limit": 5
+   },
+   "decisions_under_a_packet": {
+    "clear, no main chain held": 112,
+    "main chain broken by a smaller clear": 45,
+    "main chain fired whole": 41,
+    "no clear": 401,
+    "smaller clear, main chain kept": 108
+   },
+   "mean_fired_chain": 9.12,
+   "mean_fired_points": 45852
+  },
+  {
+   "attack": {
+    "start": 24,
+    "every": 4,
+    "amount": 2,
+    "warning": 0
+   },
+   "ends": {
+    "entry": 44,
+    "dead": 4
+   },
+   "decisions_under_a_packet": {
+    "clear, no main chain held": 94,
+    "main chain broken by a smaller clear": 44,
+    "main chain fired whole": 28,
+    "no clear": 200,
+    "smaller clear, main chain kept": 72
+   },
+   "mean_fired_chain": 7.74,
+   "mean_fired_points": 32563
+  },
+  {
+   "attack": {
+    "start": 24,
+    "every": 5,
+    "amount": 3,
+    "warning": 0
+   },
+   "ends": {
+    "entry": 40,
+    "dead": 6,
+    "limit": 2
+   },
+   "decisions_under_a_packet": {
+    "clear, no main chain held": 95,
+    "main chain broken by a smaller clear": 39,
+    "main chain fired whole": 29,
+    "no clear": 240,
+    "smaller clear, main chain kept": 64
+   },
+   "mean_fired_chain": 8.41,
+   "mean_fired_points": 35531
+  },
+  {
+   "attack": {
+    "start": 24,
+    "every": 6,
+    "amount": 6,
+    "warning": 0
+   },
+   "ends": {
+    "entry": 34,
+    "dead": 13,
+    "limit": 1
+   },
+   "decisions_under_a_packet": {
+    "clear, no main chain held": 62,
+    "main chain broken by a smaller clear": 25,
+    "main chain fired whole": 24,
+    "no clear": 175,
+    "smaller clear, main chain kept": 37
+   },
+   "mean_fired_chain": 7.25,
+   "mean_fired_points": 26757
+  }
+ ],
+ "arle_columns_known": [
+  {
+   "attack": {
+    "start": 24,
+    "every": 3,
+    "amount": 1,
+    "warning": 0
+   },
+   "ends": {
+    "entry": 38,
+    "dead": 2,
+    "limit": 8
+   },
+   "decisions_under_a_packet": {
+    "clear, no main chain held": 142,
+    "main chain broken by a smaller clear": 33,
+    "main chain fired whole": 27,
+    "no clear": 525,
+    "smaller clear, main chain kept": 105
+   },
+   "mean_fired_chain": 8.33,
+   "mean_fired_points": 41031
+  },
+  {
+   "attack": {
+    "start": 24,
+    "every": 4,
+    "amount": 2,
+    "warning": 0
+   },
+   "ends": {
+    "entry": 41,
+    "limit": 4,
+    "dead": 3
+   },
+   "decisions_under_a_packet": {
+    "clear, no main chain held": 114,
+    "main chain broken by a smaller clear": 26,
+    "main chain fired whole": 23,
+    "no clear": 337,
+    "smaller clear, main chain kept": 91
+   },
+   "mean_fired_chain": 7.88,
+   "mean_fired_points": 38036
+  },
+  {
+   "attack": {
+    "start": 24,
+    "every": 5,
+    "amount": 3,
+    "warning": 0
+   },
+   "ends": {
+    "entry": 32,
+    "dead": 11,
+    "limit": 5
+   },
+   "decisions_under_a_packet": {
+    "clear, no main chain held": 96,
+    "main chain broken by a smaller clear": 26,
+    "main chain fired whole": 17,
+    "no clear": 276,
+    "smaller clear, main chain kept": 66
+   },
+   "mean_fired_chain": 9.64,
+   "mean_fired_points": 52706
+  },
+  {
+   "attack": {
+    "start": 24,
+    "every": 6,
+    "amount": 6,
+    "warning": 0
+   },
+   "ends": {
+    "entry": 31,
+    "dead": 15,
+    "limit": 2
+   },
+   "decisions_under_a_packet": {
+    "clear, no main chain held": 55,
+    "main chain broken by a smaller clear": 24,
+    "main chain fired whole": 22,
+    "no clear": 172,
+    "smaller clear, main chain kept": 34
+   },
+   "mean_fired_chain": 7.21,
+   "mean_fired_points": 28781
+  }
+ ],
+ "raffina_columns_unknown": [
+  {
+   "attack": {
+    "start": 24,
+    "every": 3,
+    "amount": 1,
+    "warning": 0
+   },
+   "ends": {
+    "entry": 41,
+    "dead": 6,
+    "limit": 1
+   },
+   "decisions_under_a_packet": {
+    "clear, no main chain held": 98,
+    "main chain broken by a smaller clear": 63,
+    "main chain fired whole": 24,
+    "no clear": 263,
+    "smaller clear, main chain kept": 112
+   },
+   "mean_fired_chain": 8.39,
+   "mean_fired_points": 37238
+  },
+  {
+   "attack": {
+    "start": 24,
+    "every": 4,
+    "amount": 2,
+    "warning": 0
+   },
+   "ends": {
+    "entry": 46,
+    "dead": 2
+   },
+   "decisions_under_a_packet": {
+    "clear, no main chain held": 103,
+    "main chain broken by a smaller clear": 47,
+    "main chain fired whole": 30,
+    "no clear": 137,
+    "smaller clear, main chain kept": 71
+   },
+   "mean_fired_chain": 7.89,
+   "mean_fired_points": 34167
+  },
+  {
+   "attack": {
+    "start": 24,
+    "every": 5,
+    "amount": 3,
+    "warning": 0
+   },
+   "ends": {
+    "entry": 45,
+    "dead": 3
+   },
+   "decisions_under_a_packet": {
+    "clear, no main chain held": 74,
+    "main chain broken by a smaller clear": 54,
+    "main chain fired whole": 36,
+    "no clear": 160,
+    "smaller clear, main chain kept": 68
+   },
+   "mean_fired_chain": 8.21,
+   "mean_fired_points": 40266
+  },
+  {
+   "attack": {
+    "start": 24,
+    "every": 6,
+    "amount": 6,
+    "warning": 0
+   },
+   "ends": {
+    "entry": 41,
+    "dead": 7
+   },
+   "decisions_under_a_packet": {
+    "clear, no main chain held": 56,
+    "main chain broken by a smaller clear": 40,
+    "main chain fired whole": 30,
+    "no clear": 120,
+    "smaller clear, main chain kept": 58
+   },
+   "mean_fired_chain": 7.55,
+   "mean_fired_points": 31083
+  }
+ ],
+ "raffina_columns_known": [
+  {
+   "attack": {
+    "start": 24,
+    "every": 3,
+    "amount": 1,
+    "warning": 0
+   },
+   "ends": {
+    "entry": 42,
+    "limit": 2,
+    "dead": 4
+   },
+   "decisions_under_a_packet": {
+    "clear, no main chain held": 96,
+    "main chain broken by a smaller clear": 36,
+    "main chain fired whole": 22,
+    "no clear": 323,
+    "smaller clear, main chain kept": 156
+   },
+   "mean_fired_chain": 9.84,
+   "mean_fired_points": 65819
+  },
+  {
+   "attack": {
+    "start": 24,
+    "every": 4,
+    "amount": 2,
+    "warning": 0
+   },
+   "ends": {
+    "dead": 5,
+    "entry": 43
+   },
+   "decisions_under_a_packet": {
+    "clear, no main chain held": 111,
+    "main chain broken by a smaller clear": 26,
+    "main chain fired whole": 22,
+    "no clear": 196,
+    "smaller clear, main chain kept": 88
+   },
+   "mean_fired_chain": 8.78,
+   "mean_fired_points": 49342
+  },
+  {
+   "attack": {
+    "start": 24,
+    "every": 5,
+    "amount": 3,
+    "warning": 0
+   },
+   "ends": {
+    "entry": 46,
+    "limit": 1,
+    "dead": 1
+   },
+   "decisions_under_a_packet": {
+    "clear, no main chain held": 99,
+    "main chain broken by a smaller clear": 40,
+    "main chain fired whole": 24,
+    "no clear": 210,
+    "smaller clear, main chain kept": 89
+   },
+   "mean_fired_chain": 8.75,
+   "mean_fired_points": 51520
+  },
+  {
+   "attack": {
+    "start": 24,
+    "every": 6,
+    "amount": 6,
+    "warning": 0
+   },
+   "ends": {
+    "entry": 41,
+    "dead": 7
+   },
+   "decisions_under_a_packet": {
+    "clear, no main chain held": 53,
+    "main chain broken by a smaller clear": 33,
+    "main chain fired whole": 28,
+    "no clear": 120,
+    "smaller clear, main chain kept": 65
+   },
+   "mean_fired_chain": 7.81,
+   "mean_fired_points": 35506
+  }
+ ],
+ "column_order_in_the_five_hour_log": {
+  "partial_rows": 133,
+  "runs_of_the_order": 133,
+  "bridge_cursor_in_logged_requests": {
+   "right": 9,
+   "wrong": 4,
+   "unknown": 5
+  }
+ },
+ "mean_over_column_choices_trial": "Not adopted: with the columns unknown, valuing a drop by the mean over column choices (death at 200000) left the broken chains as they were (arle 37 to 37 and 35 to 39 games) and raised deaths (3 every 5: 6 to 14)."
+}

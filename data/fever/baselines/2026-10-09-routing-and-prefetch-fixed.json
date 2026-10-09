@@ -1,0 +1,40 @@
+{
+  "binary_sha256": "1aa2481fdd37d3e8b8ab27e69af91fbed057b13c2ed74ea98f7ee2f9f65a650e",
+  "kind": "offline regression, not live input or latency benchmark",
+  "destinations": [
+    {
+      "only_pending_destination": "normal",
+      "native_trays": {
+        "destination": "fever",
+        "fever_confirmed": 0,
+        "fever_unconfirmed": 0,
+        "normal_confirmed": 12,
+        "normal_unconfirmed": 0
+      }
+    },
+    {
+      "only_pending_destination": "fever",
+      "native_trays": {
+        "destination": "fever",
+        "fever_confirmed": 12,
+        "fever_unconfirmed": 0,
+        "normal_confirmed": 0,
+        "normal_unconfirmed": 0
+      }
+    }
+  ],
+  "prefetch": [
+    {
+      "second_target_chain": 14,
+      "prepared": true,
+      "reused": true,
+      "solo_calls_after_spawn": 0
+    },
+    {
+      "second_target_chain": null,
+      "prepared": true,
+      "reused": true,
+      "solo_calls_after_spawn": 0
+    }
+  ]
+}

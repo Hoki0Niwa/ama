@@ -12,7 +12,7 @@ struct Placement
 };
 
 avec<Placement, 22> generate(Field& field, bool pair_equal);
-// Special shapes use a conservative search without wall/floor kicks.
+// Special shapes are conservative unless Fever Rule::special_moves explicitly enables trial kicks.
 // Two-column pieces use x as their left column; PAIR retains its pivot x.
 avec<Placement, 22> generate(Field& field, const piece::Piece& piece,
                             const rule::Rule& rules = rule::FEVER);

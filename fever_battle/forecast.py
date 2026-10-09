@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from .model import ROOT, Scoring, integer, settled_field
 from .timing import ChainTiming
+from .nuisance import Trays
 
 
 class GarbageSearch:
@@ -14,7 +15,8 @@ class GarbageSearch:
         self.scoring = Scoring()
 
     def search(self, character, rows, queue, confirmed, unconfirmed, remainder, rate, garbage_phase, width=80,
-               enemy_events=None, enemy_confirmed=0, enemy_unconfirmed=0, enemy_remainder=0, timing=None, margin=None):
+               enemy_events=None, enemy_confirmed=0, enemy_unconfirmed=0, enemy_remainder=0, timing=None, margin=None,
+               budget_ms=0, enemy=None):
         if character not in self.scoring.data['characters']:
             raise ValueError('observed character ID required for offset scoring')
         result = self.native.ask(dict(op='garbage_search', field=settled_field(rows), queue=queue,
@@ -23,12 +25,12 @@ class GarbageSearch:
             remainder=integer(remainder, 'remainder', 0, 10**9),
             target_point=integer(rate, 'target_point', 1, 100000),
             garbage_phase=integer(garbage_phase, 'garbage_phase', 0, 5),
-            enemy_events=enemy_events or [], enemy_confirmed=enemy_confirmed,
+            enemy_events=enemy_events or [], **Trays(enemy or dict(confirmed=enemy_confirmed, unconfirmed=enemy_unconfirmed)).native(),
             rate_events=(margin or {}).get('rate_events', []),
             enemy_rate_events=(margin or {}).get('enemy_rate_events', []),
-            enemy_unconfirmed=enemy_unconfirmed, enemy_remainder=enemy_remainder,
+            enemy_remainder=enemy_remainder,
             timing=(timing or ChainTiming()).native(),
-            width=integer(width, 'width', 1, 1000), weights=self.weights,
+            width=integer(width, 'width', 1, 1000), budget_ms=budget_ms, weights=self.weights,
             powers=self.scoring.data['characters'][character]['normal'],
             bonuses=self.scoring.data['bonuses']), timeout=10)
         result['timing_status'] = (timing or ChainTiming()).effective_status

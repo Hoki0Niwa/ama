@@ -20,6 +20,8 @@ struct Configs
     size_t width = 250;
     size_t depth = 16;
     i32 trigger = 14; // Chain length that ends the search early and that is fired
+    i32 build_chain = 0; // Optional construction target, independent of the fire policy
+    bool preserve_build = false; // Avoid incidental clears when a nonclearing root survives
     bool stretch = true;
     // Field count from which any chain within the visible pieces is fired rather than risking death,
     // and the shortest chain worth firing that way
@@ -101,6 +103,8 @@ constexpr i64 AIM_LOST = -1000000000000;
 struct Result
 {
     std::vector<Candidate> candidates = {};
+    i32 completed_depth = 0;
+    std::vector<i32> virtual_depths = {};
 };
 
 void expand(

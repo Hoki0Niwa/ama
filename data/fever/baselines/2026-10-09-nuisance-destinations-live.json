@@ -1,0 +1,428 @@
+{
+  "source": "bin\\fever_battle\\routing-entry-20261009.jsonl",
+  "frames": 7068,
+  "entries": [
+    {
+      "player": 2,
+      "frame": 2988,
+      "exact_edge": true,
+      "chain_end": {
+        "frame": 2972,
+        "exact": true
+      },
+      "entry_phase_start": {
+        "frame": 2973,
+        "exact": true
+      },
+      "chain_end_to_destination": 16,
+      "destination_to_first_control": 96,
+      "before": {
+        "f": 2987,
+        "p": [
+          {
+            "mode": "normal",
+            "link": 0,
+            "field_phase": 0,
+            "mode_phase": 2,
+            "settled": true,
+            "normal": [
+              0,
+              0
+            ],
+            "fever": [
+              0,
+              0
+            ],
+            "tray": 0,
+            "piece": "2:YR",
+            "grounded": 0,
+            "placed": 33,
+            "top": 4.15625,
+            "score": 74299
+          },
+          {
+            "mode": "normal",
+            "link": 0,
+            "field_phase": 12,
+            "mode_phase": 6,
+            "settled": true,
+            "normal": [
+              151,
+              0
+            ],
+            "fever": [
+              0,
+              0
+            ],
+            "tray": 0,
+            "piece": "2:RB",
+            "grounded": 1,
+            "placed": 39,
+            "top": 2.0,
+            "score": 56088
+          }
+        ]
+      },
+      "after": {
+        "f": 2988,
+        "p": [
+          {
+            "mode": "normal",
+            "link": 0,
+            "field_phase": 0,
+            "mode_phase": 2,
+            "settled": true,
+            "normal": [
+              0,
+              0
+            ],
+            "fever": [
+              0,
+              0
+            ],
+            "tray": 0,
+            "piece": "2:YR",
+            "grounded": 0,
+            "placed": 33,
+            "top": 4.65625,
+            "score": 74300
+          },
+          {
+            "mode": "fever",
+            "link": 0,
+            "field_phase": 12,
+            "mode_phase": 6,
+            "settled": true,
+            "normal": [
+              151,
+              0
+            ],
+            "fever": [
+              0,
+              0
+            ],
+            "tray": 1,
+            "piece": "2:RB",
+            "grounded": 1,
+            "placed": 39,
+            "top": 2.0,
+            "score": 56088
+          }
+        ]
+      }
+    }
+  ],
+  "exits": [
+    {
+      "player": 2,
+      "exact_edge": true,
+      "before": {
+        "f": 4202,
+        "p": [
+          {
+            "mode": "normal",
+            "link": 2,
+            "field_phase": 1,
+            "mode_phase": 6,
+            "settled": false,
+            "normal": [
+              0,
+              0
+            ],
+            "fever": [
+              0,
+              0
+            ],
+            "tray": 0,
+            "piece": "L:YYB",
+            "grounded": 1,
+            "placed": 52,
+            "top": 2.0,
+            "score": 75096
+          },
+          {
+            "mode": "fever",
+            "link": 0,
+            "field_phase": 13,
+            "mode_phase": 6,
+            "settled": true,
+            "normal": [
+              87,
+              0
+            ],
+            "fever": [
+              0,
+              1
+            ],
+            "tray": 1,
+            "piece": "2:RR",
+            "grounded": 1,
+            "placed": 52,
+            "top": -0.2265625,
+            "score": 64028
+          }
+        ]
+      },
+      "after": {
+        "f": 4203,
+        "p": [
+          {
+            "mode": "normal",
+            "link": 2,
+            "field_phase": 1,
+            "mode_phase": 6,
+            "settled": false,
+            "normal": [
+              0,
+              0
+            ],
+            "fever": [
+              0,
+              0
+            ],
+            "tray": 0,
+            "piece": "L:YYB",
+            "grounded": 1,
+            "placed": 52,
+            "top": 2.0,
+            "score": 75096
+          },
+          {
+            "mode": "normal",
+            "link": 0,
+            "field_phase": 13,
+            "mode_phase": 6,
+            "settled": true,
+            "normal": [
+              87,
+              1
+            ],
+            "fever": [
+              0,
+              0
+            ],
+            "tray": 0,
+            "piece": "2:RR",
+            "grounded": 1,
+            "placed": 52,
+            "top": -0.2265625,
+            "score": 64028
+          }
+        ]
+      }
+    }
+  ],
+  "positive_tray_changes": [
+    {
+      "player": 1,
+      "frame": 1348,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 1,
+      "field_phase": 0,
+      "mode_phase": 2,
+      "enemy_link": 1
+    },
+    {
+      "player": 1,
+      "frame": 1441,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 3,
+      "field_phase": 10,
+      "mode_phase": 6,
+      "enemy_link": 1
+    },
+    {
+      "player": 1,
+      "frame": 1647,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 2,
+      "field_phase": 0,
+      "mode_phase": 5,
+      "enemy_link": 1
+    },
+    {
+      "player": 2,
+      "frame": 1645,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 3,
+      "field_phase": 0,
+      "mode_phase": 5,
+      "enemy_link": 2
+    },
+    {
+      "player": 2,
+      "frame": 1722,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 5,
+      "field_phase": 0,
+      "mode_phase": 1,
+      "enemy_link": 3
+    },
+    {
+      "player": 2,
+      "frame": 1803,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 8,
+      "field_phase": 1,
+      "mode_phase": 6,
+      "enemy_link": 4
+    },
+    {
+      "player": 2,
+      "frame": 1884,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 15,
+      "field_phase": 1,
+      "mode_phase": 6,
+      "enemy_link": 5
+    },
+    {
+      "player": 2,
+      "frame": 1963,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 26,
+      "field_phase": 0,
+      "mode_phase": 2,
+      "enemy_link": 6
+    },
+    {
+      "player": 2,
+      "frame": 2039,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 79,
+      "field_phase": 2,
+      "mode_phase": 6,
+      "enemy_link": 7
+    },
+    {
+      "player": 2,
+      "frame": 2121,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 84,
+      "field_phase": 0,
+      "mode_phase": 2,
+      "enemy_link": 8
+    },
+    {
+      "player": 2,
+      "frame": 2202,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 92,
+      "field_phase": 1,
+      "mode_phase": 6,
+      "enemy_link": 9
+    },
+    {
+      "player": 2,
+      "frame": 2286,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 116,
+      "field_phase": 1,
+      "mode_phase": 6,
+      "enemy_link": 10
+    },
+    {
+      "player": 2,
+      "frame": 2364,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 187,
+      "field_phase": 1,
+      "mode_phase": 6,
+      "enemy_link": 11
+    },
+    {
+      "player": 2,
+      "frame": 2929,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 1,
+      "field_phase": 1,
+      "mode_phase": 6,
+      "enemy_link": 1
+    },
+    {
+      "player": 2,
+      "frame": 3713,
+      "destination": "fever",
+      "active_destination": 1,
+      "amount": 2,
+      "field_phase": 1,
+      "mode_phase": 6,
+      "enemy_link": 1
+    },
+    {
+      "player": 2,
+      "frame": 4026,
+      "destination": "fever",
+      "active_destination": 1,
+      "amount": 1,
+      "field_phase": 0,
+      "mode_phase": 5,
+      "enemy_link": 1
+    },
+    {
+      "player": 2,
+      "frame": 4136,
+      "destination": "fever",
+      "active_destination": 1,
+      "amount": 1,
+      "field_phase": 0,
+      "mode_phase": 2,
+      "enemy_link": 1
+    },
+    {
+      "player": 2,
+      "frame": 4213,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 2,
+      "field_phase": 13,
+      "mode_phase": 6,
+      "enemy_link": 2
+    },
+    {
+      "player": 2,
+      "frame": 1547,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 1,
+      "field_phase": 8,
+      "mode_phase": 6,
+      "enemy_link": 1
+    },
+    {
+      "player": 2,
+      "frame": 1906,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 1,
+      "field_phase": 0,
+      "mode_phase": 5,
+      "enemy_link": 1
+    },
+    {
+      "player": 2,
+      "frame": 2052,
+      "destination": "normal",
+      "active_destination": 0,
+      "amount": 2,
+      "field_phase": 0,
+      "mode_phase": 0,
+      "enemy_link": 1
+    }
+  ],
+  "caveat": "Positive deltas are observations, not isolated test sends. Entry intervals are measured samples, not universal timing bounds."
+}

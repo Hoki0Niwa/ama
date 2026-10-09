@@ -63,10 +63,10 @@ class AimObjectiveTests(unittest.TestCase):
     def tearDown(self):
         self.engine.close()
 
-    def options(self, gauge=0, gain=1):
+    def options(self, gauge=0, gain=1, enemy_mode='normal'):
         own = side()
         own['gauge'] = gauge
-        req = request(own, side())
+        req = request(own, side(enemy_mode))
         req['gauge_gain_on_offset'] = gain
         return self.engine._normal_options(req, own)
 
@@ -76,7 +76,8 @@ class AimObjectiveTests(unittest.TestCase):
 
     def test_aim_objective_sets_the_builder_request(self):
         self.engine.policy['normal_build']['objective'] = 'fever_aim'
-        options = self.options(gauge=3)
+        options = self.options(gauge=3, enemy_mode='fever')
+        self.assertNotIn('aim', self.options(gauge=3))
         self.assertTrue(options['aim'])
         self.assertEqual((options['stock_want'], options['weight_set'], options['trigger']), (4, 'fever_aim', 19))
 

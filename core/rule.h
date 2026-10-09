@@ -16,6 +16,8 @@ struct Rule
     // Fever only: pairs are offered like the other shapes, without kicks or climbing over a column that
     // is as high as the spawn row. Such placements exist but need frame-exact inputs on the real game.
     bool plain_pairs = false;
+    // main-based operations plus Fever spawn hooks and pair offscreen climbing.
+    bool special_moves = false;
     // Fever search only: rows kept free below the 12th in the death columns. The search then never leaves
     // those columns higher than 11 - margin after a move, so that a piece that goes wrong on the real game
     // does not end the match at once. The rule itself (is_dead) is unchanged.

@@ -25,10 +25,12 @@ def side(character, mode='normal'):
         fever_confirmed=0, fever_unconfirmed=0)
 
 
-def run(engine, character, seed, options, pending, limit=60):
+def run(engine, character, seed, options, pending, limit=60, enemy_gauge=6):
     queue = engine.native.ask(dict(op='queue', character=character, seed=seed, count=limit+3))['queue']
     own, enemy = side(character), side(character)
     enemy['queue'] = queue[:3]
+    # At gauge 6 nothing sent kills the opponent (an empty board): the build alone is measured.
+    enemy['gauge'] = enemy_gauge
     own.update(unconfirmed=pending, normal_unconfirmed=pending)
     reasons, slowest, small = {}, 0.0, 0
     for move in range(limit):
@@ -65,11 +67,13 @@ def main():
     parser.add_argument('--width', type=int, default=50)
     parser.add_argument('--depth', type=int, default=8)
     parser.add_argument('--pending', type=int, default=0, help='unconfirmed nuisance held throughout')
+    parser.add_argument('--enemy-gauge', type=int, default=6, help='gauge of the opponent, an empty normal board')
     parser.add_argument('--output', type=Path)
     args = parser.parse_args()
     engine = mode_engine.ModeBattleEngine(args.native, ROOT/'bin/fever/fever.exe', ROOT/'config.json')
     try:
-        rows = [run(engine, args.character, seed, dict(beam_width=args.width, beam_depth=args.depth), args.pending)
+        rows = [run(engine, args.character, seed, dict(beam_width=args.width, beam_depth=args.depth), args.pending,
+                    enemy_gauge=args.enemy_gauge)
                 for seed in range(1, args.seeds+1)]
     finally:
         engine.close()

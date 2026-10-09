@@ -1,0 +1,641 @@
+{
+  "source": "read-only running Steam 15209927 code inspection, 2026-10-09",
+  "method": "RVA relative to module base; no game memory writes or controller input",
+  "active_index_offset": "player+0xa9",
+  "tray_pointer_offsets": {
+    "normal": "player+0xb0",
+    "fever": "player+0xb8"
+  },
+  "observations": [
+    "Distribution chooses tray using active index at delivery.",
+    "Offset starts with active tray, then visits the other tray.",
+    "Index 0 to 1 and mode normal to fever coincided in the one exactly observed entry."
+  ],
+  "instructions": [
+    {
+      "rva": "0x26da0",
+      "context": [
+        [
+          "0x26da0",
+          "movzx",
+          "eax, byte ptr [rcx + 0xa9]"
+        ],
+        [
+          "0x26da7",
+          "ret",
+          ""
+        ],
+        [
+          "0x26db0",
+          "lea",
+          "rax, [rcx + 0xf8]"
+        ],
+        [
+          "0x26db7",
+          "ret",
+          ""
+        ]
+      ]
+    },
+    {
+      "rva": "0x26e90",
+      "context": [
+        [
+          "0x26e90",
+          "mov",
+          "byte ptr [rcx + 0xa9], dl"
+        ],
+        [
+          "0x26e96",
+          "ret",
+          ""
+        ],
+        [
+          "0x26ea0",
+          "movups",
+          "xmm0, xmmword ptr [rdx]"
+        ]
+      ]
+    },
+    {
+      "rva": "0x579a3",
+      "context": [
+        [
+          "0x57987",
+          "nop",
+          "word ptr [rax + rax]"
+        ],
+        [
+          "0x57990",
+          "movzx",
+          "eax, byte ptr [r14 + 0xa8]"
+        ],
+        [
+          "0x57998",
+          "mov",
+          "r8d, r15d"
+        ],
+        [
+          "0x5799b",
+          "add",
+          "eax, edi"
+        ],
+        [
+          "0x5799d",
+          "sub",
+          "ebx, r15d"
+        ],
+        [
+          "0x579a0",
+          "cdq",
+          ""
+        ],
+        [
+          "0x579a1",
+          "idiv",
+          "ebp"
+        ],
+        [
+          "0x579a3",
+          "movzx",
+          "eax, byte ptr [r14 + 0xa9]"
+        ],
+        [
+          "0x579ab",
+          "movsxd",
+          "rsi, edx"
+        ],
+        [
+          "0x579ae",
+          "movzx",
+          "edx, sil"
+        ],
+        [
+          "0x579b2",
+          "mov",
+          "rcx, qword ptr [r14 + rax*8 + 0xb0]"
+        ],
+        [
+          "0x579ba",
+          "mov",
+          "rax, qword ptr [rcx]"
+        ],
+        [
+          "0x579bd",
+          "call",
+          "qword ptr [rax + 0x78]"
+        ],
+        [
+          "0x579c0",
+          "test",
+          "r12, r12"
+        ],
+        [
+          "0x579c3",
+          "je",
+          "0x579cf"
+        ],
+        [
+          "0x579c5",
+          "movzx",
+          "ecx, r15b"
+        ],
+        [
+          "0x579c9",
+          "sub",
+          "cl, al"
+        ],
+        [
+          "0x579cb",
+          "add",
+          "byte ptr [rsi + r12], cl"
+        ],
+        [
+          "0x579cf",
+          "add",
+          "ebx, eax"
+        ]
+      ]
+    },
+    {
+      "rva": "0x579ff",
+      "context": [
+        [
+          "0x579e0",
+          "mov",
+          "r13d, dword ptr [rsp + 0x58]"
+        ],
+        [
+          "0x579e5",
+          "mov",
+          "r15, qword ptr [rsp + 0x68]"
+        ],
+        [
+          "0x579ea",
+          "mov",
+          "rsi, qword ptr [rsp + 0x60]"
+        ],
+        [
+          "0x579ef",
+          "movzx",
+          "ecx, byte ptr [r14 + 0xa8]"
+        ],
+        [
+          "0x579f7",
+          "mov",
+          "r8b, 1"
+        ],
+        [
+          "0x579fa",
+          "inc",
+          "cl"
+        ],
+        [
+          "0x579fc",
+          "movzx",
+          "eax, cl"
+        ],
+        [
+          "0x579ff",
+          "movzx",
+          "ecx, byte ptr [r14 + 0xa9]"
+        ],
+        [
+          "0x57a07",
+          "cdq",
+          ""
+        ],
+        [
+          "0x57a08",
+          "idiv",
+          "ebp"
+        ],
+        [
+          "0x57a0a",
+          "mov",
+          "byte ptr [r14 + 0xa8], dl"
+        ],
+        [
+          "0x57a11",
+          "or",
+          "edx, 0xffffffff"
+        ],
+        [
+          "0x57a14",
+          "mov",
+          "rcx, qword ptr [r14 + rcx*8 + 0xb0]"
+        ],
+        [
+          "0x57a1c",
+          "mov",
+          "rdi, qword ptr [rcx]"
+        ],
+        [
+          "0x57a1f",
+          "call",
+          "qword ptr [rdi + 0xe0]"
+        ],
+        [
+          "0x57a25",
+          "mov",
+          "rbx, qword ptr [rsp + 0x50]"
+        ],
+        [
+          "0x57a2a",
+          "mov",
+          "eax, r13d"
+        ],
+        [
+          "0x57a2d",
+          "add",
+          "rsp, 0x20"
+        ],
+        [
+          "0x57a31",
+          "pop",
+          "r14"
+        ]
+      ]
+    },
+    {
+      "rva": "0x57a80",
+      "context": [
+        [
+          "0x57a69",
+          "mov",
+          "rax, qword ptr [rcx]"
+        ],
+        [
+          "0x57a6c",
+          "call",
+          "qword ptr [rax + 0xe0]"
+        ],
+        [
+          "0x57a72",
+          "mov",
+          "r14d, eax"
+        ],
+        [
+          "0x57a75",
+          "mov",
+          "edi, ebx"
+        ],
+        [
+          "0x57a77",
+          "test",
+          "eax, eax"
+        ],
+        [
+          "0x57a79",
+          "jle",
+          "0x57ae7"
+        ],
+        [
+          "0x57a7b",
+          "nop",
+          "dword ptr [rax + rax]"
+        ],
+        [
+          "0x57a80",
+          "movzx",
+          "eax, byte ptr [rbp + 0xa9]"
+        ],
+        [
+          "0x57a87",
+          "movzx",
+          "edx, dil"
+        ],
+        [
+          "0x57a8b",
+          "movzx",
+          "r8d, byte ptr [rsi]"
+        ],
+        [
+          "0x57a8f",
+          "add",
+          "ebx, r8d"
+        ],
+        [
+          "0x57a92",
+          "mov",
+          "rcx, qword ptr [rbp + rax*8 + 0xb0]"
+        ],
+        [
+          "0x57a9a",
+          "mov",
+          "rax, qword ptr [rcx]"
+        ],
+        [
+          "0x57a9d",
+          "call",
+          "qword ptr [rax + 0x80]"
+        ],
+        [
+          "0x57aa3",
+          "inc",
+          "edi"
+        ],
+        [
+          "0x57aa5",
+          "lea",
+          "rsi, [rsi + 1]"
+        ],
+        [
+          "0x57aa9",
+          "cmp",
+          "edi, r14d"
+        ],
+        [
+          "0x57aac",
+          "jl",
+          "0x57a80"
+        ],
+        [
+          "0x57aae",
+          "test",
+          "ebx, ebx"
+        ]
+      ]
+    },
+    {
+      "rva": "0x57b84",
+      "context": [
+        [
+          "0x57b63",
+          "mov",
+          "qword ptr [rsp + 0x60], rbp"
+        ],
+        [
+          "0x57b68",
+          "cmovb",
+          "r12d, eax"
+        ],
+        [
+          "0x57b6c",
+          "mov",
+          "qword ptr [rsp + 0x28], r14"
+        ],
+        [
+          "0x57b71",
+          "mov",
+          "qword ptr [rsp + 0x20], r15"
+        ],
+        [
+          "0x57b76",
+          "mov",
+          "rax, qword ptr [rcx]"
+        ],
+        [
+          "0x57b79",
+          "mov",
+          "dword ptr [rsp + 0x58], r12d"
+        ],
+        [
+          "0x57b7e",
+          "call",
+          "qword ptr [rax + 0xe0]"
+        ],
+        [
+          "0x57b84",
+          "movzx",
+          "r14d, byte ptr [rdi + 0xa9]"
+        ],
+        [
+          "0x57b8c",
+          "mov",
+          "ebp, eax"
+        ],
+        [
+          "0x57b8e",
+          "mov",
+          "r15d, r12d"
+        ],
+        [
+          "0x57b91",
+          "test",
+          "r12d, r12d"
+        ],
+        [
+          "0x57b94",
+          "jle",
+          "0x57c8b"
+        ],
+        [
+          "0x57b9a",
+          "mov",
+          "qword ptr [rsp + 0x50], rbx"
+        ],
+        [
+          "0x57b9f",
+          "mov",
+          "qword ptr [rsp + 0x68], rsi"
+        ],
+        [
+          "0x57ba4",
+          "mov",
+          "qword ptr [rsp + 0x30], r13"
+        ],
+        [
+          "0x57ba9",
+          "mov",
+          "r13d, 1"
+        ],
+        [
+          "0x57baf",
+          "nop",
+          ""
+        ],
+        [
+          "0x57bb0",
+          "xor",
+          "esi, esi"
+        ],
+        [
+          "0x57bb2",
+          "xor",
+          "ebx, ebx"
+        ]
+      ]
+    },
+    {
+      "rva": "0x57c5c",
+      "context": [
+        [
+          "0x57c49",
+          "test",
+          "r15d, r15d"
+        ],
+        [
+          "0x57c4c",
+          "jle",
+          "0x57c77"
+        ],
+        [
+          "0x57c4e",
+          "inc",
+          "ebx"
+        ],
+        [
+          "0x57c50",
+          "cmp",
+          "ebx, ebp"
+        ],
+        [
+          "0x57c52",
+          "jl",
+          "0x57c00"
+        ],
+        [
+          "0x57c54",
+          "mov",
+          "r13d, 1"
+        ],
+        [
+          "0x57c5a",
+          "jmp",
+          "0x57c6e"
+        ],
+        [
+          "0x57c5c",
+          "movzx",
+          "eax, byte ptr [rdi + 0xa9]"
+        ],
+        [
+          "0x57c63",
+          "cmp",
+          "r14d, eax"
+        ],
+        [
+          "0x57c66",
+          "jne",
+          "0x57c77"
+        ],
+        [
+          "0x57c68",
+          "mov",
+          "r14d, r13d"
+        ],
+        [
+          "0x57c6b",
+          "sub",
+          "r14d, eax"
+        ],
+        [
+          "0x57c6e",
+          "test",
+          "r15d, r15d"
+        ],
+        [
+          "0x57c71",
+          "jg",
+          "0x57bb0"
+        ],
+        [
+          "0x57c77",
+          "mov",
+          "r12d, dword ptr [rsp + 0x58]"
+        ],
+        [
+          "0x57c7c",
+          "mov",
+          "r13, qword ptr [rsp + 0x30]"
+        ],
+        [
+          "0x57c81",
+          "mov",
+          "rsi, qword ptr [rsp + 0x68]"
+        ],
+        [
+          "0x57c86",
+          "mov",
+          "rbx, qword ptr [rsp + 0x50]"
+        ],
+        [
+          "0x57c8b",
+          "movzx",
+          "ecx, byte ptr [rdi + 0xa8]"
+        ]
+      ]
+    },
+    {
+      "rva": "0x57fa4",
+      "context": [
+        [
+          "0x57f9b",
+          "ret",
+          ""
+        ],
+        [
+          "0x57fa0",
+          "test",
+          "edx, edx"
+        ],
+        [
+          "0x57fa2",
+          "jns",
+          "0x57fb4"
+        ],
+        [
+          "0x57fa4",
+          "movzx",
+          "eax, byte ptr [rcx + 0xa9]"
+        ],
+        [
+          "0x57fab",
+          "mov",
+          "rax, qword ptr [rcx + rax*8 + 0xb0]"
+        ],
+        [
+          "0x57fb3",
+          "ret",
+          ""
+        ],
+        [
+          "0x57fb4",
+          "movsxd",
+          "rax, edx"
+        ],
+        [
+          "0x57fb7",
+          "mov",
+          "rax, qword ptr [rcx + rax*8 + 0xb0]"
+        ],
+        [
+          "0x57fbf",
+          "ret",
+          ""
+        ],
+        [
+          "0x57fc0",
+          "push",
+          "rbx"
+        ],
+        [
+          "0x57fc2",
+          "sub",
+          "rsp, 0x20"
+        ],
+        [
+          "0x57fc6",
+          "movzx",
+          "ebx, word ptr [rcx + 0x1a4]"
+        ],
+        [
+          "0x57fcd",
+          "call",
+          "0x78d0"
+        ],
+        [
+          "0x57fd2",
+          "cmp",
+          "eax, 4"
+        ],
+        [
+          "0x57fd5",
+          "jne",
+          "0x5803d"
+        ]
+      ]
+    }
+  ]
+}

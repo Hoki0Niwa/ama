@@ -1,0 +1,103 @@
+{
+  "opening": {
+    "count": 4,
+    "cache": {
+      "prefetched": 4
+    },
+    "wait_min_ms": 0.0,
+    "wait_max_ms": 16.0
+  },
+  "source": "bin\\fever_battle\\deadline-before-input-session.log",
+  "status": "observed_log_not_a_controlled_speed_comparison",
+  "groups": {
+    "normal_enemy_chain_False": {
+      "count": 122,
+      "cache": {
+        "prefetched": 60,
+        "early": 52,
+        "build-prefetched": 10
+      },
+      "search_ms": {
+        "median": 0.0,
+        "p90": 203.0,
+        "maximum": 266.0
+      },
+      "wait_ms": {
+        "median": 0.0,
+        "p90": 16.0,
+        "maximum": 47.0
+      }
+    },
+    "normal_enemy_chain_True": {
+      "count": 86,
+      "cache": {
+        "build-prefetched": 39,
+        "early": 46,
+        "miss": 1
+      },
+      "search_ms": {
+        "median": 78.0,
+        "p90": 453.0,
+        "maximum": 765.0
+      },
+      "wait_ms": {
+        "median": 0.0,
+        "p90": 62.0,
+        "maximum": 672.0
+      }
+    },
+    "fever_enemy_chain_False": {
+      "count": 11,
+      "cache": {
+        "miss": 6,
+        "early": 5
+      },
+      "search_ms": {
+        "median": 15.0,
+        "p90": 16.0,
+        "maximum": 16.0
+      },
+      "wait_ms": {
+        "median": 0.0,
+        "p90": 16.0,
+        "maximum": 31.0
+      }
+    },
+    "fever_enemy_chain_True": {
+      "count": 32,
+      "cache": {
+        "prefetched": 4,
+        "miss": 18,
+        "early": 10
+      },
+      "search_ms": {
+        "median": 15.0,
+        "p90": 16.0,
+        "maximum": 62.0
+      },
+      "wait_ms": {
+        "median": 15.0,
+        "p90": 31.0,
+        "maximum": 62.0
+      }
+    }
+  },
+  "early_discard_reasons": {
+    "self state changed; discard decision (gauge)": 4
+  },
+  "input_retries": {
+    "automation disabled, game paused or focus lost": 1,
+    "self state changed; discard decision (dropset_index, field, moves_since_chain, piece_id, queue)": 1
+  },
+  "fatal_errors": [
+    {
+      "auto": "error",
+      "error": "no placement survives observed confirmed garbage",
+      "error_type": "ValueError",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\ho_ki\\git\\ama-memory-bridge\\fever_duel.py\", line 321, in work\n    runs[index].run()\n  File \"C:\\Users\\ho_ki\\git\\ama-memory-bridge\\fever_mode_play.py\", line 930, in run\n    raise error\n  File \"C:\\Users\\ho_ki\\git\\ama-memory-bridge\\fever_mode_play.py\", line 623, in work\n    result.put((self.engine.think(request), None))\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ho_ki\\git\\ama-memory-bridge\\fever_mode_bridge.py\", line 469, in think\n    return self.worker.ask(request, timeout=10)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ho_ki\\git\\ama-fever\\fever_battle\\worker.py\", line 48, in ask\n    raise ValueError(reply['error'])\nValueError: no placement survives observed confirmed garbage\n",
+      "ai": 2,
+      "t": 464.328
+    }
+  ],
+  "measurement_limit": "old wait_ms excludes time spent waiting for unfinished preparation/early search"
+}

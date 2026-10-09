@@ -1,0 +1,168 @@
+{
+ "date": "2026-10-08",
+ "tool": "tools/bench_fever_normal_build.py --seeds 24 (no opponent, prototype colour model)",
+ "note": "Harassing clears (normal_tactics.harass). off: switch off. on_first: credit also reached the builder own main-chain fire (most \"harass\" replies were that fire). on: main chain excluded. Not adopted; the switch is off.",
+ "off": [
+  {
+   "character": "arle",
+   "seeds": 24,
+   "mean_chain": 12.75,
+   "at_least_10": 22,
+   "at_least_13": 15,
+   "mean_moves": 36.5,
+   "small_clears": 31,
+   "harass": 0,
+   "ends": {
+    "fire": 24
+   }
+  },
+  {
+   "character": "raffina",
+   "seeds": 24,
+   "mean_chain": 11.67,
+   "at_least_10": 21,
+   "at_least_13": 13,
+   "mean_moves": 33.0,
+   "small_clears": 57,
+   "harass": 0,
+   "ends": {
+    "dead": 1,
+    "fire": 23
+   }
+  }
+ ],
+ "on_first": [
+  {
+   "character": "arle",
+   "seeds": 24,
+   "mean_chain": 12.04,
+   "at_least_10": 21,
+   "at_least_13": 13,
+   "mean_moves": 37.0,
+   "small_clears": 30,
+   "harass": 25,
+   "ends": {
+    "dead": 1,
+    "fire": 23
+   }
+  },
+  {
+   "character": "raffina",
+   "seeds": 24,
+   "mean_chain": 11.46,
+   "at_least_10": 21,
+   "at_least_13": 13,
+   "mean_moves": 35.5,
+   "small_clears": 59,
+   "harass": 38,
+   "ends": {
+    "dead": 1,
+    "fire": 22,
+    "no_fire": 1
+   }
+  }
+ ],
+ "on": [
+  {
+   "character": "arle",
+   "seeds": 24,
+   "mean_chain": 12.17,
+   "at_least_10": 21,
+   "at_least_13": 13,
+   "mean_moves": 37.4,
+   "small_clears": 36,
+   "harass": 4,
+   "ends": {
+    "fire": 24
+   }
+  },
+  {
+   "character": "raffina",
+   "seeds": 24,
+   "mean_chain": 10.46,
+   "at_least_10": 18,
+   "at_least_13": 13,
+   "mean_moves": 38.2,
+   "small_clears": 80,
+   "harass": 28,
+   "ends": {
+    "dead": 1,
+    "fire": 22,
+    "no_fire": 1
+   }
+  }
+ ],
+ "availability": {
+  "character": "arle",
+  "games": 16,
+  "moves_with_a_main_chain": 434,
+  "moves_where_the_piece_could_send_6_or_more_and_keep_the_chain": 1,
+  "harassing_clears_made": 4,
+  "made": [
+   {
+    "move": 35,
+    "chain": 2,
+    "cells": 9,
+    "sent": 3,
+    "main_chain": 9
+   },
+   {
+    "move": 48,
+    "chain": 2,
+    "cells": 8,
+    "sent": 3,
+    "main_chain": 12
+   },
+   {
+    "move": 35,
+    "chain": 4,
+    "cells": 21,
+    "sent": 28,
+    "main_chain": 14
+   },
+   {
+    "move": 20,
+    "chain": 2,
+    "cells": 12,
+    "sent": 7,
+    "main_chain": 6
+   }
+  ]
+ },
+ "press": {
+  "tool": "tools/bench_fever_baseline.py fever --queues 40 (raffina, opponent an empty normal board, so press is on throughout)",
+  "before": {
+   "level5": {
+    "mean_points": 21252,
+    "mean_seeds": 1.98,
+    "success_rate": 0.9873
+   },
+   "level9": {
+    "mean_points": 60818,
+    "mean_seeds": 1.95
+   },
+   "level12": {
+    "mean_points": 103863,
+    "mean_seeds": 2.3,
+    "success_rate": 0.7935
+   }
+  },
+  "press_extension_0_25": {
+   "level5": {
+    "mean_points": 19438,
+    "mean_seeds": 2.25,
+    "success_rate": 0.9889
+   },
+   "level9": {
+    "mean_points": 58907,
+    "mean_seeds": 2.0
+   },
+   "level12": {
+    "mean_points": 102914,
+    "mean_seeds": 2.3,
+    "success_rate": 0.7935
+   }
+  },
+  "fixed_positions": "132 positions (reference seeds of level 5-7, arle, 12 random queues each, press_extension 0.5): first move against an empty opponent / against one holding a 12 chain: stack/stack 121, regular fire/regular fire 8, regular fire/stack 3; no fire below the level in either."
+ }
+}

@@ -8,6 +8,7 @@ from itertools import combinations
 from .model import convert, dead, integer
 from .timing import ChainTiming
 from .margin import rate_at
+from .nuisance import Trays
 
 
 def outcomes(rows, count):
@@ -40,25 +41,23 @@ def choose(native, scoring, side, rate, options=None, allowed_placements=None,
         check_at = fire_at + (0 if points else timing.nuisance_check_frames)
         fixed, flying, remainder = side['confirmed'], side['unconfirmed'], side['remainder']
         opponent = enemy or {}
-        efixed, eflying = opponent.get('confirmed', 0), opponent.get('unconfirmed', 0)
-        if opponent.get('mode') == 'fever':
-            efixed += opponent.get('normal_confirmed', 0)
-            eflying += opponent.get('normal_unconfirmed', 0)
+        trays = Trays(opponent)
         eremainder, cursor, cancelled, sent = opponent.get('remainder', 0), 0, 0, 0
+        held_fixed = side['normal_confirmed'] if side['mode']=='fever' else 0
+        held_flying = side['normal_unconfirmed'] if side['mode']=='fever' else 0
         offset_links = 0
         events = enemy_events or []
         def advance(until):
-            nonlocal cursor, fixed, flying, efixed, eflying, eremainder
+            nonlocal cursor, fixed, flying, eremainder, held_fixed, held_flying
             while cursor < len(events) and events[cursor]['frame'] <= until:
                 event = events[cursor]; cursor += 1
                 if event['type'] == 'end':
                     fixed += flying; flying = 0
+                    held_fixed += held_flying; held_flying = 0
                 else:
                     active_rate = rate_at(rate, (margin or {}).get('enemy_rate_events'), event['frame'])
-                    amount, eremainder, _ = convert(event['points'], eremainder, active_rate, efixed+eflying)
-                    taken = min(efixed, amount); efixed -= taken; amount -= taken
-                    taken = min(eflying, amount); eflying -= taken; amount -= taken
-                    flying += amount
+                    amount, eremainder, _ = convert(event['points'], eremainder, active_rate, trays.pending())
+                    flying += trays.offset(amount)
         advance(check_at)
         due = min(30, fixed)        # what falls on this placement unless it clears
         count = due if not points else 0
@@ -76,18 +75,18 @@ def choose(native, scoring, side, rate, options=None, allowed_placements=None,
         rank = (tier, chain, -max(heights[2:4]), -sum(h*h for h in heights))
         end_at = fire_at + sum(timing.duration(distance, features, terminal=i == chain-1)
             for i, (distance, features) in enumerate(zip(candidate['fall_distances'], candidate['fall_features'])))
-        held = side['normal_confirmed']+side['normal_unconfirmed'] if side['mode']=='fever' else 0
         onset = fire_at
         for i, point in enumerate(points):
             advance(onset)
             active_rate = rate_at(rate, (margin or {}).get('rate_events'), onset)
-            amount, remainder, _ = convert(point, remainder, active_rate, fixed+flying+held)
+            amount, remainder, _ = convert(point, remainder, active_rate, fixed+flying+held_fixed+held_flying)
             cancelled_before = cancelled
             taken = min(fixed, amount); fixed -= taken; amount -= taken; cancelled += taken
             taken = min(flying, amount); flying -= taken; amount -= taken; cancelled += taken
-            taken = min(held, amount); held -= taken; amount -= taken; cancelled += taken
+            taken = min(held_fixed, amount); held_fixed -= taken; amount -= taken; cancelled += taken
+            taken = min(held_flying, amount); held_flying -= taken; amount -= taken; cancelled += taken
             offset_links += cancelled > cancelled_before
-            sent += amount; eflying += amount
+            sent += amount; trays.send(amount)
             onset += timing.duration(candidate['fall_distances'][i], candidate['fall_features'][i], terminal=i==chain-1)
         # A counter is judged against the entire observed attack, including
         # links that occur after our chain finishes. Our outgoing points must
@@ -98,7 +97,7 @@ def choose(native, scoring, side, rate, options=None, allowed_placements=None,
             locked_field=candidate['locked_field'], chain=chain, link_points=points,
             all_clear=candidate['all_clear'], fire_at=fire_at, end_at=end_at, in_time=in_time,
             dead=not survives, dropped=count, cancelled=cancelled, sent=sent,
-            offset_links=offset_links, pending_after_observed_chains=fixed+flying+held,
+            offset_links=offset_links, pending_after_observed_chains=fixed+flying+held_fixed+held_flying,
             exchange_at=exchange_at,
             garbage_phase=None, post_drop_field_known=count == 0,
             possible_drop_boards=len(cases), uncertainty='all_remainder_column_subsets')

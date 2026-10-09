@@ -1,0 +1,6789 @@
+{
+ "status": "offline_reference_positions_not_live_acceptance",
+ "cases": [
+  {
+   "level": 4,
+   "after_opening": false,
+   "request": {
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "match_id": "fire-ready-4-False",
+    "frame": 0,
+    "observation": {
+     "frame_before": 0,
+     "frame_after": 0,
+     "match_status": "running"
+    },
+    "target_point": 120,
+    "gauge_gain_on_offset": 1,
+    "clock_policy": {
+     "count_chain_frames": true
+    },
+    "self": {
+     "character": "arle",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      ".RGRBB",
+      "YYYGRR",
+      "GGGRBB"
+     ],
+     "mode": "normal",
+     "gauge": 0,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:YY"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 0,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 0,
+     "clock_running": false,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": null,
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0,
+     "normal_chain_max": 0
+    },
+    "enemy": {
+     "character": "raffina",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      ".....R",
+      ".....R",
+      ".....B",
+      ".....B",
+      "...BRR",
+      "..YYBB",
+      "..YBRR"
+     ],
+     "mode": "fever",
+     "gauge": 7,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:RY"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 1,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 900,
+     "clock_running": true,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
+     ],
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0
+    },
+    "seed_options": {
+     "budget_ms": 500,
+     "max_nodes": 20000
+    },
+    "solo_options": {
+     "trigger": 15,
+     "beam_width": 50,
+     "beam_depth": 8
+    }
+   },
+   "reply": {
+    "x": 1,
+    "r": "R",
+    "shape": "2",
+    "reason": "normal_build_or_fire",
+    "fire": false,
+    "chain": 0,
+    "next_chain": 0,
+    "next_score": 0,
+    "next_field": [
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     ".YY...",
+     ".RGRBB",
+     "YYYGRR",
+     "GGGRBB"
+    ],
+    "link_points": [],
+    "next_all_clear": false,
+    "normal_search_reused": false,
+    "searched_visible": 1,
+    "normal_fire_policy": "initial_target",
+    "normal_build_search_reused": true,
+    "normal_build_searched_visible": 1,
+    "normal_color_needs": {
+     "mainline": [
+      {
+       "chain": 4,
+       "color": "Y",
+       "height": 2,
+       "missing_visible_cells": 0,
+       "needed_cells": 1,
+       "visible_supply": 2,
+       "x": 0
+      }
+     ],
+     "mainline_chain": 4,
+     "offsets": [
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 2,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 0
+      },
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 3,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 1
+      },
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 3,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 3
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 3,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 2
+      },
+      {
+       "chain": 1,
+       "color": "B",
+       "height": 3,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 4
+      },
+      {
+       "chain": 1,
+       "color": "B",
+       "height": 3,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 5
+      }
+     ],
+     "quality": 1580,
+     "reserve_weights": {
+      "B": 0,
+      "G": 0,
+      "R": 0,
+      "Y": 3
+     },
+     "status": "reachable_color_completion_heuristic_not_executable_future",
+     "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+    },
+    "needed_color_consumed": 0,
+    "gauge_forecast": {
+     "gauge_after": 0,
+     "offset_links": 0,
+     "cancelled": 0,
+     "remaining_pending": 0
+    },
+    "entry_pending_after_chain": false,
+    "decision_dependencies": [
+     "self"
+    ],
+    "action": "place",
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "mode": "normal",
+    "decision_identity": {
+     "match_id": "fire-ready-4-False",
+     "frame": 0,
+     "piece_id": 0,
+     "dropset_index": 0,
+     "mode_generation": 0,
+     "seed_id": 1
+    },
+    "model_status": "prototype_unverified_on_local_steam",
+    "provenance": {
+     "power": "player_measurement_transcribed",
+     "bonuses": "cross_title_reference_unverified_on_local_steam",
+     "local_steam_verified": false
+    },
+    "search_ms": 30.999999999039574,
+    "mode_timing_status": "normal_calibrated_input_estimated",
+    "margin_forecast": {
+     "rate_events": [],
+     "enemy_rate_events": [],
+     "status": "observed_rate_only_margin_setting_unknown",
+     "observed_target_point": 120,
+     "observed_changes": 0,
+     "margin_start_frame_bounds": null
+    },
+    "arrival": {
+     "chain_end_in": null,
+     "piece_frames": 42,
+     "measured_pace": null,
+     "pieces": null
+    }
+   }
+  },
+  {
+   "level": 4,
+   "after_opening": true,
+   "request": {
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "match_id": "fire-ready-4-True",
+    "frame": 0,
+    "observation": {
+     "frame_before": 0,
+     "frame_after": 0,
+     "match_status": "running"
+    },
+    "target_point": 120,
+    "gauge_gain_on_offset": 1,
+    "clock_policy": {
+     "count_chain_frames": true
+    },
+    "self": {
+     "character": "arle",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      ".RGRBB",
+      "YYYGRR",
+      "GGGRBB"
+     ],
+     "mode": "normal",
+     "gauge": 0,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:YY"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 0,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 0,
+     "clock_running": false,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": null,
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0,
+     "normal_chain_max": 7
+    },
+    "enemy": {
+     "character": "raffina",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      ".....R",
+      ".....R",
+      ".....B",
+      ".....B",
+      "...BRR",
+      "..YYBB",
+      "..YBRR"
+     ],
+     "mode": "fever",
+     "gauge": 7,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:RY"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 1,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 900,
+     "clock_running": true,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
+     ],
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0
+    },
+    "seed_options": {
+     "budget_ms": 500,
+     "max_nodes": 20000
+    },
+    "solo_options": {
+     "trigger": 15,
+     "beam_width": 50,
+     "beam_depth": 8
+    }
+   },
+   "reply": {
+    "x": 0,
+    "r": "U",
+    "shape": "2",
+    "reason": "tactics_disrupt",
+    "decision_kind": "clear",
+    "fire": true,
+    "chain": 4,
+    "next_chain": 4,
+    "next_score": 2100,
+    "link_points": [
+     50,
+     450,
+     680,
+     920
+    ],
+    "next_field": [
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     ".R...."
+    ],
+    "next_all_clear": false,
+    "selected_move_loses": false,
+    "decision_dependencies": [
+     "self",
+     "enemy"
+    ],
+    "searched_visible": 1,
+    "tactics_forecast": {
+     "candidates": [
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 4,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        ".R...."
+       ],
+       "frame": 307,
+       "gauge_after": 0,
+       "link_points": [
+        50,
+        450,
+        680,
+        920
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          5
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          5
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 17,
+       "r": "U",
+       "remainder": 60,
+       "sent": 17,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 1174,
+       "x": 0
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        ".Y....",
+        ".Y....",
+        ".RGRBB",
+        "YYYGRR",
+        "GGGRBB"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 420,
+       "x": 1
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "..Y...",
+        "..Y...",
+        ".RGRBB",
+        "YYYGRR",
+        "GGGRBB"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 420,
+       "x": 2
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "...Y..",
+        "...Y..",
+        ".RGRBB",
+        "YYYGRR",
+        "GGGRBB"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 420,
+       "x": 3
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "....Y.",
+        "....Y.",
+        ".RGRBB",
+        "YYYGRR",
+        "GGGRBB"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 420,
+       "x": 4
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        ".....Y",
+        ".....Y",
+        ".RGRBB",
+        "YYYGRR",
+        "GGGRBB"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 420,
+       "x": 5
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 4,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        ".Y....",
+        ".R...."
+       ],
+       "frame": 326,
+       "gauge_after": 0,
+       "link_points": [
+        40,
+        450,
+        680,
+        920
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          5
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 17,
+       "r": "R",
+       "remainder": 50,
+       "sent": 17,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -2984,
+       "x": 0
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        ".YY...",
+        ".RGRBB",
+        "YYYGRR",
+        "GGGRBB"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "R",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 420,
+       "x": 1
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "..YY..",
+        ".RGRBB",
+        "YYYGRR",
+        "GGGRBB"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "R",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 420,
+       "x": 2
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "...YY.",
+        ".RGRBB",
+        "YYYGRR",
+        "GGGRBB"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "R",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 420,
+       "x": 3
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "....YY",
+        ".RGRBB",
+        "YYYGRR",
+        "GGGRBB"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "R",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 420,
+       "x": 4
+      }
+     ],
+     "choice": {
+      "all_clear": false,
+      "cancelled": 0,
+      "chain": 4,
+      "confirmed": 0,
+      "drop_due": false,
+      "dropped": 0,
+      "field": [
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       ".R...."
+      ],
+      "frame": 307,
+      "gauge_after": 0,
+      "link_points": [
+       50,
+       450,
+       680,
+       920
+      ],
+      "links": [
+       {
+        "colors": 1,
+        "groups": [
+         5
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         5
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       }
+      ],
+      "possible_drop_boards": 1,
+      "post_drop_field_known": true,
+      "projected_all_clear": false,
+      "projected_disrupt": 0.5,
+      "projected_gauge": 0,
+      "projected_kill": 0.0,
+      "projected_sent": 17,
+      "r": "U",
+      "remainder": 60,
+      "sent": 17,
+      "survives": true,
+      "unconfirmed": 0,
+      "value": 1174,
+      "x": 0
+     },
+     "completed_depth": 1,
+     "cutoff": false,
+     "deeper_pass_skipped": false,
+     "enemy_hold": 33,
+     "expanded": 11,
+     "future_unconfirmed_arrival": "unscheduled_not_dropped",
+     "harass": false,
+     "own_hold": 17,
+     "root_stock": {
+      "colors": 1,
+      "links": 5,
+      "longest": 4,
+      "units": 17
+     },
+     "unknown_drop_policy": "worst_column_choice_then_reobserve",
+     "visible": 1
+    },
+    "normal_fire_policy": "completed_mainline",
+    "normal_color_needs": {
+     "mainline": [
+      {
+       "chain": 4,
+       "color": "Y",
+       "height": 2,
+       "missing_visible_cells": 0,
+       "needed_cells": 1,
+       "visible_supply": 2,
+       "x": 0
+      }
+     ],
+     "mainline_chain": 4,
+     "offsets": [
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 2,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 0
+      },
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 3,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 1
+      },
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 3,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 3
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 3,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 2
+      },
+      {
+       "chain": 1,
+       "color": "B",
+       "height": 3,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 4
+      },
+      {
+       "chain": 1,
+       "color": "B",
+       "height": 3,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 5
+      }
+     ],
+     "quality": 1580,
+     "reserve_weights": {
+      "B": 0,
+      "G": 0,
+      "R": 0,
+      "Y": 3
+     },
+     "status": "reachable_color_completion_heuristic_not_executable_future",
+     "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+    },
+    "needed_color_consumed": 15,
+    "gauge_forecast": {
+     "gauge_after": 0,
+     "offset_links": 0,
+     "cancelled": 0,
+     "remaining_pending": 0
+    },
+    "entry_pending_after_chain": false,
+    "action": "place",
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "mode": "normal",
+    "decision_identity": {
+     "match_id": "fire-ready-4-True",
+     "frame": 0,
+     "piece_id": 0,
+     "dropset_index": 0,
+     "mode_generation": 0,
+     "seed_id": 1
+    },
+    "model_status": "prototype_unverified_on_local_steam",
+    "provenance": {
+     "power": "player_measurement_transcribed",
+     "bonuses": "cross_title_reference_unverified_on_local_steam",
+     "local_steam_verified": false
+    },
+    "search_ms": 15.99999999962165,
+    "mode_timing_status": "normal_calibrated_input_estimated",
+    "margin_forecast": {
+     "rate_events": [],
+     "enemy_rate_events": [],
+     "status": "observed_rate_only_margin_setting_unknown",
+     "observed_target_point": 120,
+     "observed_changes": 0,
+     "margin_start_frame_bounds": null
+    },
+    "arrival": {
+     "chain_end_in": null,
+     "piece_frames": 42,
+     "measured_pace": null,
+     "pieces": null
+    }
+   }
+  },
+  {
+   "level": 5,
+   "after_opening": false,
+   "request": {
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "match_id": "fire-ready-5-False",
+    "frame": 0,
+    "observation": {
+     "frame_before": 0,
+     "frame_after": 0,
+     "match_status": "running"
+    },
+    "target_point": 120,
+    "gauge_gain_on_offset": 1,
+    "clock_policy": {
+     "count_chain_frames": true
+    },
+    "self": {
+     "character": "arle",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "G.....",
+      "B.....",
+      "B....Y",
+      "B....Y",
+      "GGRYGG",
+      "GBBRYY",
+      "BRRYGG"
+     ],
+     "mode": "normal",
+     "gauge": 0,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:GG"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 0,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 0,
+     "clock_running": false,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": null,
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0,
+     "normal_chain_max": 0
+    },
+    "enemy": {
+     "character": "raffina",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      ".....R",
+      ".....R",
+      ".....B",
+      ".....B",
+      "...BRR",
+      "..YYBB",
+      "..YBRR"
+     ],
+     "mode": "fever",
+     "gauge": 7,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:RY"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 1,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 900,
+     "clock_running": true,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
+     ],
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0
+    },
+    "seed_options": {
+     "budget_ms": 500,
+     "max_nodes": 20000
+    },
+    "solo_options": {
+     "trigger": 15,
+     "beam_width": 50,
+     "beam_depth": 8
+    }
+   },
+   "reply": {
+    "x": 4,
+    "r": "R",
+    "shape": "2",
+    "reason": "normal_build_or_fire",
+    "fire": false,
+    "chain": 0,
+    "next_chain": 0,
+    "next_score": 0,
+    "next_field": [
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "G.....",
+     "B....G",
+     "B....Y",
+     "B...GY",
+     "GGRYGG",
+     "GBBRYY",
+     "BRRYGG"
+    ],
+    "link_points": [],
+    "next_all_clear": false,
+    "normal_search_reused": false,
+    "searched_visible": 1,
+    "normal_fire_policy": "initial_target",
+    "normal_build_search_reused": true,
+    "normal_build_searched_visible": 1,
+    "normal_color_needs": {
+     "mainline": [
+      {
+       "chain": 5,
+       "color": "G",
+       "height": 3,
+       "missing_visible_cells": 0,
+       "needed_cells": 1,
+       "visible_supply": 2,
+       "x": 1
+      }
+     ],
+     "mainline_chain": 5,
+     "offsets": [
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 3,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 2
+      },
+      {
+       "chain": 1,
+       "color": "Y",
+       "height": 3,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 3
+      },
+      {
+       "chain": 1,
+       "color": "Y",
+       "height": 3,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 4
+      },
+      {
+       "chain": 1,
+       "color": "Y",
+       "height": 5,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 5
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 7,
+       "missing_visible_cells": 1,
+       "needed_cells": 3,
+       "visible_supply": 2,
+       "x": 0
+      },
+      {
+       "chain": 2,
+       "color": "G",
+       "height": 3,
+       "missing_visible_cells": 0,
+       "needed_cells": 2,
+       "visible_supply": 2,
+       "x": 4
+      },
+      {
+       "chain": 2,
+       "color": "B",
+       "height": 3,
+       "missing_visible_cells": 1,
+       "needed_cells": 1,
+       "visible_supply": 0,
+       "x": 1
+      }
+     ],
+     "quality": 1980,
+     "reserve_weights": {
+      "B": 0,
+      "G": 4,
+      "R": 0,
+      "Y": 0
+     },
+     "status": "reachable_color_completion_heuristic_not_executable_future",
+     "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+    },
+    "needed_color_consumed": 0,
+    "gauge_forecast": {
+     "gauge_after": 0,
+     "offset_links": 0,
+     "cancelled": 0,
+     "remaining_pending": 0
+    },
+    "entry_pending_after_chain": false,
+    "decision_dependencies": [
+     "self"
+    ],
+    "action": "place",
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "mode": "normal",
+    "decision_identity": {
+     "match_id": "fire-ready-5-False",
+     "frame": 0,
+     "piece_id": 0,
+     "dropset_index": 0,
+     "mode_generation": 0,
+     "seed_id": 1
+    },
+    "model_status": "prototype_unverified_on_local_steam",
+    "provenance": {
+     "power": "player_measurement_transcribed",
+     "bonuses": "cross_title_reference_unverified_on_local_steam",
+     "local_steam_verified": false
+    },
+    "search_ms": 45.9999999984575,
+    "mode_timing_status": "normal_calibrated_input_estimated",
+    "margin_forecast": {
+     "rate_events": [],
+     "enemy_rate_events": [],
+     "status": "observed_rate_only_margin_setting_unknown",
+     "observed_target_point": 120,
+     "observed_changes": 0,
+     "margin_start_frame_bounds": null
+    },
+    "arrival": {
+     "chain_end_in": null,
+     "piece_frames": 42,
+     "measured_pace": null,
+     "pieces": null
+    }
+   }
+  },
+  {
+   "level": 5,
+   "after_opening": true,
+   "request": {
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "match_id": "fire-ready-5-True",
+    "frame": 0,
+    "observation": {
+     "frame_before": 0,
+     "frame_after": 0,
+     "match_status": "running"
+    },
+    "target_point": 120,
+    "gauge_gain_on_offset": 1,
+    "clock_policy": {
+     "count_chain_frames": true
+    },
+    "self": {
+     "character": "arle",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "G.....",
+      "B.....",
+      "B....Y",
+      "B....Y",
+      "GGRYGG",
+      "GBBRYY",
+      "BRRYGG"
+     ],
+     "mode": "normal",
+     "gauge": 0,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:GG"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 0,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 0,
+     "clock_running": false,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": null,
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0,
+     "normal_chain_max": 7
+    },
+    "enemy": {
+     "character": "raffina",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      ".....R",
+      ".....R",
+      ".....B",
+      ".....B",
+      "...BRR",
+      "..YYBB",
+      "..YBRR"
+     ],
+     "mode": "fever",
+     "gauge": 7,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:RY"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 1,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 900,
+     "clock_running": true,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
+     ],
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0
+    },
+    "seed_options": {
+     "budget_ms": 500,
+     "max_nodes": 20000
+    },
+    "solo_options": {
+     "trigger": 15,
+     "beam_width": 50,
+     "beam_depth": 8
+    }
+   },
+   "reply": {
+    "x": 1,
+    "r": "U",
+    "shape": "2",
+    "reason": "tactics_disrupt",
+    "decision_kind": "clear",
+    "fire": true,
+    "chain": 5,
+    "next_chain": 5,
+    "next_score": 3650,
+    "link_points": [
+     50,
+     600,
+     680,
+     920,
+     1400
+    ],
+    "next_field": [
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     ".....Y",
+     "G....Y"
+    ],
+    "next_all_clear": false,
+    "selected_move_loses": false,
+    "decision_dependencies": [
+     "self",
+     "enemy"
+    ],
+    "searched_visible": 1,
+    "tactics_forecast": {
+     "candidates": [
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "G.....",
+        "G.....",
+        "G.....",
+        "B.....",
+        "B....Y",
+        "B....Y",
+        "GGRYGG",
+        "GBBRYY",
+        "BRRYGG"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 760,
+       "x": 0
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 5,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        ".....Y",
+        "G....Y"
+       ],
+       "frame": 415,
+       "gauge_after": 0,
+       "link_points": [
+        50,
+        600,
+        680,
+        920,
+        1400
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          5
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          6
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 30,
+       "r": "U",
+       "remainder": 50,
+       "sent": 30,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 1194,
+       "x": 1
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "G.....",
+        "B.....",
+        "B.G..Y",
+        "B.G..Y",
+        "GGRYGG",
+        "GBBRYY",
+        "BRRYGG"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 640,
+       "x": 2
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "G.....",
+        "B.....",
+        "B..G.Y",
+        "B..G.Y",
+        "GGRYGG",
+        "GBBRYY",
+        "BRRYGG"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -560,
+       "x": 3
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 2,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "G.....",
+        "B.....",
+        "B.....",
+        "B.....",
+        "GGRY..",
+        "GBBR..",
+        "BRRYGG"
+       ],
+       "frame": 170,
+       "gauge_after": 0,
+       "link_points": [
+        40,
+        320
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 3,
+       "r": "U",
+       "remainder": 0,
+       "sent": 3,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -1929,
+       "x": 4
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "G....G",
+        "B....G",
+        "B....Y",
+        "B....Y",
+        "GGRYGG",
+        "GBBRYY",
+        "BRRYGG"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 680,
+       "x": 5
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 5,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "G....Y",
+        "G....Y"
+       ],
+       "frame": 444,
+       "gauge_after": 0,
+       "link_points": [
+        40,
+        600,
+        680,
+        920,
+        1400
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          6
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 30,
+       "r": "R",
+       "remainder": 40,
+       "sent": 30,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -3634,
+       "x": 0
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 5,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        ".....Y",
+        "G....Y"
+       ],
+       "frame": 415,
+       "gauge_after": 0,
+       "link_points": [
+        50,
+        600,
+        680,
+        920,
+        1400
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          5
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          6
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 30,
+       "r": "R",
+       "remainder": 50,
+       "sent": 30,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -3686,
+       "x": 1
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "G.....",
+        "B.....",
+        "B....Y",
+        "B.GG.Y",
+        "GGRYGG",
+        "GBBRYY",
+        "BRRYGG"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "R",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 640,
+       "x": 2
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 2,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "G.....",
+        "B.....",
+        "B.....",
+        "B.....",
+        "GGRY..",
+        "GBBR..",
+        "BRRYGG"
+       ],
+       "frame": 170,
+       "gauge_after": 0,
+       "link_points": [
+        40,
+        320
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 3,
+       "r": "R",
+       "remainder": 0,
+       "sent": 3,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -1929,
+       "x": 3
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "G.....",
+        "B....G",
+        "B....Y",
+        "B...GY",
+        "GGRYGG",
+        "GBBRYY",
+        "BRRYGG"
+       ],
+       "frame": 60,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "R",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 640,
+       "x": 4
+      }
+     ],
+     "choice": {
+      "all_clear": false,
+      "cancelled": 0,
+      "chain": 5,
+      "confirmed": 0,
+      "drop_due": false,
+      "dropped": 0,
+      "field": [
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       ".....Y",
+       "G....Y"
+      ],
+      "frame": 415,
+      "gauge_after": 0,
+      "link_points": [
+       50,
+       600,
+       680,
+       920,
+       1400
+      ],
+      "links": [
+       {
+        "colors": 1,
+        "groups": [
+         5
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         6
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       }
+      ],
+      "possible_drop_boards": 1,
+      "post_drop_field_known": true,
+      "projected_all_clear": false,
+      "projected_disrupt": 0.5,
+      "projected_gauge": 0,
+      "projected_kill": 0.0,
+      "projected_sent": 30,
+      "r": "U",
+      "remainder": 50,
+      "sent": 30,
+      "survives": true,
+      "unconfirmed": 0,
+      "value": 1194,
+      "x": 1
+     },
+     "completed_depth": 1,
+     "cutoff": false,
+     "deeper_pass_skipped": false,
+     "enemy_hold": 33,
+     "expanded": 11,
+     "future_unconfirmed_arrival": "unscheduled_not_dropped",
+     "harass": false,
+     "own_hold": 30,
+     "root_stock": {
+      "colors": 2,
+      "links": 7,
+      "longest": 5,
+      "units": 23
+     },
+     "unknown_drop_policy": "worst_column_choice_then_reobserve",
+     "visible": 1
+    },
+    "normal_fire_policy": "completed_mainline",
+    "normal_color_needs": {
+     "mainline": [
+      {
+       "chain": 5,
+       "color": "G",
+       "height": 3,
+       "missing_visible_cells": 0,
+       "needed_cells": 1,
+       "visible_supply": 2,
+       "x": 1
+      }
+     ],
+     "mainline_chain": 5,
+     "offsets": [
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 3,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 2
+      },
+      {
+       "chain": 1,
+       "color": "Y",
+       "height": 3,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 3
+      },
+      {
+       "chain": 1,
+       "color": "Y",
+       "height": 3,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 4
+      },
+      {
+       "chain": 1,
+       "color": "Y",
+       "height": 5,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 5
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 7,
+       "missing_visible_cells": 1,
+       "needed_cells": 3,
+       "visible_supply": 2,
+       "x": 0
+      },
+      {
+       "chain": 2,
+       "color": "G",
+       "height": 3,
+       "missing_visible_cells": 0,
+       "needed_cells": 2,
+       "visible_supply": 2,
+       "x": 4
+      },
+      {
+       "chain": 2,
+       "color": "B",
+       "height": 3,
+       "missing_visible_cells": 1,
+       "needed_cells": 1,
+       "visible_supply": 0,
+       "x": 1
+      }
+     ],
+     "quality": 1980,
+     "reserve_weights": {
+      "B": 0,
+      "G": 4,
+      "R": 0,
+      "Y": 0
+     },
+     "status": "reachable_color_completion_heuristic_not_executable_future",
+     "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+    },
+    "needed_color_consumed": 36,
+    "gauge_forecast": {
+     "gauge_after": 0,
+     "offset_links": 0,
+     "cancelled": 0,
+     "remaining_pending": 0
+    },
+    "entry_pending_after_chain": false,
+    "action": "place",
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "mode": "normal",
+    "decision_identity": {
+     "match_id": "fire-ready-5-True",
+     "frame": 0,
+     "piece_id": 0,
+     "dropset_index": 0,
+     "mode_generation": 0,
+     "seed_id": 1
+    },
+    "model_status": "prototype_unverified_on_local_steam",
+    "provenance": {
+     "power": "player_measurement_transcribed",
+     "bonuses": "cross_title_reference_unverified_on_local_steam",
+     "local_steam_verified": false
+    },
+    "search_ms": 0.0,
+    "mode_timing_status": "normal_calibrated_input_estimated",
+    "margin_forecast": {
+     "rate_events": [],
+     "enemy_rate_events": [],
+     "status": "observed_rate_only_margin_setting_unknown",
+     "observed_target_point": 120,
+     "observed_changes": 0,
+     "margin_start_frame_bounds": null
+    },
+    "arrival": {
+     "chain_end_in": null,
+     "piece_frames": 42,
+     "measured_pace": null,
+     "pieces": null
+    }
+   }
+  },
+  {
+   "level": 7,
+   "after_opening": false,
+   "request": {
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "match_id": "fire-ready-7-False",
+    "frame": 0,
+    "observation": {
+     "frame_before": 0,
+     "frame_after": 0,
+     "match_status": "running"
+    },
+    "target_point": 120,
+    "gauge_gain_on_offset": 1,
+    "clock_policy": {
+     "count_chain_frames": true
+    },
+    "self": {
+     "character": "arle",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "R.....",
+      "GB....",
+      "BYY...",
+      "BBYB..",
+      "GGBRGG",
+      "GRRBRR",
+      "RBBRGG"
+     ],
+     "mode": "normal",
+     "gauge": 0,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:YY"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 0,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 0,
+     "clock_running": false,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": null,
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0,
+     "normal_chain_max": 0
+    },
+    "enemy": {
+     "character": "raffina",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      ".....R",
+      ".....R",
+      ".....B",
+      ".....B",
+      "...BRR",
+      "..YYBB",
+      "..YBRR"
+     ],
+     "mode": "fever",
+     "gauge": 7,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:RY"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 1,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 900,
+     "clock_running": true,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
+     ],
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0
+    },
+    "seed_options": {
+     "budget_ms": 500,
+     "max_nodes": 20000
+    },
+    "solo_options": {
+     "trigger": 15,
+     "beam_width": 50,
+     "beam_depth": 8
+    }
+   },
+   "reply": {
+    "x": 0,
+    "r": "R",
+    "shape": "2",
+    "reason": "normal_build_or_fire",
+    "fire": false,
+    "chain": 0,
+    "next_chain": 0,
+    "next_score": 0,
+    "next_field": [
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "Y.....",
+     "RY....",
+     "GB....",
+     "BYY...",
+     "BBYB..",
+     "GGBRGG",
+     "GRRBRR",
+     "RBBRGG"
+    ],
+    "link_points": [],
+    "next_all_clear": false,
+    "normal_search_reused": false,
+    "searched_visible": 1,
+    "normal_fire_policy": "initial_target",
+    "normal_build_search_reused": true,
+    "normal_build_searched_visible": 1,
+    "normal_color_needs": {
+     "mainline": [
+      {
+       "chain": 7,
+       "color": "Y",
+       "height": 5,
+       "missing_visible_cells": 0,
+       "needed_cells": 1,
+       "visible_supply": 2,
+       "x": 2
+      },
+      {
+       "chain": 7,
+       "color": "Y",
+       "height": 4,
+       "missing_visible_cells": 0,
+       "needed_cells": 1,
+       "visible_supply": 2,
+       "x": 3
+      }
+     ],
+     "mainline_chain": 7,
+     "offsets": [
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 7,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 0
+      },
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 6,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 1
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 3,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 4
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 3,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 5
+      },
+      {
+       "chain": 1,
+       "color": "B",
+       "height": 6,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 1
+      },
+      {
+       "chain": 1,
+       "color": "B",
+       "height": 5,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 2
+      },
+      {
+       "chain": 1,
+       "color": "B",
+       "height": 4,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 3
+      },
+      {
+       "chain": 1,
+       "color": "B",
+       "height": 3,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 4
+      }
+     ],
+     "quality": 2780,
+     "reserve_weights": {
+      "B": 0,
+      "G": 0,
+      "R": 0,
+      "Y": 6
+     },
+     "status": "reachable_color_completion_heuristic_not_executable_future",
+     "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+    },
+    "needed_color_consumed": 0,
+    "gauge_forecast": {
+     "gauge_after": 0,
+     "offset_links": 0,
+     "cancelled": 0,
+     "remaining_pending": 0
+    },
+    "entry_pending_after_chain": false,
+    "decision_dependencies": [
+     "self"
+    ],
+    "action": "place",
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "mode": "normal",
+    "decision_identity": {
+     "match_id": "fire-ready-7-False",
+     "frame": 0,
+     "piece_id": 0,
+     "dropset_index": 0,
+     "mode_generation": 0,
+     "seed_id": 1
+    },
+    "model_status": "prototype_unverified_on_local_steam",
+    "provenance": {
+     "power": "player_measurement_transcribed",
+     "bonuses": "cross_title_reference_unverified_on_local_steam",
+     "local_steam_verified": false
+    },
+    "search_ms": 47.0000000022992,
+    "mode_timing_status": "normal_calibrated_input_estimated",
+    "margin_forecast": {
+     "rate_events": [],
+     "enemy_rate_events": [],
+     "status": "observed_rate_only_margin_setting_unknown",
+     "observed_target_point": 120,
+     "observed_changes": 0,
+     "margin_start_frame_bounds": null
+    },
+    "arrival": {
+     "chain_end_in": null,
+     "piece_frames": 42,
+     "measured_pace": null,
+     "pieces": null
+    }
+   }
+  },
+  {
+   "level": 7,
+   "after_opening": true,
+   "request": {
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "match_id": "fire-ready-7-True",
+    "frame": 0,
+    "observation": {
+     "frame_before": 0,
+     "frame_after": 0,
+     "match_status": "running"
+    },
+    "target_point": 120,
+    "gauge_gain_on_offset": 1,
+    "clock_policy": {
+     "count_chain_frames": true
+    },
+    "self": {
+     "character": "arle",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "R.....",
+      "GB....",
+      "BYY...",
+      "BBYB..",
+      "GGBRGG",
+      "GRRBRR",
+      "RBBRGG"
+     ],
+     "mode": "normal",
+     "gauge": 0,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:YY"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 0,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 0,
+     "clock_running": false,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": null,
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0,
+     "normal_chain_max": 7
+    },
+    "enemy": {
+     "character": "raffina",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      ".....R",
+      ".....R",
+      ".....B",
+      ".....B",
+      "...BRR",
+      "..YYBB",
+      "..YBRR"
+     ],
+     "mode": "fever",
+     "gauge": 7,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:RY"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 1,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 900,
+     "clock_running": true,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
+     ],
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0
+    },
+    "seed_options": {
+     "budget_ms": 500,
+     "max_nodes": 20000
+    },
+    "solo_options": {
+     "trigger": 15,
+     "beam_width": 50,
+     "beam_depth": 8
+    }
+   },
+   "reply": {
+    "x": 2,
+    "r": "U",
+    "shape": "2",
+    "reason": "tactics_disrupt",
+    "decision_kind": "clear",
+    "fire": true,
+    "chain": 7,
+    "next_chain": 7,
+    "next_score": 10930,
+    "link_points": [
+     50,
+     320,
+     680,
+     920,
+     1400,
+     2840,
+     4720
+    ],
+    "next_field": [
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "...B.."
+    ],
+    "next_all_clear": false,
+    "selected_move_loses": false,
+    "decision_dependencies": [
+     "self",
+     "enemy"
+    ],
+    "searched_visible": 1,
+    "tactics_forecast": {
+     "candidates": [
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "Y.....",
+        "Y.....",
+        "R.....",
+        "GB....",
+        "BYY...",
+        "BBYB..",
+        "GGBRGG",
+        "GRRBRR",
+        "RBBRGG"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 780,
+       "x": 0
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        ".Y....",
+        "RY....",
+        "GB....",
+        "BYY...",
+        "BBYB..",
+        "GGBRGG",
+        "GRRBRR",
+        "RBBRGG"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 780,
+       "x": 1
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 7,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "...B.."
+       ],
+       "frame": 531,
+       "gauge_after": 0,
+       "link_points": [
+        50,
+        320,
+        680,
+        920,
+        1400,
+        2840,
+        4720
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          5
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 91,
+       "r": "U",
+       "remainder": 10,
+       "sent": 91,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 1042,
+       "x": 2
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 7,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "...B.."
+       ],
+       "frame": 531,
+       "gauge_after": 0,
+       "link_points": [
+        50,
+        320,
+        680,
+        920,
+        1400,
+        2840,
+        4720
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          5
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 91,
+       "r": "U",
+       "remainder": 10,
+       "sent": 91,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -5928,
+       "x": 3
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "R.....",
+        "GB....",
+        "BYY.Y.",
+        "BBYBY.",
+        "GGBRGG",
+        "GRRBRR",
+        "RBBRGG"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 780,
+       "x": 4
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "R.....",
+        "GB....",
+        "BYY..Y",
+        "BBYB.Y",
+        "GGBRGG",
+        "GRRBRR",
+        "RBBRGG"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 780,
+       "x": 5
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "Y.....",
+        "RY....",
+        "GB....",
+        "BYY...",
+        "BBYB..",
+        "GGBRGG",
+        "GRRBRR",
+        "RBBRGG"
+       ],
+       "frame": 55,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "R",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 780,
+       "x": 0
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 7,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        ".Y.B.."
+       ],
+       "frame": 547,
+       "gauge_after": 0,
+       "link_points": [
+        40,
+        320,
+        680,
+        920,
+        1400,
+        2840,
+        4720
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 91,
+       "r": "R",
+       "remainder": 0,
+       "sent": 91,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -5876,
+       "x": 1
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 7,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "...B.."
+       ],
+       "frame": 544,
+       "gauge_after": 0,
+       "link_points": [
+        50,
+        320,
+        680,
+        920,
+        1400,
+        2840,
+        4720
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          5
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 91,
+       "r": "R",
+       "remainder": 10,
+       "sent": 91,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -5928,
+       "x": 2
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 7,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "...BY."
+       ],
+       "frame": 562,
+       "gauge_after": 0,
+       "link_points": [
+        40,
+        320,
+        680,
+        920,
+        1400,
+        2840,
+        4720
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 91,
+       "r": "R",
+       "remainder": 0,
+       "sent": 91,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -5876,
+       "x": 3
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "R.....",
+        "GB....",
+        "BYY...",
+        "BBYBYY",
+        "GGBRGG",
+        "GRRBRR",
+        "RBBRGG"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "R",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 780,
+       "x": 4
+      }
+     ],
+     "choice": {
+      "all_clear": false,
+      "cancelled": 0,
+      "chain": 7,
+      "confirmed": 0,
+      "drop_due": false,
+      "dropped": 0,
+      "field": [
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "...B.."
+      ],
+      "frame": 531,
+      "gauge_after": 0,
+      "link_points": [
+       50,
+       320,
+       680,
+       920,
+       1400,
+       2840,
+       4720
+      ],
+      "links": [
+       {
+        "colors": 1,
+        "groups": [
+         5
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       }
+      ],
+      "possible_drop_boards": 1,
+      "post_drop_field_known": true,
+      "projected_all_clear": false,
+      "projected_disrupt": 0.5,
+      "projected_gauge": 0,
+      "projected_kill": 0.0,
+      "projected_sent": 91,
+      "r": "U",
+      "remainder": 10,
+      "sent": 91,
+      "survives": true,
+      "unconfirmed": 0,
+      "value": 1042,
+      "x": 2
+     },
+     "completed_depth": 1,
+     "cutoff": false,
+     "deeper_pass_skipped": false,
+     "enemy_hold": 33,
+     "expanded": 11,
+     "future_unconfirmed_arrival": "unscheduled_not_dropped",
+     "harass": false,
+     "own_hold": 91,
+     "root_stock": {
+      "colors": 1,
+      "links": 7,
+      "longest": 7,
+      "units": 28
+     },
+     "unknown_drop_policy": "worst_column_choice_then_reobserve",
+     "visible": 1
+    },
+    "normal_fire_policy": "completed_mainline",
+    "normal_color_needs": {
+     "mainline": [
+      {
+       "chain": 7,
+       "color": "Y",
+       "height": 5,
+       "missing_visible_cells": 0,
+       "needed_cells": 1,
+       "visible_supply": 2,
+       "x": 2
+      },
+      {
+       "chain": 7,
+       "color": "Y",
+       "height": 4,
+       "missing_visible_cells": 0,
+       "needed_cells": 1,
+       "visible_supply": 2,
+       "x": 3
+      }
+     ],
+     "mainline_chain": 7,
+     "offsets": [
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 7,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 0
+      },
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 6,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 1
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 3,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 4
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 3,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 5
+      },
+      {
+       "chain": 1,
+       "color": "B",
+       "height": 6,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 1
+      },
+      {
+       "chain": 1,
+       "color": "B",
+       "height": 5,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 2
+      },
+      {
+       "chain": 1,
+       "color": "B",
+       "height": 4,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 3
+      },
+      {
+       "chain": 1,
+       "color": "B",
+       "height": 3,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 4
+      }
+     ],
+     "quality": 2780,
+     "reserve_weights": {
+      "B": 0,
+      "G": 0,
+      "R": 0,
+      "Y": 6
+     },
+     "status": "reachable_color_completion_heuristic_not_executable_future",
+     "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+    },
+    "needed_color_consumed": 30,
+    "gauge_forecast": {
+     "gauge_after": 0,
+     "offset_links": 0,
+     "cancelled": 0,
+     "remaining_pending": 0
+    },
+    "entry_pending_after_chain": false,
+    "action": "place",
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "mode": "normal",
+    "decision_identity": {
+     "match_id": "fire-ready-7-True",
+     "frame": 0,
+     "piece_id": 0,
+     "dropset_index": 0,
+     "mode_generation": 0,
+     "seed_id": 1
+    },
+    "model_status": "prototype_unverified_on_local_steam",
+    "provenance": {
+     "power": "player_measurement_transcribed",
+     "bonuses": "cross_title_reference_unverified_on_local_steam",
+     "local_steam_verified": false
+    },
+    "search_ms": 15.99999999962165,
+    "mode_timing_status": "normal_calibrated_input_estimated",
+    "margin_forecast": {
+     "rate_events": [],
+     "enemy_rate_events": [],
+     "status": "observed_rate_only_margin_setting_unknown",
+     "observed_target_point": 120,
+     "observed_changes": 0,
+     "margin_start_frame_bounds": null
+    },
+    "arrival": {
+     "chain_end_in": null,
+     "piece_frames": 42,
+     "measured_pace": null,
+     "pieces": null
+    }
+   }
+  },
+  {
+   "level": 9,
+   "after_opening": false,
+   "request": {
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "match_id": "fire-ready-9-False",
+    "frame": 0,
+    "observation": {
+     "frame_before": 0,
+     "frame_after": 0,
+     "match_status": "running"
+    },
+    "target_point": 120,
+    "gauge_gain_on_offset": 1,
+    "clock_policy": {
+     "count_chain_frames": true
+    },
+    "self": {
+     "character": "arle",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "BR....",
+      "BR....",
+      "YYRRG.",
+      "RRGGBB",
+      "YYRRGB",
+      "BBGBYY",
+      "BRRGBB",
+      "RGGBYY"
+     ],
+     "mode": "normal",
+     "gauge": 0,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:BB"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 0,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 0,
+     "clock_running": false,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": null,
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0,
+     "normal_chain_max": 0
+    },
+    "enemy": {
+     "character": "raffina",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      ".....R",
+      ".....R",
+      ".....B",
+      ".....B",
+      "...BRR",
+      "..YYBB",
+      "..YBRR"
+     ],
+     "mode": "fever",
+     "gauge": 7,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:RY"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 1,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 900,
+     "clock_running": true,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
+     ],
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0
+    },
+    "seed_options": {
+     "budget_ms": 500,
+     "max_nodes": 20000
+    },
+    "solo_options": {
+     "trigger": 15,
+     "beam_width": 50,
+     "beam_depth": 8
+    }
+   },
+   "reply": {
+    "x": 2,
+    "r": "R",
+    "shape": "2",
+    "reason": "normal_build_or_fire",
+    "fire": false,
+    "chain": 0,
+    "next_chain": 0,
+    "next_score": 0,
+    "next_field": [
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "BR....",
+     "BRBB..",
+     "YYRRG.",
+     "RRGGBB",
+     "YYRRGB",
+     "BBGBYY",
+     "BRRGBB",
+     "RGGBYY"
+    ],
+    "link_points": [],
+    "next_all_clear": false,
+    "normal_search_reused": false,
+    "searched_visible": 1,
+    "normal_fire_policy": "initial_target",
+    "normal_build_search_reused": true,
+    "normal_build_searched_visible": 1,
+    "normal_color_needs": {
+     "mainline": [
+      {
+       "chain": 9,
+       "color": "B",
+       "height": 5,
+       "missing_visible_cells": 0,
+       "needed_cells": 1,
+       "visible_supply": 2,
+       "x": 5
+      }
+     ],
+     "mainline_chain": 9,
+     "offsets": [
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 8,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 1
+      },
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 6,
+       "missing_visible_cells": 1,
+       "needed_cells": 1,
+       "visible_supply": 0,
+       "x": 2
+      },
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 6,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 3
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 6,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 4
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 5,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 5
+      },
+      {
+       "chain": 1,
+       "color": "B",
+       "height": 8,
+       "missing_visible_cells": 0,
+       "needed_cells": 2,
+       "visible_supply": 2,
+       "x": 0
+      }
+     ],
+     "quality": 3580,
+     "reserve_weights": {
+      "B": 8,
+      "G": 0,
+      "R": 0,
+      "Y": 0
+     },
+     "status": "reachable_color_completion_heuristic_not_executable_future",
+     "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+    },
+    "needed_color_consumed": 0,
+    "gauge_forecast": {
+     "gauge_after": 0,
+     "offset_links": 0,
+     "cancelled": 0,
+     "remaining_pending": 0
+    },
+    "entry_pending_after_chain": false,
+    "decision_dependencies": [
+     "self"
+    ],
+    "action": "place",
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "mode": "normal",
+    "decision_identity": {
+     "match_id": "fire-ready-9-False",
+     "frame": 0,
+     "piece_id": 0,
+     "dropset_index": 0,
+     "mode_generation": 0,
+     "seed_id": 1
+    },
+    "model_status": "prototype_unverified_on_local_steam",
+    "provenance": {
+     "power": "player_measurement_transcribed",
+     "bonuses": "cross_title_reference_unverified_on_local_steam",
+     "local_steam_verified": false
+    },
+    "search_ms": 30.999999999039574,
+    "mode_timing_status": "normal_calibrated_input_estimated",
+    "margin_forecast": {
+     "rate_events": [],
+     "enemy_rate_events": [],
+     "status": "observed_rate_only_margin_setting_unknown",
+     "observed_target_point": 120,
+     "observed_changes": 0,
+     "margin_start_frame_bounds": null
+    },
+    "arrival": {
+     "chain_end_in": null,
+     "piece_frames": 42,
+     "measured_pace": null,
+     "pieces": null
+    }
+   }
+  },
+  {
+   "level": 9,
+   "after_opening": true,
+   "request": {
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "match_id": "fire-ready-9-True",
+    "frame": 0,
+    "observation": {
+     "frame_before": 0,
+     "frame_after": 0,
+     "match_status": "running"
+    },
+    "target_point": 120,
+    "gauge_gain_on_offset": 1,
+    "clock_policy": {
+     "count_chain_frames": true
+    },
+    "self": {
+     "character": "arle",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "BR....",
+      "BR....",
+      "YYRRG.",
+      "RRGGBB",
+      "YYRRGB",
+      "BBGBYY",
+      "BRRGBB",
+      "RGGBYY"
+     ],
+     "mode": "normal",
+     "gauge": 0,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:BB"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 0,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 0,
+     "clock_running": false,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": null,
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0,
+     "normal_chain_max": 7
+    },
+    "enemy": {
+     "character": "raffina",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      ".....R",
+      ".....R",
+      ".....B",
+      ".....B",
+      "...BRR",
+      "..YYBB",
+      "..YBRR"
+     ],
+     "mode": "fever",
+     "gauge": 7,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:RY"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 1,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 900,
+     "clock_running": true,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
+     ],
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0
+    },
+    "seed_options": {
+     "budget_ms": 500,
+     "max_nodes": 20000
+    },
+    "solo_options": {
+     "trigger": 15,
+     "beam_width": 50,
+     "beam_depth": 8
+    }
+   },
+   "reply": {
+    "x": 5,
+    "r": "U",
+    "shape": "2",
+    "reason": "tactics_disrupt",
+    "decision_kind": "clear",
+    "fire": true,
+    "chain": 9,
+    "next_chain": 9,
+    "next_score": 28470,
+    "link_points": [
+     50,
+     320,
+     1140,
+     920,
+     1800,
+     2840,
+     4720,
+     7120,
+     9560
+    ],
+    "next_field": [
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "R....."
+    ],
+    "next_all_clear": false,
+    "selected_move_loses": false,
+    "decision_dependencies": [
+     "self",
+     "enemy"
+    ],
+    "searched_visible": 1,
+    "tactics_forecast": {
+     "candidates": [
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 1,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        ".R....",
+        ".R....",
+        "YYRRG.",
+        "RRGGBB",
+        "YYRRGB",
+        "BBGBYY",
+        "BRRGBB",
+        "RGGBYY"
+       ],
+       "frame": 97,
+       "gauge_after": 0,
+       "link_points": [
+        40
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 40,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -5554,
+       "x": 0
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        ".B....",
+        ".B....",
+        "BR....",
+        "BR....",
+        "YYRRG.",
+        "RRGGBB",
+        "YYRRGB",
+        "BBGBYY",
+        "BRRGBB",
+        "RGGBYY"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 840,
+       "x": 1
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "BRB...",
+        "BRB...",
+        "YYRRG.",
+        "RRGGBB",
+        "YYRRGB",
+        "BBGBYY",
+        "BRRGBB",
+        "RGGBYY"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 780,
+       "x": 2
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "BR.B..",
+        "BR.B..",
+        "YYRRG.",
+        "RRGGBB",
+        "YYRRGB",
+        "BBGBYY",
+        "BRRGBB",
+        "RGGBYY"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 840,
+       "x": 3
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "BR..B.",
+        "BR..B.",
+        "YYRRG.",
+        "RRGGBB",
+        "YYRRGB",
+        "BBGBYY",
+        "BRRGBB",
+        "RGGBYY"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 840,
+       "x": 4
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 9,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "R....."
+       ],
+       "frame": 669,
+       "gauge_after": 0,
+       "link_points": [
+        50,
+        320,
+        1140,
+        920,
+        1800,
+        2840,
+        4720,
+        7120,
+        9560
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          5
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          6
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          5
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 237,
+       "r": "U",
+       "remainder": 30,
+       "sent": 237,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 910,
+       "x": 5
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 1,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        ".R....",
+        ".R....",
+        "YYRRG.",
+        "RRGGBB",
+        "YYRRGB",
+        "BBGBYY",
+        "BRRGBB",
+        "RGGBYY"
+       ],
+       "frame": 97,
+       "gauge_after": 0,
+       "link_points": [
+        40
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "R",
+       "remainder": 40,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -5554,
+       "x": 0
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        ".B....",
+        "BR....",
+        "BRB...",
+        "YYRRG.",
+        "RRGGBB",
+        "YYRRGB",
+        "BBGBYY",
+        "BRRGBB",
+        "RGGBYY"
+       ],
+       "frame": 60,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "R",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 780,
+       "x": 1
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "BR....",
+        "BRBB..",
+        "YYRRG.",
+        "RRGGBB",
+        "YYRRGB",
+        "BBGBYY",
+        "BRRGBB",
+        "RGGBYY"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "R",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 780,
+       "x": 2
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "BR....",
+        "BR.BB.",
+        "YYRRG.",
+        "RRGGBB",
+        "YYRRGB",
+        "BBGBYY",
+        "BRRGBB",
+        "RGGBYY"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "R",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 840,
+       "x": 3
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 9,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "R...B."
+       ],
+       "frame": 707,
+       "gauge_after": 0,
+       "link_points": [
+        40,
+        320,
+        1140,
+        920,
+        1800,
+        2840,
+        4720,
+        7120,
+        9560
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          6
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          5
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 237,
+       "r": "R",
+       "remainder": 20,
+       "sent": 237,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -8248,
+       "x": 4
+      }
+     ],
+     "choice": {
+      "all_clear": false,
+      "cancelled": 0,
+      "chain": 9,
+      "confirmed": 0,
+      "drop_due": false,
+      "dropped": 0,
+      "field": [
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "R....."
+      ],
+      "frame": 669,
+      "gauge_after": 0,
+      "link_points": [
+       50,
+       320,
+       1140,
+       920,
+       1800,
+       2840,
+       4720,
+       7120,
+       9560
+      ],
+      "links": [
+       {
+        "colors": 1,
+        "groups": [
+         5
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         6
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         5
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       }
+      ],
+      "possible_drop_boards": 1,
+      "post_drop_field_known": true,
+      "projected_all_clear": false,
+      "projected_disrupt": 0.5,
+      "projected_gauge": 0,
+      "projected_kill": 0.0,
+      "projected_sent": 237,
+      "r": "U",
+      "remainder": 30,
+      "sent": 237,
+      "survives": true,
+      "unconfirmed": 0,
+      "value": 910,
+      "x": 5
+     },
+     "completed_depth": 1,
+     "cutoff": false,
+     "deeper_pass_skipped": false,
+     "enemy_hold": 33,
+     "expanded": 11,
+     "future_unconfirmed_arrival": "unscheduled_not_dropped",
+     "harass": false,
+     "own_hold": 237,
+     "root_stock": {
+      "colors": 2,
+      "links": 7,
+      "longest": 9,
+      "units": 28
+     },
+     "unknown_drop_policy": "worst_column_choice_then_reobserve",
+     "visible": 1
+    },
+    "normal_fire_policy": "completed_mainline",
+    "normal_color_needs": {
+     "mainline": [
+      {
+       "chain": 9,
+       "color": "B",
+       "height": 5,
+       "missing_visible_cells": 0,
+       "needed_cells": 1,
+       "visible_supply": 2,
+       "x": 5
+      }
+     ],
+     "mainline_chain": 9,
+     "offsets": [
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 8,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 1
+      },
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 6,
+       "missing_visible_cells": 1,
+       "needed_cells": 1,
+       "visible_supply": 0,
+       "x": 2
+      },
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 6,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 3
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 6,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 4
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 5,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 5
+      },
+      {
+       "chain": 1,
+       "color": "B",
+       "height": 8,
+       "missing_visible_cells": 0,
+       "needed_cells": 2,
+       "visible_supply": 2,
+       "x": 0
+      }
+     ],
+     "quality": 3580,
+     "reserve_weights": {
+      "B": 8,
+      "G": 0,
+      "R": 0,
+      "Y": 0
+     },
+     "status": "reachable_color_completion_heuristic_not_executable_future",
+     "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+    },
+    "needed_color_consumed": 112,
+    "gauge_forecast": {
+     "gauge_after": 0,
+     "offset_links": 0,
+     "cancelled": 0,
+     "remaining_pending": 0
+    },
+    "entry_pending_after_chain": false,
+    "action": "place",
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "mode": "normal",
+    "decision_identity": {
+     "match_id": "fire-ready-9-True",
+     "frame": 0,
+     "piece_id": 0,
+     "dropset_index": 0,
+     "mode_generation": 0,
+     "seed_id": 1
+    },
+    "model_status": "prototype_unverified_on_local_steam",
+    "provenance": {
+     "power": "player_measurement_transcribed",
+     "bonuses": "cross_title_reference_unverified_on_local_steam",
+     "local_steam_verified": false
+    },
+    "search_ms": 15.99999999962165,
+    "mode_timing_status": "normal_calibrated_input_estimated",
+    "margin_forecast": {
+     "rate_events": [],
+     "enemy_rate_events": [],
+     "status": "observed_rate_only_margin_setting_unknown",
+     "observed_target_point": 120,
+     "observed_changes": 0,
+     "margin_start_frame_bounds": null
+    },
+    "arrival": {
+     "chain_end_in": null,
+     "piece_frames": 42,
+     "measured_pace": null,
+     "pieces": null
+    }
+   }
+  },
+  {
+   "level": 11,
+   "after_opening": false,
+   "request": {
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "match_id": "fire-ready-11-False",
+    "frame": 0,
+    "observation": {
+     "frame_before": 0,
+     "frame_after": 0,
+     "match_status": "running"
+    },
+    "target_point": 120,
+    "gauge_gain_on_offset": 1,
+    "clock_policy": {
+     "count_chain_frames": true
+    },
+    "self": {
+     "character": "arle",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      ".....G",
+      "R....Y",
+      "G.R..B",
+      "BRG.BB",
+      "BGYBYY",
+      "YYBGGY",
+      "BBYBBG",
+      "GGBGYY",
+      "GRRBGG",
+      "RBBGYY"
+     ],
+     "mode": "normal",
+     "gauge": 0,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:BB"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 0,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 0,
+     "clock_running": false,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": null,
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0,
+     "normal_chain_max": 0
+    },
+    "enemy": {
+     "character": "raffina",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      ".....R",
+      ".....R",
+      ".....B",
+      ".....B",
+      "...BRR",
+      "..YYBB",
+      "..YBRR"
+     ],
+     "mode": "fever",
+     "gauge": 7,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:RY"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 1,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 900,
+     "clock_running": true,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
+     ],
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0
+    },
+    "seed_options": {
+     "budget_ms": 500,
+     "max_nodes": 20000
+    },
+    "solo_options": {
+     "trigger": 15,
+     "beam_width": 50,
+     "beam_depth": 8
+    }
+   },
+   "reply": {
+    "x": 0,
+    "r": "U",
+    "shape": "2",
+    "reason": "normal_build_or_fire",
+    "fire": false,
+    "chain": 0,
+    "next_chain": 0,
+    "next_score": 0,
+    "next_field": [
+     "......",
+     "......",
+     "......",
+     "B.....",
+     "B....G",
+     "R....Y",
+     "G.R..B",
+     "BRG.BB",
+     "BGYBYY",
+     "YYBGGY",
+     "BBYBBG",
+     "GGBGYY",
+     "GRRBGG",
+     "RBBGYY"
+    ],
+    "link_points": [],
+    "next_all_clear": false,
+    "normal_search_reused": false,
+    "searched_visible": 1,
+    "normal_fire_policy": "initial_target",
+    "normal_build_search_reused": true,
+    "normal_build_searched_visible": 1,
+    "normal_color_needs": {
+     "mainline": [
+      {
+       "chain": 11,
+       "color": "B",
+       "height": 7,
+       "missing_visible_cells": 0,
+       "needed_cells": 1,
+       "visible_supply": 2,
+       "x": 4
+      }
+     ],
+     "mainline_chain": 11,
+     "offsets": [
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 9,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 0
+      },
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 7,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 1
+      },
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 8,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 2
+      },
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 6,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 3
+      },
+      {
+       "chain": 1,
+       "color": "Y",
+       "height": 7,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 4
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 7,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 1
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 6,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 3
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 7,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 4
+      }
+     ],
+     "quality": 4380,
+     "reserve_weights": {
+      "B": 10,
+      "G": 0,
+      "R": 0,
+      "Y": 0
+     },
+     "status": "reachable_color_completion_heuristic_not_executable_future",
+     "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+    },
+    "needed_color_consumed": 0,
+    "gauge_forecast": {
+     "gauge_after": 0,
+     "offset_links": 0,
+     "cancelled": 0,
+     "remaining_pending": 0
+    },
+    "entry_pending_after_chain": false,
+    "decision_dependencies": [
+     "self"
+    ],
+    "action": "place",
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "mode": "normal",
+    "decision_identity": {
+     "match_id": "fire-ready-11-False",
+     "frame": 0,
+     "piece_id": 0,
+     "dropset_index": 0,
+     "mode_generation": 0,
+     "seed_id": 1
+    },
+    "model_status": "prototype_unverified_on_local_steam",
+    "provenance": {
+     "power": "player_measurement_transcribed",
+     "bonuses": "cross_title_reference_unverified_on_local_steam",
+     "local_steam_verified": false
+    },
+    "search_ms": 31.000000002677552,
+    "mode_timing_status": "normal_calibrated_input_estimated",
+    "margin_forecast": {
+     "rate_events": [],
+     "enemy_rate_events": [],
+     "status": "observed_rate_only_margin_setting_unknown",
+     "observed_target_point": 120,
+     "observed_changes": 0,
+     "margin_start_frame_bounds": null
+    },
+    "arrival": {
+     "chain_end_in": null,
+     "piece_frames": 42,
+     "measured_pace": null,
+     "pieces": null
+    }
+   }
+  },
+  {
+   "level": 11,
+   "after_opening": true,
+   "request": {
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "match_id": "fire-ready-11-True",
+    "frame": 0,
+    "observation": {
+     "frame_before": 0,
+     "frame_after": 0,
+     "match_status": "running"
+    },
+    "target_point": 120,
+    "gauge_gain_on_offset": 1,
+    "clock_policy": {
+     "count_chain_frames": true
+    },
+    "self": {
+     "character": "arle",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      ".....G",
+      "R....Y",
+      "G.R..B",
+      "BRG.BB",
+      "BGYBYY",
+      "YYBGGY",
+      "BBYBBG",
+      "GGBGYY",
+      "GRRBGG",
+      "RBBGYY"
+     ],
+     "mode": "normal",
+     "gauge": 0,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:BB"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 0,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 0,
+     "clock_running": false,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": null,
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0,
+     "normal_chain_max": 7
+    },
+    "enemy": {
+     "character": "raffina",
+     "field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      ".....R",
+      ".....R",
+      ".....B",
+      ".....B",
+      "...BRR",
+      "..YYBB",
+      "..YBRR"
+     ],
+     "mode": "fever",
+     "gauge": 7,
+     "observed_frame": 0,
+     "phase": "controllable",
+     "moves_since_chain": 0,
+     "dropset_index": 0,
+     "piece_id": 0,
+     "queue": [
+      "2:RY"
+     ],
+     "confirmed": 0,
+     "unconfirmed": 0,
+     "remainder": 0,
+     "garbage_phase": 0,
+     "mode_generation": 1,
+     "seed_id": 1,
+     "prepared_frames": 900,
+     "remaining_frames": 900,
+     "clock_running": true,
+     "seed_base": 3,
+     "seed_chain": 3,
+     "stored_field": [
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"
+     ],
+     "normal_confirmed": 0,
+     "normal_unconfirmed": 0,
+     "fever_confirmed": 0,
+     "fever_unconfirmed": 0
+    },
+    "seed_options": {
+     "budget_ms": 500,
+     "max_nodes": 20000
+    },
+    "solo_options": {
+     "trigger": 15,
+     "beam_width": 50,
+     "beam_depth": 8
+    }
+   },
+   "reply": {
+    "x": 4,
+    "r": "R",
+    "shape": "2",
+    "reason": "tactics_disrupt",
+    "decision_kind": "clear",
+    "fire": true,
+    "chain": 11,
+    "next_chain": 11,
+    "next_score": 59270,
+    "link_points": [
+     40,
+     320,
+     680,
+     1200,
+     1400,
+     2840,
+     7200,
+     8950,
+     9560,
+     12000,
+     15080
+    ],
+    "next_field": [
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "......",
+     "..R..."
+    ],
+    "next_all_clear": false,
+    "selected_move_loses": false,
+    "decision_dependencies": [
+     "self",
+     "enemy"
+    ],
+    "searched_visible": 1,
+    "tactics_forecast": {
+     "candidates": [
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "B.....",
+        "B....G",
+        "R....Y",
+        "G.R..B",
+        "BRG.BB",
+        "BGYBYY",
+        "YYBGGY",
+        "BBYBBG",
+        "GGBGYY",
+        "GRRBGG",
+        "RBBGYY"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 780,
+       "x": 0
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        ".....G",
+        "RB...Y",
+        "GBR..B",
+        "BRG.BB",
+        "BGYBYY",
+        "YYBGGY",
+        "BBYBBG",
+        "GGBGYY",
+        "GRRBGG",
+        "RBBGYY"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 780,
+       "x": 1
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "..B..G",
+        "R.B..Y",
+        "G.R..B",
+        "BRG.BB",
+        "BGYBYY",
+        "YYBGGY",
+        "BBYBBG",
+        "GGBGYY",
+        "GRRBGG",
+        "RBBGYY"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 180,
+       "x": 2
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 3,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "R.....",
+        "G.R...",
+        "BRG...",
+        "BGY...",
+        "YYB...",
+        "BBYBB.",
+        "GGBGYY",
+        "GRRBGG",
+        "RBBGYY"
+       ],
+       "frame": 246,
+       "gauge_after": 0,
+       "link_points": [
+        120,
+        320,
+        680
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          6
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 9,
+       "r": "U",
+       "remainder": 40,
+       "sent": 9,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -3861,
+       "x": 3
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 11,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "..R..."
+       ],
+       "frame": 832,
+       "gauge_after": 0,
+       "link_points": [
+        50,
+        320,
+        680,
+        920,
+        1400,
+        2840,
+        7200,
+        8950,
+        9560,
+        12000,
+        15080
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          5
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          6
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          5
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 491,
+       "r": "U",
+       "remainder": 80,
+       "sent": 491,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -10636,
+       "x": 4
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        ".....B",
+        ".....B",
+        ".....G",
+        "R....Y",
+        "G.R..B",
+        "BRG.BB",
+        "BGYBYY",
+        "YYBGGY",
+        "BBYBBG",
+        "GGBGYY",
+        "GRRBGG",
+        "RBBGYY"
+       ],
+       "frame": 42,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "U",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 780,
+       "x": 5
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "B....G",
+        "R....Y",
+        "GBR..B",
+        "BRG.BB",
+        "BGYBYY",
+        "YYBGGY",
+        "BBYBBG",
+        "GGBGYY",
+        "GRRBGG",
+        "RBBGYY"
+       ],
+       "frame": 60,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "R",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 780,
+       "x": 0
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 0,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        ".....G",
+        "R.B..Y",
+        "GBR..B",
+        "BRG.BB",
+        "BGYBYY",
+        "YYBGGY",
+        "BBYBBG",
+        "GGBGYY",
+        "GRRBGG",
+        "RBBGYY"
+       ],
+       "frame": 55,
+       "gauge_after": 0,
+       "link_points": [],
+       "links": [],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.0,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 0,
+       "r": "R",
+       "remainder": 0,
+       "sent": 0,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 480,
+       "x": 1
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 3,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "R.B...",
+        "G.R...",
+        "BRG...",
+        "BGY...",
+        "YYB...",
+        "BBYBB.",
+        "GGBGYY",
+        "GRRBGG",
+        "RBBGYY"
+       ],
+       "frame": 264,
+       "gauge_after": 0,
+       "link_points": [
+        50,
+        320,
+        680
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          5
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 8,
+       "r": "R",
+       "remainder": 90,
+       "sent": 8,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -3962,
+       "x": 2
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 3,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "R.....",
+        "G.R...",
+        "BRG...",
+        "BGY...",
+        "YYB...",
+        "BBYBB.",
+        "GGBGYY",
+        "GRRBGG",
+        "RBBGYY"
+       ],
+       "frame": 259,
+       "gauge_after": 0,
+       "link_points": [
+        120,
+        320,
+        680
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          6
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 9,
+       "r": "R",
+       "remainder": 40,
+       "sent": 9,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": -3861,
+       "x": 3
+      },
+      {
+       "all_clear": false,
+       "cancelled": 0,
+       "chain": 11,
+       "confirmed": 0,
+       "drop_due": false,
+       "dropped": 0,
+       "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "..R..."
+       ],
+       "frame": 860,
+       "gauge_after": 0,
+       "link_points": [
+        40,
+        320,
+        680,
+        1200,
+        1400,
+        2840,
+        7200,
+        8950,
+        9560,
+        12000,
+        15080
+       ],
+       "links": [
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          5
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          6
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          5
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        },
+        {
+         "colors": 1,
+         "groups": [
+          4
+         ]
+        }
+       ],
+       "possible_drop_boards": 1,
+       "post_drop_field_known": true,
+       "projected_all_clear": false,
+       "projected_disrupt": 0.5,
+       "projected_gauge": 0,
+       "projected_kill": 0.0,
+       "projected_sent": 493,
+       "r": "R",
+       "remainder": 110,
+       "sent": 493,
+       "survives": true,
+       "unconfirmed": 0,
+       "value": 814,
+       "x": 4
+      }
+     ],
+     "choice": {
+      "all_clear": false,
+      "cancelled": 0,
+      "chain": 11,
+      "confirmed": 0,
+      "drop_due": false,
+      "dropped": 0,
+      "field": [
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "......",
+       "..R..."
+      ],
+      "frame": 860,
+      "gauge_after": 0,
+      "link_points": [
+       40,
+       320,
+       680,
+       1200,
+       1400,
+       2840,
+       7200,
+       8950,
+       9560,
+       12000,
+       15080
+      ],
+      "links": [
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         5
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         6
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         5
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       },
+       {
+        "colors": 1,
+        "groups": [
+         4
+        ]
+       }
+      ],
+      "possible_drop_boards": 1,
+      "post_drop_field_known": true,
+      "projected_all_clear": false,
+      "projected_disrupt": 0.5,
+      "projected_gauge": 0,
+      "projected_kill": 0.0,
+      "projected_sent": 493,
+      "r": "R",
+      "remainder": 110,
+      "sent": 493,
+      "survives": true,
+      "unconfirmed": 0,
+      "value": 814,
+      "x": 4
+     },
+     "completed_depth": 1,
+     "cutoff": false,
+     "deeper_pass_skipped": false,
+     "enemy_hold": 33,
+     "expanded": 11,
+     "future_unconfirmed_arrival": "unscheduled_not_dropped",
+     "harass": false,
+     "own_hold": 491,
+     "root_stock": {
+      "colors": 1,
+      "links": 7,
+      "longest": 11,
+      "units": 28
+     },
+     "unknown_drop_policy": "worst_column_choice_then_reobserve",
+     "visible": 1
+    },
+    "normal_fire_policy": "completed_mainline",
+    "normal_color_needs": {
+     "mainline": [
+      {
+       "chain": 11,
+       "color": "B",
+       "height": 7,
+       "missing_visible_cells": 0,
+       "needed_cells": 1,
+       "visible_supply": 2,
+       "x": 4
+      }
+     ],
+     "mainline_chain": 11,
+     "offsets": [
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 9,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 0
+      },
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 7,
+       "missing_visible_cells": 2,
+       "needed_cells": 2,
+       "visible_supply": 0,
+       "x": 1
+      },
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 8,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 2
+      },
+      {
+       "chain": 1,
+       "color": "R",
+       "height": 6,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 3
+      },
+      {
+       "chain": 1,
+       "color": "Y",
+       "height": 7,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 4
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 7,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 1
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 6,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 3
+      },
+      {
+       "chain": 1,
+       "color": "G",
+       "height": 7,
+       "missing_visible_cells": 3,
+       "needed_cells": 3,
+       "visible_supply": 0,
+       "x": 4
+      }
+     ],
+     "quality": 4380,
+     "reserve_weights": {
+      "B": 10,
+      "G": 0,
+      "R": 0,
+      "Y": 0
+     },
+     "status": "reachable_color_completion_heuristic_not_executable_future",
+     "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+    },
+    "needed_color_consumed": 170,
+    "gauge_forecast": {
+     "gauge_after": 0,
+     "offset_links": 0,
+     "cancelled": 0,
+     "remaining_pending": 0
+    },
+    "entry_pending_after_chain": false,
+    "action": "place",
+    "protocol_version": 3,
+    "rule": "fever_battle",
+    "mode": "normal",
+    "decision_identity": {
+     "match_id": "fire-ready-11-True",
+     "frame": 0,
+     "piece_id": 0,
+     "dropset_index": 0,
+     "mode_generation": 0,
+     "seed_id": 1
+    },
+    "model_status": "prototype_unverified_on_local_steam",
+    "provenance": {
+     "power": "player_measurement_transcribed",
+     "bonuses": "cross_title_reference_unverified_on_local_steam",
+     "local_steam_verified": false
+    },
+    "search_ms": 0.0,
+    "mode_timing_status": "normal_calibrated_input_estimated",
+    "margin_forecast": {
+     "rate_events": [],
+     "enemy_rate_events": [],
+     "status": "observed_rate_only_margin_setting_unknown",
+     "observed_target_point": 120,
+     "observed_changes": 0,
+     "margin_start_frame_bounds": null
+    },
+    "arrival": {
+     "chain_end_in": null,
+     "piece_frames": 42,
+     "measured_pace": null,
+     "pieces": null
+    }
+   }
+  }
+ ]
+}

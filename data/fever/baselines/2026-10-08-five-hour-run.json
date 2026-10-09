@@ -1,0 +1,4827 @@
+{
+ "report": {
+  "matches": {
+   "n": 146,
+   "finished": 120,
+   "frames": {
+    "n": 120,
+    "p10": 3327,
+    "median": 5839,
+    "p90": 11965,
+    "mean": 6704.3
+   },
+   "lost_by_ai": {
+    "1": 54,
+    "2": 66
+   },
+   "winner_fired_the_bigger_normal_chain": 86,
+   "loser_fired_the_bigger_normal_chain": 20,
+   "winner_entered_fever_more_often": 22,
+   "loser_entered_fever_more_often": 70,
+   "loser_entered_fever_first": 81,
+   "per_side": {
+    "biggest_normal_chain": {
+     "n": 292,
+     "p10": 4,
+     "median": 11,
+     "p90": 13,
+     "mean": 9.4
+    },
+    "fever_entries": {
+     "n": 292,
+     "p10": 0,
+     "median": 1,
+     "p90": 2,
+     "mean": 1.1
+    },
+    "seeds_at_level": 707,
+    "seeds_below_level": 80,
+    "nuisance_landed": {
+     "n": 292,
+     "p10": 0,
+     "median": 1,
+     "p90": 46,
+     "mean": 12.9
+    }
+   }
+  },
+  "after_fever": {
+   "returns": 271,
+   "by_confirmed_packet": {
+    "<=0": {
+     "n": 120,
+     "ends": {
+      "packet cleared": 111,
+      "entered Fever again": 3,
+      "match ended": 3,
+      "took a drop": 3
+     },
+     "gauge_reached": {
+      "n": 120,
+      "p10": 0,
+      "median": 0,
+      "p90": 0,
+      "mean": 0.3
+     },
+     "puyos_on_return": {
+      "n": 120,
+      "p10": 6,
+      "median": 17,
+      "p90": 44,
+      "mean": 21.0
+     },
+     "longest_chain_on_return": {
+      "n": 120,
+      "p10": 1,
+      "median": 2,
+      "p90": 5,
+      "mean": 2.4
+     },
+     "lost_the_match": 0.275
+    },
+    "<=29": {
+     "n": 7,
+     "ends": {
+      "lost the match": 1,
+      "took a drop": 6
+     },
+     "gauge_reached": {
+      "n": 7,
+      "p10": 0,
+      "median": 0,
+      "p90": 2,
+      "mean": 0.7
+     },
+     "puyos_on_return": {
+      "n": 7,
+      "p10": 9,
+      "median": 11,
+      "p90": 16,
+      "mean": 12.6
+     },
+     "longest_chain_on_return": {
+      "n": 7,
+      "p10": 0,
+      "median": 1,
+      "p90": 2,
+      "mean": 1.4
+     },
+     "lost_the_match": 0.857
+    },
+    "<=99": {
+     "n": 5,
+     "ends": {
+      "lost the match": 1,
+      "took a drop": 4
+     },
+     "gauge_reached": {
+      "n": 5,
+      "p10": 0,
+      "median": 2,
+      "p90": 5,
+      "mean": 2.6
+     },
+     "puyos_on_return": {
+      "n": 5,
+      "p10": 9,
+      "median": 21,
+      "p90": 28,
+      "mean": 21.4
+     },
+     "longest_chain_on_return": {
+      "n": 5,
+      "p10": 1,
+      "median": 1,
+      "p90": 3,
+      "mean": 1.8
+     },
+     "lost_the_match": 0.8
+    },
+    "<=299": {
+     "n": 20,
+     "ends": {
+      "entered Fever again": 5,
+      "took a drop": 12,
+      "lost the match": 2,
+      "match ended": 1
+     },
+     "gauge_reached": {
+      "n": 20,
+      "p10": 0,
+      "median": 2,
+      "p90": 7,
+      "mean": 3
+     },
+     "puyos_on_return": {
+      "n": 20,
+      "p10": 8,
+      "median": 16,
+      "p90": 45,
+      "mean": 21.8
+     },
+     "longest_chain_on_return": {
+      "n": 20,
+      "p10": 1,
+      "median": 2,
+      "p90": 7,
+      "mean": 2.9
+     },
+     "lost_the_match": 0.8
+    },
+    ">299": {
+     "n": 119,
+     "ends": {
+      "entered Fever again": 46,
+      "match ended": 1,
+      "took a drop": 56,
+      "lost the match": 16
+     },
+     "gauge_reached": {
+      "n": 119,
+      "p10": 0,
+      "median": 4,
+      "p90": 7,
+      "mean": 3.6
+     },
+     "puyos_on_return": {
+      "n": 119,
+      "p10": 13,
+      "median": 30,
+      "p90": 53,
+      "mean": 31.2
+     },
+     "longest_chain_on_return": {
+      "n": 119,
+      "p10": 1,
+      "median": 3,
+      "p90": 8,
+      "mean": 4.1
+     },
+     "lost_the_match": 0.832
+    }
+   }
+  },
+  "under_a_packet": {
+   "<=5": {
+    "smaller clear, main chain kept": 172,
+    "main chain broken by a smaller clear": 74,
+    "stacked": 183,
+    "drop taken": 97,
+    "clear, no main chain held": 66,
+    "main chain fired whole": 40
+   },
+   "<=29": {
+    "main chain broken by a smaller clear": 28,
+    "smaller clear, main chain kept": 54,
+    "stacked": 126,
+    "clear, no main chain held": 43,
+    "drop taken": 12,
+    "main chain fired whole": 39
+   },
+   "<=99": {
+    "main chain fired whole": 27,
+    "smaller clear, main chain kept": 27,
+    "stacked": 88,
+    "clear, no main chain held": 51,
+    "drop taken": 11,
+    "main chain broken by a smaller clear": 5
+   },
+   "<=299": {
+    "clear, no main chain held": 93,
+    "main chain broken by a smaller clear": 6,
+    "smaller clear, main chain kept": 11,
+    "drop taken": 19,
+    "stacked": 41,
+    "main chain fired whole": 14
+   },
+   ">299": {
+    "clear, no main chain held": 254,
+    "stacked": 111,
+    "drop taken": 92,
+    "main chain fired whole": 35,
+    "smaller clear, main chain kept": 48,
+    "main chain broken by a smaller clear": 12
+   }
+  },
+  "constants": {
+   "pieces_per_offset_link": {
+    "stretches": 269,
+    "pieces": 1333,
+    "links": 1253,
+    "pieces_per_link": 1.06,
+    "engine_assumes": 3
+   },
+   "entering_fever_with_nuisance_held": {
+    "<=0": {
+     "n": 78,
+     "left_on_return": {
+      "n": 55,
+      "p10": 0,
+      "median": 0,
+      "p90": 277,
+      "mean": 63.6
+     },
+     "returned_with_30_or_less": 0.818,
+     "lost_the_match": 0.308
+    },
+    "<=50": {
+     "n": 31,
+     "left_on_return": {
+      "n": 27,
+      "p10": 0,
+      "median": 0,
+      "p90": 768,
+      "mean": 173.7
+     },
+     "returned_with_30_or_less": 0.667,
+     "lost_the_match": 0.355
+    },
+    "<=100": {
+     "n": 22,
+     "left_on_return": {
+      "n": 20,
+      "p10": 0,
+      "median": 0,
+      "p90": 639,
+      "mean": 155.1
+     },
+     "returned_with_30_or_less": 0.75,
+     "lost_the_match": 0.545
+    },
+    "<=200": {
+     "n": 22,
+     "left_on_return": {
+      "n": 19,
+      "p10": 0,
+      "median": 0,
+      "p90": 618,
+      "mean": 181.7
+     },
+     "returned_with_30_or_less": 0.526,
+     "lost_the_match": 0.364
+    },
+    "<=400": {
+     "n": 37,
+     "left_on_return": {
+      "n": 30,
+      "p10": 0,
+      "median": 133,
+      "p90": 712,
+      "mean": 260.4
+     },
+     "returned_with_30_or_less": 0.433,
+     "lost_the_match": 0.432
+    },
+    ">400": {
+     "n": 128,
+     "left_on_return": {
+      "n": 120,
+      "p10": 0,
+      "median": 485,
+      "p90": 988,
+      "mean": 531.4
+     },
+     "returned_with_30_or_less": 0.192,
+     "lost_the_match": 0.68
+    }
+   },
+   "engine_takes_as_within_a_fevers_reach": 100,
+   "puyos_per_link_of_a_fired_main_chain": {
+    "n": 428,
+    "puyos_per_link": {
+     "n": 428,
+     "p10": 4.93,
+     "median": 6.5,
+     "p90": 12.4,
+     "mean": 7.6
+    },
+    "chain": {
+     "n": 428,
+     "p10": 4,
+     "median": 9,
+     "p90": 13,
+     "mean": 8.9
+    },
+    "engine_assumes_puyos_for_one_more_link": 6
+   },
+   "confirmed_packet_against_room": {
+    "<=25": {
+     "n": 124,
+     "took": {
+      "n": 124,
+      "p10": 0,
+      "median": 1,
+      "p90": 4,
+      "mean": 2.6
+     },
+     "entered_fever": 0.387,
+     "lost_within_14_decisions": 0.073,
+     "by_gauge": {
+      "gauge 0-3": {
+       "n": 118,
+       "entered_fever": 0.364,
+       "lost": 0.076
+      },
+      "gauge 4-6": {
+       "n": 6,
+       "entered_fever": 0.833,
+       "lost": 0.0
+      }
+     }
+    },
+    "<=50": {
+     "n": 15,
+     "took": {
+      "n": 15,
+      "p10": 0,
+      "median": 0,
+      "p90": 30,
+      "mean": 9.3
+     },
+     "entered_fever": 0.667,
+     "lost_within_14_decisions": 0.267,
+     "by_gauge": {
+      "gauge 0-3": {
+       "n": 12,
+       "entered_fever": 0.583,
+       "lost": 0.25
+      },
+      "gauge 4-6": {
+       "n": 3,
+       "entered_fever": 1.0,
+       "lost": 0.333
+      }
+     }
+    },
+    "<=100": {
+     "n": 17,
+     "took": {
+      "n": 17,
+      "p10": 0,
+      "median": 0,
+      "p90": 30,
+      "mean": 13.3
+     },
+     "entered_fever": 0.588,
+     "lost_within_14_decisions": 0.294,
+     "by_gauge": {
+      "gauge 0-3": {
+       "n": 14,
+       "entered_fever": 0.643,
+       "lost": 0.286
+      },
+      "gauge 4-6": {
+       "n": 3,
+       "entered_fever": 0.333,
+       "lost": 0.333
+      }
+     }
+    },
+    "<=200": {
+     "n": 19,
+     "took": {
+      "n": 19,
+      "p10": 0,
+      "median": 0,
+      "p90": 30,
+      "mean": 10.9
+     },
+     "entered_fever": 0.526,
+     "lost_within_14_decisions": 0.474,
+     "by_gauge": {
+      "gauge 0-3": {
+       "n": 17,
+       "entered_fever": 0.529,
+       "lost": 0.471
+      },
+      "gauge 4-6": {
+       "n": 2,
+       "entered_fever": 0.5,
+       "lost": 0.5
+      }
+     }
+    },
+    ">200": {
+     "n": 196,
+     "took": {
+      "n": 196,
+      "p10": 0,
+      "median": 0,
+      "p90": 54,
+      "mean": 14.9
+     },
+     "entered_fever": 0.444,
+     "lost_within_14_decisions": 0.628,
+     "by_gauge": {
+      "gauge 0-3": {
+       "n": 174,
+       "entered_fever": 0.402,
+       "lost": 0.678
+      },
+      "gauge 4-6": {
+       "n": 22,
+       "entered_fever": 0.773,
+       "lost": 0.227
+      }
+     }
+    }
+   },
+   "note": "ratio: the confirmed packet as a percentage of what fills the board (whole rows to the top of the middle columns)."
+  },
+  "timing": {
+   "notes": {
+    "opponent chain not followed: chain record lost": 5,
+    "surprise landing": 18,
+    "opponent chain not followed: chain start not captured": 1
+   },
+   "arrival": {
+    "logs": 1,
+    "frames_per_piece": {
+     "normal": {
+      "n": 13816,
+      "p10": 38,
+      "median": 53,
+      "p90": 69,
+      "mean": 53.8
+     },
+     "fever": {
+      "n": 1833,
+      "p10": 36,
+      "median": 45,
+      "p90": 59,
+      "mean": 47.0
+     }
+    },
+    "from_first_sight_to_landing": {
+     "packet_1_to_5": {
+      "frames": {
+       "n": 96,
+       "p10": 70,
+       "median": 93,
+       "p90": 196,
+       "mean": 118.4
+      },
+      "pieces_locked": {
+       "1": 68,
+       "2": 21,
+       "3": 5,
+       "4": 1,
+       "5": 1
+      }
+     },
+     "packet_6_to_29": {
+      "frames": {
+       "n": 13,
+       "p10": 119,
+       "median": 430,
+       "p90": 521,
+       "mean": 356.5
+      },
+      "pieces_locked": {
+       "1": 4,
+       "2": 2,
+       "3": 4,
+       "4": 2,
+       "5": 1
+      }
+     },
+     "packet_30_or_more": {
+      "frames": {
+       "n": 122,
+       "p10": 105,
+       "median": 240,
+       "p90": 702,
+       "mean": 326.2
+      },
+      "pieces_locked": {
+       "1": 55,
+       "2": 20,
+       "3": 17,
+       "4": 16,
+       "5": 6,
+       "6": 5,
+       "7": 3
+      }
+     }
+    },
+    "opponent_chain_end": {
+     "n": 208,
+     "predicted_minus_first_confirmed_decision": {
+      "n": 208,
+      "p10": -284,
+      "median": -77,
+      "p90": -1,
+      "mean": -150.8
+     },
+     "predicted_minus_last_unconfirmed_decision": {
+      "n": 208,
+      "p10": -104,
+      "median": 33,
+      "p90": 102,
+      "mean": -20.0
+     },
+     "predicted_after_it_was_already_confirmed": 0,
+     "predicted_before_it_was_still_unconfirmed": 35
+    },
+    "pieces_before_confirmation": {
+     "n": 208,
+     "counted_minus_locked": {
+      "n": 208,
+      "p10": -1,
+      "median": 0,
+      "p90": 3,
+      "mean": 0.2
+     },
+     "counted_more_than_locked": 42,
+     "piece_frames_used": {
+      "n": 208,
+      "p10": 47,
+      "median": 57,
+      "p90": 64,
+      "mean": 56.5
+     }
+    }
+   }
+  },
+  "logs": {
+   "read": 1,
+   "skipped_not_fever_battle": 0
+  }
+ },
+ "matches": [
+  {
+   "match": "round-1",
+   "frames": 18843,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 94,
+     "fever_entries": 4,
+     "first_fever_frame": 4356,
+     "biggest_normal_chain": 7,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 9,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 81,
+     "fever_entries": 4,
+     "first_fever_frame": 3894,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 10,
+     "seeds_below_level": 2,
+     "nuisance_landed": 58,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-2",
+   "frames": 6876,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 51,
+     "fever_entries": 2,
+     "first_fever_frame": 2586,
+     "biggest_normal_chain": 7,
+     "biggest_fever_chain": 13,
+     "seeds_at_level": 5,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 83,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-3",
+   "frames": 8294,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 105,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 2,
+     "last_reason": "tactics_clear"
+    },
+    "1": {
+     "decisions": 70,
+     "fever_entries": 2,
+     "first_fever_frame": 3284,
+     "biggest_normal_chain": 8,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 4,
+     "seeds_below_level": 1,
+     "nuisance_landed": 58,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-4",
+   "frames": 7078,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 94,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 53,
+     "fever_entries": 2,
+     "first_fever_frame": 2443,
+     "biggest_normal_chain": 5,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 60,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-5",
+   "frames": 14111,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 108,
+     "fever_entries": 3,
+     "first_fever_frame": 5110,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 14,
+     "seeds_at_level": 6,
+     "seeds_below_level": 1,
+     "nuisance_landed": 1,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 120,
+     "fever_entries": 3,
+     "first_fever_frame": 2989,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 5,
+     "seeds_below_level": 1,
+     "nuisance_landed": 49,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-6",
+   "frames": 5069,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 52,
+     "fever_entries": 1,
+     "first_fever_frame": 2613,
+     "biggest_normal_chain": 4,
+     "biggest_fever_chain": 7,
+     "seeds_at_level": 2,
+     "seeds_below_level": 1,
+     "nuisance_landed": 29,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 62,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-7",
+   "frames": 6402,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 89,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 56,
+     "fever_entries": 2,
+     "first_fever_frame": 2580,
+     "biggest_normal_chain": 5,
+     "biggest_fever_chain": 14,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-8",
+   "frames": 4832,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 54,
+     "fever_entries": 1,
+     "first_fever_frame": 3153,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 2,
+     "seeds_at_level": 0,
+     "seeds_below_level": 3,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 44,
+     "fever_entries": 1,
+     "first_fever_frame": 2823,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 7,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-9",
+   "frames": 8747,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 76,
+     "fever_entries": 2,
+     "first_fever_frame": 3670,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 5,
+     "seeds_below_level": 3,
+     "nuisance_landed": 26,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 82,
+     "fever_entries": 1,
+     "first_fever_frame": 2552,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-10",
+   "frames": 6347,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 50,
+     "fever_entries": 2,
+     "first_fever_frame": 2389,
+     "biggest_normal_chain": 5,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 4,
+     "seeds_below_level": 1,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 76,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-11",
+   "frames": 5219,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 66,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 49,
+     "fever_entries": 1,
+     "first_fever_frame": 3031,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-12",
+   "frames": 2713,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 31,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 56,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 32,
+     "fever_entries": 1,
+     "first_fever_frame": 2530,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-13",
+   "frames": 3217,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 35,
+     "fever_entries": 1,
+     "first_fever_frame": 2987,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 5,
+     "seeds_at_level": 1,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 38,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-14",
+   "frames": 4172,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 47,
+     "fever_entries": 1,
+     "first_fever_frame": 2443,
+     "biggest_normal_chain": 3,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 54,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-15",
+   "frames": 17063,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 160,
+     "fever_entries": 2,
+     "first_fever_frame": 11193,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 5,
+     "seeds_below_level": 1,
+     "nuisance_landed": 59,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 112,
+     "fever_entries": 4,
+     "first_fever_frame": 2431,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 10,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-16",
+   "frames": 7496,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 62,
+     "fever_entries": 2,
+     "first_fever_frame": 2591,
+     "biggest_normal_chain": 8,
+     "biggest_fever_chain": 14,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 38,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 84,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-17",
+   "frames": 5627,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 63,
+     "fever_entries": 1,
+     "first_fever_frame": 4515,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 1,
+     "seeds_below_level": 0,
+     "nuisance_landed": 3,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 55,
+     "fever_entries": 1,
+     "first_fever_frame": 3341,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 10,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 28,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-18",
+   "frames": 4573,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 60,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 45,
+     "fever_entries": 1,
+     "first_fever_frame": 2781,
+     "biggest_normal_chain": 5,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 2,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-19",
+   "frames": 7674,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 73,
+     "fever_entries": 2,
+     "first_fever_frame": 2463,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 14,
+     "seeds_at_level": 3,
+     "seeds_below_level": 1,
+     "nuisance_landed": 2,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 62,
+     "fever_entries": 1,
+     "first_fever_frame": 3913,
+     "biggest_normal_chain": 7,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 3,
+     "seeds_below_level": 1,
+     "nuisance_landed": 33,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-20",
+   "frames": 7682,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 104,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 3,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 55,
+     "fever_entries": 2,
+     "first_fever_frame": 2881,
+     "biggest_normal_chain": 9,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 5,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-21",
+   "frames": 6877,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 73,
+     "fever_entries": 2,
+     "first_fever_frame": 3157,
+     "biggest_normal_chain": 3,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 2,
+     "seeds_below_level": 1,
+     "nuisance_landed": 29,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 86,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-22",
+   "frames": 8048,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 61,
+     "fever_entries": 2,
+     "first_fever_frame": 3059,
+     "biggest_normal_chain": 7,
+     "biggest_fever_chain": 10,
+     "seeds_at_level": 3,
+     "seeds_below_level": 2,
+     "nuisance_landed": 57,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 97,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-23",
+   "frames": 6941,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 77,
+     "fever_entries": 1,
+     "first_fever_frame": 6561,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 6,
+     "seeds_at_level": 1,
+     "seeds_below_level": 0,
+     "nuisance_landed": 5,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 58,
+     "fever_entries": 2,
+     "first_fever_frame": 2470,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 3,
+     "seeds_below_level": 1,
+     "nuisance_landed": 49,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-24",
+   "frames": 4342,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 45,
+     "fever_entries": 1,
+     "first_fever_frame": 3010,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 6,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 48,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 58,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-25",
+   "frames": 12635,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 115,
+     "fever_entries": 2,
+     "first_fever_frame": 6618,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 5,
+     "seeds_below_level": 2,
+     "nuisance_landed": 46,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 135,
+     "fever_entries": 1,
+     "first_fever_frame": 3595,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 6,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-26",
+   "frames": 4522,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 45,
+     "fever_entries": 1,
+     "first_fever_frame": 2341,
+     "biggest_normal_chain": 9,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 1,
+     "seeds_below_level": 1,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 58,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-27",
+   "frames": 5454,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 59,
+     "fever_entries": 1,
+     "first_fever_frame": 3072,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 56,
+     "fever_entries": 1,
+     "first_fever_frame": 3616,
+     "biggest_normal_chain": 3,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 2,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-28",
+   "frames": 4899,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 67,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 41,
+     "fever_entries": 1,
+     "first_fever_frame": 2659,
+     "biggest_normal_chain": 8,
+     "biggest_fever_chain": 7,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 27,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-29",
+   "frames": 6861,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 78,
+     "fever_entries": 1,
+     "first_fever_frame": 3915,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 13,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 3,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 58,
+     "fever_entries": 2,
+     "first_fever_frame": 2591,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 3,
+     "seeds_below_level": 1,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-30",
+   "frames": 4848,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 53,
+     "fever_entries": 1,
+     "first_fever_frame": 2803,
+     "biggest_normal_chain": 7,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 1,
+     "seeds_below_level": 1,
+     "nuisance_landed": 29,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 57,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 15,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "tactics_clear"
+    }
+   }
+  },
+  {
+   "match": "round-31",
+   "frames": 7650,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 99,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 2,
+     "last_reason": "tactics_clear"
+    },
+    "1": {
+     "decisions": 61,
+     "fever_entries": 2,
+     "first_fever_frame": 3051,
+     "biggest_normal_chain": 7,
+     "biggest_fever_chain": 10,
+     "seeds_at_level": 3,
+     "seeds_below_level": 1,
+     "nuisance_landed": 59,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-32",
+   "frames": 4192,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 58,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 40,
+     "fever_entries": 1,
+     "first_fever_frame": 2362,
+     "biggest_normal_chain": 5,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-33",
+   "frames": 7368,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 94,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 15,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 56,
+     "fever_entries": 2,
+     "first_fever_frame": 2883,
+     "biggest_normal_chain": 8,
+     "biggest_fever_chain": 14,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 29,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-34",
+   "frames": 7323,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 97,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 4,
+     "last_reason": "unknown_nuisance_one_move_then_reobserve"
+    },
+    "1": {
+     "decisions": 61,
+     "fever_entries": 2,
+     "first_fever_frame": 3125,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-35",
+   "frames": 3659,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 44,
+     "fever_entries": 1,
+     "first_fever_frame": 3617,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 5,
+     "seeds_at_level": 1,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 39,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 31,
+     "last_reason": "unknown_nuisance_one_move_then_reobserve"
+    }
+   }
+  },
+  {
+   "match": "round-36",
+   "frames": 6583,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 62,
+     "fever_entries": 2,
+     "first_fever_frame": 2800,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 80,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-37",
+   "frames": 6072,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 71,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 51,
+     "fever_entries": 1,
+     "first_fever_frame": 3303,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 10,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 55,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-38",
+   "frames": 6861,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 53,
+     "fever_entries": 2,
+     "first_fever_frame": 2565,
+     "biggest_normal_chain": 9,
+     "biggest_fever_chain": 10,
+     "seeds_at_level": 4,
+     "seeds_below_level": 1,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 81,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-39",
+   "frames": 9340,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 81,
+     "fever_entries": 2,
+     "first_fever_frame": 3292,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 3,
+     "seeds_below_level": 1,
+     "nuisance_landed": 2,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 79,
+     "fever_entries": 2,
+     "first_fever_frame": 2970,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 14,
+     "seeds_at_level": 5,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-40",
+   "frames": 5310,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 53,
+     "fever_entries": 1,
+     "first_fever_frame": 3941,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 7,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 22,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 50,
+     "fever_entries": 1,
+     "first_fever_frame": 3014,
+     "biggest_normal_chain": 9,
+     "biggest_fever_chain": 7,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-41",
+   "frames": 7928,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 69,
+     "fever_entries": 2,
+     "first_fever_frame": 2921,
+     "biggest_normal_chain": 8,
+     "biggest_fever_chain": 10,
+     "seeds_at_level": 5,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 97,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-42",
+   "frames": 7946,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 62,
+     "fever_entries": 2,
+     "first_fever_frame": 3061,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 13,
+     "seeds_at_level": 5,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 93,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-43",
+   "frames": 3626,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 49,
+     "fever_entries": 1,
+     "first_fever_frame": 3137,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 2,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 37,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-44",
+   "frames": 6034,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 55,
+     "fever_entries": 1,
+     "first_fever_frame": 3430,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 8,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 49,
+     "fever_entries": 1,
+     "first_fever_frame": 3868,
+     "biggest_normal_chain": 9,
+     "biggest_fever_chain": 10,
+     "seeds_at_level": 5,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-45",
+   "frames": 2838,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 35,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 32,
+     "fever_entries": 1,
+     "first_fever_frame": 2693,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 7,
+     "seeds_at_level": 1,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-46",
+   "frames": 6472,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 63,
+     "fever_entries": 1,
+     "first_fever_frame": 3935,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 74,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-47",
+   "frames": 4312,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 44,
+     "fever_entries": 1,
+     "first_fever_frame": 2359,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 46,
+     "fever_entries": 1,
+     "first_fever_frame": 4184,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-48",
+   "frames": 5965,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 53,
+     "fever_entries": 1,
+     "first_fever_frame": 2796,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 60,
+     "fever_entries": 1,
+     "first_fever_frame": 2964,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-49",
+   "frames": 7499,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 97,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 56,
+     "fever_entries": 2,
+     "first_fever_frame": 2857,
+     "biggest_normal_chain": 4,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 5,
+     "seeds_below_level": 0,
+     "nuisance_landed": 57,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-50",
+   "frames": 3796,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 50,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 38,
+     "fever_entries": 1,
+     "first_fever_frame": 2477,
+     "biggest_normal_chain": 3,
+     "biggest_fever_chain": 7,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-51",
+   "frames": 3035,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 35,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 32,
+     "fever_entries": 1,
+     "first_fever_frame": 2944,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 6,
+     "seeds_at_level": 1,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-52",
+   "frames": 5800,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 61,
+     "fever_entries": 1,
+     "first_fever_frame": 3463,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 59,
+     "fever_entries": 1,
+     "first_fever_frame": 3645,
+     "biggest_normal_chain": 4,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-53",
+   "frames": 5733,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 49,
+     "fever_entries": 1,
+     "first_fever_frame": 3168,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 59,
+     "fever_entries": 1,
+     "first_fever_frame": 2707,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-54",
+   "frames": 7340,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 90,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 2,
+     "last_reason": "tactics_clear"
+    },
+    "1": {
+     "decisions": 65,
+     "fever_entries": 2,
+     "first_fever_frame": 2949,
+     "biggest_normal_chain": 2,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-55",
+   "frames": 5019,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 49,
+     "fever_entries": 1,
+     "first_fever_frame": 2935,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 60,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 55,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "tactics_clear"
+    }
+   }
+  },
+  {
+   "match": "round-56",
+   "frames": 4413,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 51,
+     "fever_entries": 1,
+     "first_fever_frame": 2668,
+     "biggest_normal_chain": 3,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 24,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 57,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-57",
+   "frames": 5839,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 50,
+     "fever_entries": 1,
+     "first_fever_frame": 3006,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 56,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 61,
+     "fever_entries": 1,
+     "first_fever_frame": 2924,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-58",
+   "frames": 4734,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 64,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "tactics_clear"
+    },
+    "1": {
+     "decisions": 54,
+     "fever_entries": 1,
+     "first_fever_frame": 2759,
+     "biggest_normal_chain": 2,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 1,
+     "seeds_below_level": 0,
+     "nuisance_landed": 18,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-59",
+   "frames": 3272,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 37,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 61,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 40,
+     "fever_entries": 1,
+     "first_fever_frame": 2733,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 7,
+     "seeds_at_level": 1,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-60",
+   "frames": 7217,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 94,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 50,
+     "fever_entries": 2,
+     "first_fever_frame": 2592,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 13,
+     "seeds_at_level": 5,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-61",
+   "frames": 3731,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 40,
+     "fever_entries": 1,
+     "first_fever_frame": 2888,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 6,
+     "seeds_at_level": 1,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 44,
+     "fever_entries": 1,
+     "first_fever_frame": 2547,
+     "biggest_normal_chain": 8,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-62",
+   "frames": 2662,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 36,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 38,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 4,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-63",
+   "frames": 6316,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 58,
+     "fever_entries": 1,
+     "first_fever_frame": 3788,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 55,
+     "fever_entries": 1,
+     "first_fever_frame": 4110,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 31,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-64",
+   "frames": 4342,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 49,
+     "fever_entries": 1,
+     "first_fever_frame": 2628,
+     "biggest_normal_chain": 3,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 2,
+     "seeds_below_level": 1,
+     "nuisance_landed": 1,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 56,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-65",
+   "frames": 10659,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 138,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 72,
+     "fever_entries": 3,
+     "first_fever_frame": 3130,
+     "biggest_normal_chain": 9,
+     "biggest_fever_chain": 13,
+     "seeds_at_level": 7,
+     "seeds_below_level": 1,
+     "nuisance_landed": 58,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-66",
+   "frames": 6803,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 61,
+     "fever_entries": 1,
+     "first_fever_frame": 3980,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 7,
+     "seeds_at_level": 3,
+     "seeds_below_level": 4,
+     "nuisance_landed": 31,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 76,
+     "fever_entries": 1,
+     "first_fever_frame": 3388,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-67",
+   "frames": 4843,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 45,
+     "fever_entries": 1,
+     "first_fever_frame": 2929,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 6,
+     "seeds_at_level": 2,
+     "seeds_below_level": 1,
+     "nuisance_landed": 54,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 59,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "tactics_clear"
+    }
+   }
+  },
+  {
+   "match": "round-68",
+   "frames": 12581,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 126,
+     "fever_entries": 1,
+     "first_fever_frame": 9609,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 57,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 83,
+     "fever_entries": 4,
+     "first_fever_frame": 2692,
+     "biggest_normal_chain": 4,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 7,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-69",
+   "frames": 11965,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 90,
+     "fever_entries": 3,
+     "first_fever_frame": 2942,
+     "biggest_normal_chain": 9,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 6,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 100,
+     "fever_entries": 1,
+     "first_fever_frame": 8323,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 13,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 26,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-70",
+   "frames": 6727,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 60,
+     "fever_entries": 2,
+     "first_fever_frame": 2558,
+     "biggest_normal_chain": 7,
+     "biggest_fever_chain": 13,
+     "seeds_at_level": 3,
+     "seeds_below_level": 1,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 78,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "tactics_clear"
+    }
+   }
+  },
+  {
+   "match": "round-71",
+   "frames": 5289,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 44,
+     "fever_entries": 1,
+     "first_fever_frame": 2794,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 24,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 41,
+     "fever_entries": 1,
+     "first_fever_frame": 2864,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-72",
+   "frames": 17502,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 133,
+     "fever_entries": 4,
+     "first_fever_frame": 2827,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 8,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 135,
+     "fever_entries": 3,
+     "first_fever_frame": 7200,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 8,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-73",
+   "frames": 4557,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 51,
+     "fever_entries": 1,
+     "first_fever_frame": 3088,
+     "biggest_normal_chain": 2,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 57,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-74",
+   "frames": 15583,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 111,
+     "fever_entries": 4,
+     "first_fever_frame": 3075,
+     "biggest_normal_chain": 8,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 10,
+     "seeds_below_level": 1,
+     "nuisance_landed": 1,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 119,
+     "fever_entries": 2,
+     "first_fever_frame": 2722,
+     "biggest_normal_chain": 9,
+     "biggest_fever_chain": 14,
+     "seeds_at_level": 7,
+     "seeds_below_level": 0,
+     "nuisance_landed": 66,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-75",
+   "frames": 5512,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 55,
+     "fever_entries": 1,
+     "first_fever_frame": 2606,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 13,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "tactics_offset"
+    },
+    "1": {
+     "decisions": 74,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-76",
+   "frames": 6890,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 52,
+     "fever_entries": 2,
+     "first_fever_frame": 2396,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 14,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 56,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 88,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-77",
+   "frames": 5950,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 85,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "unknown_nuisance_one_move_then_reobserve"
+    },
+    "1": {
+     "decisions": 48,
+     "fever_entries": 2,
+     "first_fever_frame": 3039,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-78",
+   "frames": 7751,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 77,
+     "fever_entries": 1,
+     "first_fever_frame": 4169,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 73,
+     "fever_entries": 2,
+     "first_fever_frame": 3627,
+     "biggest_normal_chain": 5,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 4,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-79",
+   "frames": 16046,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 123,
+     "fever_entries": 3,
+     "first_fever_frame": 3614,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 16,
+     "seeds_at_level": 7,
+     "seeds_below_level": 1,
+     "nuisance_landed": 7,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 126,
+     "fever_entries": 3,
+     "first_fever_frame": 2979,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 14,
+     "seeds_at_level": 7,
+     "seeds_below_level": 1,
+     "nuisance_landed": 31,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-80",
+   "frames": 7852,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 74,
+     "fever_entries": 1,
+     "first_fever_frame": 4166,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 14,
+     "last_reason": "tactics_stack"
+    },
+    "1": {
+     "decisions": 60,
+     "fever_entries": 2,
+     "first_fever_frame": 3103,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 13,
+     "seeds_at_level": 5,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-81",
+   "frames": 6082,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 67,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 52,
+     "fever_entries": 2,
+     "first_fever_frame": 2467,
+     "biggest_normal_chain": 3,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 25,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-82",
+   "frames": 18784,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 139,
+     "fever_entries": 4,
+     "first_fever_frame": 3679,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 9,
+     "seeds_below_level": 0,
+     "nuisance_landed": 8,
+     "last_reason": "tactics_offset"
+    },
+    "1": {
+     "decisions": 134,
+     "fever_entries": 4,
+     "first_fever_frame": 2472,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 8,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-83",
+   "frames": 5328,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 54,
+     "fever_entries": 1,
+     "first_fever_frame": 3593,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 45,
+     "fever_entries": 1,
+     "first_fever_frame": 3137,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 3,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-84",
+   "frames": 6320,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 86,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "unknown_nuisance_one_move_then_reobserve"
+    },
+    "1": {
+     "decisions": 44,
+     "fever_entries": 2,
+     "first_fever_frame": 2428,
+     "biggest_normal_chain": 7,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 4,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-85",
+   "frames": 12322,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 104,
+     "fever_entries": 2,
+     "first_fever_frame": 2738,
+     "biggest_normal_chain": 9,
+     "biggest_fever_chain": 14,
+     "seeds_at_level": 6,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 88,
+     "fever_entries": 2,
+     "first_fever_frame": 4770,
+     "biggest_normal_chain": 8,
+     "biggest_fever_chain": 16,
+     "seeds_at_level": 6,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-86",
+   "frames": 7560,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 63,
+     "fever_entries": 2,
+     "first_fever_frame": 2425,
+     "biggest_normal_chain": 5,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 57,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 79,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-87",
+   "frames": 9809,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 88,
+     "fever_entries": 2,
+     "first_fever_frame": 2587,
+     "biggest_normal_chain": 4,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 6,
+     "seeds_below_level": 0,
+     "nuisance_landed": 3,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 83,
+     "fever_entries": 2,
+     "first_fever_frame": 3465,
+     "biggest_normal_chain": 7,
+     "biggest_fever_chain": 14,
+     "seeds_at_level": 5,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-88",
+   "frames": 2203,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 32,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 3,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 34,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 2,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "unknown_nuisance_one_move_then_reobserve"
+    }
+   }
+  },
+  {
+   "match": "round-89",
+   "frames": 4909,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 44,
+     "fever_entries": 1,
+     "first_fever_frame": 2690,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 7,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 56,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 60,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-90",
+   "frames": 7816,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 68,
+     "fever_entries": 1,
+     "first_fever_frame": 3684,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 66,
+     "fever_entries": 2,
+     "first_fever_frame": 3144,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 10,
+     "seeds_at_level": 5,
+     "seeds_below_level": 1,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-91",
+   "frames": 4886,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 62,
+     "fever_entries": 1,
+     "first_fever_frame": 3148,
+     "biggest_normal_chain": 2,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 58,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "tactics_clear"
+    }
+   }
+  },
+  {
+   "match": "round-92",
+   "frames": 4323,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 45,
+     "fever_entries": 1,
+     "first_fever_frame": 2859,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 7,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 51,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 55,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-93",
+   "frames": 4683,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 63,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 50,
+     "fever_entries": 1,
+     "first_fever_frame": 2782,
+     "biggest_normal_chain": 4,
+     "biggest_fever_chain": 10,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-94",
+   "frames": 4578,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 65,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "unknown_nuisance_one_move_then_reobserve"
+    },
+    "1": {
+     "decisions": 48,
+     "fever_entries": 1,
+     "first_fever_frame": 3099,
+     "biggest_normal_chain": 5,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-95",
+   "frames": 15642,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 117,
+     "fever_entries": 3,
+     "first_fever_frame": 5354,
+     "biggest_normal_chain": 9,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 8,
+     "seeds_below_level": 1,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 111,
+     "fever_entries": 3,
+     "first_fever_frame": 2682,
+     "biggest_normal_chain": 9,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 8,
+     "seeds_below_level": 2,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-96",
+   "frames": 4480,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 46,
+     "fever_entries": 1,
+     "first_fever_frame": 3044,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 2,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 56,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-97",
+   "frames": 3327,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 37,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 40,
+     "fever_entries": 1,
+     "first_fever_frame": 2971,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 1,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-98",
+   "frames": 7041,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 85,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "tactics_clear"
+    },
+    "1": {
+     "decisions": 56,
+     "fever_entries": 2,
+     "first_fever_frame": 2679,
+     "biggest_normal_chain": 4,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 5,
+     "seeds_below_level": 0,
+     "nuisance_landed": 27,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-99",
+   "frames": 6632,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 88,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 55,
+     "fever_entries": 2,
+     "first_fever_frame": 2884,
+     "biggest_normal_chain": 5,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 53,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-100",
+   "frames": 4439,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 55,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 15,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 2,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 41,
+     "fever_entries": 1,
+     "first_fever_frame": 2886,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 7,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-101",
+   "frames": 1721,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 32,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 2,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 29,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 3,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "tactics_offset"
+    }
+   }
+  },
+  {
+   "match": "round-102",
+   "frames": 6906,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 94,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 51,
+     "fever_entries": 2,
+     "first_fever_frame": 2702,
+     "biggest_normal_chain": 4,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 5,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-103",
+   "frames": 4816,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 55,
+     "fever_entries": 1,
+     "first_fever_frame": 2978,
+     "biggest_normal_chain": 3,
+     "biggest_fever_chain": 10,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 62,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-104",
+   "frames": 11826,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 101,
+     "fever_entries": 2,
+     "first_fever_frame": 3710,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 6,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 81,
+     "fever_entries": 3,
+     "first_fever_frame": 3385,
+     "biggest_normal_chain": 8,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 6,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-105",
+   "frames": 3856,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 44,
+     "fever_entries": 1,
+     "first_fever_frame": 2574,
+     "biggest_normal_chain": 3,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 50,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "unknown_nuisance_one_move_then_reobserve"
+    }
+   }
+  },
+  {
+   "match": "round-106",
+   "frames": 11073,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 92,
+     "fever_entries": 2,
+     "first_fever_frame": 4558,
+     "biggest_normal_chain": 7,
+     "biggest_fever_chain": 14,
+     "seeds_at_level": 6,
+     "seeds_below_level": 1,
+     "nuisance_landed": 31,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 75,
+     "fever_entries": 2,
+     "first_fever_frame": 3490,
+     "biggest_normal_chain": 4,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 5,
+     "seeds_below_level": 1,
+     "nuisance_landed": 4,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-107",
+   "frames": 5683,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 54,
+     "fever_entries": 1,
+     "first_fever_frame": 3241,
+     "biggest_normal_chain": 5,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 54,
+     "fever_entries": 1,
+     "first_fever_frame": 3881,
+     "biggest_normal_chain": 9,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-108",
+   "frames": 3623,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 43,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 8,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 32,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 36,
+     "fever_entries": 1,
+     "first_fever_frame": 2966,
+     "biggest_normal_chain": 8,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 2,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-109",
+   "frames": 6012,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 85,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 51,
+     "fever_entries": 1,
+     "first_fever_frame": 3441,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-110",
+   "frames": 1822,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 33,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 1,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "unknown_nuisance_one_move_then_reobserve"
+    },
+    "1": {
+     "decisions": 27,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-111",
+   "frames": 21122,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 186,
+     "fever_entries": 3,
+     "first_fever_frame": 9759,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 7,
+     "seeds_below_level": 1,
+     "nuisance_landed": 1,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 120,
+     "fever_entries": 6,
+     "first_fever_frame": 2526,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 13,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-112",
+   "frames": 7916,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 68,
+     "fever_entries": 2,
+     "first_fever_frame": 3161,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 10,
+     "seeds_at_level": 4,
+     "seeds_below_level": 1,
+     "nuisance_landed": 29,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 97,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-113",
+   "frames": 8442,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 102,
+     "fever_entries": 1,
+     "first_fever_frame": 2650,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 1,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 52,
+     "fever_entries": 2,
+     "first_fever_frame": 2983,
+     "biggest_normal_chain": 5,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 5,
+     "seeds_below_level": 1,
+     "nuisance_landed": 59,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-114",
+   "frames": 10546,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 93,
+     "fever_entries": 2,
+     "first_fever_frame": 3938,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 5,
+     "seeds_below_level": 1,
+     "nuisance_landed": 70,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 88,
+     "fever_entries": 2,
+     "first_fever_frame": 3066,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 13,
+     "seeds_at_level": 6,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-115",
+   "frames": 4246,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 57,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 47,
+     "fever_entries": 1,
+     "first_fever_frame": 2687,
+     "biggest_normal_chain": 1,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-116",
+   "frames": 13971,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 159,
+     "fever_entries": 1,
+     "first_fever_frame": 12018,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 10,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 2,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 106,
+     "fever_entries": 4,
+     "first_fever_frame": 2807,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 7,
+     "seeds_below_level": 0,
+     "nuisance_landed": 59,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-117",
+   "frames": 4147,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 44,
+     "fever_entries": 1,
+     "first_fever_frame": 2398,
+     "biggest_normal_chain": 3,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 56,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-118",
+   "frames": 4104,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 43,
+     "fever_entries": 1,
+     "first_fever_frame": 2361,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 52,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-119",
+   "frames": 4510,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 46,
+     "fever_entries": 1,
+     "first_fever_frame": 3108,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 2,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 39,
+     "fever_entries": 1,
+     "first_fever_frame": 2911,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 7,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-120",
+   "frames": 4874,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 56,
+     "fever_entries": 1,
+     "first_fever_frame": 3756,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 5,
+     "seeds_at_level": 1,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 46,
+     "fever_entries": 1,
+     "first_fever_frame": 3643,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-121",
+   "frames": 4811,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 65,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 3,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 52,
+     "fever_entries": 1,
+     "first_fever_frame": 2788,
+     "biggest_normal_chain": 4,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 28,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-122",
+   "frames": 3639,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 40,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 32,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 38,
+     "fever_entries": 1,
+     "first_fever_frame": 3071,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 1,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-123",
+   "frames": 5173,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 56,
+     "fever_entries": 1,
+     "first_fever_frame": 2498,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 10,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 55,
+     "fever_entries": 1,
+     "first_fever_frame": 3811,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 1,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-124",
+   "frames": 5782,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 78,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 2,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 54,
+     "fever_entries": 1,
+     "first_fever_frame": 3086,
+     "biggest_normal_chain": 8,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 55,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-125",
+   "frames": 5478,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 74,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 51,
+     "fever_entries": 1,
+     "first_fever_frame": 3012,
+     "biggest_normal_chain": 5,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-126",
+   "frames": 7332,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 62,
+     "fever_entries": 2,
+     "first_fever_frame": 2760,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 5,
+     "seeds_below_level": 0,
+     "nuisance_landed": 51,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 68,
+     "fever_entries": 1,
+     "first_fever_frame": 3472,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 13,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-127",
+   "frames": 4331,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 38,
+     "fever_entries": 1,
+     "first_fever_frame": 2192,
+     "biggest_normal_chain": 7,
+     "biggest_fever_chain": 10,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 21,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 55,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-128",
+   "frames": 4605,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 47,
+     "fever_entries": 1,
+     "first_fever_frame": 2574,
+     "biggest_normal_chain": 3,
+     "biggest_fever_chain": 7,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 62,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-129",
+   "frames": 2647,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 32,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 29,
+     "fever_entries": 1,
+     "first_fever_frame": 2541,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-130",
+   "frames": 4666,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 63,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 46,
+     "fever_entries": 1,
+     "first_fever_frame": 2747,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 1,
+     "seeds_below_level": 1,
+     "nuisance_landed": 29,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-131",
+   "frames": 1938,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 35,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 1,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 4,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 31,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 2,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-132",
+   "frames": 1837,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 32,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 1,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 4,
+     "last_reason": "unknown_nuisance_one_move_then_reobserve"
+    },
+    "1": {
+     "decisions": 32,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 1,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-133",
+   "frames": 7163,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 87,
+     "fever_entries": 1,
+     "first_fever_frame": 3596,
+     "biggest_normal_chain": 6,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 57,
+     "fever_entries": 2,
+     "first_fever_frame": 2606,
+     "biggest_normal_chain": 3,
+     "biggest_fever_chain": 8,
+     "seeds_at_level": 4,
+     "seeds_below_level": 2,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-134",
+   "frames": 10456,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 95,
+     "fever_entries": 2,
+     "first_fever_frame": 3058,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 4,
+     "seeds_below_level": 1,
+     "nuisance_landed": 30,
+     "last_reason": "unknown_nuisance_one_move_then_reobserve"
+    },
+    "1": {
+     "decisions": 80,
+     "fever_entries": 2,
+     "first_fever_frame": 3773,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 13,
+     "seeds_at_level": 5,
+     "seeds_below_level": 2,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-135",
+   "frames": 5697,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 74,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 1,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 58,
+     "fever_entries": 1,
+     "first_fever_frame": 3590,
+     "biggest_normal_chain": 2,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 22,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-136",
+   "frames": 22597,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 156,
+     "fever_entries": 5,
+     "first_fever_frame": 3235,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 16,
+     "seeds_at_level": 10,
+     "seeds_below_level": 3,
+     "nuisance_landed": 11,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 138,
+     "fever_entries": 4,
+     "first_fever_frame": 3813,
+     "biggest_normal_chain": 8,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 11,
+     "seeds_below_level": 2,
+     "nuisance_landed": 1,
+     "last_reason": "tactics_offset"
+    }
+   }
+  },
+  {
+   "match": "round-137",
+   "frames": 1746,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 31,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 1,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 2,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 28,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 1,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-138",
+   "frames": 6973,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 86,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 3,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 57,
+     "fever_entries": 2,
+     "first_fever_frame": 2673,
+     "biggest_normal_chain": 4,
+     "biggest_fever_chain": 13,
+     "seeds_at_level": 4,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-139",
+   "frames": 7237,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 75,
+     "fever_entries": 2,
+     "first_fever_frame": 2790,
+     "biggest_normal_chain": 9,
+     "biggest_fever_chain": 13,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 67,
+     "fever_entries": 1,
+     "first_fever_frame": 4343,
+     "biggest_normal_chain": 7,
+     "biggest_fever_chain": 10,
+     "seeds_at_level": 2,
+     "seeds_below_level": 1,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-140",
+   "frames": 12572,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 109,
+     "fever_entries": 2,
+     "first_fever_frame": 2309,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 7,
+     "seeds_below_level": 0,
+     "nuisance_landed": 2,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 97,
+     "fever_entries": 3,
+     "first_fever_frame": 3264,
+     "biggest_normal_chain": 5,
+     "biggest_fever_chain": 14,
+     "seeds_at_level": 6,
+     "seeds_below_level": 1,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    }
+   }
+  },
+  {
+   "match": "round-141",
+   "frames": 5176,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 51,
+     "fever_entries": 1,
+     "first_fever_frame": 2815,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 7,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 55,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 63,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-142",
+   "frames": 7239,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 90,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 13,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 53,
+     "fever_entries": 2,
+     "first_fever_frame": 2615,
+     "biggest_normal_chain": 4,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 5,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-143",
+   "frames": 4269,
+   "loser": null,
+   "sides": {
+    "2": {
+     "decisions": 59,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 11,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 37,
+     "fever_entries": 1,
+     "first_fever_frame": 2062,
+     "biggest_normal_chain": 8,
+     "biggest_fever_chain": 9,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "unknown_nuisance_one_move_then_reobserve"
+    }
+   }
+  },
+  {
+   "match": "round-144",
+   "frames": 4822,
+   "loser": 2,
+   "sides": {
+    "2": {
+     "decisions": 51,
+     "fever_entries": 1,
+     "first_fever_frame": 2733,
+     "biggest_normal_chain": 8,
+     "biggest_fever_chain": 11,
+     "seeds_at_level": 2,
+     "seeds_below_level": 0,
+     "nuisance_landed": 22,
+     "last_reason": "no_rescue_fast_finish"
+    },
+    "1": {
+     "decisions": 62,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 12,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    }
+   }
+  },
+  {
+   "match": "round-145",
+   "frames": 5426,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 76,
+     "fever_entries": 0,
+     "first_fever_frame": null,
+     "biggest_normal_chain": 14,
+     "biggest_fever_chain": 0,
+     "seeds_at_level": 0,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "normal_build_or_fire"
+    },
+    "1": {
+     "decisions": 40,
+     "fever_entries": 1,
+     "first_fever_frame": 2693,
+     "biggest_normal_chain": 8,
+     "biggest_fever_chain": 12,
+     "seeds_at_level": 3,
+     "seeds_below_level": 0,
+     "nuisance_landed": 30,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  },
+  {
+   "match": "round-146",
+   "frames": 13243,
+   "loser": 1,
+   "sides": {
+    "2": {
+     "decisions": 116,
+     "fever_entries": 2,
+     "first_fever_frame": 3248,
+     "biggest_normal_chain": 10,
+     "biggest_fever_chain": 15,
+     "seeds_at_level": 7,
+     "seeds_below_level": 0,
+     "nuisance_landed": 0,
+     "last_reason": "fever_seed_search"
+    },
+    "1": {
+     "decisions": 98,
+     "fever_entries": 4,
+     "first_fever_frame": 2812,
+     "biggest_normal_chain": 5,
+     "biggest_fever_chain": 16,
+     "seeds_at_level": 7,
+     "seeds_below_level": 2,
+     "nuisance_landed": 33,
+     "last_reason": "no_rescue_fast_finish"
+    }
+   }
+  }
+ ]
+}

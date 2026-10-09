@@ -1,0 +1,2695 @@
+{
+  "status": "offline_budget_comparison_not_live_freefall_measurement",
+  "cases": [
+    {
+      "case": "empty",
+      "bounded": false,
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "arle",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY",
+            "2:BG",
+            "2:YR"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 250,
+          "beam_depth": 16
+        }
+      },
+      "reply": {
+        "x": 5,
+        "r": "D",
+        "shape": "2",
+        "reason": "normal_build_or_fire",
+        "fire": false,
+        "chain": 0,
+        "next_chain": 0,
+        "next_score": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....Y"
+        ],
+        "link_points": [],
+        "next_all_clear": false,
+        "normal_search_reused": false,
+        "searched_visible": 3,
+        "normal_fire_policy": "initial_target",
+        "normal_build_search_reused": true,
+        "normal_build_searched_visible": 3,
+        "normal_color_needs": {
+          "mainline": [],
+          "mainline_chain": 0,
+          "offsets": [],
+          "quality": 0,
+          "reserve_weights": {
+            "B": 0,
+            "G": 0,
+            "R": 0,
+            "Y": 0
+          },
+          "status": "reachable_color_completion_heuristic_not_executable_future",
+          "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+        },
+        "needed_color_consumed": 0,
+        "gauge_forecast": {
+          "gauge_after": 0,
+          "offset_links": 0,
+          "cancelled": 0,
+          "remaining_pending": 0
+        },
+        "entry_pending_after_chain": false,
+        "decision_dependencies": [
+          "self"
+        ],
+        "action": "place",
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "mode": "normal",
+        "decision_identity": {
+          "match_id": "mode-test",
+          "frame": 0,
+          "piece_id": 0,
+          "dropset_index": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        },
+        "model_status": "prototype_unverified_on_local_steam",
+        "provenance": {
+          "power": "player_measurement_transcribed",
+          "bonuses": "cross_title_reference_unverified_on_local_steam",
+          "local_steam_verified": false
+        },
+        "search_ms": 360.0000000005821,
+        "mode_timing_status": "normal_calibrated_input_estimated",
+        "margin_forecast": {
+          "rate_events": [],
+          "enemy_rate_events": [],
+          "status": "observed_rate_only_margin_setting_unknown",
+          "observed_target_point": 120,
+          "observed_changes": 0,
+          "margin_start_frame_bounds": null
+        },
+        "arrival": {
+          "chain_end_in": null,
+          "piece_frames": 42,
+          "measured_pace": null,
+          "pieces": null
+        }
+      },
+      "wall_ms": [
+        394.26,
+        383.86,
+        376.69,
+        368.92,
+        372.83
+      ]
+    },
+    {
+      "case": "empty",
+      "bounded": true,
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "arle",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY",
+            "2:BG",
+            "2:YR"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 250,
+          "beam_depth": 16
+        },
+        "decision_budget_ms": 100
+      },
+      "reply": {
+        "x": 0,
+        "r": "U",
+        "shape": "2",
+        "reason": "normal_build_or_fire",
+        "fire": false,
+        "chain": 0,
+        "next_chain": 0,
+        "next_score": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "Y.....",
+          "R....."
+        ],
+        "link_points": [],
+        "next_all_clear": false,
+        "normal_search_reused": false,
+        "searched_visible": 3,
+        "normal_fire_policy": "initial_target",
+        "normal_build_search_reused": true,
+        "normal_build_searched_visible": 3,
+        "normal_color_needs": {
+          "mainline": [],
+          "mainline_chain": 0,
+          "offsets": [],
+          "quality": 0,
+          "reserve_weights": {
+            "B": 0,
+            "G": 0,
+            "R": 0,
+            "Y": 0
+          },
+          "status": "reachable_color_completion_heuristic_not_executable_future",
+          "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+        },
+        "needed_color_consumed": 0,
+        "gauge_forecast": {
+          "gauge_after": 0,
+          "offset_links": 0,
+          "cancelled": 0,
+          "remaining_pending": 0
+        },
+        "entry_pending_after_chain": false,
+        "decision_dependencies": [
+          "self"
+        ],
+        "action": "place",
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "mode": "normal",
+        "decision_identity": {
+          "match_id": "mode-test",
+          "frame": 0,
+          "piece_id": 0,
+          "dropset_index": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        },
+        "model_status": "prototype_unverified_on_local_steam",
+        "provenance": {
+          "power": "player_measurement_transcribed",
+          "bonuses": "cross_title_reference_unverified_on_local_steam",
+          "local_steam_verified": false
+        },
+        "search_ms": 108.99999999674037,
+        "mode_timing_status": "normal_calibrated_input_estimated",
+        "margin_forecast": {
+          "rate_events": [],
+          "enemy_rate_events": [],
+          "status": "observed_rate_only_margin_setting_unknown",
+          "observed_target_point": 120,
+          "observed_changes": 0,
+          "margin_start_frame_bounds": null
+        },
+        "arrival": {
+          "chain_end_in": null,
+          "piece_frames": 42,
+          "measured_pace": null,
+          "pieces": null
+        }
+      },
+      "wall_ms": [
+        120.28,
+        122.72,
+        119.38,
+        119.92,
+        119.88
+      ]
+    },
+    {
+      "case": "high_chain",
+      "bounded": false,
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "arle",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....G",
+            "R....Y",
+            "G.R..B",
+            "BRG.BB",
+            "BGYBYY",
+            "YYBGGY",
+            "BBYBBG",
+            "GGBGYY",
+            "GRRBGG",
+            "RBBGYY"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY",
+            "2:BG",
+            "2:YR"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 250,
+          "beam_depth": 16
+        }
+      },
+      "reply": {
+        "x": 1,
+        "r": "D",
+        "shape": "2",
+        "reason": "normal_build_or_fire",
+        "fire": false,
+        "chain": 0,
+        "next_chain": 0,
+        "next_score": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....G",
+          "RR...Y",
+          "GYR..B",
+          "BRG.BB",
+          "BGYBYY",
+          "YYBGGY",
+          "BBYBBG",
+          "GGBGYY",
+          "GRRBGG",
+          "RBBGYY"
+        ],
+        "link_points": [],
+        "next_all_clear": false,
+        "normal_search_reused": false,
+        "searched_visible": 3,
+        "normal_fire_policy": "initial_target",
+        "normal_build_search_reused": true,
+        "normal_build_searched_visible": 3,
+        "normal_color_needs": {
+          "mainline": [
+            {
+              "chain": 11,
+              "color": "B",
+              "height": 7,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 4
+            }
+          ],
+          "mainline_chain": 11,
+          "offsets": [
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 9,
+              "missing_visible_cells": 1,
+              "needed_cells": 3,
+              "visible_supply": 2,
+              "x": 0
+            },
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 7,
+              "missing_visible_cells": 0,
+              "needed_cells": 2,
+              "visible_supply": 2,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 8,
+              "missing_visible_cells": 1,
+              "needed_cells": 3,
+              "visible_supply": 2,
+              "x": 2
+            },
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 6,
+              "missing_visible_cells": 1,
+              "needed_cells": 3,
+              "visible_supply": 2,
+              "x": 3
+            },
+            {
+              "chain": 1,
+              "color": "Y",
+              "height": 7,
+              "missing_visible_cells": 1,
+              "needed_cells": 3,
+              "visible_supply": 2,
+              "x": 4
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 7,
+              "missing_visible_cells": 2,
+              "needed_cells": 3,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 6,
+              "missing_visible_cells": 2,
+              "needed_cells": 3,
+              "visible_supply": 1,
+              "x": 3
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 7,
+              "missing_visible_cells": 2,
+              "needed_cells": 3,
+              "visible_supply": 1,
+              "x": 4
+            }
+          ],
+          "quality": 4380,
+          "reserve_weights": {
+            "B": 10,
+            "G": 0,
+            "R": 0,
+            "Y": 0
+          },
+          "status": "reachable_color_completion_heuristic_not_executable_future",
+          "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+        },
+        "needed_color_consumed": 0,
+        "gauge_forecast": {
+          "gauge_after": 0,
+          "offset_links": 0,
+          "cancelled": 0,
+          "remaining_pending": 0
+        },
+        "entry_pending_after_chain": false,
+        "decision_dependencies": [
+          "self"
+        ],
+        "action": "place",
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "mode": "normal",
+        "decision_identity": {
+          "match_id": "mode-test",
+          "frame": 0,
+          "piece_id": 0,
+          "dropset_index": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        },
+        "model_status": "prototype_unverified_on_local_steam",
+        "provenance": {
+          "power": "player_measurement_transcribed",
+          "bonuses": "cross_title_reference_unverified_on_local_steam",
+          "local_steam_verified": false
+        },
+        "search_ms": 155.99999999903957,
+        "mode_timing_status": "normal_calibrated_input_estimated",
+        "margin_forecast": {
+          "rate_events": [],
+          "enemy_rate_events": [],
+          "status": "observed_rate_only_margin_setting_unknown",
+          "observed_target_point": 120,
+          "observed_changes": 0,
+          "margin_start_frame_bounds": null
+        },
+        "arrival": {
+          "chain_end_in": null,
+          "piece_frames": 42,
+          "measured_pace": null,
+          "pieces": null
+        }
+      },
+      "wall_ms": [
+        154.22,
+        155.07,
+        149.59,
+        160.26,
+        159.76
+      ]
+    },
+    {
+      "case": "high_chain",
+      "bounded": true,
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "arle",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....G",
+            "R....Y",
+            "G.R..B",
+            "BRG.BB",
+            "BGYBYY",
+            "YYBGGY",
+            "BBYBBG",
+            "GGBGYY",
+            "GRRBGG",
+            "RBBGYY"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY",
+            "2:BG",
+            "2:YR"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 250,
+          "beam_depth": 16
+        },
+        "decision_budget_ms": 100
+      },
+      "reply": {
+        "x": 4,
+        "r": "R",
+        "shape": "2",
+        "reason": "normal_build_or_fire",
+        "fire": false,
+        "chain": 0,
+        "next_chain": 0,
+        "next_score": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          ".....Y",
+          ".....G",
+          "R....Y",
+          "G.R.RB",
+          "BRG.BB",
+          "BGYBYY",
+          "YYBGGY",
+          "BBYBBG",
+          "GGBGYY",
+          "GRRBGG",
+          "RBBGYY"
+        ],
+        "link_points": [],
+        "next_all_clear": false,
+        "normal_search_reused": false,
+        "searched_visible": 3,
+        "normal_fire_policy": "initial_target",
+        "normal_build_search_reused": true,
+        "normal_build_searched_visible": 3,
+        "normal_color_needs": {
+          "mainline": [
+            {
+              "chain": 11,
+              "color": "B",
+              "height": 7,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 1,
+              "x": 4
+            }
+          ],
+          "mainline_chain": 11,
+          "offsets": [
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 9,
+              "missing_visible_cells": 1,
+              "needed_cells": 3,
+              "visible_supply": 2,
+              "x": 0
+            },
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 7,
+              "missing_visible_cells": 0,
+              "needed_cells": 2,
+              "visible_supply": 2,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 8,
+              "missing_visible_cells": 1,
+              "needed_cells": 3,
+              "visible_supply": 2,
+              "x": 2
+            },
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 6,
+              "missing_visible_cells": 1,
+              "needed_cells": 3,
+              "visible_supply": 2,
+              "x": 3
+            },
+            {
+              "chain": 1,
+              "color": "Y",
+              "height": 7,
+              "missing_visible_cells": 1,
+              "needed_cells": 3,
+              "visible_supply": 2,
+              "x": 4
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 7,
+              "missing_visible_cells": 2,
+              "needed_cells": 3,
+              "visible_supply": 1,
+              "x": 1
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 6,
+              "missing_visible_cells": 2,
+              "needed_cells": 3,
+              "visible_supply": 1,
+              "x": 3
+            },
+            {
+              "chain": 1,
+              "color": "G",
+              "height": 7,
+              "missing_visible_cells": 2,
+              "needed_cells": 3,
+              "visible_supply": 1,
+              "x": 4
+            }
+          ],
+          "quality": 4380,
+          "reserve_weights": {
+            "B": 10,
+            "G": 0,
+            "R": 0,
+            "Y": 0
+          },
+          "status": "reachable_color_completion_heuristic_not_executable_future",
+          "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+        },
+        "needed_color_consumed": 0,
+        "gauge_forecast": {
+          "gauge_after": 0,
+          "offset_links": 0,
+          "cancelled": 0,
+          "remaining_pending": 0
+        },
+        "entry_pending_after_chain": false,
+        "decision_dependencies": [
+          "self"
+        ],
+        "action": "place",
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "mode": "normal",
+        "decision_identity": {
+          "match_id": "mode-test",
+          "frame": 0,
+          "piece_id": 0,
+          "dropset_index": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        },
+        "model_status": "prototype_unverified_on_local_steam",
+        "provenance": {
+          "power": "player_measurement_transcribed",
+          "bonuses": "cross_title_reference_unverified_on_local_steam",
+          "local_steam_verified": false
+        },
+        "search_ms": 109.00000000037835,
+        "mode_timing_status": "normal_calibrated_input_estimated",
+        "margin_forecast": {
+          "rate_events": [],
+          "enemy_rate_events": [],
+          "status": "observed_rate_only_margin_setting_unknown",
+          "observed_target_point": 120,
+          "observed_changes": 0,
+          "margin_start_frame_bounds": null
+        },
+        "arrival": {
+          "chain_end_in": null,
+          "piece_frames": 42,
+          "measured_pace": null,
+          "pieces": null
+        }
+      },
+      "wall_ms": [
+        108.66,
+        106.7,
+        107.43,
+        112.03,
+        111.76
+      ]
+    },
+    {
+      "case": "garbage_fallback",
+      "bounded": false,
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 0,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "arle",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....R",
+            ".....B",
+            ".....B",
+            "...BRR",
+            "..YYBB",
+            "..YBRR"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY",
+            "2:BG",
+            "2:YR"
+          ],
+          "confirmed": 24,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 24,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 250,
+          "beam_depth": 16
+        }
+      },
+      "reply": {
+        "x": 5,
+        "r": "D",
+        "shape": "2",
+        "reason": "garbage_state_search",
+        "fire": false,
+        "fire_moves": 0,
+        "chain": 0,
+        "next_chain": 0,
+        "next_score": 0,
+        "link_points": [],
+        "next_field": [
+          "......",
+          ".....#",
+          ".....#",
+          ".....#",
+          ".....#",
+          ".....R",
+          ".....Y",
+          "...##R",
+          "..###R",
+          "..###B",
+          "#####B",
+          "###BRR",
+          "##YYBB",
+          "##YBRR"
+        ],
+        "placement_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....Y",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "..YBRR"
+        ],
+        "next_all_clear": false,
+        "all_clear_requires_observed_seed": false,
+        "nuisance_forecast": {
+          "beam_width": 250,
+          "budget_exhausted": false,
+          "choice": {
+            "all_clear_requires_observed_seed": false,
+            "cancelled": 0,
+            "chain_timing_source": "steam_15209927_calibrated_estimate",
+            "confirmed": 0,
+            "discarded": 0,
+            "dropped": 24,
+            "fall_distances": [],
+            "fall_features": [],
+            "field": [
+              "......",
+              ".....#",
+              ".....#",
+              ".....#",
+              ".....#",
+              ".....R",
+              ".....Y",
+              "...##R",
+              "..###R",
+              "..###B",
+              "#####B",
+              "###BRR",
+              "##YYBB",
+              "##YBRR"
+            ],
+            "frame": 30,
+            "garbage_phase": 0,
+            "link_points": [],
+            "links": [],
+            "needed_color_consumed": 0,
+            "placement_field": [
+              "......",
+              "......",
+              "......",
+              "......",
+              "......",
+              ".....R",
+              ".....Y",
+              ".....R",
+              ".....R",
+              ".....B",
+              ".....B",
+              "...BRR",
+              "..YYBB",
+              "..YBRR"
+            ],
+            "r": "D",
+            "remainder": 0,
+            "sent": 0,
+            "split_distances": [
+              0
+            ],
+            "split_extra_frames": 0,
+            "split_time_source": "measured_rows_0_to_9",
+            "unconfirmed": 0,
+            "x": 5
+          },
+          "color_needs": {
+            "mainline": [
+              {
+                "chain": 3,
+                "color": "R",
+                "height": 3,
+                "missing_visible_cells": 0,
+                "needed_cells": 2,
+                "visible_supply": 2,
+                "x": 4
+              },
+              {
+                "chain": 3,
+                "color": "Y",
+                "height": 0,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 2,
+                "x": 1
+              },
+              {
+                "chain": 3,
+                "color": "Y",
+                "height": 2,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 2,
+                "x": 2
+              }
+            ],
+            "mainline_chain": 3,
+            "offsets": [
+              {
+                "chain": 1,
+                "color": "R",
+                "height": 7,
+                "missing_visible_cells": 0,
+                "needed_cells": 2,
+                "visible_supply": 2,
+                "x": 5
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 2,
+                "missing_visible_cells": 2,
+                "needed_cells": 3,
+                "visible_supply": 1,
+                "x": 2
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 3,
+                "missing_visible_cells": 2,
+                "needed_cells": 3,
+                "visible_supply": 1,
+                "x": 3
+              },
+              {
+                "chain": 2,
+                "color": "B",
+                "height": 3,
+                "missing_visible_cells": 1,
+                "needed_cells": 2,
+                "visible_supply": 1,
+                "x": 4
+              }
+            ],
+            "quality": 1180,
+            "reserve_weights": {
+              "B": 0,
+              "G": 0,
+              "R": 2,
+              "Y": 2
+            },
+            "status": "reachable_color_completion_heuristic_not_executable_future",
+            "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+          },
+          "completed_moves": 3,
+          "expanded": 5646,
+          "future_unconfirmed_arrival": "unscheduled_not_dropped",
+          "horizon_complete": true,
+          "path": [
+            {
+              "all_clear_requires_observed_seed": false,
+              "cancelled": 0,
+              "chain_timing_source": "steam_15209927_calibrated_estimate",
+              "confirmed": 0,
+              "discarded": 0,
+              "dropped": 24,
+              "fall_distances": [],
+              "fall_features": [],
+              "field": [
+                "......",
+                ".....#",
+                ".....#",
+                ".....#",
+                ".....#",
+                ".....R",
+                ".....Y",
+                "...##R",
+                "..###R",
+                "..###B",
+                "#####B",
+                "###BRR",
+                "##YYBB",
+                "##YBRR"
+              ],
+              "frame": 30,
+              "garbage_phase": 0,
+              "link_points": [],
+              "links": [],
+              "needed_color_consumed": 0,
+              "placement_field": [
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                ".....R",
+                ".....Y",
+                ".....R",
+                ".....R",
+                ".....B",
+                ".....B",
+                "...BRR",
+                "..YYBB",
+                "..YBRR"
+              ],
+              "r": "D",
+              "remainder": 0,
+              "sent": 0,
+              "split_distances": [
+                0
+              ],
+              "split_extra_frames": 0,
+              "split_time_source": "measured_rows_0_to_9",
+              "unconfirmed": 0,
+              "x": 5
+            },
+            {
+              "all_clear_requires_observed_seed": false,
+              "cancelled": 0,
+              "chain_timing_source": "steam_15209927_calibrated_estimate",
+              "confirmed": 0,
+              "discarded": 0,
+              "dropped": 0,
+              "fall_distances": [],
+              "fall_features": [],
+              "field": [
+                "......",
+                ".....#",
+                ".....#",
+                ".....#",
+                ".....#",
+                ".....R",
+                ".....Y",
+                "...##R",
+                "..###R",
+                "BG###B",
+                "#####B",
+                "###BRR",
+                "##YYBB",
+                "##YBRR"
+              ],
+              "frame": 72,
+              "garbage_phase": 0,
+              "link_points": [],
+              "links": [],
+              "needed_color_consumed": 0,
+              "placement_field": [
+                "......",
+                ".....#",
+                ".....#",
+                ".....#",
+                ".....#",
+                ".....R",
+                ".....Y",
+                "...##R",
+                "..###R",
+                "BG###B",
+                "#####B",
+                "###BRR",
+                "##YYBB",
+                "##YBRR"
+              ],
+              "r": "R",
+              "remainder": 0,
+              "sent": 0,
+              "split_distances": [
+                0,
+                0
+              ],
+              "split_extra_frames": 0,
+              "split_time_source": "measured_rows_0_to_9",
+              "unconfirmed": 0,
+              "x": 0
+            },
+            {
+              "all_clear_requires_observed_seed": false,
+              "cancelled": 0,
+              "chain_timing_source": "steam_15209927_calibrated_estimate",
+              "confirmed": 0,
+              "discarded": 0,
+              "dropped": 0,
+              "fall_distances": [],
+              "fall_features": [],
+              "field": [
+                "......",
+                ".....#",
+                ".....#",
+                ".....#",
+                ".....#",
+                "....RR",
+                "....YY",
+                "...##R",
+                "..###R",
+                "BG###B",
+                "#####B",
+                "###BRR",
+                "##YYBB",
+                "##YBRR"
+              ],
+              "frame": 114,
+              "garbage_phase": 0,
+              "link_points": [],
+              "links": [],
+              "needed_color_consumed": 0,
+              "placement_field": [
+                "......",
+                ".....#",
+                ".....#",
+                ".....#",
+                ".....#",
+                "....RR",
+                "....YY",
+                "...##R",
+                "..###R",
+                "BG###B",
+                "#####B",
+                "###BRR",
+                "##YYBB",
+                "##YBRR"
+              ],
+              "r": "U",
+              "remainder": 0,
+              "sent": 0,
+              "split_distances": [
+                0
+              ],
+              "split_extra_frames": 0,
+              "split_time_source": "measured_rows_0_to_9",
+              "unconfirmed": 0,
+              "x": 4
+            }
+          ],
+          "rejected_dead": 0,
+          "searched_visible": 3,
+          "stopped_at_unknown_seed": false,
+          "value": 2533,
+          "timing_status": "steam_15209927_calibrated_chain_estimate_input_time_estimated"
+        },
+        "timing_calibrated": false,
+        "chain_timing_calibrated": true,
+        "model_status": "prototype_unverified_on_local_steam",
+        "normal_color_needs": {
+          "mainline": [
+            {
+              "chain": 3,
+              "color": "R",
+              "height": 3,
+              "missing_visible_cells": 0,
+              "needed_cells": 2,
+              "visible_supply": 2,
+              "x": 4
+            },
+            {
+              "chain": 3,
+              "color": "Y",
+              "height": 0,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 2,
+              "x": 1
+            },
+            {
+              "chain": 3,
+              "color": "Y",
+              "height": 2,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 2,
+              "x": 2
+            }
+          ],
+          "mainline_chain": 3,
+          "offsets": [
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 7,
+              "missing_visible_cells": 0,
+              "needed_cells": 2,
+              "visible_supply": 2,
+              "x": 5
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 2,
+              "missing_visible_cells": 2,
+              "needed_cells": 3,
+              "visible_supply": 1,
+              "x": 2
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 3,
+              "visible_supply": 1,
+              "x": 3
+            },
+            {
+              "chain": 2,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 1,
+              "needed_cells": 2,
+              "visible_supply": 1,
+              "x": 4
+            }
+          ],
+          "quality": 1180,
+          "reserve_weights": {
+            "B": 0,
+            "G": 0,
+            "R": 2,
+            "Y": 2
+          },
+          "status": "reachable_color_completion_heuristic_not_executable_future",
+          "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+        },
+        "normal_fire_policy": "initial_target",
+        "needed_color_consumed": 0,
+        "gauge_forecast": {
+          "gauge_after": 0,
+          "offset_links": 0,
+          "cancelled": 0,
+          "remaining_pending": 24
+        },
+        "entry_pending_after_chain": false,
+        "action": "place",
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "mode": "normal",
+        "decision_identity": {
+          "match_id": "mode-test",
+          "frame": 0,
+          "piece_id": 0,
+          "dropset_index": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        },
+        "provenance": {
+          "power": "player_measurement_transcribed",
+          "bonuses": "cross_title_reference_unverified_on_local_steam",
+          "local_steam_verified": false
+        },
+        "search_ms": 390.99999999962165,
+        "mode_timing_status": "normal_calibrated_input_estimated",
+        "margin_forecast": {
+          "rate_events": [],
+          "enemy_rate_events": [],
+          "status": "observed_rate_only_margin_setting_unknown",
+          "observed_target_point": 120,
+          "observed_changes": 0,
+          "margin_start_frame_bounds": null
+        },
+        "arrival": {
+          "chain_end_in": null,
+          "piece_frames": 42,
+          "measured_pace": null,
+          "pieces": 1
+        }
+      },
+      "wall_ms": [
+        408.02,
+        415.84,
+        402.95,
+        395.49,
+        408.99
+      ]
+    },
+    {
+      "case": "garbage_fallback",
+      "bounded": true,
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 0,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "arle",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....R",
+            ".....B",
+            ".....B",
+            "...BRR",
+            "..YYBB",
+            "..YBRR"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY",
+            "2:BG",
+            "2:YR"
+          ],
+          "confirmed": 24,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 24,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 250,
+          "beam_depth": 16
+        },
+        "decision_budget_ms": 100
+      },
+      "reply": {
+        "x": 3,
+        "r": "L",
+        "shape": "2",
+        "reason": "garbage_state_search",
+        "fire": true,
+        "fire_moves": 1,
+        "chain": 3,
+        "next_chain": 3,
+        "next_score": 1260,
+        "link_points": [
+          40,
+          320,
+          900
+        ],
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B"
+        ],
+        "placement_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B"
+        ],
+        "next_all_clear": false,
+        "all_clear_requires_observed_seed": false,
+        "nuisance_forecast": {
+          "beam_width": 250,
+          "budget_exhausted": true,
+          "choice": {
+            "all_clear_requires_observed_seed": false,
+            "cancelled": 11,
+            "chain_timing_source": "steam_15209927_calibrated_estimate",
+            "confirmed": 13,
+            "discarded": 0,
+            "dropped": 0,
+            "fall_distances": [
+              1,
+              2,
+              2
+            ],
+            "fall_features": [
+              {
+                "cleared_including_garbage": 4,
+                "distance_sum": 2,
+                "max_fall": 1,
+                "moving_columns": 1,
+                "moving_distances_by_column": [
+                  [],
+                  [],
+                  [],
+                  [
+                    1,
+                    1
+                  ],
+                  [],
+                  []
+                ],
+                "moving_puyos": 2
+              },
+              {
+                "cleared_including_garbage": 4,
+                "distance_sum": 8,
+                "max_fall": 2,
+                "moving_columns": 3,
+                "moving_distances_by_column": [
+                  [],
+                  [],
+                  [],
+                  [
+                    2
+                  ],
+                  [
+                    1
+                  ],
+                  [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                  ]
+                ],
+                "moving_puyos": 7
+              },
+              {
+                "cleared_including_garbage": 5,
+                "distance_sum": 8,
+                "max_fall": 2,
+                "moving_columns": 1,
+                "moving_distances_by_column": [
+                  [],
+                  [],
+                  [],
+                  [],
+                  [],
+                  [
+                    2,
+                    2,
+                    2,
+                    2
+                  ]
+                ],
+                "moving_puyos": 4
+              }
+            ],
+            "field": [
+              "......",
+              "......",
+              "......",
+              "......",
+              "......",
+              "......",
+              "......",
+              "......",
+              "......",
+              "......",
+              ".....R",
+              ".....R",
+              ".....B",
+              ".....B"
+            ],
+            "frame": 270,
+            "garbage_phase": 0,
+            "link_points": [
+              40,
+              320,
+              900
+            ],
+            "links": [
+              {
+                "colors": 1,
+                "groups": [
+                  4
+                ]
+              },
+              {
+                "colors": 1,
+                "groups": [
+                  4
+                ]
+              },
+              {
+                "colors": 1,
+                "groups": [
+                  5
+                ]
+              }
+            ],
+            "needed_color_consumed": 18,
+            "placement_field": [
+              "......",
+              "......",
+              "......",
+              "......",
+              "......",
+              "......",
+              "......",
+              "......",
+              "......",
+              "......",
+              ".....R",
+              ".....R",
+              ".....B",
+              ".....B"
+            ],
+            "r": "L",
+            "remainder": 60,
+            "sent": 0,
+            "split_distances": [
+              1,
+              0
+            ],
+            "split_extra_frames": 13,
+            "split_time_source": "measured_rows_0_to_9",
+            "unconfirmed": 0,
+            "x": 3
+          },
+          "color_needs": {
+            "mainline": [
+              {
+                "chain": 3,
+                "color": "R",
+                "height": 3,
+                "missing_visible_cells": 0,
+                "needed_cells": 2,
+                "visible_supply": 2,
+                "x": 4
+              },
+              {
+                "chain": 3,
+                "color": "Y",
+                "height": 0,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 2,
+                "x": 1
+              },
+              {
+                "chain": 3,
+                "color": "Y",
+                "height": 2,
+                "missing_visible_cells": 0,
+                "needed_cells": 1,
+                "visible_supply": 2,
+                "x": 2
+              }
+            ],
+            "mainline_chain": 3,
+            "offsets": [
+              {
+                "chain": 1,
+                "color": "R",
+                "height": 7,
+                "missing_visible_cells": 0,
+                "needed_cells": 2,
+                "visible_supply": 2,
+                "x": 5
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 2,
+                "missing_visible_cells": 2,
+                "needed_cells": 3,
+                "visible_supply": 1,
+                "x": 2
+              },
+              {
+                "chain": 1,
+                "color": "B",
+                "height": 3,
+                "missing_visible_cells": 2,
+                "needed_cells": 3,
+                "visible_supply": 1,
+                "x": 3
+              },
+              {
+                "chain": 2,
+                "color": "B",
+                "height": 3,
+                "missing_visible_cells": 1,
+                "needed_cells": 2,
+                "visible_supply": 1,
+                "x": 4
+              }
+            ],
+            "quality": 1180,
+            "reserve_weights": {
+              "B": 0,
+              "G": 0,
+              "R": 2,
+              "Y": 2
+            },
+            "status": "reachable_color_completion_heuristic_not_executable_future",
+            "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+          },
+          "completed_moves": 2,
+          "expanded": 1051,
+          "future_unconfirmed_arrival": "unscheduled_not_dropped",
+          "horizon_complete": false,
+          "path": [
+            {
+              "all_clear_requires_observed_seed": false,
+              "cancelled": 11,
+              "chain_timing_source": "steam_15209927_calibrated_estimate",
+              "confirmed": 13,
+              "discarded": 0,
+              "dropped": 0,
+              "fall_distances": [
+                1,
+                2,
+                2
+              ],
+              "fall_features": [
+                {
+                  "cleared_including_garbage": 4,
+                  "distance_sum": 2,
+                  "max_fall": 1,
+                  "moving_columns": 1,
+                  "moving_distances_by_column": [
+                    [],
+                    [],
+                    [],
+                    [
+                      1,
+                      1
+                    ],
+                    [],
+                    []
+                  ],
+                  "moving_puyos": 2
+                },
+                {
+                  "cleared_including_garbage": 4,
+                  "distance_sum": 8,
+                  "max_fall": 2,
+                  "moving_columns": 3,
+                  "moving_distances_by_column": [
+                    [],
+                    [],
+                    [],
+                    [
+                      2
+                    ],
+                    [
+                      1
+                    ],
+                    [
+                      1,
+                      1,
+                      1,
+                      1,
+                      1
+                    ]
+                  ],
+                  "moving_puyos": 7
+                },
+                {
+                  "cleared_including_garbage": 5,
+                  "distance_sum": 8,
+                  "max_fall": 2,
+                  "moving_columns": 1,
+                  "moving_distances_by_column": [
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [
+                      2,
+                      2,
+                      2,
+                      2
+                    ]
+                  ],
+                  "moving_puyos": 4
+                }
+              ],
+              "field": [
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                ".....R",
+                ".....R",
+                ".....B",
+                ".....B"
+              ],
+              "frame": 270,
+              "garbage_phase": 0,
+              "link_points": [
+                40,
+                320,
+                900
+              ],
+              "links": [
+                {
+                  "colors": 1,
+                  "groups": [
+                    4
+                  ]
+                },
+                {
+                  "colors": 1,
+                  "groups": [
+                    4
+                  ]
+                },
+                {
+                  "colors": 1,
+                  "groups": [
+                    5
+                  ]
+                }
+              ],
+              "needed_color_consumed": 18,
+              "placement_field": [
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                ".....R",
+                ".....R",
+                ".....B",
+                ".....B"
+              ],
+              "r": "L",
+              "remainder": 60,
+              "sent": 0,
+              "split_distances": [
+                1,
+                0
+              ],
+              "split_extra_frames": 13,
+              "split_time_source": "measured_rows_0_to_9",
+              "unconfirmed": 0,
+              "x": 3
+            },
+            {
+              "all_clear_requires_observed_seed": false,
+              "cancelled": 0,
+              "chain_timing_source": "steam_15209927_calibrated_estimate",
+              "confirmed": 0,
+              "discarded": 0,
+              "dropped": 13,
+              "fall_distances": [],
+              "fall_features": [],
+              "field": [
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                ".....#",
+                ".....#",
+                ".....G",
+                ".....R",
+                "#...#R",
+                "#####B",
+                "####BB"
+              ],
+              "frame": 338,
+              "garbage_phase": 1,
+              "link_points": [],
+              "links": [],
+              "needed_color_consumed": 18,
+              "placement_field": [
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                "......",
+                ".....G",
+                ".....R",
+                ".....R",
+                ".....B",
+                "....BB"
+              ],
+              "r": "R",
+              "remainder": 60,
+              "sent": 0,
+              "split_distances": [
+                4,
+                0
+              ],
+              "split_extra_frames": 25,
+              "split_time_source": "measured_rows_0_to_9",
+              "unconfirmed": 0,
+              "x": 4
+            }
+          ],
+          "rejected_dead": 0,
+          "searched_visible": 3,
+          "stopped_at_unknown_seed": false,
+          "value": -730,
+          "timing_status": "steam_15209927_calibrated_chain_estimate_input_time_estimated"
+        },
+        "timing_calibrated": false,
+        "chain_timing_calibrated": true,
+        "model_status": "prototype_unverified_on_local_steam",
+        "normal_color_needs": {
+          "mainline": [
+            {
+              "chain": 3,
+              "color": "R",
+              "height": 3,
+              "missing_visible_cells": 0,
+              "needed_cells": 2,
+              "visible_supply": 2,
+              "x": 4
+            },
+            {
+              "chain": 3,
+              "color": "Y",
+              "height": 0,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 2,
+              "x": 1
+            },
+            {
+              "chain": 3,
+              "color": "Y",
+              "height": 2,
+              "missing_visible_cells": 0,
+              "needed_cells": 1,
+              "visible_supply": 2,
+              "x": 2
+            }
+          ],
+          "mainline_chain": 3,
+          "offsets": [
+            {
+              "chain": 1,
+              "color": "R",
+              "height": 7,
+              "missing_visible_cells": 0,
+              "needed_cells": 2,
+              "visible_supply": 2,
+              "x": 5
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 2,
+              "missing_visible_cells": 2,
+              "needed_cells": 3,
+              "visible_supply": 1,
+              "x": 2
+            },
+            {
+              "chain": 1,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 2,
+              "needed_cells": 3,
+              "visible_supply": 1,
+              "x": 3
+            },
+            {
+              "chain": 2,
+              "color": "B",
+              "height": 3,
+              "missing_visible_cells": 1,
+              "needed_cells": 2,
+              "visible_supply": 1,
+              "x": 4
+            }
+          ],
+          "quality": 1180,
+          "reserve_weights": {
+            "B": 0,
+            "G": 0,
+            "R": 2,
+            "Y": 2
+          },
+          "status": "reachable_color_completion_heuristic_not_executable_future",
+          "supply_status": "visible_color_counts_shape_and_placement_not_guaranteed"
+        },
+        "normal_fire_policy": "initial_target",
+        "needed_color_consumed": 18,
+        "gauge_forecast": {
+          "gauge_after": 0,
+          "offset_links": 3,
+          "cancelled": 11,
+          "remaining_pending": 13
+        },
+        "entry_pending_after_chain": false,
+        "action": "place",
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "mode": "normal",
+        "decision_identity": {
+          "match_id": "mode-test",
+          "frame": 0,
+          "piece_id": 0,
+          "dropset_index": 0,
+          "mode_generation": 0,
+          "seed_id": 1
+        },
+        "provenance": {
+          "power": "player_measurement_transcribed",
+          "bonuses": "cross_title_reference_unverified_on_local_steam",
+          "local_steam_verified": false
+        },
+        "search_ms": 78.00000000133878,
+        "mode_timing_status": "normal_calibrated_input_estimated",
+        "margin_forecast": {
+          "rate_events": [],
+          "enemy_rate_events": [],
+          "status": "observed_rate_only_margin_setting_unknown",
+          "observed_target_point": 120,
+          "observed_changes": 0,
+          "margin_start_frame_bounds": null
+        },
+        "arrival": {
+          "chain_end_in": null,
+          "piece_frames": 42,
+          "measured_pace": null,
+          "pieces": 1
+        }
+      },
+      "wall_ms": [
+        88.08,
+        85.69,
+        86.77,
+        89.94,
+        88.3
+      ]
+    }
+  ],
+  "native_replay_variation": {
+    "case": 1046,
+    "replies": [
+      {
+        "chain": 4,
+        "eval": 2956,
+        "fire": false,
+        "next_all_clear": false,
+        "next_chain": 0,
+        "next_discarded": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....B",
+          ".....B",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "..YBRR"
+        ],
+        "next_score": 0,
+        "r": "U",
+        "shape": "2",
+        "solo": true,
+        "x": 5
+      },
+      {
+        "chain": 4,
+        "eval": 2956,
+        "fire": false,
+        "next_all_clear": false,
+        "next_chain": 0,
+        "next_discarded": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....B",
+          ".....B",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "..YBRR"
+        ],
+        "next_score": 0,
+        "r": "U",
+        "search_ms": 64.1383,
+        "shape": "2",
+        "solo": true,
+        "x": 5
+      },
+      {
+        "chain": 4,
+        "eval": 3040,
+        "fire": false,
+        "next_all_clear": false,
+        "next_chain": 0,
+        "next_discarded": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....B",
+          ".....B",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "..YBRR"
+        ],
+        "next_score": 0,
+        "r": "U",
+        "search_ms": 64.2492,
+        "shape": "2",
+        "solo": true,
+        "x": 5
+      },
+      {
+        "chain": 4,
+        "eval": 3040,
+        "fire": false,
+        "next_all_clear": false,
+        "next_chain": 0,
+        "next_discarded": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....B",
+          ".....B",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "..YBRR"
+        ],
+        "next_score": 0,
+        "r": "U",
+        "search_ms": 64.0497,
+        "shape": "2",
+        "solo": true,
+        "x": 5
+      },
+      {
+        "chain": 4,
+        "eval": 3040,
+        "fire": false,
+        "next_all_clear": false,
+        "next_chain": 0,
+        "next_discarded": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....B",
+          ".....B",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "..YBRR"
+        ],
+        "next_score": 0,
+        "r": "U",
+        "search_ms": 64.1156,
+        "shape": "2",
+        "solo": true,
+        "x": 5
+      },
+      {
+        "chain": 4,
+        "eval": 3040,
+        "fire": false,
+        "next_all_clear": false,
+        "next_chain": 0,
+        "next_discarded": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....B",
+          ".....B",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "..YBRR"
+        ],
+        "next_score": 0,
+        "r": "U",
+        "search_ms": 64.0127,
+        "shape": "2",
+        "solo": true,
+        "x": 5
+      },
+      {
+        "chain": 4,
+        "eval": 2956,
+        "fire": false,
+        "next_all_clear": false,
+        "next_chain": 0,
+        "next_discarded": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....B",
+          ".....B",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "..YBRR"
+        ],
+        "next_score": 0,
+        "r": "U",
+        "search_ms": 64.1061,
+        "shape": "2",
+        "solo": true,
+        "x": 5
+      },
+      {
+        "chain": 4,
+        "eval": 2956,
+        "fire": false,
+        "next_all_clear": false,
+        "next_chain": 0,
+        "next_discarded": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....B",
+          ".....B",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "..YBRR"
+        ],
+        "next_score": 0,
+        "r": "U",
+        "search_ms": 64.28,
+        "shape": "2",
+        "solo": true,
+        "x": 5
+      },
+      {
+        "chain": 4,
+        "eval": 3040,
+        "fire": false,
+        "next_all_clear": false,
+        "next_chain": 0,
+        "next_discarded": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....B",
+          ".....B",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "..YBRR"
+        ],
+        "next_score": 0,
+        "r": "U",
+        "search_ms": 64.0419,
+        "shape": "2",
+        "solo": true,
+        "x": 5
+      }
+    ]
+  }
+}

@@ -1,0 +1,263 @@
+{
+  "status": "actual_steam_countdown_read_failure",
+  "before": {
+    "sides": [
+      {
+        "frame": 0,
+        "player_state": 0,
+        "mode_phase": 0,
+        "field_phase": 8,
+        "link": 0,
+        "placed": 0,
+        "queue_hex": "00c320f6f77f00002035dfc28a010000b00130c38a01000000000000000000000000000000020000000200000002000000030000000200000002000000020000010300000002000001040000000300000004000000020000010400000103000000040000040204000000000000000000000000000000000000000000000000000000000000000000000000000000000000ff000000000000005953490000000000020000010000000200000001000000010000000000000000000000000000000000000000000000000200000300000002000000030000000300000000000000",
+        "active_hex": "c0d220f6f77f000000000000000000002875dfc28a0100006035dfc28a01000000000000fff5f5d52035dfc28a010000a838dfc28a0100001877dfc28a0100005078dfc28a0100008879dfc28a010000c07adfc28a0100000000000000000000000000000000000000000000000000000000000000000000000080bf000040c0000080bf000040c0000080bf000040c0000080bf000040c0000000000000922400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000aaa200000000000092240000000000000000000000000000000000007fb700000000000000000100000000bf00000000bfaf000000000000000000000000000000aa0000000001499224",
+        "queue_error": "unknown piece header 00000000",
+        "opening": "Queue(cycle='222L222J24L024J0', index=0, pieces=(Piece(shape='2', colours='RG'), Piece(shape='2', colours='BG')))",
+        "active_error": "unknown piece header 00000000",
+        "capture_error": "unknown piece header 00000000"
+      },
+      {
+        "frame": 0,
+        "player_state": 0,
+        "mode_phase": 0,
+        "field_phase": 8,
+        "link": 0,
+        "placed": 0,
+        "queue_hex": "00c320f6f77f0000f87bdfc28a010000b00130c38a01000000000000000000000000000000020000000200000002000000020000000300000002000000020000000200000002000000040000000200000002000000020000000200000002000001040000040204000000000000000000000000000000000000000000000000000000000000000000000000000000000000559a552a2aa2aa000049920000000000020000010000000200000001000000010000000000000000000000000000000000000000000000000200000300000002000000030000000300000000000000",
+        "active_hex": "c0d220f6f77f0000000000000000000000bcdfc28a010000387cdfc28a0100000000000000000000f87bdfc28a010000807fdfc28a010000f0bddfc28a01000028bfdfc28a01000060c0dfc28a01000098c1dfc28a0100000000000000000000000000000000000000000000000000000000000000000000000080bf000040c0000080bf000040c0000080bf000040c0000080bf000040c0000000000000fcf9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fffd00000000000000000000000000000000000000000000000000ef00000100000000ff000000000000000000000000000000000000000000000000000001aeeaaa",
+        "queue_error": "unknown piece header 00000000",
+        "opening": "Queue(cycle='2222L22220222224', index=0, pieces=(Piece(shape='2', colours='RG'), Piece(shape='2', colours='BG')))",
+        "active_error": "unknown piece header 00000000",
+        "capture_error": "unknown piece header 00000000"
+      }
+    ]
+  },
+  "first_readable": {
+    "sides": [
+      {
+        "frame": 13,
+        "player_state": 1,
+        "mode_phase": 2,
+        "field_phase": 0,
+        "link": 0,
+        "placed": 0,
+        "queue_hex": "00c320f6f77f00002035dfc28a010000b00130c38a01000000000000000000400000000000020000000200000002000000030000000200000002000000020000010300000002000001040000000300000004000000020000010400000103000000040000040306000002000001000000020000000100000001000000000000000000000000000000000000000000000000ff000000000000005953490000000000020000030000000200000003000000030000000000000000000000000000000000000000000000000200000400000003000000040000000400000000000000",
+        "active_hex": "c0d220f6f77f000000000000000000002875dfc28a0100006035dfc28a01000000000000fff5f5d52035dfc28a010000a838dfc28a0100001877dfc28a0100005078dfc28a0100008879dfc28a010000c07adfc28a0100000000000000000000000000000000000000000000000000000000000000000000000080bf000040c0000080bf000040c0000080bf000040c0000080bf000040c00000000002019224000000000002000001000000020000000100000001000000000000000000000000000000000000000000000000000040000000bf000000000000000000000040000000bf0000aaa200000000030392240000000000000000000000000000000000007fb700000000000000000100000000bf00000000bfaf000000000000000000000000000000aa0000000001499224",
+        "queue": "Queue(cycle='222L222J24L024J0', index=0, pieces=(Piece(shape='2', colours='RG'), Piece(shape='2', colours='BG'), Piece(shape='2', colours='YB')))",
+        "opening_error": "not the opening queue",
+        "active": "Active(piece=Piece(shape='2', colours='RG'), cells=((-1.0, -3.0), (-1.0, -3.0)), rotation=0, grounded=0, placed=0)",
+        "capture": {
+          "mode": "normal",
+          "gauge": 0,
+          "gauge_previous": 0,
+          "gauge_initial": 0,
+          "target_point": 120,
+          "character_index": 24,
+          "raw_clock_frames": 960,
+          "raw_initial_frames": 960,
+          "raw_maximum_frames": 1860,
+          "raw_deadline_frame": 0,
+          "timer_active": false,
+          "timer_frozen": false,
+          "clock_status": "raw_internal_frames_display_and_protocol_conversion_unverified",
+          "character": "rafisol",
+          "address": "0x18ac2df3520",
+          "frame": 13,
+          "player_state": 1,
+          "field_phase": 0,
+          "mode_phase": 2,
+          "link": 0,
+          "field_settled": true,
+          "queue": {
+            "cycle": "222L222J24L024J0",
+            "index": 0,
+            "visible": [
+              "2:RG",
+              "2:BG",
+              "2:YB"
+            ],
+            "phase": "current_plus_next2"
+          },
+          "active": {
+            "piece": "2:RG",
+            "cells": [
+              [
+                -1.0,
+                -3.0
+              ],
+              [
+                -1.0,
+                -3.0
+              ]
+            ],
+            "rotation": 0,
+            "grounded": 0,
+            "placed": 0
+          },
+          "normal_nuisance": {
+            "confirmed": 0,
+            "unconfirmed": 0
+          },
+          "fever_nuisance": {
+            "confirmed": 0,
+            "unconfirmed": 0
+          },
+          "active_gauge_index": 0,
+          "remainder": 0,
+          "total_score": 0,
+          "stored_field": null,
+          "seed_requested_chain": 0,
+          "seed_last_chain": 5,
+          "field_counter_candidate": 0,
+          "status": "read_only_calibration_not_ready_for_live_input",
+          "cpu": false,
+          "settled_field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "resting_field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "chain_trigger_field": null
+        }
+      },
+      {
+        "frame": 13,
+        "player_state": 1,
+        "mode_phase": 2,
+        "field_phase": 0,
+        "link": 0,
+        "placed": 0,
+        "queue_hex": "00c320f6f77f0000f87bdfc28a010000b00130c38a01000000000000000000400000000000020000000200000002000000020000000300000002000000020000000200000002000000040000000200000002000000020000000200000002000001040000040306000002000001000000020000000100000001000000000000000000000000000000000000000000000000559a552a2aa2aa000049920000000000020000030000000200000003000000030000000000000000000000000000000000000000000000000200000400000003000000040000000400000000000000",
+        "active_hex": "c0d220f6f77f0000000000000000000000bcdfc28a010000387cdfc28a0100000000000000000000f87bdfc28a010000807fdfc28a010000f0bddfc28a01000028bfdfc28a01000060c0dfc28a01000098c1dfc28a0100000000000000000000000000000000000000000000000000000000000000000000000080bf000040c0000080bf000040c0000080bf000040c0000080bf000040c0000000000201fcf9000000000002000001000000020000000100000001000000000000000000000000000000000000000000000000000040000000bf000000000000000000000040000000bf00000000000000000303fffd00000000000000000000000000000000000000000000000000ef00000100000000ff000000000000000000000000000000000000000000000000000001aeeaaa",
+        "queue": "Queue(cycle='2222L22220222224', index=0, pieces=(Piece(shape='2', colours='RG'), Piece(shape='2', colours='BG'), Piece(shape='2', colours='YB')))",
+        "opening_error": "not the opening queue",
+        "active": "Active(piece=Piece(shape='2', colours='RG'), cells=((-1.0, -3.0), (-1.0, -3.0)), rotation=0, grounded=0, placed=0)",
+        "capture": {
+          "mode": "normal",
+          "gauge": 0,
+          "gauge_previous": 0,
+          "gauge_initial": 0,
+          "target_point": 120,
+          "character_index": 13,
+          "raw_clock_frames": 960,
+          "raw_initial_frames": 960,
+          "raw_maximum_frames": 1860,
+          "raw_deadline_frame": 0,
+          "timer_active": false,
+          "timer_frozen": false,
+          "clock_status": "raw_internal_frames_display_and_protocol_conversion_unverified",
+          "character": "ally",
+          "address": "0x18ac2df7bf8",
+          "frame": 13,
+          "player_state": 1,
+          "field_phase": 0,
+          "mode_phase": 2,
+          "link": 0,
+          "field_settled": true,
+          "queue": {
+            "cycle": "2222L22220222224",
+            "index": 0,
+            "visible": [
+              "2:RG",
+              "2:BG",
+              "2:YB"
+            ],
+            "phase": "current_plus_next2"
+          },
+          "active": {
+            "piece": "2:RG",
+            "cells": [
+              [
+                -1.0,
+                -3.0
+              ],
+              [
+                -1.0,
+                -3.0
+              ]
+            ],
+            "rotation": 0,
+            "grounded": 0,
+            "placed": 0
+          },
+          "normal_nuisance": {
+            "confirmed": 0,
+            "unconfirmed": 0
+          },
+          "fever_nuisance": {
+            "confirmed": 0,
+            "unconfirmed": 0
+          },
+          "active_gauge_index": 0,
+          "remainder": 0,
+          "total_score": 0,
+          "stored_field": null,
+          "seed_requested_chain": 0,
+          "seed_last_chain": 5,
+          "field_counter_candidate": 0,
+          "status": "read_only_calibration_not_ready_for_live_input",
+          "cpu": false,
+          "settled_field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "resting_field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "chain_trigger_field": null
+        }
+      }
+    ]
+  }
+}

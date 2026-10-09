@@ -1,0 +1,295 @@
+diff --git a/data/fever/battle_policy.json b/data/fever/battle_policy.json
+index 88041bb..5740ce0 100644
+--- a/data/fever/battle_policy.json
++++ b/data/fever/battle_policy.json
+@@ -44,7 +44,9 @@
+       "exposed": 700,
+       "pending": 0,
+       "uncountered": 2500,
+-      "mainline_min": 4
++      "mainline_min": 4,
++      "spare": 150,
++      "answered": 2500
+     }
+   },
+   "fever_seed": {
+diff --git a/fever/stock.h b/fever/stock.h
+index c9fa3d6..3206973 100644
+--- a/fever/stock.h
++++ b/fever/stock.h
+@@ -96,6 +96,114 @@ inline Result evaluate(Field field, i32 want)
+     return result;
+ };
+ 
++// The longest chain one trigger of the board fires. `fired` gets the board with that trigger placed.
++inline i32 longest(Field field, Field* fired = nullptr)
++{
++    u8 heights[6];
++    field.get_heights(heights);
++
++    i32 best = 0;
++
++    for (i8 x = 0; x < 6; ++x) {
++        i32 drop_max = std::min(3, 12 - i32(heights[x]));
++
++        for (u8 p = 0; p < cell::COUNT - 1; ++p) {
++            auto plan = field;
++
++            for (i32 need = 1; need <= drop_max; ++need) {
++                plan.data[p].set_bit(x, heights[x] + need - 1);
++
++                if (plan.data[p].get_mask_group_4(x, heights[x]).get_count() < 4) {
++                    continue;
++                }
++
++                auto remain = plan;
++                i32 links = remain.pop_count();
++
++                if (links > best) {
++                    best = links;
++
++                    if (fired) {
++                        *fired = plan;
++                    }
++                }
++
++                break;
++            }
++        }
++    }
++
++    return best;
++};
++
++struct Spare
++{
++    i32 units = 0; // Links weighted as in Result
++    i32 links = 0;
++};
++
++// A trigger longer than this is a chain of its own, not something to offset with beside the main chain
++constexpr i32 SPARE_CHAIN = 2;
++
++// Spare stock: links the board pops, one small trigger after another, that leave its longest chain as
++// long as it is. This is what offsets nuisance while the main chain stays on the board.
++inline Spare spare(Field field, i32 want)
++{
++    Spare result;
++
++    const i32 keep = longest(field);
++
++    for (i32 round = 0; round < ROUNDS && result.links < want; ++round) {
++        u8 heights[6];
++        field.get_heights(heights);
++
++        i32 best_need = 4;
++        i32 best_links = 0;
++        Field best_remain;
++
++        for (i8 x = 0; x < 6; ++x) {
++            i32 drop_max = std::min(3, 12 - i32(heights[x]));
++
++            for (u8 p = 0; p < cell::COUNT - 1; ++p) {
++                auto plan = field;
++
++                for (i32 need = 1; need <= drop_max; ++need) {
++                    plan.data[p].set_bit(x, heights[x] + need - 1);
++
++                    if (plan.data[p].get_mask_group_4(x, heights[x]).get_count() < 4) {
++                        continue;
++                    }
++
++                    if (need < best_need) {
++                        auto remain = plan;
++                        i32 links = remain.pop_count();
++
++                        if (links <= SPARE_CHAIN && longest(remain) >= keep) {
++                            best_need = need;
++                            best_links = links;
++                            best_remain = remain;
++                        }
++                    }
++
++                    break;
++                }
++            }
++        }
++
++        if (best_links <= 0) {
++            break;
++        }
++
++        i32 taken = std::min(best_links, want - result.links);
++
++        result.links += taken;
++        result.units += taken * UNITS[best_need];
++        field = best_remain;
++    }
++
++    return result;
++};
++
+ };
+ 
+ };
+diff --git a/fever_battle/main.cpp b/fever_battle/main.cpp
+index 9d9b9ad..1cc9d1b 100644
+--- a/fever_battle/main.cpp
++++ b/fever_battle/main.cpp
+@@ -196,6 +196,17 @@ json answer(const json& request)
+         const auto stock = fever::stock::evaluate(field, bounded_integer(request.at("want"), 1, 7, "want"));
+         return {{"units", stock.units}, {"links", stock.links}, {"colors", stock.colors}, {"longest", stock.longest}};
+     }
++    if (op == "spare") {
++        // What the board can offset with while its longest chain stays (fever/stock.h).
++        const auto spare = fever::stock::spare(field, bounded_integer(request.at("want"), 1, 7, "want"));
++        return {{"units", spare.units}, {"links", spare.links}};
++    }
++    if (op == "holding") {
++        // The longest chain one trigger of the board fires, link by link, for the caller to score.
++        Field fired;
++        const int longest = fever::stock::longest(field, &fired);
++        return {{"longest", longest}, {"links", longest ? resolve(fired)["links"] : json::array()}};
++    }
+     if (op == "resolve") return resolve(field);
+     if (op != "placements" && op != "transition" && op != "finish_probe" && op != "closing_transition") throw std::invalid_argument("unknown operation");
+     auto piece = fever::text::to_piece(request.at("piece").get<std::string>());
+diff --git a/fever_battle/mode_engine.py b/fever_battle/mode_engine.py
+index a2d7577..7d05da6 100644
+--- a/fever_battle/mode_engine.py
++++ b/fever_battle/mode_engine.py
+@@ -377,10 +377,25 @@ class ModeBattleEngine(BattleEngine):
+             except ValueError:
+                 builder = None      # nothing the builder plays survives; the search decides alone
+         reply = tactics.choose(self.native, self.scoring, own, rate, request['gauge_gain_on_offset'],
+-            policy, events, enemy, self.margin, allowed, builder)
++            policy, events, enemy, self.margin, allowed, builder, self._enemy_hold(enemy, events, rate))
+         # A position every placement loses belongs to the finish probe below.
+         return None if reply is None or reply['selected_move_loses'] else reply
+ 
++    def _enemy_hold(self, enemy, events, rate):
++        """Nuisance the opponent's longest chain would send from their normal board, as it stands.
++
++        A measure of the board (one trigger of up to three puyos in one column),
++        not of their pieces. Zero while they are in Fever or their chain is
++        running: what they hold then is not this board's.
++        """
++        if enemy['mode'] != 'normal' or events:
++            return 0
++        try:
++            links = self.native.ask(dict(op='holding', field=enemy['field']))['links']
++        except ValueError:
++            return 0        # a board in motion is not measured
++        return sum(self.scoring.chain(enemy['character'], links)) // rate
++
+     def _quiet_carry_limit(self, own):
+         """Nuisance the stored normal board takes on return without harm, on every column subset."""
+         for count in range(self.policy.get('fever_end', {}).get('harmless_carry', 5), 0, -1):
+diff --git a/fever_battle/tactics.cpp b/fever_battle/tactics.cpp
+index 0e21537..000f1ec 100644
+--- a/fever_battle/tactics.cpp
++++ b/fever_battle/tactics.cpp
+@@ -17,6 +17,7 @@ using json = nlohmann::json;
+ namespace {
+ struct Weights {
+     i64 entry, gauge, stock, color, drop, consume, mainline, height, early, builder, step, exposed, pending, uncountered, mainline_min;
++    i64 spare, answered;
+     explicit Weights(const json& j):
+         entry(number(j, "entry", 0, 1000000)), gauge(number(j, "gauge", 0, 1000000)),
+         stock(number(j, "stock", 0, 1000000)), color(number(j, "color", 0, 1000000)),
+@@ -25,7 +26,8 @@ struct Weights {
+         early(number(j, "early", 0, 1000000)), builder(number(j, "builder", 0, 1000000)),
+         step(number(j, "step", 0, 1000000)), exposed(number(j, "exposed", 0, 1000000)),
+         pending(number(j, "pending", 0, 1000000)), uncountered(number(j, "uncountered", 0, 1000000)),
+-        mainline_min(number(j, "mainline_min", 1, 19)) {}
++        mainline_min(number(j, "mainline_min", 1, 19)),
++        spare(number(j, "spare", 0, 1000000)), answered(number(j, "answered", 0, 1000000)) {}
+ };
+ struct Node {
+     Field field;
+@@ -59,9 +61,10 @@ public:
+     const Weights* w = nullptr;
+     rule::Rule rules = rule::FEVER;
+     bool unknown_phase = false, geometry = false;
+-    int gain = 1, root_gauge = 0, root_longest = 0, width = 16, expanded = 0, max_nodes = 1500;
++    int gain = 1, root_gauge = 0, root_longest = 0, root_spare = 0, width = 16, expanded = 0, max_nodes = 1500;
+     int placement = 14, pop = 55, settle = 14, fall = 2, spawn = 28, score_offset = 0;
+     int first_link = 0, chain_ready = 0, check = 0;
++    i64 enemy_hold = 0;             // nuisance the opponent's own longest chain would send
+     json split_costs = json::array();
+     std::chrono::steady_clock::time_point deadline;
+ 
+@@ -157,10 +160,22 @@ public:
+             - std::min<i64>(60, n.fixed + n.flying) * w->pending;
+         // A main chain spent on a packet it does not clear is gone and the packet is not.
+         if (root_longest >= w->mainline_min && n.fixed + n.flying > 0) value -= i64(spent) * w->uncountered;
++        // A main chain the opponent's own chain outdoes is answered: theirs clears
++        // what it sent and the rest comes back to a board with nothing on it.
++        if (root_longest >= w->mainline_min && enemy_hold > n.enemy_fixed + n.enemy_flying)
++            value -= i64(spent) * w->answered;
++        // Entering Fever does not pay for the main chain: the board entered
++        // from is the board returned to, and the chain is what decides there.
++        value -= i64(spent) * w->mainline;
+         if (entered) return {true, value + w->entry, n.gauge};
+         u8 heights[6]; field.get_heights(heights);
+-        value += stock.units * w->stock + stock.colors * w->color
+-            - i64(spent) * w->mainline
++        // What offsets beside the main chain is what lets it stay through a packet.
++        // No more of it counts than there is nuisance left to meet. The builder's
++        // own fire is charged for neither: it is its policy that fires.
++        const i64 outstanding = n.fixed + n.flying;
++        const i64 spare = w->spare == 0 || outstanding == 0 ? 0 : std::min<i64>(outstanding, n.builder_fire
++            ? root_spare : fever::stock::spare(field, std::max(1, 7 - n.gauge)).units);
++        value += stock.units * w->stock + stock.colors * w->color + spare * w->spare
+             - i64(std::max(0, int(std::max(heights[2], heights[3])) - 8)) * w->height
+             - i64(n.early) * w->early;
+         // Nuisance still pending falls on the next placement that pops nothing.
+@@ -259,6 +274,7 @@ json tactics(Field field, const json& request) {
+     search.width = number(request, "width", 1, 64);
+     search.max_nodes = number(request, "max_nodes", 1, 1000000);
+     search.unknown_phase = request.value("unknown_garbage_phase", false);
++    search.enemy_hold = request.contains("enemy_hold") ? number(request, "enemy_hold", 0, 1000000000) : 0;
+     const auto& timing = request.at("timing");
+     search.placement = number(timing, "placement_frames", 1, 10000);
+     search.pop = number(timing, "pop_frames", 1, 10000);
+@@ -288,6 +304,7 @@ json tactics(Field field, const json& request) {
+     search.root_gauge = root.gauge;
+     const auto root_stock = fever::stock::evaluate(field, 7 - root.gauge);
+     search.root_longest = root_stock.longest;
++    search.root_spare = fever::stock::spare(field, 7 - root.gauge).units;
+     search.deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(number(request, "budget_ms", 1, 1000));
+ 
+     // The builder's own placement: it knows the build further ahead than the
+@@ -369,7 +386,9 @@ json tactics(Field field, const json& request) {
+         {"completed_depth", completed}, {"visible", queue.size()}, {"expanded", search.expanded}, {"cutoff", cutoff},
+         {"deeper_pass_skipped", skipped},
+         {"root_stock", {{"units", root_stock.units}, {"links", root_stock.links},
+-            {"colors", root_stock.colors}, {"longest", root_stock.longest}}},
++            {"colors", root_stock.colors}, {"longest", root_stock.longest},
++            {"spare_units", search.root_spare}}},
++        {"enemy_hold", search.enemy_hold},
+         {"unknown_drop_policy", "worst_column_choice_then_reobserve"},
+         {"future_unconfirmed_arrival", search.events.empty() ? "unscheduled_not_dropped" : "predicted_chain_timeline"}};
+ }
+diff --git a/fever_battle/tactics.py b/fever_battle/tactics.py
+index ef78352..7595bb2 100644
+--- a/fever_battle/tactics.py
++++ b/fever_battle/tactics.py
+@@ -22,7 +22,7 @@ def kind(choice):
+ 
+ 
+ def choose(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=None, margin=None,
+-           allowed=None, builder=None):
++           allowed=None, builder=None, enemy_hold=0):
+     """The reply for this piece, or None when no placement can be played at all."""
+     opponent, margin = enemy or {}, margin or {}
+     held = opponent.get('mode') == 'fever'
+@@ -34,7 +34,7 @@ def choose(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=No
+         enemy_events=enemy_events or [],
+         enemy_confirmed=opponent.get('confirmed', 0) + (opponent.get('normal_confirmed', 0) if held else 0),
+         enemy_unconfirmed=opponent.get('unconfirmed', 0) + (opponent.get('normal_unconfirmed', 0) if held else 0),
+-        enemy_remainder=opponent.get('remainder', 0),
++        enemy_remainder=opponent.get('remainder', 0), enemy_hold=enemy_hold,
+         timing=ChainTiming().native(), powers=scoring.data['characters'][own['character']]['normal'],
+         bonuses=scoring.data['bonuses'], weights=policy['weights'],
+         width=policy.get('width', 12), max_nodes=policy.get('max_nodes', 1500),

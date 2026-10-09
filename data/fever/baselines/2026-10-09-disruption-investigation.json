@@ -1,0 +1,513 @@
+{
+  "kind": "source investigation and offline reproductions; no game input",
+  "native_sha256": "90353c6fba534334f5658d0c6e3d7b2c8b835e428189e38b55b0d54f09fa6860",
+  "amount_cases": [
+    {
+      "rate": 30,
+      "enemy_hold": 0,
+      "chain": 1,
+      "sent": 1,
+      "attack_end": 105,
+      "projected_disrupt": 1.0,
+      "value": 2232,
+      "remaining_cells": 29,
+      "enemy_trays": {
+        "destination": "fever",
+        "fever_confirmed": 1,
+        "fever_unconfirmed": 0,
+        "normal_confirmed": 0,
+        "normal_unconfirmed": 0
+      }
+    },
+    {
+      "rate": 3,
+      "enemy_hold": 0,
+      "chain": 1,
+      "sent": 13,
+      "attack_end": 105,
+      "projected_disrupt": 1.0,
+      "value": 2232,
+      "remaining_cells": 29,
+      "enemy_trays": {
+        "destination": "fever",
+        "fever_confirmed": 13,
+        "fever_unconfirmed": 0,
+        "normal_confirmed": 0,
+        "normal_unconfirmed": 0
+      }
+    },
+    {
+      "rate": 30,
+      "enemy_hold": 1000,
+      "chain": 1,
+      "sent": 1,
+      "attack_end": 105,
+      "projected_disrupt": 1.0,
+      "value": 2232,
+      "remaining_cells": 29,
+      "enemy_trays": {
+        "destination": "fever",
+        "fever_confirmed": 1,
+        "fever_unconfirmed": 0,
+        "normal_confirmed": 0,
+        "normal_unconfirmed": 0
+      }
+    }
+  ],
+  "entry_window_reuse": {
+    "current_target": {
+      "enemy_fever": true,
+      "enemy_seed_level": 3,
+      "enemy_fever_at": 0,
+      "their_end": 0,
+      "disrupt_window": 42,
+      "enemy_entry_status": "observed_destination_switch"
+    },
+    "attack_duration": 100,
+    "stored_window": 122,
+    "accepted": true,
+    "fits_current_window": false
+  },
+  "early_timing_guard": {
+    "elapsed": 150,
+    "enemy_seed_changed": true,
+    "accepted": true
+  },
+  "signature_without_enemy_chain": {
+    "enemy_seed_changed": true,
+    "same": true
+  },
+  "seed_fire_timing_guard": {
+    "accepted": true
+  },
+  "real_prepare_reuse": {
+    "prepared": true,
+    "reused": true,
+    "reason": "tactics_disrupt",
+    "chain": 1,
+    "elapsed": 80,
+    "attack_end": 105,
+    "current_window": 42,
+    "stored_window": 122
+  },
+  "log": {
+    "source": "bin\\fever_battle\\disruption-investigation-input.log",
+    "plans": 1116,
+    "disruptions": 3,
+    "cases": [
+      {
+        "planning": {
+          "auto": "planning",
+          "mode": "normal",
+          "pair": 35,
+          "cache": "early",
+          "wait_ms": 16.0,
+          "search_ms": 93.99999999732245,
+          "search_reused": false,
+          "normal_build_search_reused": false,
+          "normal_build_searched_visible": null,
+          "normal_fire_policy": "initial_target",
+          "normal_chain_max": 8,
+          "decision_budget_ms": 100,
+          "normal_build_target_chain": 15,
+          "normal_fire_required_chain": 15,
+          "searched_visible": 3,
+          "beam_width": 250,
+          "beam_depth": 8,
+          "margin": 1,
+          "trigger": 15,
+          "panic_chain": 13,
+          "panic_count": 70,
+          "panic_step": 2,
+          "patience": 46,
+          "queue": [
+            "2:YR",
+            "L:YYY",
+            "2:YB"
+          ],
+          "field": "....../....../....../....../....../....../R...../RB..../#B...G/RB...R/RG...R/YG...Y/YBY.BB/RRY.BR",
+          "move": "3U",
+          "reason": "tactics_disrupt",
+          "nuisance": [
+            0,
+            158
+          ],
+          "gauge": 5,
+          "remaining_frames": 0,
+          "tray": [
+            0,
+            0
+          ],
+          "enemy_chain": true,
+          "arrival": {
+            "chain_end_in": 66,
+            "piece_frames": 55,
+            "measured_pace": 55,
+            "pieces": 2
+          },
+          "held": [
+            0,
+            0
+          ],
+          "seed": [
+            5,
+            5
+          ],
+          "stored": null,
+          "enemy": {
+            "mode": "normal",
+            "gauge": 7,
+            "field": "....../RY..../BY..../BR..../BRYB../YBRG../YYBBGR/RRBYGG/RB##YY/GB##YG/BGY###/BRBR##/GGRYRY/RGYYRB",
+            "tray": [
+              158,
+              0
+            ],
+            "held": [
+              158,
+              0
+            ],
+            "remaining_frames": 0,
+            "seed_chain": 5,
+            "piece_id": 40
+          },
+          "tactics": {
+            "longest": 2,
+            "enemy_hold": 0,
+            "own_hold": 32,
+            "kill": 0.0,
+            "sent": 0,
+            "cancelled": 0,
+            "gauge": 5,
+            "due": false,
+            "depth": 3,
+            "disrupt": 1.0,
+            "attack_end": -1,
+            "enemy_seed_at": 82,
+            "disrupt_window": 122
+          },
+          "press": null,
+          "decision_identity": {
+            "match_id": "4cde877f6a214f0b9b388213cd9a021e-round-6",
+            "frame": 2931,
+            "piece_id": 35,
+            "dropset_index": 3,
+            "mode_generation": 0,
+            "seed_id": 0
+          },
+          "ai": 2,
+          "t": 653.563
+        },
+        "fire": null
+      },
+      {
+        "planning": {
+          "auto": "planning",
+          "mode": "normal",
+          "pair": 36,
+          "cache": "early",
+          "wait_ms": 0.0,
+          "search_ms": 78.00000000133878,
+          "search_reused": false,
+          "normal_build_search_reused": false,
+          "normal_build_searched_visible": null,
+          "normal_fire_policy": "initial_target",
+          "normal_chain_max": 8,
+          "decision_budget_ms": 100,
+          "normal_build_target_chain": 15,
+          "normal_fire_required_chain": 15,
+          "searched_visible": 3,
+          "beam_width": 250,
+          "beam_depth": 8,
+          "margin": 1,
+          "trigger": 15,
+          "panic_chain": 13,
+          "panic_count": 70,
+          "panic_step": 2,
+          "patience": 46,
+          "queue": [
+            "L:YYY",
+            "2:YB",
+            "2:RG"
+          ],
+          "field": "....../....../....../....../....../....../R...../RB..../#B...G/RB...R/RG...R/YG...Y/YBYRBB/RRYYBR",
+          "move": "2U",
+          "reason": "tactics_disrupt",
+          "nuisance": [
+            0,
+            155
+          ],
+          "gauge": 5,
+          "remaining_frames": 0,
+          "tray": [
+            0,
+            0
+          ],
+          "enemy_chain": true,
+          "arrival": {
+            "chain_end_in": 12,
+            "piece_frames": 54,
+            "measured_pace": 54,
+            "pieces": 1
+          },
+          "held": [
+            0,
+            0
+          ],
+          "seed": [
+            5,
+            5
+          ],
+          "stored": null,
+          "enemy": {
+            "mode": "normal",
+            "gauge": 7,
+            "field": "....../RY..../BY..../BR..../BRYB../YBRG../YYBBGR/RRBYGG/RB##YY/GB##YG/BGY###/BRBR##/GGRYRY/RGYYRB",
+            "tray": [
+              155,
+              0
+            ],
+            "held": [
+              155,
+              0
+            ],
+            "remaining_frames": 0,
+            "seed_chain": 5,
+            "piece_id": 40
+          },
+          "tactics": {
+            "longest": 2,
+            "enemy_hold": 0,
+            "own_hold": 28,
+            "kill": 0.0,
+            "sent": 1,
+            "cancelled": 0,
+            "gauge": 5,
+            "due": false,
+            "depth": 3,
+            "disrupt": 1.0,
+            "attack_end": 99,
+            "enemy_seed_at": 28,
+            "disrupt_window": 122
+          },
+          "press": null,
+          "decision_identity": {
+            "match_id": "4cde877f6a214f0b9b388213cd9a021e-round-6",
+            "frame": 2985,
+            "piece_id": 36,
+            "dropset_index": 4,
+            "mode_generation": 0,
+            "seed_id": 0
+          },
+          "ai": 2,
+          "t": 654.438
+        },
+        "fire": {
+          "auto": "fire",
+          "pair": 36,
+          "placed": 36,
+          "index": 4,
+          "piece": "L:YYY",
+          "mode": "normal",
+          "x": 2,
+          "r": "U",
+          "target": [
+            2,
+            0
+          ],
+          "chain": 1,
+          "score": 120,
+          "next_chain": 1,
+          "pre": "D",
+          "pre_ms": [
+            null,
+            125,
+            null
+          ],
+          "on_target": true,
+          "aligned": true,
+          "aim_ms": 0,
+          "way": "direct",
+          "path": [],
+          "frame": 2997,
+          "lock_ms": 297,
+          "ai": 2,
+          "t": 654.75
+        }
+      },
+      {
+        "planning": {
+          "auto": "planning",
+          "mode": "normal",
+          "pair": 79,
+          "cache": "prefetched",
+          "wait_ms": 0.0,
+          "search_ms": 0.0,
+          "search_reused": true,
+          "normal_build_search_reused": false,
+          "normal_build_searched_visible": null,
+          "normal_fire_policy": "fill_then_fire",
+          "normal_chain_max": 4,
+          "decision_budget_ms": 100,
+          "normal_build_target_chain": 19,
+          "normal_fire_required_chain": 19,
+          "searched_visible": 2,
+          "beam_width": 250,
+          "beam_depth": 8,
+          "margin": 1,
+          "trigger": 15,
+          "panic_chain": 13,
+          "panic_count": 70,
+          "panic_step": 2,
+          "patience": 46,
+          "queue": [
+            "0:Y",
+            "2:BB",
+            "2:BB"
+          ],
+          "field": "....../....../.....Y/.....Y/.....G/.....G/...Y.R/...RGR/...YGB/...YRG/...GY#/..YRY#/B.YRBY/R.BGBB",
+          "move": "0L",
+          "reason": "tactics_disrupt",
+          "nuisance": [
+            0,
+            240
+          ],
+          "gauge": 0,
+          "remaining_frames": 0,
+          "tray": [
+            0,
+            0
+          ],
+          "enemy_chain": false,
+          "arrival": {
+            "chain_end_in": null,
+            "piece_frames": 66,
+            "measured_pace": 66,
+            "pieces": null
+          },
+          "held": [
+            0,
+            0
+          ],
+          "seed": [
+            13,
+            13
+          ],
+          "stored": null,
+          "enemy": {
+            "mode": "normal",
+            "gauge": 7,
+            "field": "....../....../....../....../R...../R...../Y...../G..Y.Y/B..YRY/BY.BBR/GG.GBR/YY.YYY/YBBGBB/RRYRBR",
+            "tray": [
+              240,
+              0
+            ],
+            "held": [
+              240,
+              0
+            ],
+            "remaining_frames": 0,
+            "seed_chain": 13,
+            "piece_id": 102
+          },
+          "tactics": {
+            "longest": 3,
+            "enemy_hold": 64,
+            "own_hold": 70,
+            "kill": 0.0,
+            "sent": 1,
+            "cancelled": 0,
+            "gauge": 0,
+            "due": false,
+            "depth": 2,
+            "disrupt": 1.0,
+            "attack_end": 120,
+            "enemy_seed_at": 9,
+            "disrupt_window": 122
+          },
+          "press": null,
+          "decision_identity": {
+            "match_id": "ba169d5a428b4c5380a686c515b1d5ad-round-6",
+            "frame": 10452,
+            "piece_id": 79,
+            "dropset_index": 15,
+            "mode_generation": 4,
+            "seed_id": 8
+          },
+          "ai": 1,
+          "t": 778.422
+        },
+        "fire": {
+          "auto": "fire",
+          "pair": 79,
+          "placed": 79,
+          "index": 15,
+          "piece": "0:Y",
+          "mode": "normal",
+          "x": 0,
+          "r": "L",
+          "target": [
+            0,
+            "B"
+          ],
+          "chain": 1,
+          "score": 120,
+          "next_chain": 1,
+          "color": "B",
+          "pre": "LDT",
+          "pre_ms": [
+            31,
+            484,
+            31
+          ],
+          "on_target": true,
+          "aligned": true,
+          "aim_ms": 78,
+          "way": "direct",
+          "path": [
+            [
+              0,
+              2.0,
+              -0.5,
+              "B",
+              6
+            ],
+            [
+              16,
+              1.5,
+              -0.46,
+              "B",
+              2
+            ],
+            [
+              31,
+              1.0,
+              -0.42,
+              "B",
+              6
+            ],
+            [
+              47,
+              1.0,
+              0.08,
+              "B",
+              2
+            ],
+            [
+              62,
+              0.5,
+              0.12,
+              "B",
+              2
+            ]
+          ],
+          "frame": 10457,
+          "lock_ms": 391,
+          "ai": 1,
+          "t": 778.813
+        }
+      }
+    ],
+    "binary_version": "not recorded; log ends before gauge-final.exe installation",
+    "limitation": "The log does not record actual nuisance landing or the time of every chain link."
+  }
+}

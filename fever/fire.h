@@ -65,6 +65,7 @@ struct Choice
     size_t score = 0; // Average chain score over the virtual queues, or the score being fired
     bool fire = false;
     i32 fire_moves = 0; // Pieces until the chain being fired pops, 1 when this placement pops it
+    std::vector<i32> search_depths = {};
 };
 
 // `queue` holds the visible pieces only; queue[0] is move `index` of the character's cycle

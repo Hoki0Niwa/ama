@@ -1,0 +1,999 @@
+{
+  "status": "actual_steam_one_match_two_ai_initial_cache_verified",
+  "before_events": [
+    {
+      "auto": "planning",
+      "mode": "normal",
+      "pair": 0,
+      "cache": "build-prefetched",
+      "wait_ms": 297.0,
+      "search_ms": 266.00000000144064,
+      "search_reused": false,
+      "normal_build_search_reused": true,
+      "normal_build_searched_visible": 3,
+      "searched_visible": 3,
+      "beam_width": 250,
+      "beam_depth": 8,
+      "margin": 1,
+      "trigger": 15,
+      "panic_chain": 13,
+      "panic_count": 70,
+      "panic_step": 2,
+      "patience": 46,
+      "queue": [
+        "2:RG",
+        "2:BG",
+        "2:YB"
+      ],
+      "field": "....../....../....../....../....../....../....../....../....../....../....../....../....../......",
+      "move": "4R",
+      "reason": "normal_build_or_fire",
+      "nuisance": [
+        0,
+        0
+      ],
+      "gauge": 0,
+      "remaining_frames": 0,
+      "tray": [
+        0,
+        0
+      ],
+      "enemy_chain": false,
+      "arrival": {
+        "chain_end_in": null,
+        "piece_frames": 42,
+        "measured_pace": null,
+        "pieces": null
+      },
+      "held": [
+        0,
+        0
+      ],
+      "seed": [
+        5,
+        5
+      ],
+      "stored": null,
+      "enemy": {
+        "mode": "normal",
+        "gauge": 0,
+        "field": "....../....../....../....../....../....../....../....../....../....../....../....../....../......",
+        "tray": [
+          0,
+          0
+        ],
+        "held": [
+          0,
+          0
+        ],
+        "remaining_frames": 0,
+        "seed_chain": 5,
+        "piece_id": 0
+      },
+      "tactics": null,
+      "press": null,
+      "decision_identity": {
+        "match_id": "a2e49dee9f4f43279c56c3cfae5d462b-round-2",
+        "frame": 13,
+        "piece_id": 0,
+        "dropset_index": 0,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "ai": 1,
+      "t": 112.5
+    },
+    {
+      "auto": "planning",
+      "mode": "normal",
+      "pair": 0,
+      "cache": "build-prefetched",
+      "wait_ms": 297.0,
+      "search_ms": 281.00000000085856,
+      "search_reused": false,
+      "normal_build_search_reused": true,
+      "normal_build_searched_visible": 3,
+      "searched_visible": 3,
+      "beam_width": 250,
+      "beam_depth": 8,
+      "margin": 1,
+      "trigger": 15,
+      "panic_chain": 13,
+      "panic_count": 70,
+      "panic_step": 2,
+      "patience": 46,
+      "queue": [
+        "2:RG",
+        "2:BG",
+        "2:YB"
+      ],
+      "field": "....../....../....../....../....../....../....../....../....../....../....../....../....../......",
+      "move": "3R",
+      "reason": "normal_build_or_fire",
+      "nuisance": [
+        0,
+        0
+      ],
+      "gauge": 0,
+      "remaining_frames": 0,
+      "tray": [
+        0,
+        0
+      ],
+      "enemy_chain": false,
+      "arrival": {
+        "chain_end_in": null,
+        "piece_frames": 42,
+        "measured_pace": null,
+        "pieces": null
+      },
+      "held": [
+        0,
+        0
+      ],
+      "seed": [
+        5,
+        5
+      ],
+      "stored": null,
+      "enemy": {
+        "mode": "normal",
+        "gauge": 0,
+        "field": "....../....../....../....../....../....../....../....../....../....../....../....../....../......",
+        "tray": [
+          0,
+          0
+        ],
+        "held": [
+          0,
+          0
+        ],
+        "remaining_frames": 0,
+        "seed_chain": 5,
+        "piece_id": 0
+      },
+      "tactics": null,
+      "press": null,
+      "decision_identity": {
+        "match_id": "f22e026b798648c39dbef55a3c7d5f98-round-2",
+        "frame": 13,
+        "piece_id": 0,
+        "dropset_index": 0,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "ai": 2,
+      "t": 112.5
+    },
+    {
+      "auto": "locked",
+      "pair": 0,
+      "placed": 0,
+      "index": 0,
+      "piece": "2:RG",
+      "mode": "normal",
+      "x": 3,
+      "r": "R",
+      "target": [
+        3,
+        1
+      ],
+      "chain": 0,
+      "score": 0,
+      "next_chain": 0,
+      "on_target": true,
+      "aligned": true,
+      "aim_ms": 47,
+      "way": "direct",
+      "path": [
+        [
+          0,
+          2.0,
+          0.16,
+          0,
+          8202
+        ],
+        [
+          0,
+          2.0,
+          0.2,
+          1,
+          2
+        ],
+        [
+          16,
+          2.5,
+          0.24,
+          1,
+          2
+        ]
+      ],
+      "frame": 34,
+      "lock_ms": 406,
+      "ai": 2,
+      "t": 112.906
+    },
+    {
+      "auto": "locked",
+      "pair": 0,
+      "placed": 0,
+      "index": 0,
+      "piece": "2:RG",
+      "mode": "normal",
+      "x": 4,
+      "r": "R",
+      "target": [
+        4,
+        1
+      ],
+      "chain": 0,
+      "score": 0,
+      "next_chain": 0,
+      "on_target": true,
+      "aligned": true,
+      "aim_ms": 78,
+      "way": "direct",
+      "path": [
+        [
+          0,
+          2.0,
+          0.16,
+          0,
+          8202
+        ],
+        [
+          0,
+          2.0,
+          0.2,
+          1,
+          2
+        ],
+        [
+          31,
+          2.5,
+          0.24,
+          1,
+          10
+        ],
+        [
+          47,
+          3.0,
+          0.28,
+          1,
+          2
+        ],
+        [
+          63,
+          3.5,
+          0.32,
+          1,
+          2
+        ]
+      ],
+      "frame": 36,
+      "lock_ms": 438,
+      "ai": 1,
+      "t": 112.938
+    }
+  ],
+  "after_events": [
+    {
+      "auto": "planning",
+      "cache": "prepare",
+      "prepared": true,
+      "observed": true,
+      "mode": "normal",
+      "normal_build_prepared": false,
+      "speculative": false,
+      "search_ms": 234.9999999987631,
+      "reason": null,
+      "ai": 2,
+      "t": 46.86
+    },
+    {
+      "auto": "planning",
+      "cache": "prepare",
+      "prepared": true,
+      "observed": true,
+      "mode": "normal",
+      "normal_build_prepared": false,
+      "speculative": false,
+      "search_ms": 250.0,
+      "reason": null,
+      "ai": 1,
+      "t": 46.875
+    },
+    {
+      "auto": "planning",
+      "mode": "normal",
+      "pair": 0,
+      "cache": "prefetched",
+      "wait_ms": 15.0,
+      "search_ms": 0.0,
+      "search_reused": true,
+      "normal_build_search_reused": true,
+      "normal_build_searched_visible": 2,
+      "searched_visible": 2,
+      "beam_width": 250,
+      "beam_depth": 8,
+      "margin": 1,
+      "trigger": 15,
+      "panic_chain": 13,
+      "panic_count": 70,
+      "panic_step": 2,
+      "patience": 46,
+      "queue": [
+        "2:RG",
+        "2:BR",
+        "2:YB"
+      ],
+      "field": "....../....../....../....../....../....../....../....../....../....../....../....../....../......",
+      "move": "0D",
+      "reason": "normal_build_or_fire",
+      "nuisance": [
+        0,
+        0
+      ],
+      "gauge": 0,
+      "remaining_frames": 0,
+      "tray": [
+        0,
+        0
+      ],
+      "enemy_chain": false,
+      "arrival": {
+        "chain_end_in": null,
+        "piece_frames": 42,
+        "measured_pace": null,
+        "pieces": null
+      },
+      "held": [
+        0,
+        0
+      ],
+      "seed": [
+        5,
+        5
+      ],
+      "stored": null,
+      "enemy": {
+        "mode": "normal",
+        "gauge": 0,
+        "field": "....../....../....../....../....../....../....../....../....../....../....../....../....../......",
+        "tray": [
+          0,
+          0
+        ],
+        "held": [
+          0,
+          0
+        ],
+        "remaining_frames": 0,
+        "seed_chain": 5,
+        "piece_id": 0
+      },
+      "tactics": null,
+      "press": null,
+      "decision_identity": {
+        "match_id": "e09c0e7118594631a728bc978385e09f-round-1",
+        "frame": 13,
+        "piece_id": 0,
+        "dropset_index": 0,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "ai": 2,
+      "t": 50.875
+    },
+    {
+      "auto": "planning",
+      "mode": "normal",
+      "pair": 0,
+      "cache": "prefetched",
+      "wait_ms": 15.0,
+      "search_ms": 0.0,
+      "search_reused": true,
+      "normal_build_search_reused": true,
+      "normal_build_searched_visible": 2,
+      "searched_visible": 2,
+      "beam_width": 250,
+      "beam_depth": 8,
+      "margin": 1,
+      "trigger": 15,
+      "panic_chain": 13,
+      "panic_count": 70,
+      "panic_step": 2,
+      "patience": 46,
+      "queue": [
+        "2:RG",
+        "2:BR",
+        "2:YB"
+      ],
+      "field": "....../....../....../....../....../....../....../....../....../....../....../....../....../......",
+      "move": "5L",
+      "reason": "normal_build_or_fire",
+      "nuisance": [
+        0,
+        0
+      ],
+      "gauge": 0,
+      "remaining_frames": 0,
+      "tray": [
+        0,
+        0
+      ],
+      "enemy_chain": false,
+      "arrival": {
+        "chain_end_in": null,
+        "piece_frames": 42,
+        "measured_pace": null,
+        "pieces": null
+      },
+      "held": [
+        0,
+        0
+      ],
+      "seed": [
+        5,
+        5
+      ],
+      "stored": null,
+      "enemy": {
+        "mode": "normal",
+        "gauge": 0,
+        "field": "....../....../....../....../....../....../....../....../....../....../....../....../....../......",
+        "tray": [
+          0,
+          0
+        ],
+        "held": [
+          0,
+          0
+        ],
+        "remaining_frames": 0,
+        "seed_chain": 5,
+        "piece_id": 0
+      },
+      "tactics": null,
+      "press": null,
+      "decision_identity": {
+        "match_id": "3ef10102bbdc420c8182a4b252448496-round-1",
+        "frame": 13,
+        "piece_id": 0,
+        "dropset_index": 0,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "ai": 1,
+      "t": 50.875
+    },
+    {
+      "auto": "locked",
+      "pair": 0,
+      "placed": 0,
+      "index": 0,
+      "piece": "2:RG",
+      "mode": "normal",
+      "x": 0,
+      "r": "D",
+      "target": [
+        0,
+        2
+      ],
+      "chain": 0,
+      "score": 0,
+      "next_chain": 0,
+      "pre": "LD",
+      "pre_ms": [
+        null,
+        31,
+        null
+      ],
+      "on_target": true,
+      "aligned": true,
+      "aim_ms": 94,
+      "way": "direct",
+      "path": [
+        [
+          0,
+          2.0,
+          -0.5,
+          0,
+          8198
+        ],
+        [
+          16,
+          2.0,
+          0.0,
+          1,
+          8198
+        ],
+        [
+          32,
+          1.5,
+          0.04,
+          1,
+          2
+        ],
+        [
+          47,
+          1.0,
+          0.08,
+          1,
+          8198
+        ],
+        [
+          63,
+          1.0,
+          0.58,
+          2,
+          2
+        ],
+        [
+          78,
+          0.5,
+          0.62,
+          2,
+          2
+        ]
+      ],
+      "frame": 20,
+      "lock_ms": 407,
+      "ai": 2,
+      "t": 51.282
+    },
+    {
+      "auto": "locked",
+      "pair": 0,
+      "placed": 0,
+      "index": 0,
+      "piece": "2:RG",
+      "mode": "normal",
+      "x": 5,
+      "r": "L",
+      "target": [
+        5,
+        3
+      ],
+      "chain": 0,
+      "score": 0,
+      "next_chain": 0,
+      "pre": "RD",
+      "pre_ms": [
+        null,
+        15,
+        null
+      ],
+      "on_target": true,
+      "aligned": true,
+      "aim_ms": 125,
+      "way": "direct",
+      "path": [
+        [
+          0,
+          2.0,
+          -0.5,
+          0,
+          4106
+        ],
+        [
+          16,
+          2.0,
+          0.0,
+          3,
+          10
+        ],
+        [
+          32,
+          2.5,
+          0.04,
+          3,
+          2
+        ],
+        [
+          47,
+          3.0,
+          0.08,
+          3,
+          10
+        ],
+        [
+          63,
+          3.0,
+          0.58,
+          3,
+          2
+        ],
+        [
+          78,
+          3.5,
+          0.62,
+          3,
+          10
+        ],
+        [
+          94,
+          4.0,
+          0.66,
+          3,
+          2
+        ],
+        [
+          110,
+          4.5,
+          0.7,
+          3,
+          2
+        ]
+      ],
+      "frame": 22,
+      "lock_ms": 469,
+      "ai": 1,
+      "t": 51.344
+    }
+  ],
+  "countdown": {
+    "event": "sample",
+    "frame_before": 0,
+    "frame_after": 0,
+    "players": [
+      {
+        "mode": "normal",
+        "gauge": 0,
+        "gauge_previous": 0,
+        "gauge_initial": 0,
+        "target_point": 120,
+        "character_index": 24,
+        "raw_clock_frames": 960,
+        "raw_initial_frames": 960,
+        "raw_maximum_frames": 1860,
+        "raw_deadline_frame": 0,
+        "timer_active": false,
+        "timer_frozen": false,
+        "clock_status": "raw_internal_frames_display_and_protocol_conversion_unverified",
+        "character": "rafisol",
+        "address": "0x18ac661eaf8",
+        "frame": 0,
+        "player_state": 0,
+        "field_phase": 8,
+        "mode_phase": 0,
+        "link": 0,
+        "field_settled": true,
+        "queue": {
+          "cycle": "222L222J24L024J0",
+          "index": 0,
+          "visible": [
+            "2:RG",
+            "2:BR"
+          ],
+          "phase": "countdown_next_next2"
+        },
+        "active": {
+          "piece": null,
+          "cells": [],
+          "rotation": null,
+          "grounded": null,
+          "placed": 0,
+          "status": "not_spawned"
+        },
+        "normal_nuisance": {
+          "confirmed": 0,
+          "unconfirmed": 0
+        },
+        "fever_nuisance": {
+          "confirmed": 0,
+          "unconfirmed": 0
+        },
+        "active_gauge_index": 0,
+        "remainder": 0,
+        "total_score": 0,
+        "stored_field": null,
+        "seed_requested_chain": 0,
+        "seed_last_chain": 5,
+        "field_counter_candidate": 0,
+        "status": "read_only_calibration_not_ready_for_live_input",
+        "cpu": false,
+        "settled_field": null,
+        "resting_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......"
+        ],
+        "chain_trigger_field": null
+      },
+      {
+        "mode": "normal",
+        "gauge": 0,
+        "gauge_previous": 0,
+        "gauge_initial": 0,
+        "target_point": 120,
+        "character_index": 13,
+        "raw_clock_frames": 960,
+        "raw_initial_frames": 960,
+        "raw_maximum_frames": 1860,
+        "raw_deadline_frame": 0,
+        "timer_active": false,
+        "timer_frozen": false,
+        "clock_status": "raw_internal_frames_display_and_protocol_conversion_unverified",
+        "character": "ally",
+        "address": "0x18ac66231d0",
+        "frame": 0,
+        "player_state": 0,
+        "field_phase": 8,
+        "mode_phase": 0,
+        "link": 0,
+        "field_settled": true,
+        "queue": {
+          "cycle": "2222L22220222224",
+          "index": 0,
+          "visible": [
+            "2:RG",
+            "2:BR"
+          ],
+          "phase": "countdown_next_next2"
+        },
+        "active": {
+          "piece": null,
+          "cells": [],
+          "rotation": null,
+          "grounded": null,
+          "placed": 0,
+          "status": "not_spawned"
+        },
+        "normal_nuisance": {
+          "confirmed": 0,
+          "unconfirmed": 0
+        },
+        "fever_nuisance": {
+          "confirmed": 0,
+          "unconfirmed": 0
+        },
+        "active_gauge_index": 0,
+        "remainder": 0,
+        "total_score": 0,
+        "stored_field": null,
+        "seed_requested_chain": 0,
+        "seed_last_chain": 5,
+        "field_counter_candidate": 0,
+        "status": "read_only_calibration_not_ready_for_live_input",
+        "cpu": false,
+        "settled_field": null,
+        "resting_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......"
+        ],
+        "chain_trigger_field": null
+      }
+    ],
+    "gauge_gain_on_offset": 1
+  },
+  "first_spawn": {
+    "event": "sample",
+    "frame_before": 13,
+    "frame_after": 13,
+    "players": [
+      {
+        "mode": "normal",
+        "gauge": 0,
+        "gauge_previous": 0,
+        "gauge_initial": 0,
+        "target_point": 120,
+        "character_index": 24,
+        "raw_clock_frames": 960,
+        "raw_initial_frames": 960,
+        "raw_maximum_frames": 1860,
+        "raw_deadline_frame": 0,
+        "timer_active": false,
+        "timer_frozen": false,
+        "clock_status": "raw_internal_frames_display_and_protocol_conversion_unverified",
+        "character": "rafisol",
+        "address": "0x18ac661eaf8",
+        "frame": 13,
+        "player_state": 1,
+        "field_phase": 0,
+        "mode_phase": 2,
+        "link": 0,
+        "field_settled": true,
+        "queue": {
+          "cycle": "222L222J24L024J0",
+          "index": 0,
+          "visible": [
+            "2:RG",
+            "2:BR",
+            "2:YB"
+          ],
+          "phase": "current_plus_next2"
+        },
+        "active": {
+          "piece": "2:RG",
+          "cells": [
+            [
+              -1.0,
+              -3.0
+            ],
+            [
+              -1.0,
+              -3.0
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 0
+        },
+        "normal_nuisance": {
+          "confirmed": 0,
+          "unconfirmed": 0
+        },
+        "fever_nuisance": {
+          "confirmed": 0,
+          "unconfirmed": 0
+        },
+        "active_gauge_index": 0,
+        "remainder": 0,
+        "total_score": 0,
+        "stored_field": null,
+        "seed_requested_chain": 0,
+        "seed_last_chain": 5,
+        "field_counter_candidate": 0,
+        "status": "read_only_calibration_not_ready_for_live_input",
+        "cpu": false,
+        "settled_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......"
+        ],
+        "resting_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......"
+        ],
+        "chain_trigger_field": null
+      },
+      {
+        "mode": "normal",
+        "gauge": 0,
+        "gauge_previous": 0,
+        "gauge_initial": 0,
+        "target_point": 120,
+        "character_index": 13,
+        "raw_clock_frames": 960,
+        "raw_initial_frames": 960,
+        "raw_maximum_frames": 1860,
+        "raw_deadline_frame": 0,
+        "timer_active": false,
+        "timer_frozen": false,
+        "clock_status": "raw_internal_frames_display_and_protocol_conversion_unverified",
+        "character": "ally",
+        "address": "0x18ac66231d0",
+        "frame": 13,
+        "player_state": 1,
+        "field_phase": 0,
+        "mode_phase": 2,
+        "link": 0,
+        "field_settled": true,
+        "queue": {
+          "cycle": "2222L22220222224",
+          "index": 0,
+          "visible": [
+            "2:RG",
+            "2:BR",
+            "2:YB"
+          ],
+          "phase": "current_plus_next2"
+        },
+        "active": {
+          "piece": "2:RG",
+          "cells": [
+            [
+              -1.0,
+              -3.0
+            ],
+            [
+              -1.0,
+              -3.0
+            ]
+          ],
+          "rotation": 0,
+          "grounded": 0,
+          "placed": 0
+        },
+        "normal_nuisance": {
+          "confirmed": 0,
+          "unconfirmed": 0
+        },
+        "fever_nuisance": {
+          "confirmed": 0,
+          "unconfirmed": 0
+        },
+        "active_gauge_index": 0,
+        "remainder": 0,
+        "total_score": 0,
+        "stored_field": null,
+        "seed_requested_chain": 0,
+        "seed_last_chain": 5,
+        "field_counter_candidate": 0,
+        "status": "read_only_calibration_not_ready_for_live_input",
+        "cpu": false,
+        "settled_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......"
+        ],
+        "resting_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......"
+        ],
+        "chain_trigger_field": null
+      }
+    ],
+    "gauge_gain_on_offset": 1
+  }
+}

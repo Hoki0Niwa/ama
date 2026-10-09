@@ -1,0 +1,439 @@
+{
+  "opening": {
+    "count": 2,
+    "cache": {
+      "prefetched": 2
+    },
+    "wait_min_ms": 15.0,
+    "wait_max_ms": 31.0
+  },
+  "source": "bin\\fever_battle\\investigation-input-session.log",
+  "status": "observed_log_not_a_controlled_speed_comparison",
+  "groups": {
+    "normal_enemy_chain_False": {
+      "count": 62,
+      "cache": {
+        "prefetched": 9,
+        "early": 33,
+        "build-prefetched": 20
+      },
+      "search_ms": {
+        "median": 78.0,
+        "p90": 110.0,
+        "maximum": 125.0
+      },
+      "wait_ms": {
+        "median": 0.0,
+        "p90": 62.0,
+        "maximum": 125.0
+      }
+    },
+    "normal_enemy_chain_True": {
+      "count": 79,
+      "cache": {
+        "build-prefetched": 15,
+        "early": 32,
+        "prefetched": 6,
+        "miss": 26
+      },
+      "search_ms": {
+        "median": 93.0,
+        "p90": 110.0,
+        "maximum": 125.0
+      },
+      "wait_ms": {
+        "median": 16.0,
+        "p90": 110.0,
+        "maximum": 125.0
+      }
+    },
+    "fever_enemy_chain_False": {
+      "count": 25,
+      "cache": {
+        "prefetched": 5,
+        "miss": 13,
+        "early": 7
+      },
+      "search_ms": {
+        "median": 16.0,
+        "p90": 16.0,
+        "maximum": 47.0
+      },
+      "wait_ms": {
+        "median": 16.0,
+        "p90": 31.0,
+        "maximum": 47.0
+      }
+    },
+    "fever_enemy_chain_True": {
+      "count": 45,
+      "cache": {
+        "early": 27,
+        "miss": 18
+      },
+      "search_ms": {
+        "median": 0.0,
+        "p90": 16.0,
+        "maximum": 16.0
+      },
+      "wait_ms": {
+        "median": 0.0,
+        "p90": 16.0,
+        "maximum": 70782.0
+      }
+    }
+  },
+  "early_discard_reasons": {
+    "target_point changed; discard decision": 1
+  },
+  "input_retries": {
+    "automation disabled, game paused or focus lost": 1,
+    "player seats or running round changed": 1
+  },
+  "settings": {
+    "auto": "battle settings",
+    "prefetch": [
+      true,
+      false
+    ],
+    "arriving_piece_read": [
+      false,
+      true
+    ],
+    "preinput": [
+      true,
+      true
+    ],
+    "beam_width": [
+      250,
+      250
+    ],
+    "beam_depth": [
+      8,
+      8
+    ],
+    "ai": 0,
+    "t": 2.282
+  },
+  "by_ai": {
+    "1": {
+      "normal_enemy_chain_False": {
+        "count": 26,
+        "cache": {
+          "prefetched": 8,
+          "build-prefetched": 18
+        },
+        "wait_ms_excluding_pause": {
+          "count": 26,
+          "median": 47.0,
+          "p90": 109.0,
+          "maximum": 125.0
+        },
+        "excluded_pause_samples": []
+      },
+      "normal_enemy_chain_True": {
+        "count": 47,
+        "cache": {
+          "build-prefetched": 15,
+          "prefetched": 6,
+          "miss": 26
+        },
+        "wait_ms_excluding_pause": {
+          "count": 47,
+          "median": 78.0,
+          "p90": 125.0,
+          "maximum": 125.0
+        },
+        "excluded_pause_samples": []
+      },
+      "fever_enemy_chain_False": {
+        "count": 18,
+        "cache": {
+          "prefetched": 5,
+          "miss": 13
+        },
+        "wait_ms_excluding_pause": {
+          "count": 18,
+          "median": 16.0,
+          "p90": 31.0,
+          "maximum": 47.0
+        },
+        "excluded_pause_samples": []
+      },
+      "fever_enemy_chain_True": {
+        "count": 9,
+        "cache": {
+          "miss": 9
+        },
+        "wait_ms_excluding_pause": {
+          "count": 9,
+          "median": 16.0,
+          "p90": 31.0,
+          "maximum": 31.0
+        },
+        "excluded_pause_samples": []
+      }
+    },
+    "2": {
+      "normal_enemy_chain_False": {
+        "count": 36,
+        "cache": {
+          "prefetched": 1,
+          "early": 33,
+          "build-prefetched": 2
+        },
+        "wait_ms_excluding_pause": {
+          "count": 36,
+          "median": 0.0,
+          "p90": 16.0,
+          "maximum": 31.0
+        },
+        "excluded_pause_samples": []
+      },
+      "normal_enemy_chain_True": {
+        "count": 32,
+        "cache": {
+          "early": 32
+        },
+        "wait_ms_excluding_pause": {
+          "count": 32,
+          "median": 0.0,
+          "p90": 0.0,
+          "maximum": 16.0
+        },
+        "excluded_pause_samples": []
+      },
+      "fever_enemy_chain_False": {
+        "count": 7,
+        "cache": {
+          "early": 7
+        },
+        "wait_ms_excluding_pause": {
+          "count": 7,
+          "median": 0.0,
+          "p90": 0.0,
+          "maximum": 0.0
+        },
+        "excluded_pause_samples": []
+      },
+      "fever_enemy_chain_True": {
+        "count": 36,
+        "cache": {
+          "early": 27,
+          "miss": 9
+        },
+        "wait_ms_excluding_pause": {
+          "count": 35,
+          "median": 0.0,
+          "p90": 16.0,
+          "maximum": 16.0
+        },
+        "excluded_pause_samples": [
+          {
+            "auto": "planning",
+            "mode": "fever",
+            "pair": 74,
+            "cache": "miss",
+            "wait_ms": 70782.0,
+            "search_ms": 0.0,
+            "search_reused": false,
+            "normal_build_search_reused": false,
+            "normal_build_searched_visible": null,
+            "normal_fire_policy": null,
+            "normal_chain_max": 5,
+            "decision_budget_ms": 100,
+            "normal_build_target_chain": null,
+            "normal_fire_required_chain": null,
+            "searched_visible": 3,
+            "beam_width": 250,
+            "beam_depth": 8,
+            "margin": 1,
+            "trigger": 15,
+            "panic_chain": 13,
+            "panic_count": 70,
+            "panic_step": 2,
+            "patience": 46,
+            "queue": [
+              "2:BR",
+              "2:RR",
+              "2:GB"
+            ],
+            "field": "....../....../B...YG/RY..YR/BG.BBG/GGYBYY/BBBYBB/RRYBYY/YYBYBB/BBYGGB/YYBYYG/RRYGRR/RBBYGG/BYYGRR",
+            "move": "2D",
+            "reason": "fever_seed_search",
+            "nuisance": [
+              0,
+              90
+            ],
+            "gauge": 7,
+            "remaining_frames": 1038,
+            "tray": [
+              0,
+              0
+            ],
+            "enemy_chain": true,
+            "arrival": {
+              "chain_end_in": 452,
+              "piece_frames": 55,
+              "measured_pace": 55,
+              "pieces": 9
+            },
+            "held": [
+              0,
+              0
+            ],
+            "seed": [
+              15,
+              15
+            ],
+            "stored": "....../....../....../....../....../....../....../....../.....B/.....G/....BG/RB.BBG/RBBYYR/BRRBRY",
+            "enemy": {
+              "mode": "normal",
+              "gauge": 1,
+              "field": "....../....../....../....../.B..../.YB.../.YRYGY/.RYRYB/.RYGYB/.GRGBY/.GYBRB/.YRGBB/YGRYGY/YGYYGG",
+              "tray": [
+                90,
+                0
+              ],
+              "held": [
+                90,
+                0
+              ],
+              "remaining_frames": 0,
+              "seed_chain": 14,
+              "piece_id": 80
+            },
+            "tactics": null,
+            "press": null,
+            "decision_identity": {
+              "match_id": "f37dbfa4b52c4e159d30de2642ac6f43-round-1",
+              "frame": 9308,
+              "piece_id": 74,
+              "dropset_index": 10,
+              "mode_generation": 3,
+              "seed_id": 6
+            },
+            "ai": 2,
+            "t": 266.485
+          }
+        ]
+      }
+    }
+  },
+  "pause_outlier_explanation": "AI 2 pair 74: planning 195.703s; paused 195.844s; resumed 266.485s; same-piece wait 70782ms includes pause, not search. decision_wait_started survives pause.",
+  "input_metrics_by_latest_matching_plan": {
+    "ai2_normal_enemy_chain_False": {
+      "aim_ms": {
+        "count": 28,
+        "median": 47.0,
+        "p90": 94,
+        "maximum": 125
+      },
+      "lock_ms": {
+        "count": 28,
+        "median": 242.0,
+        "p90": 375,
+        "maximum": 468
+      }
+    },
+    "ai1_normal_enemy_chain_False": {
+      "aim_ms": {
+        "count": 23,
+        "median": 47,
+        "p90": 94,
+        "maximum": 250
+      },
+      "lock_ms": {
+        "count": 23,
+        "median": 281,
+        "p90": 438,
+        "maximum": 547
+      }
+    },
+    "ai1_normal_enemy_chain_True": {
+      "aim_ms": {
+        "count": 35,
+        "median": 62,
+        "p90": 125,
+        "maximum": 235
+      },
+      "lock_ms": {
+        "count": 35,
+        "median": 219,
+        "p90": 312,
+        "maximum": 375
+      }
+    },
+    "ai2_normal_enemy_chain_True": {
+      "aim_ms": {
+        "count": 22,
+        "median": 62.0,
+        "p90": 94,
+        "maximum": 109
+      },
+      "lock_ms": {
+        "count": 22,
+        "median": 257.5,
+        "p90": 359,
+        "maximum": 375
+      }
+    },
+    "ai1_fever_enemy_chain_False": {
+      "aim_ms": {
+        "count": 15,
+        "median": 62,
+        "p90": 93,
+        "maximum": 125
+      },
+      "lock_ms": {
+        "count": 15,
+        "median": 188,
+        "p90": 266,
+        "maximum": 375
+      }
+    },
+    "ai2_fever_enemy_chain_False": {
+      "aim_ms": {
+        "count": 6,
+        "median": 54.5,
+        "p90": 79,
+        "maximum": 79
+      },
+      "lock_ms": {
+        "count": 6,
+        "median": 203.5,
+        "p90": 250,
+        "maximum": 250
+      }
+    },
+    "ai2_fever_enemy_chain_True": {
+      "aim_ms": {
+        "count": 27,
+        "median": 47,
+        "p90": 78,
+        "maximum": 110
+      },
+      "lock_ms": {
+        "count": 27,
+        "median": 156,
+        "p90": 203,
+        "maximum": 218
+      }
+    },
+    "ai1_fever_enemy_chain_True": {
+      "aim_ms": {
+        "count": 5,
+        "median": 47,
+        "p90": 93,
+        "maximum": 93
+      },
+      "lock_ms": {
+        "count": 5,
+        "median": 156,
+        "p90": 234,
+        "maximum": 234
+      }
+    }
+  },
+  "input_metric_caveat": "Placement movement and lock time include distance, controls, board geometry and game waits. This is an observational sample, not a controlled comparison or proof of absence of slow input."
+}
