@@ -1,6 +1,6 @@
 # Sol High向け：初回15連鎖・40手期限の最小試作仕様
 
-改訂2026-10-12。**F40-0のベンチ・独立B0・保存再分類を実装し小規模検証済み。探索B1/B2とF40-1のnative特徴追加は未実装。** [ベンチ報告](FEVER_FIRST40_BENCHMARK.md)、[再分析報告](FEVER_FIRST40_RESEARCH_2026-10-12.md) に基づく。[原仕様](FEVER_CHAIN15_PROTOTYPE_SPEC_2026-10-11_ARCHIVE.md) のP15@120、セカンド、長いrollout、学習の実装計画は今回の対象外。
+改訂2026-10-12。**F40-0ベンチとF40-1探索内部診断を実装・検証済み。探索B1/B2は未実装。** [探索診断報告](FEVER_FIRST40_DIAGNOSTICS_2026-10-12.md)、[ベンチ報告](FEVER_FIRST40_BENCHMARK.md)、[再分析報告](FEVER_FIRST40_RESEARCH_2026-10-12.md) に基づく。[原仕様](FEVER_CHAIN15_PROTOTYPE_SPEC_2026-10-11_ARCHIVE.md) のP15@120、セカンド、長いrollout、学習の実装計画は今回の対象外。
 
 最初の候補は一つ：**期限・空間余裕を残す多様性ビーム**。B0/B1/B2は一つの試作の分解比較。製品設定、セカンド方針、Tsu、Feverのタネ探索、bridgeは変更しない。
 
@@ -31,7 +31,9 @@ for move = 1..40:
 
 新規ファイル案：`fever/research/first40.*`、`first40_diagnostics.*`、`bench_fever/first40_main.cpp`、`tools/bench_fever_first40.py`、対応する意味的テスト。研究バイナリは `bin/research_first40/`。既定exe/DLLを上書きしない。
 
-ベンチ実装では最小構成としてtools/bench_fever_first40.pyとfever_battle/first40_benchmark.py / first40_provenance.pyで既存native queue/transition/soloを再利用した。C++研究探索入口は未作成、search/fire/tacticsに今回の変更なし。専用実測buildはbin/first40-benchmark/build/。既存容量応答とセル収支を診断し、幾何Witness/root生存/尾の到達可能性は未測定と明示する。
+F40-0のベンチ実装時点では最小構成としてtools/bench_fever_first40.pyとfever_battle/first40_benchmark.py / first40_provenance.pyで既存native queue/transition/soloを再利用した。この時点のC++研究探索入口は未作成、search/fire/tacticsに変更なし。専用実測buildはbin/first40-benchmark/build/。当時は既存容量応答とセル収支だけを診断し、幾何Witness/root生存/尾の到達可能性は未測定と明示した。
+
+F40-1で独立研究workerと生成translation unitのobserverを追加した。製品search/evaluationと既存Layer/TTを変更せず、root別生存/却下/置換、幾何Witnessとノード/評価/費用を記録。98固定局面と4対応完全試行でOFF/ONの配置不変を確認。幾何15の異なる候補は脱落するが該当層には15以上が残り、合法な初回15@40の解を失った証拠は不足する。F40-1を診断報告で停止しB1/B2へ自動で進まない。尾の持続的識別と到達可能性は未測定。
 
 Field、Piece、normal_space::moves、drop_piece/pop/is_dead、dropset、normal_scoringを再利用する。重複の物理実装や大規模な共通化はしない。共有コードの変更が必要ならAGENTS.mdのirregular-form先行を守る。
 

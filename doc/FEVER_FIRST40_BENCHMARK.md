@@ -2,6 +2,8 @@
 
 2026-10-12。F40-0のベンチ・現行器adapter・既存応答からの診断を実装し、小規模回帰を確認した。B1/B2、新探索、学習、製品統合は未実施。[研究計画](FEVER_FIRST40_RESEARCH_2026-10-12.md)、[仕様](FEVER_CHAIN15_PROTOTYPE_SPEC.md)を参照。
 
+後続の[F40-1内部診断](FEVER_FIRST40_DIAGNOSTICS_2026-10-12.md)では、本B0をコミット状態で再現し、独立workerのobserverを実装した。本書の「内部診断未測定」はF40-0作成時の記録。B0ベンチ自体は変更せず、診断は別入口/sidecarで保存する。B1/B2は引き続き未実装。
+
 ## 対象と停止条件
 
 研究専用入口は `tools/bench_fever_first40.py`。戦術のanswer()を通さず、現行 `_normal_options/_solo_build` の容量検査・発火選択・Python採用を含む通常構築を評価する。既存search.cpp/fire.cpp、対戦戦術、既存ベンチ、config・既定exeは今回変更していない。
