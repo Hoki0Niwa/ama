@@ -41,8 +41,9 @@ json search(Field field, const json& request) {
     const auto rate = number(request, "target_point", 1, 100000);
     const RateSchedule rates(request, int(rate));
     const auto weights = request.at("weights");
-    const auto w = weights.get<beam::eval::Weight>();
+    const auto w = fever::read_weights(weights);
     fever::Configs configs; configs.hill = weights.value("hill", 0);
+    fever::read_upper_weights(configs, weights);
     auto rules = rule::FEVER; rules.plain_pairs = true; rules.special_moves = true;
     const auto queue = request.at("queue").get<std::vector<std::string>>();
     if (queue.empty() || queue.size() > 3) throw std::invalid_argument("search uses current plus NEXT2 only");

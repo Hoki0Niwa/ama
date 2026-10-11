@@ -3,12 +3,11 @@
 #include "../ai/search/beam/beam.h"
 #include "../core/fever_queue.h"
 #include "stock.h"
+#include "normal_scoring.h"
 
 // Fever counterpart of ai/search/beam: the same layers, table and evaluation,
 // expanded with piece::Piece placements under rule::FEVER.
-// Stage A measures chains by their length. The candidates still carry the Tsu
-// point score to order placements, because the per-character power tables are
-// not transcribed yet (stage B).
+// Construction uses the character's normal-board scoring, not seed-mode powers.
 namespace fever
 {
 
@@ -17,6 +16,9 @@ constexpr i32 PRUNE_CHAIN = 5;
 
 struct Configs
 {
+    bool construction_scoring = true;
+    const normal_scoring::Entry* normal = nullptr;
+    bool rebuild = false; // Observed opening completed; enables root recovery evaluation.
     size_t width = 250;
     size_t depth = 16;
     i32 trigger = 14; // Chain length that ends the search early and that is fired
@@ -47,6 +49,11 @@ struct Configs
     //       toward one place: a valley (both ends high) or a wedge (one end high). Such a field keeps a way
     //       open from where the pieces appear to every column.
     i32 hill = 0;
+    // Per occupied cell in columns 2/5, counted on the board after clearing.
+    i32 upper_12 = 0;
+    i32 upper_13 = 0;
+    // Penalize an early row-13 wall only while column 1 still has this much room.
+    i32 upper_13_left_max = 9;
     // Fever-only weights of the offset stock (keys "stock" and "stock_color", see fever/stock.h):
     // eval points per weighted link the board can pop without a quiet placement, up to stock_want
     // links (7 minus the gauge), and per color that fires something with one puyo.
@@ -56,7 +63,33 @@ struct Configs
     // Chooses the placement by the best evaluation its deepest positions reach, not by the biggest
     // chain found below it. A build that aims at offsets has no chain score to be ranked by.
     bool aim = false;
+    bool sustained = false;
+    int pace_frames = 55;
+    int elapsed_build_frames = 0;
+    int sustained_min_chain = 13;
 };
+
+// Parse shared weights without requiring or accepting Tsu's retained row-14 term.
+inline beam::eval::Weight read_weights(json set)
+{
+    set["waste_14"] = 0;
+    return set.get<beam::eval::Weight>();
+}
+
+inline void read_upper_weights(Configs& configs, const json& set)
+{
+    configs.upper_12 = 0;
+    configs.upper_13 = 0; // User disabled the legacy terms, including launcher snapshots.
+
+}
+
+// Estimated cycle rate for virtual construction; never a proof that unknown colors fire.
+inline i64 cycle_rate(const chain::Score& chain, int moves, const Configs& cfg) {
+    if (chain.count < cfg.sustained_min_chain) return 0;
+    const i64 frames = cfg.elapsed_build_frames + i64(moves)*cfg.pace_frames
+        + 24 + i64(chain.count)*69;
+    return i64(chain.score)*60000/std::max<i64>(1,frames);
+}
 
 // Rows by which the four inner columns stand above the lowest column on either side of them.
 inline i32 get_hill(const u8 heights[6])
@@ -72,9 +105,14 @@ inline i32 get_hill(const u8 heights[6])
 }
 
 // The board's evaluation: the shared one plus what only this rule has.
+void evaluate_normal(beam::node::Data& node, const beam::eval::Weight& w, const Configs& configs);
+
 inline void evaluate(beam::node::Data& node, const beam::eval::Weight& w, const Configs& configs)
 {
-    beam::eval::evaluate(node, w);
+    auto shared = w;
+    shared.waste_14 = 0;
+    if (configs.normal) evaluate_normal(node, shared, configs);
+    else beam::eval::evaluate(node, shared);
     if (configs.hill != 0) {
         u8 heights[6];
         node.field.get_heights(heights);
@@ -94,6 +132,9 @@ struct Candidate
     // With Configs::aim: the best evaluation among the deepest positions searched below this
     // placement, summed over the virtual queues
     i64 aim = 0;
+    int next_room = 1;
+    i64 throughput = 0;
+    i64 recovery = 0; // Root-only reconstruction adjustment in score units.
 };
 
 // What a placement is worth under Configs::aim once the beam has dropped every position below it:
@@ -112,7 +153,8 @@ void expand(
     beam::node::Data& node,
     const beam::eval::Weight& w,
     const rule::Rule& rules,
-    std::function<void(beam::node::Data&, const move::Placement&, const chain::Score&)> callback
+    std::function<void(beam::node::Data&, const move::Placement&, const chain::Score&)> callback,
+    const normal_scoring::Entry* normal = nullptr
 );
 
 // Beam search over a fully known queue

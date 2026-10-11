@@ -1,28 +1,33 @@
-"""Shared absolute deadline for a timed jab, including early bridge replies.
+"""Shared absolute deadline for transient pressure, including early replies.
 
-Firepower attacks have no turnover deadline. No score/chain search runs here.
+Pressure surviving a next-seed return has no turnover deadline.
+No score/chain search runs here.
 """
 
 
 def contract(request, reply, target):
     # An offset or all-clear has its own reason to fire. Expiring an incidental
     # jab reward must not cancel such a placement and restart steering.
-    if reply.get('tactics_forecast') and reply.get('reason') != 'tactics_disrupt':
-        return None
     forecast = reply.get('tactics_forecast') or reply.get('seed_forecast') or {}
     choice = forecast.get('choice', {})
+    if reply.get('tactics_forecast') and (choice.get('defensive_fire') or reply.get('reason') in
+            ('tactics_offset', 'tactics_all_clear')):
+        return None
     if choice.get('disruption_kind') == 'extension_pressure' and reply.get('fire'):
         enemy=request['enemy']
         return dict(kind='extension_pressure',enemy_generation=enemy['mode_generation'],
                     enemy_seed=enemy['seed_id'],enemy_level=enemy['seed_chain'])
-    if choice.get('disruption_kind') != 'jab' or not reply.get('fire'):
+    timed_return = choice.get('disruption_requires_timing', False)
+    if not (choice.get('disruption_kind') == 'jab' or timed_return) or not reply.get('fire'):
         return None
     end = target.get('their_end')
     if end is None:
         return None
     enemy = request['enemy']
     entering = enemy['mode'] == 'normal'
-    return dict(kind='jab', target_frame=request['frame'] + end,
+    current_attack = timed_return and choice.get('disruption_kind') != 'jab'
+    return dict(kind='current_attack' if current_attack else 'jab',
+                target_frame=request['frame'] if current_attack else request['frame'] + end,
                 deadline_frame=request['frame'] + end + target.get('disrupt_window', 26),
                 duration=choice.get('attack_end', choice.get('end_at', 0)),
                 enemy_generation=enemy['mode_generation'], enemy_seed=enemy['seed_id'],

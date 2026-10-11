@@ -22,6 +22,7 @@ struct Decision
 {
     move::Placement placement = move::Placement(); // The first placement towards the chain
     chain::Score chain = { 0, 0 };
+    i32 frames = 0;
     i32 moves = 0; // Pieces needed to trigger it, 1 when the piece in hand does
 };
 
@@ -29,7 +30,8 @@ struct Decision
 std::optional<Decision> best_now(
     Field field,
     const piece::Piece& piece,
-    const rule::Rule& rules = rule::FEVER
+    const rule::Rule& rules = rule::FEVER,
+    const normal_scoring::Entry* normal = nullptr
 );
 
 // Longest chain the visible pieces trigger, ties broken by fewer moves then by score
@@ -37,7 +39,9 @@ std::optional<Decision> best_now(
 std::optional<Decision> best_visible(
     Field field,
     const Queue& queue,
-    const rule::Rule& rules = rule::FEVER
+    const rule::Rule& rules = rule::FEVER,
+    const normal_scoring::Entry* normal = nullptr,
+    const Configs* sustained = nullptr
 );
 
 // Chain length worth firing on a field with that many cells
@@ -66,6 +70,7 @@ struct Choice
     bool fire = false;
     i32 fire_moves = 0; // Pieces until the chain being fired pops, 1 when this placement pops it
     std::vector<i32> search_depths = {};
+    json reconstruction = nullptr;
 };
 
 // `queue` holds the visible pieces only; queue[0] is move `index` of the character's cycle

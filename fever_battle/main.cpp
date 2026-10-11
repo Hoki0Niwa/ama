@@ -1,7 +1,9 @@
+#include "../fever/normal_space.h"
 #include "../core/core.h"
 #include "../core/fever_queue.h"
 #include "../fever/text.h"
 #include "../fever/engine.h"
+#include "../fever/capacity.h"
 #include "../lib/nlohmann/json.hpp"
 #include "search.h"
 #include "physics.h"
@@ -98,7 +100,7 @@ json finish_probe(const json& request, Moves& moves, const rule::Rule& rules,
         if (!last || pending <= 60) return true;
         auto key = fever::text::from_field(board);
         if (last_cache.contains(key)) return last_cache.at(key);
-        auto choices = move::generate(board, *last, rules);
+        auto choices = fever::normal_space::moves(board, *last, rules);
         for (int k = 0; k < choices.get_size(); ++k) {
             auto copy = board;
             if (!copy.drop_piece(choices[k].x, choices[k].r, *last, rules))
@@ -124,7 +126,7 @@ json finish_probe(const json& request, Moves& moves, const rule::Rule& rules,
             for (auto board : surviving_drops(after, std::min(30, pending))) {
                 if (!next || pending <= 30)
                     return {{"proved", false}, {"reason", "another_visible_or_unknown_chance"}};
-                auto following = move::generate(board, *next, rules);
+                auto following = fever::normal_space::moves(board, *next, rules);
                 for (int j = 0; j < following.get_size(); ++j) {
                     auto copy = board;
                     if (!copy.drop_piece(following[j].x, following[j].r, *next, rules))
@@ -175,11 +177,34 @@ json answer(const json& request)
     if (op == "solo") {
         // The chain builder's own request and reply (fever/main.cpp), with its weight set.
         const auto& set = request.at("weights");
-        auto reply = fever::answer(request.at("request"), set.get<beam::eval::Weight>(), set);
+        auto reply = fever::answer(request.at("request"), fever::read_weights(set), set);
         if (reply.contains("error")) throw std::invalid_argument(reply["error"].get<std::string>());
         return reply;
     }
     auto field = read_field(request.at("field"));
+    if (op == "normal_capacity") {
+        fever::Queue queue;
+        const auto values=request.at("queue").get<std::vector<std::string>>();
+        if (values.empty() || values.size()>3) throw std::invalid_argument("visible queue only");
+        for (const auto& value:values) {
+            auto piece=fever::text::to_piece(value);
+            if (!piece) throw std::invalid_argument("invalid visible piece");
+            queue.push_back(*piece);
+        }
+        auto rules=rule::FEVER; rules.plain_pairs=true; rules.special_moves=true;
+        rules.margin=u8(bounded_integer(request.value("margin",1),0,6,"margin"));
+        const auto* normal=fever::normal_scoring::find(request.at("character").get<std::string>());
+        if (!normal) throw std::invalid_argument("unknown character");
+        return fever::inspect_capacity(field,queue,rules,normal,
+            bounded_integer(request.value("target",14),2,19,"target"));
+    }
+    if (op == "drop_preview") {
+        const int count = bounded_integer(request.at("count"), 0, 30, "count");
+        const int phase = bounded_integer(request.at("garbage_phase"), 0, 5, "garbage_phase");
+        const int discarded = fever_battle::drop_nuisance(field, count, phase);
+        return {{"field", fever::text::from_field(field)}, {"dead", field.is_dead(rule::FEVER)},
+                {"discarded", discarded}};
+    }
     if (op == "garbage_search") return fever_battle::search(field, request);
     if (op == "seed_search") return fever_battle::seed_search(field, request);
     if (op == "seed_defense") return fever_battle::seed_defense(field, request);
@@ -210,7 +235,7 @@ json answer(const json& request)
     auto rules = rule::FEVER;
     rules.plain_pairs = true; rules.special_moves = true;
     if (op == "closing_transition") rules.death_columns = 0;
-    auto moves = move::generate(field, *piece, rules);
+    auto moves = fever::normal_space::moves(field, *piece, rules);
     const auto transition = [&](const move::Placement& placement) {
         auto copy = field;
         const auto drop = copy.drop_piece(placement.x, placement.r, *piece, rules);

@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import sys
 import unittest
+import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -23,6 +24,26 @@ class Tests(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.native.close()
+
+    def test_launcher_build_only_config_starts_and_predicts(self):
+        from fever_battle.mode_engine import ModeBattleEngine
+        from fever_battle.engine import SoloBuilder
+        document = json.loads((ROOT/'config.json').read_text(encoding='utf-8'))
+        document['build'] = dict(document['fever'], upper_12=-100, upper_13=-600)
+        del document['fever']
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)/'edited.json'
+            path.write_text(json.dumps(document), encoding='utf-8')
+            engine = ModeBattleEngine(ROOT/'bin/fever_battle/fever_battle.exe',
+                                     ROOT/'bin/fever/fever.exe', path)
+            try:
+                self.assertEqual(engine.garbage_search.weights, document['build'])
+                self.assertEqual(SoloBuilder(self.native, path).sets['build'], document['build'])
+                result = engine.garbage_search.search('raffina', list(EMPTY), ['2:RG'],
+                                                      0, 0, 0, 120, 0, width=12)
+                self.assertIn('choice', result)
+            finally:
+                engine.close()
 
     def forecast(self, count=0, phase=0, rows=None, queue=None, **kwargs):
         return self.search.search('raffina', rows or list(EMPTY), queue or ['2:RG','L:BBY','4:GGYY'],

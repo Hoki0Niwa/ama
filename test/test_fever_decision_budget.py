@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT), str(ROOT/'test')]
 from fever_fixtures import NATIVE, SOLO, request, side, seed3, seed_with_small_green
 from fever_battle.mode_engine import ModeBattleEngine, authorize_mode_reply
+from fever_battle import tactics
 
 
 class DecisionBudgetTests(unittest.TestCase):
@@ -20,7 +21,7 @@ class DecisionBudgetTests(unittest.TestCase):
         self.assertEqual(options['trigger'], 15)
         own['mode_generation'] = 2
         options = self.engine._normal_options(request(own), own)
-        self.assertEqual((options['trigger'], options['build_chain']), (19, 14))
+        self.assertEqual((options['trigger'], options['build_chain']), (14, 14))
 
     def test_second_target_is_independent_and_only_applies_after_opening(self):
         own = side('normal', seed3(), ['2:RY'])
@@ -36,7 +37,7 @@ class DecisionBudgetTests(unittest.TestCase):
     def test_an_end_without_remaining_attack_never_runs_the_garbage_fallback(self):
         own = side('normal', seed3(), ['2:BB']); own['character'] = 'arle'
         with patch.object(self.engine, '_enemy_events', return_value=[dict(type='end', frame=20)]), \
-             patch.object(self.engine, '_tactics', return_value=None), \
+             patch.object(self.engine, '_tactical_decision', return_value=tactics.Decision('build')), \
              patch.object(self.engine.garbage_search, 'search') as search:
             reply = self.engine.answer(request(own))
         search.assert_not_called()
@@ -87,14 +88,19 @@ class DecisionBudgetTests(unittest.TestCase):
         self.assertEqual(result['completed_moves'], 3)
         self.assertEqual(len(result['path']), 3)
 
-    def test_builder_can_clear_one_useless_group_without_releasing_the_main_target(self):
+    def test_builder_improves_readiness_without_releasing_the_main_target(self):
         own = side('normal', seed_with_small_green(), ['2:GY', '2:RY', '2:BB'])
         own.update(character='arle', mode_generation=2)
         options = self.engine._normal_options(request(own), own)
         result = self.engine._solo_build(own, options)
         after = self.engine.native.ask(dict(op='transition', field=own['field'], piece=own['queue'][0],
                                             x=result['x'], r=result['r']))
-        self.assertEqual(len(after['links']),1)
+        # Reconstruction now compares the cleanup against creating a ready
+        # trigger. This fixture has a nonclear route that reduces its key need.
+        # Actual useful nuisance cleanup is covered by the native rebuild test.
+        self.assertLessEqual(len(after['links']),2)
+        recovery=result['reconstruction']
+        self.assertLess(recovery['key_after'],recovery['key_before'])
         self.assertFalse(result['fire'])
         self.assertEqual(options['build_chain'],14)
 

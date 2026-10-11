@@ -5,10 +5,13 @@ namespace fever_battle::disruption {
 // End our attack with the opponent's entry/seed turnover, or within one
 // ordinary Fever placement after it. An unknown turnover is not a target.
 constexpr int WINDOW = 26;
-inline bool timed(int attack_end, int seed_at, int window = WINDOW) {
-    return seed_at >= 0 && attack_end >= seed_at && attack_end <= seed_at + window;
+inline bool arrives_by(int attack_end, int ready_at, int window = WINDOW) {
+    return attack_end >= 0 && ready_at >= 0 && attack_end <= ready_at + window;
 }
-struct Rating { double value = 0; const char* kind = "none"; };
+inline bool timed(int attack_end, int seed_at, int window = WINDOW) {
+    return attack_end >= seed_at && arrives_by(attack_end, seed_at, window);
+}
+struct Rating { double value = 0; const char* kind = "none"; bool requires_timing = false; };
 inline Rating extension(long long extra, bool allowed, bool checked, bool regular_after_drop, bool skip) {
     if (!allowed || !checked || regular_after_drop || skip || extra < 6) return {};
     return {std::clamp(double(extra)/12.0,0.0,1.0), "extension_pressure"};
@@ -28,9 +31,9 @@ inline Rating rate(long long residual, long long baseline, long long reply,
     // without also beating the following seed. A full main is held to the
     // stronger persistent-pressure test above.
     if (!main && current_attack && extra >= 12)
-        return {1.0 + std::clamp(double(extra) / 30.0, 0.0, 1.0), "overpower"};
+        return {1.0 + std::clamp(double(extra) / 30.0, 0.0, 1.0), "overpower", true};
     if (at_turnover && jab_allowed && !skip_jab)
-        return {std::clamp(double(extra) / 12.0, 0.0, 1.0), "jab"};
+        return {std::clamp(double(extra) / 12.0, 0.0, 1.0), "jab", true};
     return {};
 }
 }

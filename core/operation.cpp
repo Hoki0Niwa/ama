@@ -96,7 +96,23 @@ std::optional<Pose> hook(const int* h, int shape, Pose p, int dx, int step, bool
     const int arm = dx < 0 ? 3 : 1;
     const int wall = q.x + ox[arm];
     if (wall < 0 || wall > 5 || h[wall] != 12 || !fits(h, shape, q, fever)) return std::nullopt;
+    // Steam's logged triple next to an 11-row step pushes away instead of
+    // climbing. The measured triple hook is valid with a <=10-row approach.
+    if (shape == 3 && h[p.x] > 10) return std::nullopt;
     return q;
+}
+// Finish the pair wall crossing with one simultaneous turn + outward shift.
+// The pair is horizontal on the 12-row wall; shifting first can cross the
+// boundary, and rotating first can kick it back. This is a Fever-specific edge.
+std::optional<Pose> wall_exit(const int* h, int shape, Pose p, int dx, int step, bool fever) {
+    if (!fever || shape != 2 || p.y != -1 || h[p.x] != 12 ||
+        p.r != (dx < 0 ? 3 : 1)) return std::nullopt;
+    Pose q{p.x + dx, p.y, (p.r + step + 4) % 4};
+    if (q.r != 0 && q.r != 2) return std::nullopt;
+    if (fits(h, shape, q, fever)) return q;
+    // The rotation may lift the pair when the far column reaches row 13.
+    --q.y;
+    return fits(h, shape, q, fever) ? std::optional(q) : std::nullopt;
 }
 std::array<std::array<bool, 4>, 6> reachable(const int* h, int shape, Pose start, bool fever) {
     std::array<std::array<bool, 4>, 6> result{};
@@ -115,6 +131,8 @@ std::array<std::array<bool, 4>, 6> reachable(const int* h, int shape, Pose start
         if (placement_allowed(h, shape, p.x, p.r, fever)) result[p.x][p.r] = true;
         for (int dx : {-1, 1}) {
             if (auto q = shift(h, shape, p, dx, fever)) add(*q);
+            for (int step : {-1, 1})
+                if (auto q = wall_exit(h, shape, p, dx, step, fever)) add(*q);
         }
         for (int step : (shape == 3 && std::find(h, h + 6, 12) != h + 6 ? std::array<int, 2>{-1, 1} : std::array<int, 2>{1, -1})) {
             if (shape == 0 && step == -1) continue;
@@ -172,6 +190,8 @@ std::optional<std::vector<Press>> route(const int* h, int shape, Pose start,
         };
         for (int dx : {-1, 1}) {
             if (auto q = shift(h, shape, p, dx, fever)) add(dx, 0, *q, false);
+            if (special) for (int step : {-1, 1})
+                if (auto q = wall_exit(h, shape, p, dx, step, fever)) add(dx, step, *q, false);
         }
         for (int step : (shape == 3 && std::find(h, h + 6, 12) != h + 6 ? std::array<int, 2>{-1, 1} : std::array<int, 2>{1, -1})) {
             if (shape == 0 && step == -1) continue;

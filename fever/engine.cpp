@@ -72,11 +72,19 @@ json answer(const json& input, const beam::eval::Weight& w, const json& set)
     }
 
     auto configs = fever::Configs();
+    configs.construction_scoring = input.value("construction_scoring", true);
+    if (configs.construction_scoring) configs.normal = normal_scoring::find(character->id);
+    configs.rebuild = input.value("rebuild", false);
     configs.hill = set.value("hill", 0);
+    read_upper_weights(configs, set);
     configs.stock = set.value("stock", 0);
     configs.stock_color = set.value("stock_color", 0);
     configs.stock_want = std::clamp(input.value("stock_want", configs.stock_want), 1, 7);
     configs.aim = input.value("aim", false);
+    configs.sustained = input.value("sustained",false);
+    configs.pace_frames=std::clamp(input.value("pace_frames",55),28,600);
+    configs.elapsed_build_frames=std::clamp(input.value("elapsed_build_frames",0),0,360000);
+    configs.sustained_min_chain=std::clamp(input.value("sustained_min_chain",13),4,19);
 
     configs.trigger = input.value("trigger", configs.trigger);
     configs.build_chain = input.value("build_chain", 0);
@@ -101,7 +109,7 @@ json answer(const json& input, const beam::eval::Weight& w, const json& set)
     std::optional<fever::Choice> choice = {};
 
     if (input.value("fire", false)) {
-        auto now = fever::fire::best_now(*field, queue[0], configs.rules);
+        auto now = fever::fire::best_now(*field, queue[0], configs.rules, configs.normal);
 
         if (now) {
             choice = fever::Choice {
@@ -140,6 +148,9 @@ json answer(const json& input, const beam::eval::Weight& w, const json& set)
         output["fire_moves"] = choice->fire_moves;
     }
     output["solo"] = true;
+    output["construction_objective"] = configs.sustained ? "sustained_large_chain_rate" : "mainline";
+    output["construction_scoring"] = configs.normal ? "fever_normal" : "legacy_tsu";
+    if (!choice->reconstruction.is_null()) output["reconstruction"] = choice->reconstruction;
     if (!choice->search_depths.empty()) {
         output["search_virtual_depths"] = choice->search_depths;
         output["search_completed_depth"] = *std::min_element(choice->search_depths.begin(),choice->search_depths.end());
@@ -153,7 +164,7 @@ json answer(const json& input, const beam::eval::Weight& w, const json& set)
         auto after = *field;
         auto drop = after.drop_piece(choice->placement.x, choice->placement.r, queue[0], configs.rules);
         auto pop = after.pop();
-        auto chain = chain::get_score(pop);
+        auto chain = configs.normal ? normal_scoring::score(pop, *configs.normal) : chain::get_score(pop);
 
         output["next_chain"] = chain.count;
         output["next_score"] = chain.score;
@@ -180,7 +191,7 @@ bool load_weights(const std::string& path, beam::eval::Weight& w, json& set)
 
     // The fever set where the file has one (it may carry the fever-only weight "hill"), else the Tsu long-chain set
     set = js.contains("fever") ? js.at("fever") : js.at("build");
-    from_json(set, w);
+    w = read_weights(set);
 
     return true;
 };

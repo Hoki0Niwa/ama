@@ -11,7 +11,9 @@ from .nuisance import Trays
 class GarbageSearch:
     def __init__(self, native, config):
         self.native = native
-        self.weights = json.loads(Path(config).read_text(encoding='utf-8'))['fever']
+        sets = json.loads(Path(config).read_text(encoding='utf-8'))
+        # Launcher snapshots save the edited Fever profile as build.
+        self.weights = sets['fever'] if 'fever' in sets else sets['build']
         self.scoring = Scoring()
 
     def search(self, character, rows, queue, confirmed, unconfirmed, remainder, rate, garbage_phase, width=80,
