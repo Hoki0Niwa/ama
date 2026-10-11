@@ -3208,3 +3208,12 @@ Ama評価編集画面で説明のなかったupper_12・upper_13・clear_cost・
 - ブランチ：codex/fever-first40-benchmark。実測に必要なセッション以前のローカル状態を独立した土台コミット7954049として記録し、このセッションの成果を別コミットとして積む。最初にベンチ直前を土台とした未公開の分離案は訂正した。feverのHEADと通常インデックスは変更していない。
 - 削除：指定remote branchの先端0e0e047を確認し、同じ参照に対するlease付き削除が成功。対応local branchは元から無し。その他のブランチは削除しない。
 - 確認：分離先で初回ベンチ13件成功。成果差分52ファイルがセッション範囲と一致し、元feverのHEAD/通常インデックス・セッション以前のコード/設定が不変、研究/再分析/ベンチ追加が元feverから除かれたことを照合済み。raw tracked.patchの空白は再現用原データとして保持し、それ以外の差分書式検査成功。探索変更・既定切替なし。
+
+### 2026-10-12 F40-1の研究診断実装・測定準備
+
+- 依頼：研究ブランチ9c90eedのB0再現を確認し、探索内部の診断のみ追加。B1/B2、製品設定・バイナリ・セカンド・Tsuの変更はしない。未知未来と環境seedは探索器へ渡さない。
+- B0再現：9c90eedのgit archive固定コピーを作り、既存build.ps1で独立native/DLLをビルド。既存意味的13件と全48試行1635手を再実行し、旧JSONLの盤面/配置/links/方針/容量/廃棄と一致。P15_first@40は6/24・5/24。Tsu protocol8件、同seed1/2 benchの非時間列一致。費用の公平比較ではなく再現確認で、Tsu実行が一部重なったことを記録した。
+- 実装：fever/research/first40_diagnostics.*、first40_worker.cpp、tools/build_fever_diagnostics.py、diagnose_fever_first40.py、test/test_fever_first40_diagnostics.py。製品search/evaluationの確定anchorから独立した生成translation unitへ読み取りobserverを加え、研究workerだけにリンク。共通コードと製品search/fire/engine、既存Python/backend、設定は変更していない。
+- 診断：root別各層の親/配置試行/合法/死/余白/TT/実5以上枝刈り/幅却下/置換/生存、正確なheap収支、幾何Witness Lg/Eg/Rg/Kg/Xg/色/Hg、root結果、展開数・B0評価回数・追加幾何計算回数、層/仮想列/検索全体のwall/CPU・native RSS/生涯ピーク・診断storage下界を記録。allモードは全候補の数値tupleを保存、summaryは全root countsと各root/脱落理由の代表Witness。rootのbeam子孫消失とroot結果自体の削除を区別する。
+- ビルド/検査：初回instrumented-v1は共有APIがconst非対応のため失敗し、研究側のコピーだけで修正。構文検査の最初の呼出はPowerShellが-msse4.1を分割したため失敗し、引用して成功。instrumented-v2はbuild log空で成功、SHA256 3980df0481c52dd8e3d01ef1c4a65ef66dee58dddd2202ffe23d1df02ba0543e。研究6テスト（native4を含む）全成功。参照/off/onの完全応答一致（search_msと診断キー除外）、全tupleの収支・群余剰、独立resolveで幾何Witness12件、未来/seed/期限入力拒否を確認。
+- 次：このコードを凍結して、初回13/14の23試行の実観測prefixと成功対照を診断。脱落した幾何15を合法な期限内15の存在証明と呼ばず、結果と診断費用を別レポートで提出して停止する。
