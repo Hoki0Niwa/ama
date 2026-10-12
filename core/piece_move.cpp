@@ -3,6 +3,25 @@
 
 namespace move
 {
+namespace {
+// Empirical Fever triple placements. Input timing is owned by the bridge;
+// these exceptions only extend placement selection, never Tsu reachability.
+bool measured_triple(const int* h, int axis, int r) {
+    const bool left_outer = (axis == 0 && (r == 0 || r == 1)) ||
+                            (axis == 1 && (r == 2 || r == 3));
+    const bool right_outer = (axis == 5 && (r == 2 || r == 3)) ||
+                             (axis == 4 && (r == 0 || r == 1));
+    if (h[0] == 13 && h[1] == 12 && left_outer) return true;
+    if (h[5] == 13 && h[4] == 12 && right_outer) return true;
+    if (h[0] == 12 && h[1] < 11 && left_outer) return true;
+    if (h[5] == 12 && h[4] < 11 && right_outer) return true;
+    if (h[1] == 12 && h[0] < 13 && h[axis] < 13 &&
+        (axis == 1 || (axis == 0 && (r == 0 || r == 1)))) return true;
+    if (h[4] == 12 && h[5] < 13 && h[axis] < 13 &&
+        (axis == 4 || (axis == 5 && (r == 2 || r == 3)))) return true;
+    return false;
+}
+}
 avec<Placement, 22> generate(Field& field, const piece::Piece& value, const rule::Rule& rules)
 {
     avec<Placement, 22> result;
@@ -19,7 +38,7 @@ avec<Placement, 22> generate(Field& field, const piece::Piece& value, const rule
             if (same && r == 3 && x > 0 && reachable[x - 1][1]) continue;
             const auto geometry = piece::geometry(value, direction::Type(r));
             const int pivot = pair ? x : x + geometry->pivot_x;
-            if (reachable[pivot][r])
+            if (reachable[pivot][r] || (!pair && measured_triple(h, pivot, r)))
                 result.add({x, direction::Type(r)});
         }
         return result;
