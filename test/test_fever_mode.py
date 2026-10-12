@@ -470,7 +470,7 @@ class NativeModeTests(unittest.TestCase):
             current['self']['remaining_frames']-=late
             self.assertEqual(self.seed_searches(current)[1],searches,late)
 
-    def test_fever_prefetch_never_predicts_a_clear_or_a_delivery(self):
+    def test_fever_prefetch_refuses_clear_or_unknown_partial_delivery(self):
         fire=request(side('fever',seed3(),['2:GG','2:RY','L:RRY']))
         moves=self.engine.native.ask(dict(op='placements',field=fire['self']['field'],piece='2:GG'))['placements']
         quiet=next(p for p in moves if not p['links'] and not p['dead'])
@@ -481,7 +481,7 @@ class NativeModeTests(unittest.TestCase):
                 moves=self.engine.native.ask(dict(op='placements',field=req['self']['field'],piece='2:GG'))['placements']
                 fired=next(p for p in moves if p['links'])
                 placement=dict(x=fired['x'],r=fired['r'])
-            else:req['self'].update(confirmed=2,fever_confirmed=2)
+            else:req['self'].update(confirmed=2,fever_confirmed=2,garbage_phase=None,garbage_phase_status='unknown')
             req.update(op='prepare',placement=placement)
             self.assertFalse(self.engine.answer(req)['prepared'],change)
             self.assertIsNone(self.engine.prepared)
@@ -929,10 +929,15 @@ class NativeModeTests(unittest.TestCase):
         own = side()
         own['gauge'] = 6
         own['field'][-1] = 'RRR.BB'
-        # Above the sparse board's 30-puyo acceptance: an actual necessary
-        # offset forecasts entry, rather than forcing one for a safe packet.
         own['confirmed'] = own['normal_confirmed'] = 31
+        safe_reply=self.engine.answer(request(own,side('fever',seed3())))
+        self.assertTrue(safe_reply['tactics_forecast']['can_receive_attack'])
+        self.assertFalse(safe_reply['entry_pending_after_chain'])
+        # A packet that the actual receiving board cannot hold, rather than
+        # merely exceeding Tsu's former 30-puyo acceptance classification.
+        own['confirmed'] = own['normal_confirmed'] = 72
         reply = self.engine.answer(request(own, side('fever', seed3())))
+        self.assertFalse(reply['tactics_forecast']['can_receive_attack'])
         self.assertTrue(reply['entry_pending_after_chain'])
         self.assertEqual(reply['gauge_forecast']['gauge_after'], 7)
 

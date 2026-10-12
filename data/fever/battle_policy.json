@@ -13,6 +13,7 @@
   },
   "reset_moves_at_chain": 4,
   "normal_build": {
+    "capacity_extensions": false,
     "status": "prototype_heuristic_not_battle_tuned",
     "objective": "mainline",
     "fever_aim": {
@@ -27,7 +28,7 @@
   "normal_tactics": {
     "status": "prototype_heuristic_not_battle_tuned",
     "quiet": true,
-    "all_clear_puyos": 24,
+    "all_clear_puyos": 16,
     "max_nodes": 3000,
     "budget_ms": 100,
     "width": 12,

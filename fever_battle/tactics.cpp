@@ -1,10 +1,13 @@
 #include "tactics.h"
+#include "counter_order.h"
+#include "normal_defense.h"
 #include "transition.h"
 #include "nuisance.h"
 #include "physics.h"
 #include "timing.h"
 #include "disruption.h"
 #include "../fever/stock.h"
+#include "../fever/normal_space.h"
 #include "../fever/text.h"
 #include "main_attack.h"
 #include <chrono>
@@ -22,7 +25,7 @@ using json = nlohmann::json;
 namespace {
 struct Weights {
     i64 entry, gauge, stock, color, drop, consume, mainline, height, early, builder, step, exposed, pending, uncountered, mainline_min;
-    i64 arrival_pieces, fever_reach, growth_cells, harass, all_clear, disrupt;
+    i64 arrival_pieces, fever_reach, harass, all_clear, disrupt;
     explicit Weights(const json& j):
         entry(number(j, "entry", 0, 1000000)), gauge(number(j, "gauge", 0, 1000000)),
         stock(number(j, "stock", 0, 1000000)), color(number(j, "color", 0, 1000000)),
@@ -33,7 +36,6 @@ struct Weights {
         pending(number(j, "pending", 0, 1000000)), uncountered(number(j, "uncountered", 0, 1000000)),
         mainline_min(number(j, "mainline_min", 1, 19)), arrival_pieces(j.contains("arrival_pieces") ? number(j, "arrival_pieces", 0, 100) : 2),
         fever_reach(j.contains("fever_reach") ? number(j, "fever_reach", 0, 1000000) : 100),
-        growth_cells(j.contains("growth_cells") ? number(j, "growth_cells", 1, 100) : 6),
         harass(j.contains("harass") ? number(j, "harass", 0, 1000000) : 400),
         all_clear(j.contains("all_clear") ? number(j, "all_clear", 0, 1000000) : 5000),
         disrupt(j.contains("disrupt") ? number(j, "disrupt", 0, 1000000) : 3000) {}
@@ -44,19 +46,27 @@ struct Node {
     EnemyTrays enemy;
     i64 enemy_remainder = 0;
     int event = 0, frame = 0, phase = 0, gauge = 0;
-    int popped = 0, dropped = 0, early = 0, early_gauge = 0, steps = 0, fire_delay = 0;
+    int popped = 0, dropped = 0, early = 0, early_gauge = 0, steps = 0;
+    int main_links_spent = 0;
+    i64 return_points = 0, return_nuisance = 0;
+    int return_frame = 0;
     bool builder_fire = false;      // the builder's own fire that leaves nothing pending
+    i64 committed_cost = 0;         // a later entry cannot waive resources spent by the first shot
     bool fired_main = false;        // main: attack leaves fewer than max(24, half the starting cells)
     bool crush = false;            // main crush: <=2 links, 24 cells and column heights retained
     bool side_attack = false;      // a low-redundancy attack preserving the remaining board
     bool cleared = false;           // a placement cleared the whole board
+    int all_clear_frame = 0;
     bool mistimed_attack = false;   // do not fund an early clear with a later timed attack
     int sent_end = -1;              // frame at which the last chain that sent nuisance ended (it is confirmed then)
+    double offense_limit = std::numeric_limits<double>::infinity();
+    bool offense_timed = false;
+    std::string offense_kind = "none";
 };
 // What one placement did, for the reply. Boards on unknown columns are kept
 // only to be weighed; none of them becomes the next board.
 struct Step {
-    int chain = 0, dropped = 0, redundancy = 0;
+    int chain = 0, dropped = 0, redundancy = 0, offset_links = 0;
     bool main = false, side = false;
     std::vector<i64> points;
     json links = json::array();
@@ -65,7 +75,17 @@ struct Step {
     Field cleared;                  // after the chain, before any drop
     std::vector<Field> boards;      // every board an unknown drop can leave
 };
-struct Outcome { bool alive = false; i64 value = 0; int gauge = 0; i64 sent = 0; double kills = 0; double disrupt = 0; bool cleared = false; std::string disruption_kind = "none"; bool useful_harass = false; };
+struct Outcome { bool alive = false; i64 value = 0; int gauge = 0; i64 sent = 0; double kills = 0; double disrupt = 0; bool cleared = false; std::string disruption_kind = "none"; bool useful_harass = false; NormalDefense defense; bool timed_pressure = false; i64 return_points = 0; int return_frame = 0; bool sufficient_return = false; };
+bool better(const Outcome& a, const Outcome& b, bool needs_return, bool avoid_entry = false, bool fatal = false) {
+    if (a.alive != b.alive) return a.alive;
+    if (fatal && a.defense.known_survival() != b.defense.known_survival()) return a.defense.known_survival();
+    if (needs_return && a.sufficient_return != b.sufficient_return) return a.sufficient_return;
+    if (needs_return && a.sufficient_return && (a.return_points != b.return_points || a.return_frame != b.return_frame))
+        return prefer_full_return(a.return_points, a.return_frame, b.return_points, b.return_frame);
+    if (needs_return && !avoid_entry && a.defense.can_commit() != b.defense.can_commit())
+        return a.defense.can_commit();
+    return a.value > b.value;
+}
 struct Exhausted {};
 // Gauge gain depends on links that actually offset, not the chain's length.
 struct GaugeResponse {
@@ -118,6 +138,8 @@ public:
     rule::Rule rules = rule::FEVER;
     bool unknown_phase = false, geometry = false;
     int root_cells = 0;
+    int opening_piece = 0;
+    bool opening_all_clear = false;
     int gain = 1, root_gauge = 0, width = 16, expanded = 0, max_nodes = 1500;
     int placement = 14, pop = 55, settle = 14, fall = 2, spawn = 28, score_offset = 0;
     int first_link = 0, chain_ready = 0, check = 0;
@@ -146,8 +168,12 @@ public:
     // leaves the main chain whole is credited with what it sends instead, so
     // that the puyos go into an attack. Nothing is credited at an opponent who
     // holds more than this board does.
+    bool finish_buried = false;
     bool quiet = false, harass = false, invite_fever = false, avoid_own_fever = false;
     i64 own_hold = 0, root_sent = 0;
+    i64 incoming = 0;
+    int margin = 1;
+    bool needs_return = false, fatal = false;
     double pressure = 1.0;
 
     // Use the observed column cursor in every risk estimate, as in play().
@@ -170,11 +196,14 @@ public:
     }
     // Plays one placement. False when the piece cannot go there.
     bool play(Node& n, const piece::Piece& piece, const move::Placement& move, Step& step) const {
-        advance(n, n.frame + placement);
         auto splits = split_distances(n.field, piece, move.x, move.r);
         const int rows = *std::max_element(splits.begin(), splits.end());
         const int extra = !split_costs.empty() && !split_costs[rows].is_null()
             ? split_costs[rows].get<int>() : rows * fall;
+        // Observed cadence includes placement, splitting and the next spawn.
+        // Charge only its excess over this move's model before locking; chains
+        // retain their own measured duration rather than paying cadence twice.
+        advance(n, n.frame + std::max(placement, pace - spawn - extra));
         if (!n.field.drop_piece(move.x, move.r, piece, rules)) return false;
         advance(n, n.frame + extra);
         // A clear is due when popping nothing would let nuisance fall now, or
@@ -194,7 +223,11 @@ public:
         ++n.steps;
         const int gauge_before = n.gauge;
         if (step.chain) {
-            const int start = n.frame;
+            // Attribute resource loss to our clears. Nuisance damage after
+            // a nonclearing placement is a drop cost, not voluntary firing.
+            const int main_before = std::max(step.chain, fever::stock::longest(locked));
+            if (main_before >= w->mainline_min)
+                n.main_links_spent += std::max(0, main_before - fever::stock::longest(step.cleared));
             // ai/ai.cpp on main: classify by the resources left, not by chain length.
             step.main = step.cleared.get_count() < std::max(24, root_cells / 2);
             auto before = locked, after = step.cleared;
@@ -220,24 +253,39 @@ public:
                 if (n.fixed + n.flying && amount == 0) amount = 1;
                 i64 taken = std::min(n.fixed, amount); n.fixed -= taken; amount -= taken;
                 i64 more = std::min(n.flying, amount); n.flying -= more; amount -= more;
-                if (taken + more) n.gauge = std::min(7, n.gauge + gain);
+                if (taken + more) {
+                    ++step.offset_links;
+                    n.gauge = std::min(7, n.gauge + gain);
+                }
                 step.cancelled += taken + more; step.sent += amount;
                 n.enemy.send(amount, n.frame);
                 const int duration = geometry ? link_frames(features[i], i == step.chain - 1)
                     : pop + settle + falls[i] * fall;
                 advance(n, n.frame + duration - score_offset);
             }
+            i64 shot_points = 0;
+            for (auto p : step.points) shot_points += p;
+            if (shot_points > n.return_points) {
+                n.return_points = shot_points;
+                n.return_nuisance = step.cancelled + step.sent;
+                n.return_frame = n.frame;
+            }
             if (step.sent > 0) {
                 n.sent_end = n.frame;
                 if (enemy_fever && !disruption::timed(n.sent_end, their_end, window)) n.mistimed_attack = true;
             }
-            n.cleared = n.cleared || step.all_clear;
+            // Tsu pursues at most three links; allow only four extra cells
+            // for Fever's larger pieces, during the opening eight placements.
+            if (step.all_clear && opening_all_clear && opening_piece + n.steps <= 8
+                && n.popped <= 16 && step.chain <= 3) {
+                n.cleared = true;
+                n.all_clear_frame = n.frame;
+            }
             n.enemy.confirm();
             // Nothing was about to fall: the same offsets stay available later,
             // so a clear made now earns no credit unless it enters Fever.
             if (!step.due && n.gauge < 7) { ++n.early; n.early_gauge += n.gauge - gauge_before; }
             advance(n, n.frame + chain_ready);
-            n.fire_delay += std::max(0, n.frame - start - spawn);
             return true;
         }
         advance(n, n.frame + check);
@@ -278,6 +326,19 @@ public:
         if (w->fever_reach <= 0) return left > 0 ? 1.0 : 0.0;
         return std::clamp(double(left) / double(2 * w->fever_reach), 0.0, 1.0);
     }
+    NormalDefense assess_defense(const Node& n) const {
+        auto settled = n;
+        advance(settled, std::numeric_limits<int>::max());
+        NormalDefense result;
+        result.pending = settled.fixed + settled.flying;
+        result.reply_exposure = enemy_fever ? std::max<i64>(0, seed_reply - settled.enemy.seed()) : 0;
+        result.entered = n.gauge >= 7;
+        result.lost_links = n.main_links_spent;
+        if (result.pending)
+            drops(n.field, int(std::min<i64>(78, result.pending)), n.phase,
+                [&](Field board) { result.landing_safe = result.landing_safe && !board.is_dead(rules); });
+        return result;
+    }
     // The value of stopping here.
     Outcome leaf(const Node& n) const {
         auto field = n.field;
@@ -289,7 +350,9 @@ public:
             - std::min<i64>(60, n.fixed + n.flying) * w->pending;
         // What still comes at this board, and what the opponent answers with
         // once what was sent to them is taken off what they hold.
-        const i64 arriving = n.fixed + n.flying + future(n);
+        const auto defense_state = assess_defense(n);
+        value -= std::max(n.committed_cost,
+            defense_state.cost(w->mainline, w->uncountered, int(w->fever_reach), n.builder_fire));
         const i64 answer = std::max<i64>(0, enemy_hold - n.enemy.pending());
         // Nuisance that lands on an opponent who cannot fill the gauge in time
         // ends the game, whatever was broken to send it; one about to enter
@@ -305,7 +368,7 @@ public:
         // The normal builder owns the target/capacity fire policy. A future
         // main in the tactical horizon must not pay for breaking that build
         // now, even if one low seed can be beaten by a short main.
-        const bool unready_main = enemy_fever && n.fired_main && !n.builder_fire;
+        const bool unready_main = enemy_fever && defense_state.lost_links > 0 && !n.builder_fire;
         const bool protected_main = (unready_main || (quiet && n.fired_main && !n.builder_fire)) && root_cells >= 24;
         const double kills = 0.0; // Kill estimates are not an attack objective in Fever battles.
         // A packet of this line's own, left on a Fever opponent after their chain.
@@ -318,23 +381,32 @@ public:
             }
         }
         auto disruption = enemy_fever ? disruption::rate(on_them, enemy_after_chain, reply_capacity,
-            timed_attack, n.side_attack || root_cells < 24, skip_jab, n.fired_main, current_attack && n.side_attack,
+            timed_attack, n.side_attack || root_cells < 24, skip_jab, n.fired_main,
+            current_attack && n.side_attack && disruption::arrives_by(n.sent_end, their_end, window),
             !unready_main) : disruption::Rating{};
         if (enemy_fever && extending && on_them > enemy_after_chain && n.sent_end >= 0 && seed_defense.size()==31) {
             if(counter_unknown && std::string(disruption.kind)!="jab") disruption={};
             const auto& response=seed_defense[std::min<i64>(30,on_them)];
             const auto& existing=seed_defense[std::min<i64>(30,enemy_after_chain)];
             const bool already_blocked=enemy_after_chain>0 && existing.value("checked",false) && !existing.value("regular_after_drop",false);
-            const auto pressure=disruption::extension(on_them-enemy_after_chain,(n.side_attack || root_cells<24) && !already_blocked,
+            // Fixed seed geometry ceases to prove a block after the opponent
+            // has time to place another piece before this packet is confirmed.
+            const auto pressure=disruption::extension(on_them-enemy_after_chain,
+                (n.side_attack || root_cells<24) && !already_blocked && disruption::arrives_by(n.sent_end, 0, window),
                 response.value("checked",false),response.value("regular_after_drop",false),skip_jab);
             if(pressure.value>disruption.value) disruption=pressure;
         }
         if (protected_main) disruption = {};
-        const double disrupts = disruption.value;
+        const double disrupts = std::min(disruption.value, n.offense_limit);
+        if (disrupts == 0) disruption = {};
+        else if (std::isfinite(n.offense_limit)) disruption.kind = n.offense_kind.c_str();
+        const bool timed_pressure = disrupts > 0 && (std::isfinite(n.offense_limit)
+            ? n.offense_timed : disruption.requires_timing);
         value += i64(disrupts * double(w->disrupt));
         // The board cleared: under the Fever rule a four-chain seed drops for it (and the Fever clock
         // gains). It is worth less the more the opponent can still send at the board it leaves.
-        if (n.cleared && !protected_main) value += i64(double(w->all_clear) * (1.0 - beyond(answer)));
+        if (n.cleared && !protected_main)
+            value += i64(double(w->all_clear) * (1.0 - beyond(answer))) - i64(n.all_clear_frame) * 10;
         bool useful_harass = false;
         if (quiet && harass && n.crush && !n.fired_main && enemy_hold <= own_hold) {
             const i64 sent = n.enemy.total() - root_sent;
@@ -346,9 +418,15 @@ public:
                 useful_harass = w->harass > 0;
             }
         }
+        if (quiet && finish_buried && n.enemy.total()>root_sent && on_them>enemy_hold) {
+            value+=std::min<i64>(30,n.enemy.total()-root_sent)*w->harass;
+            useful_harass=w->harass>0;
+        }
         const i64 sent_here = n.enemy.total() - root_sent;
+        const bool sufficient = incoming > 0 && n.return_nuisance >= incoming
+            && defense_state.pending == 0 && defense_state.can_commit();
         if (entered) return {true, value + (avoid_own_fever ? -w->entry : enemy_fever ? i64(w->entry * pressure)
-            : (n.fired_main || n.builder_fire ? 0 : -w->entry)), n.gauge, sent_here, kills, disrupts, n.cleared && !protected_main, disruption.kind, useful_harass};
+            : (n.fired_main || n.builder_fire ? 0 : -w->entry)), n.gauge, sent_here, kills, disrupts, n.cleared && !protected_main, disruption.kind, useful_harass, defense_state, timed_pressure, n.return_points, n.return_frame, sufficient};
         u8 heights[6]; field.get_heights(heights);
         value += stock.units * w->stock + stock.colors * w->color
             - i64(std::max(0, int(std::max(heights[2], heights[3])) - 8)) * w->height
@@ -362,7 +440,7 @@ public:
             drops(field, pending, n.phase, [&](Field board) { stands = stands && !board.is_dead(rules); });
             if (!stands) value -= w->exposed * (4 - std::min(3, stock.colors));
         }
-        return {true, value, n.gauge, sent_here, kills, disrupts, n.cleared && !protected_main, disruption.kind, useful_harass};
+        return {true, value, n.gauge, sent_here, kills, disrupts, n.cleared && !protected_main, disruption.kind, useful_harass, defense_state, timed_pressure, n.return_points, n.return_frame, sufficient};
     }
     // The worst board an unknown drop can leave.
     Outcome leaf(const Node& n, const Step& step) const {
@@ -376,9 +454,28 @@ public:
         }
         return worst;
     }
+    bool upper_open(const Node& n, const Step& step) const {
+        if (step.board_known) return fever::normal_space::upper_open(n.field);
+        return std::all_of(step.boards.begin(), step.boards.end(), [](Field board) {
+            return fever::normal_space::upper_open(board);
+        });
+    }
+    bool receives(const Node& n, const Step& step, const Outcome& here) const {
+        if (step.chain || !here.alive) return false;
+        const auto settled = assess_defense(n);
+        bool room = true;
+        const auto check = [&](Field source) {
+            room = room && fever::normal_space::room(source, margin);
+            drops(source, int(std::min<i64>(78, settled.pending)), n.phase,
+                [&](Field board) { room = room && fever::normal_space::room(board, margin); });
+        };
+        if (step.board_known) check(n.field);
+        else for (const auto& board : step.boards) check(board);
+        return room;
+    }
     // Whether the search goes on below a placement.
     bool ends(const Node& n, const Step& step, int depth, int limit) const {
-        return depth + 1 >= limit || depth + 1 >= int(pieces.size()) || n.gauge >= 7 || n.fired_main || n.builder_fire ||
+        return depth + 1 >= limit || depth + 1 >= int(pieces.size()) || n.gauge >= 7 ||
             step.all_clear || !step.board_known;
     }
     Outcome below(const Node& n, const Step& step, int depth, int limit) {
@@ -390,7 +487,7 @@ public:
         struct Child { Node node; Step step; Outcome here; };
         std::vector<Child> children;
         auto field = node.field;
-        auto moves = move::generate(field, pieces[depth], rules);
+        auto moves = fever::normal_space::moves(field, pieces[depth], rules);
         for (int i = 0; i < moves.get_size(); ++i) {
             tick();
             Child child{node, {}, {}};
@@ -399,14 +496,16 @@ public:
             if (child.here.alive) children.push_back(std::move(child));
         }
         if (children.empty()) return {false, -1000000000 + i64(node.steps) * 1000, node.gauge};
-        std::stable_sort(children.begin(), children.end(), [](const Child& a, const Child& b) {
-            return a.here.value > b.here.value;
+        if (std::any_of(children.begin(), children.end(), [&](const Child& c) { return c.here.defense.secured() && upper_open(c.node, c.step); }))
+            std::erase_if(children, [&](const Child& c) { return !upper_open(c.node, c.step); });
+        std::stable_sort(children.begin(), children.end(), [&](const Child& a, const Child& b) {
+            return better(a.here, b.here, needs_return, avoid_own_fever, fatal);
         });
         if (children.size() > size_t(width)) children.resize(width);
         Outcome best; bool first = true;
         for (const auto& child : children) {
             const auto value = below(child.node, child.step, depth, limit);
-            if (first || std::make_pair(value.alive, value.value) > std::make_pair(best.alive, best.value)) best = value;
+            if (first || better(value, best, needs_return, avoid_own_fever, fatal)) best = value;
             first = false;
         }
         return best;
@@ -416,6 +515,8 @@ public:
 
 json tactics(Field field, const json& request) {
     Search search;
+    search.opening_piece = request.contains("opening_piece") ? number(request, "opening_piece", 0, 1000000000) : 0;
+    search.opening_all_clear = request.value("opening_all_clear", false);
     search.rules.plain_pairs = true; search.rules.special_moves = true;
     if (field.is_dead(search.rules)) throw std::invalid_argument("already dead field");
     const auto queue = request.at("queue").get<std::vector<std::string>>();
@@ -448,6 +549,7 @@ json tactics(Field field, const json& request) {
     search.gain = number(request, "gain", 1, 7);
     search.width = number(request, "width", 1, 64);
     search.max_nodes = number(request, "max_nodes", 1, 1000000);
+    search.margin = request.contains("margin") ? number(request, "margin", 0, 6) : 1;
     search.unknown_phase = request.value("unknown_garbage_phase", false);
     search.enemy_hold = request.contains("enemy_hold") ? number(request, "enemy_hold", 0, 1000000000) : 0;
     search.upcoming = request.value("upcoming", std::string());
@@ -461,6 +563,7 @@ json tactics(Field field, const json& request) {
     if (request.contains("enemy_hold")) search.enemy_hold = number(request, "enemy_hold", 0, 1000000000);
     search.pace = request.contains("pace_frames") ? number(request, "pace_frames", 1, 10000) : 0;
     search.harass = request.value("harass", false);
+    search.finish_buried=request.value("finish_buried",false);
     search.invite_fever = request.value("invite_fever", false);
     search.avoid_own_fever = request.value("avoid_own_fever", false);
     search.quiet = request.value("quiet", false);
@@ -508,6 +611,7 @@ json tactics(Field field, const json& request) {
         advance_enemy(search.events, rates, std::numeric_limits<int>::max(), baseline.event,
             baseline.fixed, baseline.flying, baseline.enemy, baseline.enemy_remainder);
         search.enemy_after_chain = search.enemy_fever ? baseline.enemy.seed() : baseline.enemy.normal();
+        search.incoming = baseline.fixed + baseline.flying;
     }
     // Gauge is insurance against a packet that needs Fever. A few nuisance
     // on a low board are not worth entering Fever or consuming the build for.
@@ -526,7 +630,7 @@ json tactics(Field field, const json& request) {
     };
     struct First { move::Placement move; Node node; Step step; Outcome here; i64 bonus = 0; };
     std::vector<First> firsts;
-    auto moves = move::generate(field, search.pieces[0], search.rules);
+    auto moves = fever::normal_space::moves(field, search.pieces[0], search.rules);
     for (int i = 0; i < moves.get_size(); ++i) {
         const auto r = std::string(1, fever::text::from_direction(moves[i].r));
         if (request.contains("allowed")) {
@@ -543,6 +647,15 @@ json tactics(Field field, const json& request) {
                 request.at("builder").value("fire", false);
         }
         first.here = search.leaf(first.node, first.step);
+        // A preparation can lead to an attack. An actual shot is credited
+        // only with its own pressure, not a later shot's success.
+        if (first.step.chain) {
+            first.node.committed_cost = first.here.defense.cost(weights.mainline,
+                weights.uncountered, int(weights.fever_reach), first.node.builder_fire);
+            first.node.offense_limit = first.here.disrupt;
+            first.node.offense_timed = first.here.timed_pressure;
+            first.node.offense_kind = first.here.disruption_kind;
+        }
         firsts.push_back(std::move(first));
     }
     if (firsts.empty()) throw std::invalid_argument("no conservative legal placement");
@@ -553,8 +666,15 @@ json tactics(Field field, const json& request) {
         u8 heights[6]; auto board = first.node.field; board.get_heights(heights);
         return first.here.alive && std::max(heights[2], heights[3]) <= 11 - margin;
     };
-    if (std::any_of(firsts.begin(), firsts.end(), safe))
+    search.fatal = !search.assess_defense(root).known_survival() && search.pieces_before_drop(root)<=1;
+    if (!search.fatal && std::any_of(firsts.begin(), firsts.end(), safe))
         std::erase_if(firsts, [&](const First& first) { return !safe(first); });
+    if (std::any_of(firsts.begin(), firsts.end(), [&](const First& f) { return f.here.alive && f.here.defense.secured() && search.upper_open(f.node, f.step); }))
+        std::erase_if(firsts, [&](const First& f) { return !search.upper_open(f.node, f.step); });
+    const i64 incoming = search.incoming;
+    const auto receives = [&](const First& f) { return search.receives(f.node, f.step, f.here); };
+    const bool accept = std::any_of(firsts.begin(), firsts.end(), receives);
+    search.needs_return = incoming > 0 && !accept;
     std::vector<Outcome> values(firsts.size());
     int completed = 0; bool cutoff = false, skipped = false;
     try {
@@ -568,7 +688,7 @@ json tactics(Field field, const json& request) {
                 i64 nodes = 1, branches = 1;
                 for (int d = 1; d < limit; ++d) {
                     auto empty = Field();
-                    const int count = move::generate(empty, search.pieces[d], search.rules).get_size();
+                    const int count = fever::normal_space::moves(empty, search.pieces[d], search.rules).get_size();
                     nodes += branches * count;
                     branches *= std::min(search.width, count);
                 }
@@ -598,17 +718,12 @@ json tactics(Field field, const json& request) {
     // simulation stay in the Fever search. Initial/second build targets stay
     // with the builder, as configured by the user.
     std::optional<size_t> counter;
-    auto baseline = root;
-    search.advance(baseline, std::numeric_limits<int>::max());
-    const i64 incoming = baseline.fixed + baseline.flying;
-    auto acceptance_board = field;
-    const int accept_limit = gaze::get_accept_limit(acceptance_board);
-    // Being in Fever does not make every small packet an urgent counter.
-    // Keep building when the ordinary resource/height acceptance permits it.
-    const bool accept = incoming <= accept_limit && field.get_height(2) < 10;
     const auto points = [&](size_t i) {
         i64 sum = 0; for (auto p : firsts[i].step.points) sum += p; return sum;
     };
+    i64 default_main_points = 0;
+    for (int i=0;i<14;++i) default_main_points += 40*std::clamp(search.powers[i], search.bonuses.minimum, search.bonuses.maximum);
+    const i64 main_points = request.value("main_trigger_points", default_main_points);
     const auto earlier = [&](size_t a, size_t b) {
         return firsts[a].node.frame < firsts[b].node.frame;
     };
@@ -620,18 +735,19 @@ json tactics(Field field, const json& request) {
         for (size_t i = 0; i < firsts.size(); ++i) {
             const auto& f = firsts[i];
             if (!values[i].alive || !f.step.chain) continue;
+            const bool secured = values[i].defense.can_commit();
             // Do not spend a weak main before the observed Fever attack has
             // arrived: waiting lets its links actually offset and gain gauge.
             if (search.enemy_fever && f.step.main && f.step.cancelled == 0
                     && values[i].disrupt < 0.5 && points(i) / rate <= search.seed_reply
                     && root.fixed + root.flying == 0) continue;
             const i64 send = points(i) / rate;
-            if (send >= incoming) {
+            if (send >= incoming && secured) {
                 if (search.enemy_fever && !search.avoid_own_fever && root.gauge < 7 && f.node.gauge >= 7 && f.step.side)
                     entry_returns.push_back(i);
-                if (points(i) >= 2100 && (incoming >= 90 || points(i) >= std::min<i64>(request.value("main_trigger_points", i64(85000)), 85000))) full.push_back(i);
+                if (points(i) >= 2100 && (incoming >= 90 || points(i) >= main_points)) full.push_back(i);
                 if (f.step.main) mains.push_back(i); else small.push_back(i);
-            } else if (send + 30 >= incoming) desperate.push_back(i);
+            } else if (send < incoming && send + 30 >= incoming) desperate.push_back(i);
         }
         const auto pick = [&](const std::vector<size_t>& group, bool small_return) {
             for (const auto i : group) {
@@ -641,10 +757,8 @@ json tactics(Field field, const json& request) {
                     if (firsts[i].node.gauge < 7) counter = i;
                 } else if (small_return && (firsts[i].step.redundancy > 4) != (firsts[j].step.redundancy > 4)) {
                     if (firsts[i].step.redundancy <= 4) counter = i;
-                } else if (!small_return && points(i) / rate >= incoming + 90 && points(j) / rate >= incoming + 90) {
-                    if (earlier(i, j) || (firsts[i].node.frame == firsts[j].node.frame && points(i) > points(j))) counter = i;
-                } else if (!small_return && (points(i) / rate >= incoming + 90) != (points(j) / rate >= incoming + 90)) {
-                    if (points(i) / rate >= incoming + 90) counter = i;
+                } else if (!small_return) {
+                    if (prefer_full_return(points(i), firsts[i].node.frame, points(j), firsts[j].node.frame)) counter = i;
                 } else if (std::abs(points(i) - points(j)) / rate >= 6) {
                     if (points(i) > points(j)) counter = i;
                 } else if (earlier(i, j)) counter = i;
@@ -653,17 +767,26 @@ json tactics(Field field, const json& request) {
         // In a Fever battle a sufficient small return that fills our gauge
         // preserves the main chain. Normal opponents keep main's priorities.
         pick(entry_returns, true);
-        if (!counter && !(search.avoid_own_fever && accept)) pick(full, false);
+        if (!counter && !accept) pick(full, false);
         if (!counter && !accept) pick(small, true);
         if (!counter && !accept) pick(mains, false);
         if (!counter && !accept && (root.fixed > 0 || search.pieces_before_drop(root) <= 1))
             pick(desperate, false);
+        // The same sufficient-return result covers a preparation followed by
+        // a visible shot. Do not fund a small initial clear with a future main.
+        if (!accept) {
+            for (size_t i = 0; i < firsts.size(); ++i) {
+                if (firsts[i].step.chain || !values[i].alive || !values[i].sufficient_return) continue;
+                if (!counter || prefer_full_return(values[i].return_points, values[i].return_frame,
+                        values[*counter].return_points, values[*counter].return_frame)) counter = i;
+            }
+        }
     }
     json candidates = json::array();
     size_t best = 0;
     for (size_t i = 0; i < firsts.size(); ++i) {
         auto& first = firsts[i];
-        if (std::make_pair(values[i].alive, values[i].value) > std::make_pair(values[best].alive, values[best].value)) best = i;
+        if (better(values[i], values[best], search.needs_return, search.avoid_own_fever, search.fatal)) best = i;
         auto shown = first.step.board_known ? first.node.field : first.step.cleared;
         candidates.push_back({{"x", first.move.x}, {"r", std::string(1, fever::text::from_direction(first.move.r))},
             {"attack_kind", !first.step.chain ? "build" : first.step.main ? "main" : "side"},
@@ -672,6 +795,7 @@ json tactics(Field field, const json& request) {
             {"cancelled", first.step.cancelled}, {"sent", first.step.sent}, {"dropped", first.step.dropped},
             {"drop_due", first.step.due}, {"all_clear", first.step.all_clear},
             {"gauge_after", first.node.gauge}, {"projected_gauge", values[i].gauge}, {"projected_sent", values[i].sent}, {"projected_kill", values[i].kills},
+            {"offset_links", first.step.offset_links},
             {"gauge_before", root.gauge}, {"enters_fever", root.gauge < 7 && first.node.gauge >= 7},
             {"opponent_entry_possible", !search.enemy_fever && search.response.can_enter(first.node.enemy.normal())},
             {"invites_opponent_fever", search.invite_fever && first.node.crush && first.step.sent > 0
@@ -679,9 +803,25 @@ json tactics(Field field, const json& request) {
                 && search.response.can_enter(first.node.enemy.normal())},
             {"attack_end", first.node.sent_end}, {"enemy_trays", first.node.enemy.json()},
             {"projected_disrupt", values[i].disrupt}, {"projected_all_clear", values[i].cleared},
+            {"all_clear_frames", first.node.all_clear_frame},
             {"projected_harass", values[i].useful_harass},
             {"disruption_kind", values[i].disruption_kind},
+            {"disruption_requires_timing", values[i].timed_pressure},
             {"survives", values[i].alive}, {"value", values[i].value},
+            {"current_survives", first.here.alive},
+            {"current_defense_commitment", first.here.defense.can_commit()},
+            {"current_exchange_pending", first.here.defense.pending},
+            {"current_main_cost", first.node.committed_cost},
+            {"known_exchange_pending", values[i].defense.pending},
+            {"known_exchange_secured", values[i].defense.secured()},
+            {"next_seed_exposure", values[i].defense.reply_exposure},
+            {"defense_commitment", values[i].defense.can_commit()},
+            {"survives_known_exchange",values[i].alive && values[i].defense.known_survival()},
+            {"main_links_lost", values[i].defense.lost_links},
+            {"can_receive", receives(first)},
+            {"projected_return_points", values[i].return_points},
+            {"projected_return_frame", values[i].return_frame},
+            {"projected_sufficient_return", values[i].sufficient_return},
             {"post_drop_field_known", first.step.board_known},
             {"possible_drop_boards", first.step.board_known ? 1 : int(first.step.boards.size())},
             {"field", fever::text::from_field(shown)},
@@ -709,12 +849,19 @@ json tactics(Field field, const json& request) {
             && !firsts[best].step.all_clear) {
         std::optional<size_t> building;
         for (size_t i = 0; i < firsts.size(); ++i)
-            if (values[i].alive && !firsts[i].step.chain && (!building || values[i].value > values[*building].value)) building = i;
+            if (receives(firsts[i]) && (!building || values[i].value > values[*building].value)) building = i;
         if (building) best = *building;
     }
+    if (search.fatal && !values[best].defense.known_survival()) {
+        for (size_t i=0;i<values.size();++i)
+            if (values[i].alive && values[i].defense.known_survival() &&
+                (!values[best].defense.known_survival() || better(values[i],values[best],true,search.avoid_own_fever,true))) best=i;
+    }
+    candidates[best]["defensive_fire"] = counter.has_value();
     return {{"choice", candidates[best]}, {"attack_policy", "main_resource_and_score"}, {"candidates", candidates},
         {"completed_depth", completed}, {"visible", queue.size()}, {"expanded", search.expanded}, {"cutoff", cutoff},
         {"deeper_pass_skipped", skipped}, {"held_main_for_counter", held_main},
+        {"can_receive_attack", accept}, {"fatal_known_attack",search.fatal},
         {"root_stock", {{"units", root_stock.units}, {"links", root_stock.links},
             {"colors", root_stock.colors}, {"longest", root_stock.longest}}},
         {"enemy_hold", search.enemy_hold}, {"harass", search.harass}, {"own_hold", search.own_hold},

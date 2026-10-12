@@ -30,7 +30,9 @@ class AttackGaugeTests(unittest.TestCase):
             result=tactics.choose(self.engine.native,self.engine.scoring,own,30,1,policy,
                 enemy=side('fever',seed3()),fever=dict(enemy_fever=True))
             choices.append(result['tactics_forecast']['choice'])
-        self.assertEqual(choices[0]['attack_kind'],'main')
+        # One harmless puyo must not buy the seven-chain main at gauge zero.
+        self.assertEqual(choices[0]['attack_kind'],'build')
+        self.assertTrue(choices[0]['can_receive'])
         self.assertEqual(choices[1]['attack_kind'],'side')
         self.assertTrue(choices[1]['enters_fever'])
         self.assertEqual(choices[1]['chain'],1)
@@ -59,8 +61,11 @@ class AttackGaugeTests(unittest.TestCase):
         for own_gen,enemy_gen in ((0,0),(0,2),(2,0),(2,2)):
             own=self.own();enemy=side('normal')
             own['mode_generation']=own_gen;enemy['mode_generation']=enemy_gen
-            with patch.object(tactics,'choose',return_value=None) as choose:
+            with patch.object(tactics,'evaluate',return_value=tactics.Decision('unavailable')) as choose:
                 self.engine._tactics(request(own,enemy),own,enemy,120)
+            if own_gen:
+                choose.assert_not_called() # Quiet second builds a large chain instead of inviting entry.
+                continue
             self.assertEqual(choose.call_args.kwargs['invite_fever'],own_gen==enemy_gen==0)
             self.assertEqual(choose.call_args.kwargs['avoid_own_fever'],own_gen==enemy_gen==0)
     def test_first_battle_avoids_own_entry_even_while_enemy_prepares_entry(self):

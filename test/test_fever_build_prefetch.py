@@ -63,7 +63,7 @@ class BuildPrefetchTests(unittest.TestCase):
         for name in ('self', 'enemy'): current[name]['observed_frame'] = 55
         current['enemy']['remaining_frames'] = 845
         current['enemy_chain']['elapsed'] = 55
-        with patch.object(self.engine, '_tactics', wraps=self.engine._tactics) as tactics:
+        with patch.object(self.engine, '_tactical_decision', wraps=self.engine._tactical_decision) as tactics:
             reply = self.engine.answer(current)
         tactics.assert_called_once()
         self.assertFalse(reply.get('search_reused', False))
@@ -71,7 +71,7 @@ class BuildPrefetchTests(unittest.TestCase):
     def test_normal_preparation_reuses_after_scoring_with_the_same_final_packet(self):
         current = self.prepared(); current['enemy_chain']['scored_links'] = 1
         current['enemy']['remainder'] = 40
-        with patch.object(self.engine, '_tactics', wraps=self.engine._tactics) as tactics:
+        with patch.object(self.engine, '_tactical_decision', wraps=self.engine._tactical_decision) as tactics:
             reply = self.engine.answer(current)
         tactics.assert_not_called()
         self.assertTrue(reply.get('search_reused', False))
@@ -239,7 +239,7 @@ class BuildPrefetchTests(unittest.TestCase):
         ahead = copy.deepcopy(current); ahead['op'] = 'prepare_observed'
         self.engine.answer(ahead)
         current['margin_policy']['start_frame'] = 60
-        with patch.object(self.engine, '_tactics', wraps=self.engine._tactics) as think:
+        with patch.object(self.engine, '_tactical_decision', wraps=self.engine._tactical_decision) as think:
             reply = self.engine.answer(current)
         think.assert_called_once()
         self.assertFalse(reply.get('search_reused', False))

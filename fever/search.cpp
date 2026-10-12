@@ -1,4 +1,5 @@
 #include "search.h"
+#include "normal_space.h"
 
 namespace fever
 {
@@ -9,11 +10,12 @@ void expand(
     beam::node::Data& node,
     const beam::eval::Weight& w,
     const rule::Rule& rules,
-    std::function<void(beam::node::Data&, const move::Placement&, const chain::Score&)> callback
+    std::function<void(beam::node::Data&, const move::Placement&, const chain::Score&)> callback,
+    const normal_scoring::Entry* normal
 )
 {
     // Generates moves
-    auto locks = move::generate(node.field, piece, rules);
+    auto locks = normal_space::moves(node.field, piece, rules);
 
     for (auto i = 0; i < locks.get_size(); ++i) {
         // Creates child node
@@ -49,7 +51,7 @@ void expand(
         beam::eval::action(child, tear, waste, w);
 
         // Callback
-        callback(child, locks[i], chain::get_score(pop));
+        callback(child, locks[i], normal ? normal_scoring::score(pop, *normal) : chain::get_score(pop));
     }
 };
 
@@ -66,7 +68,10 @@ static bool think(
 )
 {
     // Sorts the parents layer
-    parents.sort();
+    // Roots are inserted directly and can exceed width; they are not a heap.
+    if (depth == 1)
+        std::sort(parents.data.begin(),parents.data.end(),[](const auto& a,const auto& b){return b<a;});
+    else parents.sort();
 
     std::vector<i64> reached(configs.aim ? candidates.size() : 0, INT64_MIN);
 
@@ -78,6 +83,7 @@ static bool think(
 
             candidate.score = std::max(candidate.score, size_t(chain.score));
             candidate.chain = std::max(candidate.chain, chain.count);
+            candidate.throughput = std::max(candidate.throughput,cycle_rate(chain,int(depth)+1,configs));
 
             // Prunes children that triggered big chains
             if (chain.count >= fever::PRUNE_CHAIN) {
@@ -111,7 +117,7 @@ static bool think(
 
             // Adds children to the next layer
             children.add(child);
-        });
+        }, configs.normal);
     }
 
     // Clears the parents layer
@@ -168,16 +174,28 @@ Result search(
             candidate.placement = placement;
             candidate.score = chain.score;
             candidate.chain = chain.count;
+            candidate.throughput = cycle_rate(chain,1,configs);
 
             // Updates child
             child.index = i32(result.candidates.size());
             fever::evaluate(child, w, configs);
+            if (queue.size()>1 && chain.count<3) {
+                candidate.next_room=0;
+                auto next=normal_space::moves(child.field,queue[1],configs.rules);
+                for (int j=0;j<next.get_size();++j) {
+                    auto after=child.field;
+                    auto placed=after.drop_piece(next[j].x,next[j].r,queue[1],configs.rules);
+                    if (!placed || placed->discarded) continue;
+                    after.pop();
+                    if (normal_space::room(after,configs.rules.margin)) ++candidate.next_room;
+                }
+            }
             candidate.aim = i64(child.score.eval) + child.score.action;
 
             // Pushes
             result.candidates.push_back(candidate);
             layers[0].data.push_back(child);
-        }
+        }, configs.normal
     );
 
     // If there aren't any candidates, stops searching
@@ -284,6 +302,7 @@ Result search_multi(
             for (auto& c2 : b.candidates) {
                 if (c1.placement == c2.placement) {
                     c1.score += c2.score;
+                    c1.throughput += c2.throughput;
                     c1.aim += c2.aim;
                     c1.chain = std::max(c1.chain, c2.chain);
                     break;
@@ -300,6 +319,8 @@ Result search_multi(
         result.candidates.begin(),
         result.candidates.end(),
         [&] (const Candidate& a, const Candidate& b) {
+            if ((a.next_room>0)!=(b.next_room>0)) return a.next_room>0;
+            if (configs.sustained && a.throughput != b.throughput) return a.throughput > b.throughput;
             if (configs.aim) {
                 return a.aim > b.aim;
             }

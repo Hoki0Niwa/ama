@@ -5,6 +5,7 @@ taking a drop are placements of one search with one value; see
 fever_battle/tactics.cpp. The weights are prototype values of
 data/fever/battle_policy.json, not tuned in battle.
 """
+from dataclasses import dataclass
 from .timing import ChainTiming
 from .nuisance import Trays
 
@@ -25,10 +26,17 @@ def kind(choice):
     return 'take' if choice['dropped'] else 'stack'
 
 
-def choose(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=None, margin=None,
+@dataclass
+class Decision:
+    status: str                         # build, defense, unresolved, unavailable
+    reply: dict | None = None
+    forecast: dict | None = None
+
+
+def evaluate(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=None, margin=None,
            allowed=None, builder=None, defense=None, upcoming='', harass=False, pace=None, quiet=False, fever=None, enemy_hold=None,
            invite_fever=False, avoid_own_fever=False, builder_fire=False):
-    """The reply for this piece, or None when no placement can be played at all."""
+    """Keep a builder decision distinct from an unavailable tactical search."""
     opponent, margin = enemy or {}, margin or {}
     # Generic normal harassment must not bypass the Fever turnover window.
     if fever and fever.get('enemy_fever'):
@@ -37,10 +45,12 @@ def choose(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=No
         confirmed=own['confirmed'], unconfirmed=own['unconfirmed'], remainder=own['remainder'],
         garbage_phase=own['garbage_phase'] or 0, unknown_garbage_phase=own['garbage_phase'] is None,
         gauge=own['gauge'], gain=gain, target_point=rate,
+        opening_piece=own['piece_id'],
+        opening_all_clear=own.get('mode_generation', 0) == 0 and own.get('normal_chain_max', 0) < 4,
         rate_events=margin.get('rate_events', []), enemy_rate_events=margin.get('enemy_rate_events', []),
         enemy_events=enemy_events or [],
         **Trays(opponent).native(),
-        enemy_remainder=opponent.get('remainder', 0), upcoming=upcoming, harass=harass, quiet=quiet,
+        enemy_remainder=opponent.get('remainder', 0), upcoming=upcoming, harass=harass, quiet=quiet, finish_buried=bool(policy.get('finish_buried',False)),
         invite_fever=invite_fever, avoid_own_fever=avoid_own_fever, **(fever or {}),
         **({} if enemy_hold is None else dict(enemy_hold=enemy_hold)),
         **({} if defense is None else dict(enemy_defense=defense)), **({} if pace is None else dict(pace_frames=pace)),
@@ -48,15 +58,18 @@ def choose(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=No
         bonuses=scoring.data['bonuses'], weights=policy['weights'],
         width=policy.get('width', 12), max_nodes=policy.get('max_nodes', 1500),
         budget_ms=policy.get('budget_ms', 100), margin=policy.get('margin', 1),
-        main_trigger_points=policy.get('main_trigger_points', 85000))
+        main_trigger_points=policy.get('main_trigger_points',
+            40 * sum(max(1, p) for p in scoring.data['characters'][own['character']]['normal'][:14])))
     if allowed is not None:
         request['allowed'] = allowed
     if builder is not None:
         request['builder'] = dict(x=builder[0], r=builder[1], fire=builder_fire)
     try:
         result = native.ask(request)
-    except ValueError:
-        return None
+    except ValueError as error:
+        if str(error) not in ('no conservative legal placement', 'already dead field'):
+            raise
+        return Decision('unavailable')
     choice = result['choice']
     reason = KINDS[kind(choice)]
     if quiet:
@@ -67,7 +80,7 @@ def choose(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=No
         disrupt = choice['projected_sent'] > 0 and choice['projected_disrupt'] >= 0.5
         useful_harass = harass and choice.get('projected_harass', False)
         if builder is not None and (choice['x'], choice['r']) == tuple(builder) and not disrupt:
-            return None
+            return Decision('build', forecast=result)
         if result.get('held_main_for_counter'):
             reason = 'tactics_hold_for_fever_counter'
         elif choice['projected_all_clear']:
@@ -79,12 +92,20 @@ def choose(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=No
         elif useful_harass and not choice['chain'] and choice['projected_sent'] > 0:
             reason = 'tactics_harass'      # the placement that sets the attack up
         else:
-            return None
+            return Decision('build', forecast=result)
     points = choice['link_points']
-    return dict(x=choice['x'], r=choice['r'], shape=own['queue'][0][0], reason=reason,
+    reply = dict(x=choice['x'], r=choice['r'], shape=own['queue'][0][0], reason=reason,
         decision_kind=kind(choice), fire=bool(points), chain=choice['chain'], next_chain=choice['chain'],
         next_score=sum(points), link_points=points,
         next_field=choice['field'] if choice['post_drop_field_known'] else None,
-        next_all_clear=choice['all_clear'], selected_move_loses=not choice['survives'],
+        next_all_clear=choice['all_clear'], selected_move_loses=not choice.get('current_survives', choice['survives']),
         decision_dependencies=['self', 'enemy'] if enemy_events or quiet else ['self'],
         searched_visible=result['completed_depth'] or 1, tactics_forecast=result)
+    status = 'defense' if choice['survives'] and choice['defense_commitment'] else 'unresolved'
+    reply['normal_decision_status'] = status
+    return Decision(status, reply, result)
+
+
+def choose(*args, **kwargs):
+    """Compatibility API for callers interested only in tactical overrides."""
+    return evaluate(*args, **kwargs).reply

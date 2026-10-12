@@ -86,11 +86,20 @@ class SeedDefenseTests(unittest.TestCase):
         rows=list(next(s['field'] for s in refs if s['id']=='hirazumi-7'));rows[4:7]=['Y.....']*3
         own=side('normal',rows,['2:YG']);own['character']='arle'
         enemy=side('fever',seed3())
+        ask=self.engine.native.ask
+        def immediate_packet(req):
+            if req.get('op')=='tactics':
+                # Isolate checked geometry from expiry: this packet arrives
+                # before the opponent can make another ordinary placement.
+                req=dict(req,timing=dict(placement_frames=1,pop_frames=1,
+                    settle_frames=0,fall_frames_per_row=0,spawn_frames=1))
+            return ask(req)
         for checked,safe,expected in ((True,False,'extension_pressure'),(True,True,'none'),(False,False,'none')):
             profiles=[dict(checked=checked,regular_after_drop=safe,counter_points=0) for _ in range(31)]
-            result=tactics.choose(self.engine.native,self.engine.scoring,own,3,1,self.engine.policy['normal_tactics'],
-                allowed=[dict(x=0,r='U')],enemy=enemy,defense=dict(hold=1000000,kill=0,links=0,need=7),
-                fever=dict(enemy_fever=True,enemy_reply_nuisance=1000000,enemy_extending=True,enemy_seed_defense=profiles))
+            with patch.object(self.engine.native,'ask',side_effect=immediate_packet):
+                result=tactics.choose(self.engine.native,self.engine.scoring,own,3,1,self.engine.policy['normal_tactics'],
+                    allowed=[dict(x=0,r='U')],enemy=enemy,defense=dict(hold=1000000,kill=0,links=0,need=7),
+                    fever=dict(enemy_fever=True,enemy_reply_nuisance=1000000,enemy_extending=True,enemy_seed_defense=profiles))
             self.assertEqual(result['tactics_forecast']['choice']['disruption_kind'],expected)
             if expected=='extension_pressure':
                 req=request(own,enemy);reply=result

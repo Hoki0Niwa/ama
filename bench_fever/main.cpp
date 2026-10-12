@@ -10,8 +10,8 @@
 // (0 if none), biggest chain score, longest chain, moves played, frames spent, wall time in ms,
 // longest search of the game in ms, cells dealt, cells discarded above the 13th row,
 // number of small chains (1 to 3 links) popped
-// The scores use the Tsu table and the frames are the abstract 1/2 costs of the search: neither is the
-// real game's value yet (stage B). The chain lengths are exact for the modelled rules.
+// Scores use the character's Fever-normal table. REBUILD=1 adds recovery
+// evaluation. Frames are abstract, colors are a prototype.
 // The colors come from fever::create_queue, which does NOT reproduce the Steam version's color generation.
 // The AI sees QUEUE_VISIBLE pieces (3 by default) and plays through the fire policy
 // BEAM_WIDTH, BEAM_DEPTH, BEAM_TRIGGER (a chain length), PANIC_COUNT, PANIC_CHAIN, PANIC_STEP and SHAVE_CHAIN in the environment
@@ -39,7 +39,7 @@ int main(int argc, char** argv)
     }
 
     beam::eval::Weight w;
-    i32 hill = 0;
+    auto configs = fever::Configs();
     {
         std::ifstream file(argv[1]);
 
@@ -50,8 +50,9 @@ int main(int argc, char** argv)
 
         json js;
         file >> js;
-        from_json(js, w);
-        hill = js.value("hill", 0);
+        w = fever::read_weights(js);
+        configs.hill = js.value("hill", 0);
+        fever::read_upper_weights(configs, js);
     }
 
     const auto* character = dropset::find(argv[2]);
@@ -70,9 +71,8 @@ int main(int argc, char** argv)
     auto env = [] (const char* name, i32 value) {
         return getenv(name) != nullptr ? atoi(getenv(name)) : value;
     };
-
-    auto configs = fever::Configs();
-    configs.hill = hill;
+    configs.rebuild = env("REBUILD", 0) != 0;
+    configs.normal = fever::normal_scoring::find(character->id);
 
     configs.width = size_t(env("BEAM_WIDTH", i32(configs.width)));
     configs.depth = size_t(env("BEAM_DEPTH", i32(configs.depth)));
@@ -168,7 +168,7 @@ int main(int argc, char** argv)
             snap = field;
 
             auto mask = field.pop();
-            auto chain = chain::get_score(mask);
+            auto chain = configs.normal ? fever::normal_scoring::score(mask, *configs.normal) : chain::get_score(mask);
             moves += 1;
 
             if (chain.count >= 1 && chain.count <= 3) {

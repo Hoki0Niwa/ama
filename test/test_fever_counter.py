@@ -96,14 +96,15 @@ class CounterTests(unittest.TestCase):
         with patch.object(self.engine, '_enemy_defense', return_value=defense):
             return self.answer(own, [dict(type='end', frame=8 * 42)], builder=(5, 'U'))
 
-    def test_main_chain_is_fired_at_once_when_what_it_sends_kills(self):
-        # Their board fills with 72, they hold nothing and have no link to offset with.
-        self.assertEqual(self.open_to(dict(hold=0, kill=72, links=0, need=7))['chain'], 7)
+    def test_receivable_packet_preserves_main_despite_estimated_opponent_death(self):
+        reply=self.open_to(dict(hold=0, kill=72, links=0, need=7))
+        self.assertTrue(reply['tactics_forecast']['can_receive_attack'])
+        self.assertEqual(reply['chain'],0)
 
-    def test_main_counter_uses_score_even_when_opponent_can_escape_into_fever(self):
-        # Restored main policy returns a sufficient attack when the packet exceeds
-        # the acceptable drop; predicted Fever escape does not classify it away.
-        self.assertEqual(self.open_to(dict(hold=0, kill=72, links=1, need=1))['chain'], 7)
+    def test_receivable_packet_preserves_main_when_opponent_can_enter_fever(self):
+        reply=self.open_to(dict(hold=0, kill=72, links=1, need=1))
+        self.assertTrue(reply['tactics_forecast']['can_receive_attack'])
+        self.assertEqual(reply['chain'],0)
 
     def test_insufficient_mainline_is_not_fired_just_for_entry_before_landing(self):
         # Seven links leave 52 nuisance. Entry no longer funds spending the mainline.

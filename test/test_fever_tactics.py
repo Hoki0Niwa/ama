@@ -26,8 +26,10 @@ class TacticsTests(unittest.TestCase):
             current={**own,**history}
             req=request(current);req['solo_options']=dict(trigger=15,panic_chain=13,patience=46)
             opts=self.engine._normal_options(req,current)
+            self.assertTrue(opts['construction_scoring'])
+            self.assertEqual(opts.get('rebuild',False),released)
             if released:
-                self.assertEqual((opts['trigger'],opts['panic_chain'],opts['patience']),(19,19,0))
+                self.assertEqual((opts['trigger'],opts['panic_chain'],opts['patience']),(14,14,0))
             else:self.assertEqual((opts['trigger'],opts['panic_chain'],opts['patience']),(15,15,0))
 
     def test_unfilled_second_keeps_building_instead_of_firing_a_small_mainline(self):
@@ -37,7 +39,7 @@ class TacticsTests(unittest.TestCase):
         req=request(own);req['solo_options']=dict(trigger=15,beam_width=20,beam_depth=4)
         reply=self.engine.answer(req)
         self.assertFalse(reply['fire'])
-        self.assertEqual(reply['normal_fire_policy'],'fill_then_fire')
+        self.assertEqual(reply['normal_fire_policy'],'second_target_or_full')
 
     def test_unfilled_second_is_not_spent_on_an_untimed_fever_attack(self):
         refs=json.loads((ROOT/'data/fever/seeds/namoko-reference.json').read_text(encoding='utf-8'))
@@ -47,7 +49,7 @@ class TacticsTests(unittest.TestCase):
         reply=self.engine.answer(req)
         self.assertFalse(reply['fire'])
 
-    def test_full_second_fires_even_a_single_instead_of_waiting_for_fifteen(self):
+    def test_high_second_with_actual_continuation_keeps_large_chain_target(self):
         heights=[12,12,10,10,12,12]
         rows=[['.']*6 for _ in range(14)]
         for x,height in enumerate(heights):
@@ -57,10 +59,10 @@ class TacticsTests(unittest.TestCase):
         own.update(character='arle',normal_chain_max=14)
         req=request(own);req['solo_options']=dict(trigger=15,beam_width=20,beam_depth=4)
         options=self.engine._normal_options(req,own)
-        self.assertEqual(options['trigger'],1)
+        self.assertEqual(options['trigger'],14)
         reply=self.engine.answer(req)
-        self.assertTrue(reply['fire'])
-        self.assertLess(reply['chain'],4)
+        self.assertFalse(reply['normal_capacity']['release'])
+        self.assertEqual(reply['normal_fire_required_chain'],14)
 
     def test_entry_target_uses_the_end_of_the_observed_normal_chain(self):
         enemy=side();enemy['gauge']=7
@@ -113,7 +115,9 @@ class TacticsTests(unittest.TestCase):
             mode_generation=enemy['mode_generation'], seed_id=enemy['seed_id'], ended=True)
         reply = self.engine.answer(req)
         self.assertTrue(reply['tactics_forecast']['choice']['drop_due'])
-        self.assertEqual(reply['reason'], 'tactics_offset')
+        self.assertEqual(reply['reason'], 'tactics_take_drop')
+        self.assertTrue(reply['tactics_forecast']['can_receive_attack'])
+        self.assertEqual(reply['tactics_forecast']['choice']['dropped'],30)
 
     def test_pace_is_the_upper_quartile_of_this_modes_own_pieces(self):
         engine = ModeBattleEngine(NATIVE, SOLO, ROOT/'config.json')
@@ -341,11 +345,13 @@ class TacticsTests(unittest.TestCase):
         self.assertTrue(clearing)
         self.assertTrue(all(c['projected_disrupt'] == 0 for c in clearing))
 
-    def test_future_large_attack_uses_main_counter_without_false_disruption(self):
+    def test_current_return_does_not_spend_main_below_next_seed_counter(self):
         reply = self.jab(30, self.in_fever(), [dict(type='link', frame=300, points=3000), dict(type='end', frame=350)])
-        # main's sufficient-counter policy can fire the main chain here; its
-        # label must not falsely claim a turnover disruption by a small shot.
-        self.assertGreaterEqual(sum(reply['link_points']), 3000)
+        # The current 3000 points can be returned, but that alone does not
+        # justify spending the seven-chain below a level-15 seed's reply.
+        self.assertFalse(reply['fire'])
+        mains=[c for c in reply['tactics_forecast']['candidates'] if c['chain']>=7]
+        self.assertTrue(any(c['next_seed_exposure']>0 and not c['defense_commitment'] for c in mains))
         self.assertEqual(reply['tactics_forecast']['choice']['projected_disrupt'], 0)
 
     def test_entry_does_not_authorize_an_unready_main_pressure(self):
@@ -367,6 +373,49 @@ class TacticsTests(unittest.TestCase):
         reply = self.clearable(bystander())
         self.assertEqual(reply['reason'], 'tactics_all_clear')
         self.assertTrue(reply['next_all_clear'])
+
+    def test_all_clear_is_only_an_opening_objective(self):
+        from fever_battle import tactics
+        for history in (dict(piece_id=8), dict(mode_generation=2), dict(normal_chain_max=14)):
+            own = side('normal', ['......']*13 + ['RRRBBB'], ['2:RB'])
+            own.update(history); own['character'] = 'arle'
+            with patch.object(self.engine.solo, 'ask', return_value=dict(x=5, r='U')):
+                reply = self.engine.answer(request(own))
+            self.assertNotEqual(reply['reason'], 'tactics_all_clear', history)
+            direct = tactics.choose(self.engine.native, self.engine.scoring, own, 120, 1,
+                self.engine.policy['normal_tactics'])
+            self.assertTrue(all(not c['projected_all_clear'] for c in direct['tactics_forecast']['candidates']))
+
+    def test_large_opening_all_clear_is_not_an_objective(self):
+        from fever_battle import tactics
+        refs = json.loads((ROOT/'data/fever/seeds/namoko-reference.json').read_text(encoding='utf-8'))
+        own = side('normal', next(s['field'] for s in refs['seeds'] if s['id'] == 'hirazumi-4'), ['2:BG'])
+        own['character'] = 'arle'
+        reply = tactics.choose(self.engine.native, self.engine.scoring, own, 120, 1,
+            self.engine.policy['normal_tactics'])
+        self.assertTrue(all(not c['projected_all_clear'] for c in reply['tactics_forecast']['candidates']))
+
+    def test_all_clear_opening_limit_includes_visible_setup_moves(self):
+        from fever_battle import tactics
+        own = side('normal', ['......']*13 + ['RRBBYY'], ['2:RR', '2:BB', '2:YY'])
+        own.update(character='arle', piece_id=6)
+        reply = tactics.choose(self.engine.native, self.engine.scoring, own, 120, 1,
+            self.engine.policy['normal_tactics'])
+        self.assertTrue(all(not c['projected_all_clear'] for c in reply['tactics_forecast']['candidates']))
+
+    def test_direct_all_clear_prefers_shorter_chain_time(self):
+        from fever_battle import tactics
+        own = side('normal', ['......']*13 + ['RRRBBB'], ['2:RB'])
+        own['character'] = 'arle'
+        policy = {**self.engine.policy['normal_tactics'], 'weights':
+            {k: (5000 if k == 'all_clear' else v if k == 'mainline_min' else 0)
+             for k, v in self.engine.policy['normal_tactics']['weights'].items()}}
+        reply = tactics.choose(self.engine.native, self.engine.scoring, own, 120, 1, policy)
+        forecast = reply['tactics_forecast']
+        clears = [c for c in forecast['candidates'] if c['all_clear'] and c['projected_all_clear']]
+        self.assertTrue(clears)
+        self.assertGreater(max(c['all_clear_frames'] for c in clears), min(c['all_clear_frames'] for c in clears))
+        self.assertEqual(forecast['choice']['all_clear_frames'], min(c['all_clear_frames'] for c in clears))
 
     def test_board_is_not_cleared_into_an_opponent_who_holds_a_main_chain(self):
         refs = json.loads((ROOT/'data/fever/seeds/namoko-reference.json').read_text(encoding='utf-8'))
