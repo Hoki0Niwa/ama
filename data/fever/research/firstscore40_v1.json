@@ -1,0 +1,21 @@
+{
+  "schema": "ama.firstscore40.settings.v1",
+  "targets": {"raffina": 160520, "rafisol": 166840},
+  "mainline_min_chain": 10,
+  "horizon": 40,
+  "secondary_horizons": [30, 35],
+  "visible": 3,
+  "margin": 1,
+  "maximum_goals": 3,
+  "maximum_plan_moves": 3,
+  "minimum_witness_links": 4,
+  "transition_limit": 16000,
+  "witness_limit": 48000,
+  "research_choose_ms": 1000,
+  "research_fallback_reserve_ms": 300,
+  "practical_choose_ms": 250,
+  "practical_planner_ms": 25,
+  "development_seeds": [31001,31002,31003,31004,31005,31006,31007,31008,41001,41002,41003,41004,41005,41006,41007,41008],
+  "prototype_colors": "native splitmix4; Steam unverified",
+  "score_basis": "first actual >=10 mainline normal clear points only"
+}
