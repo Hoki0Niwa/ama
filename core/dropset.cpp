@@ -1,4 +1,7 @@
 #include "dropset.h"
+#include <deque>
+#include <map>
+#include <string>
 
 namespace dropset
 {
@@ -51,8 +54,42 @@ static_assert([] {
 
 std::span<const Character> characters() { return TABLE; }
 
+namespace
+{
+// Overlay of modified cycles. std::map nodes and deque elements keep their addresses.
+std::map<std::string, Character, std::less<>> overrides;
+std::deque<std::string> override_text;
+}
+
+bool set_override(std::string_view id, std::string_view pattern)
+{
+    const Character* base = nullptr;
+    for (const auto& character : TABLE) if (character.id == id) { base = &character; break; }
+    if (base == nullptr || base->status == Status::UNKNOWN) return false;
+    if (pattern.empty()) {
+        if (const auto it = overrides.find(id); it != overrides.end()) it->second = *base;
+        return true;
+    }
+    if (pattern.size() != PERIOD) return false;
+    for (char symbol : pattern) if (!decode(symbol)) return false;
+    override_text.emplace_back(pattern);
+    Character custom = *base;
+    custom.pattern = override_text.back();
+    custom.pattern_alt = {};
+    custom.status = Status::PLAYER;
+    overrides.insert_or_assign(std::string(id), custom);
+    return true;
+}
+
+void clear_overrides()
+{
+    for (auto& [id, character] : overrides)
+        for (const auto& base : TABLE) if (base.id == id) character = base;
+}
+
 const Character* find(std::string_view id)
 {
+    if (const auto it = overrides.find(id); it != overrides.end()) return &it->second;
     for (const auto& character : TABLE) if (character.id == id) return &character;
     return nullptr;
 }

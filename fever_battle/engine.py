@@ -46,9 +46,27 @@ class BattleEngine:
         self.policy = json.loads((ROOT / 'data/fever/battle_policy.json').read_text(encoding='utf-8'))
         self.patterns = {c['id']: c['pattern'] for c in
                          json.loads((ROOT / 'data/fever/dropsets.json').read_text(encoding='utf-8'))['characters']}
+        self.official_patterns = dict(self.patterns)
 
     def close(self):
         self.native.close()
+
+    def sync_pattern(self, side):
+        """Follow a modified game: side['pattern'] is the 16-move cycle read from the game's memory.
+        Without it the character's official cycle applies (an earlier override is lifted)."""
+        character = side['character']
+        official = self.official_patterns.get(character)
+        if official is None:
+            return
+        pattern = side.get('pattern')
+        if pattern is None:
+            pattern = official
+        if not (isinstance(pattern, str) and len(pattern) == 16 and set(pattern) <= set('2LJ34*0')):
+            raise ValueError('invalid dropset pattern')
+        if self.patterns[character] != pattern:
+            self.native.ask({'op': 'dropset_override', 'character': character,
+                             'pattern': '' if pattern == official else pattern})
+            self.patterns[character] = pattern
 
     def observed_side(self, side, unknown_history=False, blocked_spawn=False):
         """What every protocol requires of a side: character, visible pieces, board and nuisance.
@@ -58,6 +76,7 @@ class BattleEngine:
         death test is accepted (the piece in hand can still be dropped).
         """
         character = side['character']
+        self.sync_pattern(side)
         if character not in self.patterns:
             raise ValueError('unknown character; a character ID cannot be inferred solely from its cycle')
         index = integer(side['dropset_index'], 'dropset_index')

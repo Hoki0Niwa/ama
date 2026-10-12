@@ -157,6 +157,19 @@ json finish_probe(const json& request, Moves& moves, const rule::Rule& rules,
 json answer(const json& request)
 {
     const auto op = request.at("op").get<std::string>();
+    if (op == "dropset_override") {
+        // A game with modified drop sets: the bridge reports the cycle it reads from memory.
+        // An empty or missing pattern restores the official cycle of that character.
+        if (request.value("clear_all", false)) {
+            dropset::clear_overrides();
+            return {{"ok", true}};
+        }
+        const auto id = request.at("character").get<std::string>();
+        const auto pattern = request.value("pattern", std::string());
+        if (!dropset::set_override(id, pattern))
+            throw std::invalid_argument("unknown character or invalid dropset pattern");
+        return {{"ok", true}, {"character", id}, {"pattern", std::string(dropset::find(id)->pattern)}};
+    }
     if (op == "queue") {
         const auto count = bounded_integer(request.at("count"), 1, 10000, "count");
         const auto seed = request.at("seed");

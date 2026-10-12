@@ -61,6 +61,13 @@ constexpr std::string_view status_name(Status status)
     return "unknown";
 }
 
+// Runtime override of a character's 16-move cycle, for a game whose drop sets were modified.
+// `pattern` uses the symbols of decode(); an empty pattern restores the compiled-in cycle.
+// Returns false for an unknown character or an invalid pattern. Call it between requests:
+// Character pointers already returned by find() stay valid and are updated in place.
+bool set_override(std::string_view id, std::string_view pattern);
+void clear_overrides();
+
 std::span<const Character> characters();
 const Character* find(std::string_view id);
 
