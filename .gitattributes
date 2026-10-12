@@ -1,0 +1,2 @@
+# Preserve research evidence bytes and their recorded SHA256 hashes.
+data/fever/baselines/** -text
