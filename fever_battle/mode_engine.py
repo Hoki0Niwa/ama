@@ -332,6 +332,7 @@ class ModeBattleEngine(BattleEngine):
         options.setdefault('beam_width', 50)
         options.setdefault('beam_depth', 8)
         options['construction_scoring'] = True
+        threat = self._under_attack(request, own)
         second = self._after_opening(own, options)
         if second:
             options['rebuild'] = True
@@ -340,15 +341,21 @@ class ModeBattleEngine(BattleEngine):
             # the chain-length requirement only once the board is filled.
             target = request.get('second_target_chain')
             target = max(4, options['trigger'] - 1) if 'second_target_chain' not in request else target
-            ready = 1 if self._stack_full(own, {**options, 'build_chain': target or 19}) else (target or 19)
+            ready = 1 if self._stack_full(own, {**options, 'build_chain': target or 19}, threat) else (target or 19)
             target = target or 19
             options.update(build_chain=target, trigger=ready, panic_chain=ready,
                            panic_count=0, panic_step=0, patience=0)
         else:
             target = options['trigger']
-            ready = 1 if self._stack_full(own, {**options, 'build_chain': target}) else target
-            options.update(build_chain=target, trigger=ready, panic_chain=ready,
-                           panic_count=0, panic_step=0, patience=0)
+            ready = 1 if self._stack_full(own, {**options, 'build_chain': target}, threat) else target
+            options.update(build_chain=target, trigger=ready, patience=0)
+            if ready == 1 or not self.policy.get('opening_fire_ramp', True):
+                options.update(panic_chain=ready, panic_count=0, panic_step=0)
+            else:
+                # The opening aims at the target while there is room and settles for
+                # the configured floor only as the board fills (the launcher's
+                # "fire chain / one link per two puyos from the panic count").
+                options['panic_chain'] = min(int(options.get('panic_chain', target)), target)
         if second:
             options.update(sustained=True, sustained_min_chain=max(4, min(12, options['build_chain'])),
                 pace_frames=max(55, int(self.pace or 55)),
@@ -365,6 +372,16 @@ class ModeBattleEngine(BattleEngine):
         self.last_normal_options = dict(options)
         return options
 
+    def _under_attack(self, request, own):
+        # What is pending or in flight at this board decides whether a main that
+        # no quiet placement keeps is held for more links or cashed in now.
+        if own.get('confirmed', 0) + own.get('unconfirmed', 0) > 0 or request.get('enemy_chain') is not None:
+            return True
+        enemy = request.get('enemy')
+        if not isinstance(enemy, dict) or 'gauge' not in enemy:
+            return False  # a partial side (option inspection) knows no chain
+        return any(e['type'] == 'link' for e in self._enemy_events(request, enemy))
+
     def _after_opening(self, own, options=None):
         # Only observed history releases the target, never a proposed fire or
         # a speculative preparation. Mode generation survives normal return.
@@ -372,14 +389,14 @@ class ModeBattleEngine(BattleEngine):
         return (own['mode_generation'] > 0 or
                 own.get('normal_chain_max', 0) >= max(4, target - 1))
 
-    def _stack_full(self, own, options):
+    def _stack_full(self, own, options, threat=False):
         margin = max(0, min(6, options.get('margin', 1)))
         if any(sum(row[x] != '.' for row in own['field']) > 11 for x in (2,3)):
             self.normal_capacity = dict(release=True, crowded=True, reason='observed_blocked_spawn')
             return True
         self.normal_capacity = self.native.ask(dict(op='normal_capacity', field=own['field'],
             queue=own['queue'][:3], character=own['character'], margin=margin,
-            target=options.get('build_chain', options.get('trigger', 14))))
+            target=options.get('build_chain', options.get('trigger', 14)), threat=bool(threat)))
         self.normal_capacity['policy'] = 'actual_continuation'
         return self.normal_capacity['release']
 
@@ -424,7 +441,14 @@ class ModeBattleEngine(BattleEngine):
                               next_field=actual['field'], next_all_clear=actual['all_clear'],
                               next_discarded=0,
                               normal_extension_selected=True)
-        floor=options.get('sustained_min_chain',options.get('build_chain',14))
+        # A visible main at the configured firing chain is not left to decay under
+        # more stacking (a 13-14 seen for several moves that is gone when the board
+        # fills): a placement that retains it is taken, or the main is fired. The
+        # opening holds that floor at its panic (firing) chain, the second at its
+        # sustained floor, a released board at the build target.
+        if 'sustained_min_chain' in options: floor = options['sustained_min_chain']
+        elif options.get('trigger', 2) <= 1: floor = options.get('build_chain', 14)
+        else: floor = max(4, min(options.get('build_chain', 14), options.get('panic_chain', 14)))
         if (not result.get('fire') and space.get('available_chain',0)>=floor):
             retain=[p for p in space.get('extensions',[]) if p['retains']]
             selected=any((p['x'],p['r'])==(result['x'],result['r']) for p in retain)

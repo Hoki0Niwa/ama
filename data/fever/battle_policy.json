@@ -14,6 +14,7 @@
   "reset_moves_at_chain": 4,
   "normal_build": {
     "capacity_extensions": false,
+    "opening_fire_ramp": true,
     "status": "prototype_heuristic_not_battle_tuned",
     "objective": "mainline",
     "fever_aim": {

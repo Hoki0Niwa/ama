@@ -196,7 +196,7 @@ json answer(const json& request)
         const auto* normal=fever::normal_scoring::find(request.at("character").get<std::string>());
         if (!normal) throw std::invalid_argument("unknown character");
         return fever::inspect_capacity(field,queue,rules,normal,
-            bounded_integer(request.value("target",14),2,19,"target"));
+            bounded_integer(request.value("target",14),2,19,"target"),request.value("threat",false));
     }
     if (op == "drop_preview") {
         const int count = bounded_integer(request.at("count"), 0, 30, "count");

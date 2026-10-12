@@ -30,7 +30,11 @@ class TacticsTests(unittest.TestCase):
             self.assertEqual(opts.get('rebuild',False),released)
             if released:
                 self.assertEqual((opts['trigger'],opts['panic_chain'],opts['patience']),(14,14,0))
-            else:self.assertEqual((opts['trigger'],opts['panic_chain'],opts['patience']),(15,15,0))
+            else:
+                # The opening aims at its target while there is room and lowers the
+                # required chain only along the configured ramp as the board fills.
+                self.assertEqual((opts['trigger'],opts['panic_chain'],opts['patience']),(15,13,0))
+                self.assertEqual((opts['panic_count'],opts['panic_step']),(70,2))
 
     def test_unfilled_second_keeps_building_instead_of_firing_a_small_mainline(self):
         refs=json.loads((ROOT/'data/fever/seeds/namoko-reference.json').read_text(encoding='utf-8'))
