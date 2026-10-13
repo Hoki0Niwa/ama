@@ -75,14 +75,18 @@ def middle_height(text):
 # broadest (most lost rounds show it) last.
 CAUSES = (
     ('operation_mismatch', '操作の不一致', 'last 6 placements: one landed off its target, or the steering gave up'),
+    ('few_nuisance_death', '配置の悪さによってお邪魔が数個くらいしか降っていないのに自滅',
+     'died on a normal board with 6 or fewer nuisance on it and 6 or fewer pending'),
     ('died_holding_main', '撃てる本線を持ったまま死亡', 'last 12 normal decisions: one trigger fired 8+ and no 8+ was fired after'),
     ('short_fire', '短い発火', 'the builder fired under 10 with its required chain released below the target'),
     ('second_not_fired', 'セカンド不発', '10+ decisions under the second target and no 10+ fired under it'),
+    ('no_main_reply', '相手の本線に本線を打ち返せなかった',
+     'the winner fired 10+ on its normal board and the loser fired no 8+ from then on'),
     ('seed_failed', 'タネ消化失敗', 'a seed fired below its level'),
     ('entered_fever_first', '先に突入させられた', 'entered Fever before the winner did, or alone'),
     ('other', 'その他', 'none of the above'),
 )
-LAST_PLACEMENTS, LAST_DECISIONS, MAIN, SECOND_DECISIONS = 6, 12, 8, 10
+LAST_PLACEMENTS, LAST_DECISIONS, MAIN, SECOND_DECISIONS, FEW = 6, 12, 8, 10, 6
 
 
 def causes_of(events, other, slips, boards):
@@ -93,6 +97,9 @@ def causes_of(events, other, slips, boards):
     if (any(e['lock'] and e['lock'].get('on_target') is False for e in tail)
             or any(tail[0]['t'] <= t <= events[-1]['t'] + 5 for t in slips)):
         found.add('operation_mismatch')
+    last = events[-1]
+    if last['mode'] == 'normal' and last['field'].count('#') <= FEW and last['nuisance'][0] <= FEW:
+        found.add('few_nuisance_death')
     tail = [e for e in events[-LAST_DECISIONS:] if e['mode'] == 'normal']
     for i, e in enumerate(tail):
         if (boards.longest(e['field']) or 0) >= MAIN and not any(chain(x) >= MAIN for x in tail[i:]):
@@ -107,6 +114,9 @@ def causes_of(events, other, slips, boards):
         found.add('second_not_fired')
     if any(e['mode'] == 'fever' and (e.get('seed') or [None])[0] and 0 < chain(e) < e['seed'][0] for e in events):
         found.add('seed_failed')
+    mains = [e['frame'] for e in other if e['mode'] == 'normal' and chain(e) >= 10]
+    if mains and not any(chain(e) >= MAIN for e in events if e['frame'] >= mains[-1]):
+        found.add('no_main_reply')
     first = lambda ev: next((e['frame'] for e in ev if e['mode'] == 'fever'), None)
     if first(events) is not None and (first(other) is None or first(events) < first(other)):
         found.add('entered_fever_first')
@@ -176,7 +186,7 @@ def analyse(logs, boards):
     matches, after_fever, packets = [], [], defaultdict(Counter)
     offsets, entries, growth, hits = [], [], [], []
     notes = Counter()
-    for log in logs:
+    for log_name, log in logs:
         slips = defaultdict(list)
         for d in log:
             if d.get('auto') in ('steering gave up', 'analysis failed, retrying') and 't' in d:
@@ -202,7 +212,7 @@ def analyse(logs, boards):
                     nuisance_landed=landed, last_reason=last.get('reason'))
             loser, told = loser_of(sides)
             matches.append(dict(match=match[-12:], frames=max(e['frame'] for ev in sides.values() for e in ev),
-                                loser=loser, loser_told_by=told, sides=summary,
+                                loser=loser, loser_told_by=told, sides=summary, log=log_name,
                                 causes=causes_of(sides[loser], sides[3 - loser], slips[loser], boards) if loser else None))
             for ai, events in sides.items():
                 died = loser == ai
@@ -343,7 +353,7 @@ def analyse(logs, boards):
                         for g, q in (('gauge 0-3', [r for r in p if r['gauge'] <= 3]), ('gauge 4-6', [r for r in p if r['gauge'] >= 4])) if q}))
                 if hits else 'needs logs that carry the tray (2026-10-08 on)'),
             note='ratio: the confirmed packet as a percentage of what fills the board (whole rows to the top of the middle columns).'),
-        timing=dict(notes=dict(notes), arrival=analyse_arrival(logs)))
+        timing=dict(notes=dict(notes), arrival=analyse_arrival([log for _, log in logs])))
     return report, matches
 
 
@@ -354,7 +364,7 @@ def main():
     parser.add_argument('--losses', action='store_true', help='print only the lost rounds by cause, as a table')
     parser.add_argument('--native', type=Path, default=ROOT/'bin/fever_battle/fever_battle.exe')
     args = parser.parse_args()
-    logs = [log for log in map(records, args.logs) if log]
+    logs = [(path.name, log) for path, log in ((path, records(path)) for path in args.logs) if log]
     engine = ModeBattleEngine(args.native, ROOT/'bin/fever/fever.exe', ROOT/'config.json')
     try:
         report, matches = analyse(logs, Boards(engine))
