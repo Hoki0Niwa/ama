@@ -144,7 +144,10 @@ def death_cells(text):
     return row[2] != '.' or row[3] != '.'
 
 
-LOST = 7    # player+0x50 once a round is over, on the player who lost it: one observation (2026-10-13), to confirm
+# player+0x50 once a round is decided (1 while playing). The winner's leaves 1 first, while the loser's board
+# stands full and the winner's last chain still runs: 3, then 4 and 5; the loser's then goes 6 and 7.
+# Read against the boards logged with them in two rounds, and the end of a set (2026-10-13).
+WON, LOST = (3, 4, 5), (6, 7)
 
 
 def loser_of(sides, stops=(), seats=None, boards=None, overs=()):
@@ -152,7 +155,8 @@ def loser_of(sides, stops=(), seats=None, boards=None, overs=()):
 
     A player loses when a puyo stands in the 12th row of the 3rd or 4th column once their board has
     come to rest; while their chain runs they are still alive and the other may die first. In order:
-      round_state the bridge's `round over`: the one player whose state word is LOST (2026-10-13 on)
+      round_state the bridge's `player state`: the one player whose state word is in LOST, or the
+                  other of the one in WON (2026-10-13 on)
       round_end   the bridge's samples of both boards after the clock stopped (2026-10-13 on): the one
                   player with a death cell filled and no chain running
       death_cell  the same seen by the opponent's last decisions (their view of this board, no chain)
@@ -165,9 +169,10 @@ def loser_of(sides, stops=(), seats=None, boards=None, overs=()):
     if len(sides) != 2:
         return None, None
     for over in overs:
-        dead = [ai for ai, seat in (seats or {}).items() if over['states'][seat] == LOST]
-        if len(dead) == 1 and dead[0] in sides:
-            return dead[0], 'round_state'
+        dead = {ai for ai, seat in (seats or {}).items() if over['states'][seat] in LOST}
+        dead |= {3 - ai for ai, seat in (seats or {}).items() if over['states'][seat] in WON}
+        if len(dead) == 1 and dead <= set(sides):
+            return dead.pop(), 'round_state'
     for stop in stops:
         players = stop.get('players')
         if seats and isinstance(players, list) and len(players) == 2:
@@ -254,7 +259,7 @@ def analyse(logs, boards):
             # the last time the clock stopped in this round: its samples in order
             stops = [d for d in log if d.get('auto') == 'clock stopped' and start < d.get('t', 0) < until]
             first = max((i for i, d in enumerate(stops) if d.get('sample') == 1), default=0)
-            overs = [d for d in log if d.get('auto') == 'round over' and start < d.get('t', 0) < until]
+            overs = [d for d in log if d.get('auto') == 'player state' and start < d.get('t', 0) < until]
             seats = next(({ai: seat - 1 for ai, seat in zip((1, 2), d['seats'])}
                           for d in reversed(assigned) if d['t'] <= until), None)
             summary = {}
