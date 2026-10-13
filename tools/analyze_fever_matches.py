@@ -12,8 +12,10 @@ One report with the measurements the open questions need (doc/WORK_LOG.md, 2026-
                      what entering Fever with nuisance held led to, puyos per link of a main chain,
                      what a confirmed packet did to a normal board by its size against the room left
   timing             tools/analyze_fever_arrival.py on the same logs, and the bridge's notes
-A match's loser is inferred from the last decisions (no placement left, or the middle columns full);
-where neither side shows it the match is counted as unfinished. Logs from before 2026-10-08 13:00 lack
+  losses             each lost round under every cause it shows and under the first of them in the
+                     order of CAUSES (--losses prints this part as a table, most frequent first)
+A match's loser is inferred from the last decisions (loser_of); where they do not tell, the match is
+left out of the parts that need a loser. Logs from before 2026-10-08 13:00 lack
 the opponent's side and what was held, and the parts that need them say so.
 Offline reading of logs: it measures what happened between these two AIs, not what is best.
 """
@@ -69,6 +71,75 @@ def middle_height(text):
     return max(sum(row[x] != '.' for row in rows) for x in (2, 3))
 
 
+# Causes of a lost round, in the order that names the main one: the nearest to the death first, the
+# broadest (most lost rounds show it) last.
+CAUSES = (
+    ('operation_mismatch', '操作の不一致', 'last 6 placements: one landed off its target, or the steering gave up'),
+    ('died_holding_main', '撃てる本線を持ったまま死亡', 'last 12 normal decisions: one trigger fired 8+ and no 8+ was fired after'),
+    ('short_fire', '短い発火', 'the builder fired under 10 with its required chain released below the target'),
+    ('second_not_fired', 'セカンド不発', '10+ decisions under the second target and no 10+ fired under it'),
+    ('seed_failed', 'タネ消化失敗', 'a seed fired below its level'),
+    ('entered_fever_first', '先に突入させられた', 'entered Fever before the winner did, or alone'),
+    ('other', 'その他', 'none of the above'),
+)
+LAST_PLACEMENTS, LAST_DECISIONS, MAIN, SECOND_DECISIONS = 6, 12, 8, 10
+
+
+def causes_of(events, other, slips, boards):
+    """Every cause in CAUSES the loser's decisions show; slips are the times its steering gave up."""
+    found = set()
+    chain = lambda e: (e['lock'] or {}).get('chain', 0)
+    tail = events[-LAST_PLACEMENTS:]
+    if (any(e['lock'] and e['lock'].get('on_target') is False for e in tail)
+            or any(tail[0]['t'] <= t <= events[-1]['t'] + 5 for t in slips)):
+        found.add('operation_mismatch')
+    tail = [e for e in events[-LAST_DECISIONS:] if e['mode'] == 'normal']
+    for i, e in enumerate(tail):
+        if (boards.longest(e['field']) or 0) >= MAIN and not any(chain(x) >= MAIN for x in tail[i:]):
+            found.add('died_holding_main')
+            break
+    normal = [e for e in events if e['mode'] == 'normal']
+    if any(e.get('reason') == 'normal_build_or_fire' and 0 < chain(e) < 10
+           and (e.get('normal_fire_required_chain') or 0) < (e.get('normal_build_target_chain') or 0) for e in normal):
+        found.add('short_fire')
+    second = [e for e in normal if e.get('normal_fire_policy') == 'second_target_or_full']
+    if len(second) >= SECOND_DECISIONS and not any(chain(e) >= 10 for e in second):
+        found.add('second_not_fired')
+    if any(e['mode'] == 'fever' and (e.get('seed') or [None])[0] and 0 < chain(e) < e['seed'][0] for e in events):
+        found.add('seed_failed')
+    first = lambda ev: next((e['frame'] for e in ev if e['mode'] == 'fever'), None)
+    if first(events) is not None and (first(other) is None or first(events) < first(other)):
+        found.add('entered_fever_first')
+    return [key for key, _, _ in CAUSES if key in found] or ['other']
+
+
+def loser_of(sides):
+    """(loser, how it was told) from the last decision of each side; (None, None) where they do not tell.
+
+    The bridge does not log who won. In order: the engine found no rescue; the nuisance pending on a
+    normal board reaches the top of the middle columns while the other side's does not; the middle
+    columns stand at 10 or more against 8 or less. The height is the last seen by either side.
+    """
+    if len(sides) != 2:
+        return None, None
+    last = {ai: events[-1] for ai, events in sides.items()}
+    gone = [ai for ai, e in last.items() if e.get('reason') == 'no_rescue_fast_finish']
+    if len(gone) == 1:
+        return gone[0], 'no_rescue'
+    height, buried = {}, {}
+    for ai, e in last.items():
+        seen = (last[3 - ai].get('enemy') or {})
+        height[ai] = max(middle_height(e['field']), middle_height(seen['field']) if seen.get('mode') == e['mode'] else 0)
+        buried[ai] = height[ai] + (min(5, -(-e['nuisance'][0] // 6)) if e['mode'] == 'normal' else 0)
+    for ai in last:
+        if buried[ai] >= 12 > buried[3 - ai]:
+            return ai, 'buried'
+    for ai in last:
+        if height[ai] >= 10 and height[3 - ai] <= 8:
+            return ai, 'height'
+    return None, None
+
+
 def rounds_of(log):
     """{round: {ai: [events in order]}}: decisions (with what was locked for them) of each side.
 
@@ -106,15 +177,16 @@ def analyse(logs, boards):
     offsets, entries, growth, hits = [], [], [], []
     notes = Counter()
     for log in logs:
+        slips = defaultdict(list)
         for d in log:
+            if d.get('auto') in ('steering gave up', 'analysis failed, retrying') and 't' in d:
+                slips[d.get('ai')].append(d['t'])
             if d.get('auto') in ('opponent chain not followed', 'surprise landing'):
                 notes[d['auto'] + ((': ' + str(d.get('what'))) if d.get('what') else '')] += 1
         for match, sides in rounds_of(log).items():
-            summary, lost = {}, {}
+            summary = {}
             for ai, events in sides.items():
                 last = events[-1]
-                lost[ai] = (last.get('reason') == 'no_rescue_fast_finish'
-                            or (last['mode'] == 'normal' and middle_height(last['field']) >= 11))
                 fires = [e['lock'] for e in events if e['lock'] and e['lock'].get('chain')]
                 level = lambda e: (e.get('seed') or [None])[0]
                 seeds = [(e['lock']['chain'], level(e)) for e in events
@@ -128,10 +200,10 @@ def analyse(logs, boards):
                     biggest_fever_chain=max((f['chain'] for f in fires if f.get('mode') == 'fever'), default=0),
                     seeds_at_level=sum(c >= lv for c, lv in seeds), seeds_below_level=sum(c < lv for c, lv in seeds),
                     nuisance_landed=landed, last_reason=last.get('reason'))
-            losers = [ai for ai, dead in lost.items() if dead]
-            loser = losers[0] if len(losers) == 1 and len(sides) == 2 else None
+            loser, told = loser_of(sides)
             matches.append(dict(match=match[-12:], frames=max(e['frame'] for ev in sides.values() for e in ev),
-                                loser=loser, sides=summary))
+                                loser=loser, loser_told_by=told, sides=summary,
+                                causes=causes_of(sides[loser], sides[3 - loser], slips[loser], boards) if loser else None))
             for ai, events in sides.items():
                 died = loser == ai
                 # --- after a Fever, and decisions under a packet
@@ -222,7 +294,13 @@ def analyse(logs, boards):
             out[name] = dict(n=len(part), **{f: fn(part) for f, fn in fields.items()})
         return out
     share = lambda rows, test: round(sum(1 for r in rows if test(r)) / len(rows), 3) if rows else None
+    lost = [m for m in finished if m['causes']]
     report = dict(
+        losses=dict(n=len(lost), loser_not_told=len(matches) - len(lost),
+            loser_told_by=dict(Counter(m['loser_told_by'] for m in lost)),
+            causes=sorted((dict(cause=key, label=label, definition=definition,
+                                main=sum(m['causes'][0] == key for m in lost), shown=sum(key in m['causes'] for m in lost))
+                           for key, label, definition in CAUSES), key=lambda row: (-row['main'], -row['shown']))),
         matches=dict(n=len(matches), finished=len(finished), frames=spread([m['frames'] for m in finished]),
             lost_by_ai=dict(Counter(m['loser'] for m in finished)),
             winner_fired_the_bigger_normal_chain=sum(both(m, 'biggest_normal_chain', lambda a, b: a > b) for m in finished),
@@ -273,6 +351,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('logs', nargs='+', type=Path)
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--losses', action='store_true', help='print only the lost rounds by cause, as a table')
     parser.add_argument('--native', type=Path, default=ROOT/'bin/fever_battle/fever_battle.exe')
     args = parser.parse_args()
     logs = [log for log in map(records, args.logs) if log]
@@ -282,7 +361,17 @@ def main():
     finally:
         engine.close()
     report['logs'] = dict(read=len(logs), skipped_not_fever_battle=len(args.logs) - len(logs))
-    print(json.dumps(report, ensure_ascii=False, indent=1))
+    if args.losses:
+        losses = report['losses']
+        print(f"敗局 {losses['n']}（敗者を判定できない対局 {losses['loser_not_told']}、ログ {len(logs)}）")
+        print(f"敗者の判定：{losses['loser_told_by']}")
+        print()
+        print('| 原因 | 主因 | 該当（重複あり） |')
+        print('| --- | ---: | ---: |')
+        for row in losses['causes']:
+            print(f"| {row['label']} | {row['main']} | {row['shown']} |")
+    else:
+        print(json.dumps(report, ensure_ascii=False, indent=1))
     if args.output:
         args.output.write_text(json.dumps(dict(report=report, matches=matches), ensure_ascii=False, indent=1), encoding='utf-8')
 
