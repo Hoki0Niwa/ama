@@ -127,6 +127,17 @@ std::optional<Pose> wall_exit(const int* h, int shape, Pose p, int dx, int step,
 std::array<std::array<bool, 4>, 6> reachable(const int* h, int shape, Pose start, bool fever) {
     std::array<std::array<bool, 4>, 6> result{};
     if (!valid(h, shape, start, fever) || !fits(h, shape, start, fever)) return result;
+    const bool cacheable = fever && shape == 2 && start == Pose{2, 0, 0};
+    std::uint32_t cache_key = 0;
+    fever_fall::CachedReachable* cached = nullptr;
+    if (cacheable) {
+        cached = &fever_fall::cached_reachable(h, cache_key);
+        if (cached->used && cached->key == cache_key) {
+            for (int x = 0; x < 6; ++x) for (int r = 0; r < 4; ++r)
+                result[x][r] = (cached->mask >> (4 * x + r)) & 1;
+            return result;
+        }
+    }
     const int phases = phases_for(h, shape, start, fever);
     auto node = [&](Pose p) { return index(p) * phases + p.fall_frames; };
     std::vector<bool> visited(count * phases);
@@ -155,6 +166,12 @@ std::array<std::array<bool, 4>, 6> reachable(const int* h, int shape, Pose start
             if (shape == 0 && step == -1) continue;
             if (auto q = rotate(h, shape, p, step, fever)) arrive(*q, p.fall_frames ? duration(p, {0, step, *q, false, 0}, fever) : 0);
         }
+    }
+    if (cached) {
+        std::uint32_t mask = 0;
+        for (int x = 0; x < 6; ++x) for (int r = 0; r < 4; ++r)
+            if (result[x][r]) mask |= std::uint32_t(1) << (4 * x + r);
+        *cached = {cache_key, mask, true};
     }
     return result;
 }

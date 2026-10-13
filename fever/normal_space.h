@@ -8,6 +8,11 @@ namespace fever::normal_space {
 inline auto moves(Field field, const piece::Piece& piece, const rule::Rule& rules) {
     auto result = move::generate(field, piece, rules);
     if (!rules.special_moves || (piece.shape != piece::Shape::PAIR && piece.shape != piece::Shape::TRIPLE)) return result;
+    // Pair generation already uses the same operation::reachable graph as
+    // the live route, including timed clearance. Repeating a shortest-path
+    // search for all 24 goals adds no pair candidates or validation. Triples
+    // still need the filter for the measured, generator-only extensions.
+    if (piece.shape == piece::Shape::PAIR) return result;
     u8 h[6]; field.get_heights(h); int heights[6];
     for (int x=0;x<6;++x) heights[x]=h[x];
     const bool pair=piece.shape==piece::Shape::PAIR;

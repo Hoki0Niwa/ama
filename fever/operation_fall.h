@@ -1,6 +1,8 @@
 #pragma once
 #include "../core/operation.h"
 #include <algorithm>
+#include <array>
+#include <cstdint>
 
 namespace operation::fever_fall {
 // Logged lateral motion advances about 1/24 row per game frame. Use the
@@ -8,6 +10,18 @@ namespace operation::fever_fall {
 // column. The integer ABI reports this conservative row, never rounded up
 // into the clearance which has already been lost.
 constexpr int frames_per_row = 24;
+struct CachedReachable {
+    std::uint32_t key = 0, mask = 0;
+    bool used = false;
+};
+// Pair spawn reachability depends only on the six heights. POD thread-local
+// storage avoids dynamic TLS destruction in the short-lived search workers.
+inline auto& cached_reachable(const int* h, std::uint32_t& key) {
+    key = 0;
+    for (int x = 0; x < 6; ++x) key |= std::uint32_t(h[x]) << (4 * x);
+    thread_local std::array<CachedReachable, 2048> cache{};
+    return cache[(std::uint64_t(key) * 11400714819323198485ull) >> 53];
+}
 inline int row(const Pose& p) { return p.y + (p.fall_frames > 0); }
 inline int rest(const int* h, const Pose& p) {
     constexpr int dx[] = {0, 1, 0, -1}, dy[] = {-1, 0, 1, 0};
