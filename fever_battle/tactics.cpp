@@ -48,7 +48,6 @@ struct Node {
     int event = 0, frame = 0, phase = 0, gauge = 0;
     int popped = 0, dropped = 0, early = 0, early_gauge = 0, steps = 0;
     int main_links_spent = 0;
-    int longest = -1;               // the main chain on `field` (fever::stock::longest), -1 until asked
     i64 return_points = 0, return_nuisance = 0;
     int return_frame = 0;
     bool builder_fire = false;      // the builder's own fire that leaves nothing pending
@@ -205,9 +204,6 @@ public:
         // Charge only its excess over this move's model before locking; chains
         // retain their own measured duration rather than paying cadence twice.
         advance(n, n.frame + std::max(placement, pace - spawn - extra));
-        const int main_held = n.longest >= 0 ? n.longest : fever::stock::longest(n.field);
-        n.longest = -1;
-        bool falls_now = false;         // nuisance is confirmed and falls on a placement that pops nothing
         if (!n.field.drop_piece(move.x, move.r, piece, rules)) return false;
         advance(n, n.frame + extra);
         // A clear is due when popping nothing would let nuisance fall now, or
@@ -215,7 +211,6 @@ public:
         {
             auto peek = n; advance(peek, peek.frame + check);
             step.due = peek.fixed > 0;
-            falls_now = peek.fixed > 0;
             const int pending = int(std::min<i64>(30, peek.fixed + peek.flying));
             if (!step.due && pending)
                 drops(n.field, pending, n.phase, [&](Field board) { step.due = step.due || board.is_dead(rules); });
@@ -293,20 +288,6 @@ public:
             advance(n, n.frame + chain_ready);
             return true;
         }
-        // A placement that pops nothing can cost the main chain as well: stood on the
-        // trigger it buries it. Until nuisance actually falls there is time to put the
-        // piece elsewhere and go on building, so the links lost are spent like fired
-        // ones. (Unpriced, a 12 chain held against a 13 under way, with twelve pieces'
-        // time left, went to 3 by one upright pair on its trigger column: 2026-10-13.)
-        // `due` is not that time: it is also set while the opponent's chain still runs,
-        // for any board that what is on its way would kill whenever it lands, and with
-        // that as the test the same placement stayed free in play.
-        {
-            const int main_left = fever::stock::longest(locked);
-            if (!falls_now && main_held >= w->mainline_min)
-                n.main_links_spent += std::max(0, main_held - main_left);
-            n.longest = main_left;
-        }
         advance(n, n.frame + check);
         step.dropped = int(std::min<i64>(30, n.fixed));
         n.fixed -= step.dropped; n.dropped += step.dropped;
@@ -317,7 +298,6 @@ public:
             drop_nuisance(n.field, step.dropped, n.phase);
         }
         n.phase = (n.phase + step.dropped) % 6;
-        if (step.dropped) n.longest = -1;       // what fell changed the board
         advance(n, n.frame + std::max(0, spawn - check));
         return true;
     }
