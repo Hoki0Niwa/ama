@@ -93,6 +93,9 @@ def middle_height(text):
 CAUSES = (
     ('unprepared_spawn', '準備なしの出現で出現列にそのまま落下',
      '2 or more pieces appeared with no decision ready (spawn_without_prepared_decision) from 3 s before the last decision on'),
+    # the last 2 placements: over 80 rounds 26 losers against 10 winners. With the last 6 and the times the
+    # steering gave up it was 34 against 38 and told nothing (2026-10-13).
+    ('operation_mismatch', '操作の不一致', 'one of the last 2 placements landed off its target'),
     ('few_nuisance_death', '配置の悪さによってお邪魔が数個くらいしか降っていないのに自滅',
      'died on a normal board with 6 or fewer nuisance on it and 6 or fewer pending'),
     ('died_holding_main', '撃てる本線を持ったまま死亡', 'last 12 normal decisions: one trigger fired 8+ and no 8+ was fired after'),
@@ -102,11 +105,9 @@ CAUSES = (
      'the winner fired 10+ on its normal board and the loser fired no 8+ from then on'),
     ('seed_failed', 'タネ消化失敗', 'a seed fired below its level'),
     ('entered_fever_first', '先に突入させられた', 'entered Fever before the winner did, or alone'),
-    # last: over 90 rounds the winners showed it as often as the losers (38 against 34, 2026-10-13)
-    ('operation_mismatch', '操作の不一致', 'last 6 placements: one landed off its target, or the steering gave up'),
     ('other', 'その他', 'none of the above'),
 )
-LAST_PLACEMENTS, LAST_DECISIONS, MAIN, SECOND_DECISIONS, FEW = 6, 12, 8, 10, 6
+LAST_PLACEMENTS, LAST_DECISIONS, MAIN, SECOND_DECISIONS, FEW = 2, 12, 8, 10, 6
 
 
 def causes_of(events, other, slips, boards, unready=()):
@@ -116,9 +117,7 @@ def causes_of(events, other, slips, boards, unready=()):
     if sum(t >= events[-1]['t'] - 3 for t in unready) >= 2:
         found.add('unprepared_spawn')
     chain = lambda e: (e['lock'] or {}).get('chain', 0)
-    tail = events[-LAST_PLACEMENTS:]
-    if (any(e['lock'] and e['lock'].get('on_target') is False for e in tail)
-            or any(tail[0]['t'] <= t <= events[-1]['t'] + 5 for t in slips)):
+    if any(lock.get('on_target') is False for lock in [e['lock'] for e in events if e['lock']][-LAST_PLACEMENTS:]):
         found.add('operation_mismatch')
     last = events[-1]
     if last['mode'] == 'normal' and last['field'].count('#') <= FEW and last['nuisance'][0] <= FEW:
