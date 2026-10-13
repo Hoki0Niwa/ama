@@ -1,9 +1,9 @@
 #pragma once
 
 namespace operation::fever_suspensions {
-// Temporary until the measured cases in doc/DISABLED_TRIPLE_OPERATIONS.md
-// have been repaired and accepted in Steam. Ordinary turns/wall kicks and
-// lower-board floor kicks are not suspended.
-constexpr bool triple_hooks_enabled = false;
-constexpr bool triple_high_lateral_kicks_enabled = false;
+// 2026-10-14: temporarily enabled at the user's request for overnight
+// failure capture. These trial operations have NOT been repaired or accepted.
+// Measured examples and resealing points: doc/DISABLED_TRIPLE_OPERATIONS.md.
+constexpr bool triple_hooks_enabled = true;
+constexpr bool triple_high_lateral_kicks_enabled = true;
 }
