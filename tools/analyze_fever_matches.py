@@ -144,11 +144,15 @@ def death_cells(text):
     return row[2] != '.' or row[3] != '.'
 
 
-def loser_of(sides, stops=(), seats=None, boards=None):
+LOST = 7    # player+0x50 once a round is over, on the player who lost it: one observation (2026-10-13), to confirm
+
+
+def loser_of(sides, stops=(), seats=None, boards=None, overs=()):
     """(loser, how it was told); (None, None) where the log does not tell.
 
     A player loses when a puyo stands in the 12th row of the 3rd or 4th column once their board has
     come to rest; while their chain runs they are still alive and the other may die first. In order:
+      round_state the bridge's `round over`: the one player whose state word is LOST (2026-10-13 on)
       round_end   the bridge's samples of both boards after the clock stopped (2026-10-13 on): the one
                   player with a death cell filled and no chain running
       death_cell  the same seen by the opponent's last decisions (their view of this board, no chain)
@@ -160,6 +164,10 @@ def loser_of(sides, stops=(), seats=None, boards=None):
     """
     if len(sides) != 2:
         return None, None
+    for over in overs:
+        dead = [ai for ai, seat in (seats or {}).items() if over['states'][seat] == LOST]
+        if len(dead) == 1 and dead[0] in sides:
+            return dead[0], 'round_state'
     for stop in stops:
         players = stop.get('players')
         if seats and isinstance(players, list) and len(players) == 2:
@@ -246,6 +254,7 @@ def analyse(logs, boards):
             # the last time the clock stopped in this round: its samples in order
             stops = [d for d in log if d.get('auto') == 'clock stopped' and start < d.get('t', 0) < until]
             first = max((i for i, d in enumerate(stops) if d.get('sample') == 1), default=0)
+            overs = [d for d in log if d.get('auto') == 'round over' and start < d.get('t', 0) < until]
             seats = next(({ai: seat - 1 for ai, seat in zip((1, 2), d['seats'])}
                           for d in reversed(assigned) if d['t'] <= until), None)
             summary = {}
@@ -264,7 +273,7 @@ def analyse(logs, boards):
                     biggest_fever_chain=max((f['chain'] for f in fires if f.get('mode') == 'fever'), default=0),
                     seeds_at_level=sum(c >= lv for c, lv in seeds), seeds_below_level=sum(c < lv for c, lv in seeds),
                     nuisance_landed=landed, last_reason=last.get('reason'))
-            loser, told = loser_of(sides, stops[first:], seats, boards)
+            loser, told = loser_of(sides, stops[first:], seats, boards, overs)
             matches.append(dict(match=match[-12:], frames=max(e['frame'] for ev in sides.values() for e in ev),
                                 loser=loser, loser_told_by=told, sides=summary, log=log_name,
                                 causes=causes_of(sides[loser], sides[3 - loser], slips[loser], boards) if loser else None))
