@@ -207,6 +207,7 @@ public:
         advance(n, n.frame + std::max(placement, pace - spawn - extra));
         const int main_held = n.longest >= 0 ? n.longest : fever::stock::longest(n.field);
         n.longest = -1;
+        bool falls_now = false;         // nuisance is confirmed and falls on a placement that pops nothing
         if (!n.field.drop_piece(move.x, move.r, piece, rules)) return false;
         advance(n, n.frame + extra);
         // A clear is due when popping nothing would let nuisance fall now, or
@@ -214,6 +215,7 @@ public:
         {
             auto peek = n; advance(peek, peek.frame + check);
             step.due = peek.fixed > 0;
+            falls_now = peek.fixed > 0;
             const int pending = int(std::min<i64>(30, peek.fixed + peek.flying));
             if (!step.due && pending)
                 drops(n.field, pending, n.phase, [&](Field board) { step.due = step.due || board.is_dead(rules); });
@@ -292,13 +294,16 @@ public:
             return true;
         }
         // A placement that pops nothing can cost the main chain as well: stood on the
-        // trigger it buries it. While nothing is about to fall there is time to put the
+        // trigger it buries it. Until nuisance actually falls there is time to put the
         // piece elsewhere and go on building, so the links lost are spent like fired
         // ones. (Unpriced, a 12 chain held against a 13 under way, with twelve pieces'
         // time left, went to 3 by one upright pair on its trigger column: 2026-10-13.)
+        // `due` is not that time: it is also set while the opponent's chain still runs,
+        // for any board that what is on its way would kill whenever it lands, and with
+        // that as the test the same placement stayed free in play.
         {
             const int main_left = fever::stock::longest(locked);
-            if (!step.due && main_held >= w->mainline_min)
+            if (!falls_now && main_held >= w->mainline_min)
                 n.main_links_spent += std::max(0, main_held - main_left);
             n.longest = main_left;
         }

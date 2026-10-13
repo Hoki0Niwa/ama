@@ -42,18 +42,23 @@ class MainKeepTests(unittest.TestCase):
     def test_the_trigger_column_is_not_stood_on_while_there_is_time(self):
         for board, queue, piece, unconfirmed, scored, ends_in in (
                 (BOARD_27, ['2:RY', '2:BG', '2:BR'], 27, 9, 1080, 752),
-                (BOARD_28, ['2:BG', '2:BR', '2:RR'], 28, 17, 2040, 699)):
+                (BOARD_28, ['2:BG', '2:BR', '2:RR'], 28, 17, 2040, 699),
+                # more on its way: every placement is then "due" (what is coming kills the board whenever
+                # it lands) though none of it falls yet. In play the pair was stood on the trigger here.
+                (BOARD_28, ['2:BG', '2:BR', '2:RR'], 28, 29, 3480, 699),
+                (BOARD_28, ['2:BG', '2:BR', '2:RR'], 28, 94, 11280, 699)):
             rows, forecast, left = self.search(board, queue, piece, unconfirmed, scored, ends_in)
             held = self.longest(rows)
             self.assertEqual(held, 12)
+            piece = (piece, unconfirmed)
             buried = [key for key, main in left.items() if main <= held - 4]
             self.assertTrue(buried, piece)                      # the board offers such placements
             choice = forecast['choice']
             self.assertGreaterEqual(left[(choice['x'], choice['r'])], held, piece)
-            ranked = sorted((c for c in forecast['candidates'] if (c['x'], c['r']) in left and not c['drop_due']),
+            ranked = sorted((c for c in forecast['candidates'] if (c['x'], c['r']) in left),
                             key=lambda c: -c['value'])
-            # of the placements that pop nothing with nothing due, none that buries the main is valued
-            # above the best that keeps it, and each is charged the links it buries
+            # of the placements that pop nothing, none that buries the main is valued above the best
+            # that keeps it, and each is charged the links it buries
             best_kept = next(c for c in ranked if left[(c['x'], c['r'])] >= held)
             for c in ranked:
                 if left[(c['x'], c['r'])] <= held - 4:
