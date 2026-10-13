@@ -143,7 +143,7 @@ class OperationTests(unittest.TestCase):
         self.assertIsNotNone(path)
         self.assertEqual([(p.x, p.y) for p in path], [(4, -2), (3, -2), (2, -1)])
 
-    def test_logged_triple_edges_are_reenabled_for_capture(self):
+    def test_logged_failed_triple_edges_are_suspended(self):
         cases = json.loads((ROOT / 'data/fever/baselines/2026-10-14-disabled-triple-operations.json').read_text(encoding='utf-8'))
         for case in cases:
             x, r = case['trace'][-1][0]
@@ -151,13 +151,12 @@ class OperationTests(unittest.TestCase):
             out = Press()
             with self.subTest(case=case['id']):
                 self.assertEqual(self.dll.ama_operation_rotate((C.c_int * 6)(*case['heights']),
-                    3, x, 0, r, 0, step, C.byref(out)), 0)
-                # Deliberately restore the old trial prediction for recording;
-                # this is not a claim that Steam executes it successfully.
-                self.assertEqual([out.x, out.y, out.r], case['diverged']['expected'])
+                    3, x, 0, r, 0, step, C.byref(out)), -1)
                 answer = self.engine.ask(dict(op='placements', field=case['field'], piece=case['piece']))
-                self.assertIn((case['target'][0], 'URDL'[case['target'][1]]),
+                self.assertNotIn((case['target'][0], 'URDL'[case['target'][1]]),
                                  {(p['x'], p['r']) for p in answer['placements']})
+            self.assertEqual(self.dll.ama_operation_rotate((C.c_int * 6)(*case['heights'][::-1]),
+                3, 5-x, 0, (3-r)%4, 0, -step, C.byref(out)), -1)
 
     def test_triple_ordinary_wall_turn_and_lower_floor_kick_remain(self):
         out = Press()
