@@ -157,6 +157,19 @@ json finish_probe(const json& request, Moves& moves, const rule::Rule& rules,
 json answer(const json& request)
 {
     const auto op = request.at("op").get<std::string>();
+    if (op == "scoring_override") {
+        // Chain power table of a modified game: the first 19 links of its normal table.
+        // An empty or missing list restores the compiled-in table of that character.
+        if (request.value("clear_all", false)) {
+            fever::normal_scoring::clear_overrides();
+            return {{"ok", true}};
+        }
+        const auto id = request.at("character").get<std::string>();
+        const auto powers = request.value("normal", std::vector<int>());
+        if (!fever::normal_scoring::set_override(id, powers))
+            throw std::invalid_argument("unknown character or invalid power table");
+        return {{"ok", true}, {"character", id}, {"normal", fever::normal_scoring::find(id)->powers}};
+    }
     if (op == "dropset_override") {
         // A game with modified drop sets: the bridge reports the cycle it reads from memory.
         // An empty or missing pattern restores the official cycle of that character.

@@ -3186,3 +3186,11 @@ Ama評価編集画面で説明のなかったupper_12・upper_13・clear_cost・
 - 確認：リモートfeverは開始HEAD 465953eと一致。現在の既定バイナリでTsu protocol8・unretained7・mode79が成功。dropset2件は既定にAPI未反映で1errorとなったため、現ソースを別出力bin/commit-checks-20261012へbuild.ps1でビルドし、同2件を再実行して成功。最終96件成功。既定バイナリ・セッションを更新していない。
 - 保存：data/fever/baselines/2026-10-12-commit-checks/に失敗した初回ログ、成功ログ、ビルドログ、binaryとログSHA256を保存。baselineのGit改行変換を抑止して記録したバイトを保持する。全Feverの再走行・新しい性能比較・Steam実機検証は今回行っていない。
 - 次：push後にremote先端と作業ツリーを照合。mod対応を既定へ反映する再ビルド・セッション再起動は別作業。S0Cは研究ブランチで未実行のまま。
+
+## 2026-10-12 改造された連鎖倍率表への対応
+
+- 依頼：ゲーム側のmod（ppmod の `bonus_normal_N` / `bonus_fever_N`）で変えた連鎖倍率表をAIの得点計算に反映する。
+- 変更：`fever/normal_scoring.h` に実行時の上書き（`set_override` / `clear_overrides`、`find` が上書きを優先）。`fever_battle` に `{"op":"scoring_override","character","normal":[19値]}`（空で既定に戻す、`clear_all`）。`fever_battle/model.py` の `Scoring.set_powers(character, normal, fever)`（19／17値、検証してから適用、None で scoring.json に戻す）。`fever_battle/engine.py` の `BattleEngine.sync_powers` が各sideの任意キー `powers`（`{"normal":[19],"fever":[17]}`、ゲーム内存の表の先頭19／17リンク）で Python の Scoring とネイティブを同期する。
+- 確認したこと：ゲームの表（u16×24）の先頭19／17値は scoring.json と26キャラ中21キャラで一致、5キャラ（ヘド・セリリ・サタン・ハルトマン）は転記値と1〜2点ずれる＝実機値のほうが正。上書き・解除・不正値拒否（`test/test_fever_dropset_override.py`、`test/test_fever_engine_follows_game.py`、別出力ビルドの fever_battle.exe）。
+- 未確認：実機（改造ゲーム＋ブリッジ）。ネイティブにフィーバー用の表は無く、フィーバー側の値は要求ごとにPythonの表から渡される。構築結果のキャッシュは表が途中で変わると古いままになる（表はゲーム起動時に決まる前提）。
+- 次の作業：`build.ps1 -Target fever_battle` で再ビルドし、ブリッジセッションを再起動する。コミット／pushなし。

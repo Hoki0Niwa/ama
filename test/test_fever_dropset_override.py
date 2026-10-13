@@ -46,6 +46,20 @@ class DropsetOverrideTest(unittest.TestCase):
             self.assertIn('error', self.ask(request))
         self.assertEqual(self.cycle('rafisol'), '222L222J24L024J0')
 
+    def test_scoring_override_applies_and_clears(self):
+        modified = [0, 8, 17, 23, 40, 71, 118, 178, 239, 300, 377, 454, 534, 613, 693, 699, 699, 699, 699]
+        official = self.ask({'op': 'scoring_override', 'character': 'arle'})['normal']
+        self.assertEqual(official[4], 35)
+        self.assertEqual(self.ask({'op': 'scoring_override', 'character': 'arle', 'normal': modified})['normal'], modified)
+        self.assertEqual(self.ask({'op': 'scoring_override', 'character': 'amitie'})['normal'][4], 34)   # others untouched
+        self.assertEqual(self.ask({'op': 'scoring_override', 'character': 'arle', 'normal': []})['normal'], official)
+
+    def test_invalid_scoring_overrides_are_errors(self):
+        for request in ({'op': 'scoring_override', 'character': 'arle', 'normal': [0, 1, 2]},
+                        {'op': 'scoring_override', 'character': 'arle', 'normal': [1000] * 19},
+                        {'op': 'scoring_override', 'character': 'nobody', 'normal': [0] * 19}):
+            self.assertIn('error', self.ask(request))
+
 
 if __name__ == '__main__':
     unittest.main()

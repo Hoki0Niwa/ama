@@ -1,10 +1,41 @@
 #pragma once
 #include "normal_scoring_data.h"
 #include "../core/core.h"
+#include <map>
+#include <span>
 #include <stdexcept>
+#include <string>
 
 namespace fever::normal_scoring {
+// Modified chain power tables of a game (ppmod bonus_normal_N). std::map nodes keep their address,
+// so a pointer from find() sees later overrides; set between requests.
+inline std::map<std::string, Entry, std::less<>>& overlay() {
+    static std::map<std::string, Entry, std::less<>> table;
+    return table;
+}
+// powers: the first 19 links of the game's table; empty restores the compiled-in table.
+inline bool set_override(std::string_view id, std::span<const int> powers) {
+    const Entry* base = nullptr;
+    for (const auto& e : ENTRIES) if (e.id == id) { base = &e; break; }
+    if (base == nullptr) return false;
+    Entry custom = *base;
+    if (!powers.empty()) {
+        if (powers.size() != custom.powers.size()) return false;
+        for (size_t i = 0; i < powers.size(); ++i) {
+            if (powers[i] < 0 || powers[i] > MAXIMUM) return false;
+            custom.powers[i] = powers[i];
+        }
+    }
+    overlay().insert_or_assign(std::string(id), custom);
+    return true;
+}
+inline void clear_overrides() {
+    for (auto& [id, entry] : overlay())
+        for (const auto& e : ENTRIES) if (e.id == id) entry = e;
+}
+
 inline const Entry* find(std::string_view id) {
+    if (const auto it = overlay().find(id); it != overlay().end()) return &it->second;
     for (const auto& e : ENTRIES) if (e.id == id) return &e;
     throw std::invalid_argument("missing Fever-normal scoring table");
 }

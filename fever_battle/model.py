@@ -79,6 +79,29 @@ class Scoring:
                 for power in entry['fever']:
                     integer(power, 'Fever chain power', 0, 999)
 
+    def set_powers(self, character, normal=None, fever=None):
+        """A game with modified chain power tables (ppmod bonus_normal_N / bonus_fever_N).
+        normal: the first 19 links, fever: the first 17. None restores the table of scoring.json."""
+        if character not in self.data['characters']:
+            raise ValueError('unknown character')
+        if not hasattr(self, '_official'):
+            self._official = {k: {m: list(v[m]) for m in ('normal', 'fever') if m in v}
+                              for k, v in self.data['characters'].items()}
+        entry = self.data['characters'][character]
+        updates = {}
+        for mode, size, values in (('normal', 19, normal), ('fever', 17, fever)):
+            if mode not in entry:
+                continue
+            if values is None:
+                updates[mode] = list(self._official[character][mode])
+                continue
+            if not isinstance(values, (list, tuple)) or len(values) != size:
+                raise ValueError(f'{mode} power table must contain {size} links')
+            for power in values:
+                integer(power, 'chain power', 0, 999)
+            updates[mode] = list(values)
+        entry.update(updates)   # nothing changes unless both tables are valid
+
     def link(self, character, index, groups, colors, mode='normal'):
         if character not in self.data['characters']:
             raise ValueError('unknown character')

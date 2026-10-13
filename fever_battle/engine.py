@@ -47,6 +47,7 @@ class BattleEngine:
         self.patterns = {c['id']: c['pattern'] for c in
                          json.loads((ROOT / 'data/fever/dropsets.json').read_text(encoding='utf-8'))['characters']}
         self.official_patterns = dict(self.patterns)
+        self.active_powers = {}
 
     def close(self):
         self.native.close()
@@ -68,6 +69,23 @@ class BattleEngine:
                              'pattern': '' if pattern == official else pattern})
             self.patterns[character] = pattern
 
+    def sync_powers(self, side):
+        """Follow a modified game: side['powers'] = {'normal': 19 values, 'fever': 17 values} read from
+        the game's memory. Without it (or per missing key) the table of scoring.json applies."""
+        character = side['character']
+        if character not in self.official_patterns:
+            return
+        powers = side.get('powers') or {}
+        if not isinstance(powers, dict):
+            raise ValueError('invalid powers')
+        normal, fever = powers.get('normal'), powers.get('fever')
+        state = (tuple(normal) if normal is not None else None, tuple(fever) if fever is not None else None)
+        if self.active_powers.get(character) == state or (character not in self.active_powers and state == (None, None)):
+            return
+        self.scoring.set_powers(character, normal, fever)      # validates
+        self.native.ask({'op': 'scoring_override', 'character': character, 'normal': list(normal) if normal else []})
+        self.active_powers[character] = state
+
     def observed_side(self, side, unknown_history=False, blocked_spawn=False):
         """What every protocol requires of a side: character, visible pieces, board and nuisance.
 
@@ -77,6 +95,7 @@ class BattleEngine:
         """
         character = side['character']
         self.sync_pattern(side)
+        self.sync_powers(side)
         if character not in self.patterns:
             raise ValueError('unknown character; a character ID cannot be inferred solely from its cycle')
         index = integer(side['dropset_index'], 'dropset_index')
