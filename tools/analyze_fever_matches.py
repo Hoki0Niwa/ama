@@ -269,6 +269,11 @@ def analyse(logs, boards):
             stops = [d for d in log if d.get('auto') == 'clock stopped' and start < d.get('t', 0) < until]
             first = max((i for i, d in enumerate(stops) if d.get('sample') == 1), default=0)
             overs = [d for d in log if d.get('auto') == 'player state' and start < d.get('t', 0) < until]
+            # the seed mod's record of the match being set up: the last one before its first decision
+            seed = next((d['seed'] for d in reversed(log) if d.get('auto') == 'match seed' and d.get('t', 0) <= start), None)
+            used = [d for d in log if d.get('auto') == 'match seed' and d.get('t', 0) <= start]
+            if used and sum(1 for t in starts if used[-1]['t'] < t <= start) > 1:
+                seed = None                 # an earlier round already began under this record: not this round's
             seats = next(({ai: seat - 1 for ai, seat in zip((1, 2), d['seats'])}
                           for d in reversed(assigned) if d['t'] <= until), None)
             summary = {}
@@ -289,7 +294,8 @@ def analyse(logs, boards):
                     nuisance_landed=landed, last_reason=last.get('reason'))
             loser, told = loser_of(sides, stops[first:], seats, boards, overs)
             matches.append(dict(match=match[-12:], frames=max(e['frame'] for ev in sides.values() for e in ev),
-                                loser=loser, loser_told_by=told, sides=summary, log=log_name,
+                                loser=loser, loser_told_by=told, sides=summary, log=log_name, seed=seed,
+                                characters={ai: events[0].get('character') for ai, events in sides.items()},
                                 causes=causes_of(sides[loser], sides[3 - loser], slips[loser], boards,
                                                  [t for t in unready[loser] if start <= t < until]) if loser else None,
                                 winner_shows=causes_of(sides[3 - loser], sides[loser], slips[3 - loser], boards,
