@@ -1,4 +1,5 @@
 #include "operation.h"
+#include "../fever/operation_fall.h"
 #include <algorithm>
 #include <array>
 #include <limits>
@@ -21,6 +22,11 @@ int duration(Pose before, const Press& p, bool fever) {
 }
 int index(Pose p) { return (((p.y + 3) * 6 + p.x) * 4 + p.r) * 2 + p.armed; }
 constexpr int count = 15 * 6 * 4 * 2;
+int phases_for(const int* h, int shape, Pose start, bool fever) {
+    return fever && shape == 2 && (start.y == -2 ||
+        std::any_of(h, h + 6, [](int height) { return height >= 12; }))
+        ? fever_fall::frames_per_row : 1;
+}
 bool valid(const int* h, int shape, Pose p, bool fever) {
     if (!h || (shape != 2 && (!fever || (shape != 3 && shape != 4 && shape != 0)))) return false;
     if (p.x < 0 || p.x > 5 || p.y < -2 || p.y > 11 || p.r < 0 || p.r > 3) return false;
@@ -30,10 +36,11 @@ bool valid(const int* h, int shape, Pose p, bool fever) {
 }
 bool fits(const int* h, int shape, const Pose& p, bool fever) {
     if (p.y < (fever && shape == 2 ? -2 : -1)) return false;
-    if (occupied(h, p.x, p.y, fever)) return false;
+    const int y = fever && shape == 2 ? fever_fall::row(p) : p.y;
+    if (occupied(h, p.x, y, fever)) return false;
     if (shape == 2 || shape == 3) {
-        if (occupied(h, p.x + ox[p.r], p.y + oy[p.r], fever)) return false;
-        if (shape == 3 && occupied(h, p.x + ox[(p.r + 1) % 4], p.y + oy[(p.r + 1) % 4], fever)) return false;
+        if (occupied(h, p.x + ox[p.r], y + oy[p.r], fever)) return false;
+        if (shape == 3 && occupied(h, p.x + ox[(p.r + 1) % 4], y + oy[(p.r + 1) % 4], fever)) return false;
     } else if (occupied(h, p.x, p.y - 1) || occupied(h, p.x + 1, p.y) || occupied(h, p.x + 1, p.y - 1)) {
         return false;
     }
@@ -54,9 +61,12 @@ std::optional<Pose> hook(const int* h, int shape, Pose p, int dx, int step, bool
 std::optional<Pose> rotate(const int* h, int shape, const Pose& p, int step, bool fever) {
     if (!valid(h, shape, p, fever) || (step != 1 && step != -1)) return std::nullopt;
     // BIG changes colour in one direction. The client calibrates the other button.
-    Pose direct{p.x, p.y, (p.r + (shape == 0 ? 1 : step) + 4) % 4};
+    Pose direct{p.x, p.y, (p.r + (shape == 0 ? 1 : step) + 4) % 4, false, p.fall_frames};
     if (fits(h, shape, direct, fever)) return direct;
     if (shape == 4 || shape == 0) return std::nullopt;
+    // Fractional airborne kicks have not been measured. Do not invent a
+    // fresh integer-height lift after a route has fallen off its support.
+    if (fever && shape == 2 && p.fall_frames) return std::nullopt;
     // The approach is a separate translation. Rotate while still at the
     // spawn-height window, with the upper arm over the 12th-row surface.
     const int side = shape == 3 && p.r == 2 ? 1 : step;
@@ -105,7 +115,7 @@ std::optional<Pose> hook(const int* h, int shape, Pose p, int dx, int step, bool
 // The pair is horizontal on the 12-row wall; shifting first can cross the
 // boundary, and rotating first can kick it back. This is a Fever-specific edge.
 std::optional<Pose> wall_exit(const int* h, int shape, Pose p, int dx, int step, bool fever) {
-    if (!fever || shape != 2 || p.y != -1 || h[p.x] != 12 ||
+    if (!fever || shape != 2 || p.y != -1 || p.fall_frames || h[p.x] != 12 ||
         p.r != (dx < 0 ? 3 : 1)) return std::nullopt;
     Pose q{p.x + dx, p.y, (p.r + step + 4) % 4};
     if (q.r != 0 && q.r != 2) return std::nullopt;
@@ -117,26 +127,33 @@ std::optional<Pose> wall_exit(const int* h, int shape, Pose p, int dx, int step,
 std::array<std::array<bool, 4>, 6> reachable(const int* h, int shape, Pose start, bool fever) {
     std::array<std::array<bool, 4>, 6> result{};
     if (!valid(h, shape, start, fever) || !fits(h, shape, start, fever)) return result;
-    std::array<bool, count> visited{};
-    std::array<Pose, count> queue{};
+    const int phases = phases_for(h, shape, start, fever);
+    auto node = [&](Pose p) { return index(p) * phases + p.fall_frames; };
+    std::vector<bool> visited(count * phases);
+    std::vector<Pose> queue;
+    queue.reserve(count);
     int head = 0, tail = 0;
     auto add = [&](Pose p) {
-        if (visited[index(p)]) return;
-        visited[index(p)] = true;
-        queue[tail++] = p;
+        if (visited[node(p)]) return;
+        visited[node(p)] = true;
+        queue.push_back(p); ++tail;
     };
     add(start);
     while (head < tail) {
         auto p = queue[head++];
+        auto arrive = [&](Pose q, int frames) {
+            if (fever && shape == 2) q = fever_fall::advance(h, p, q, frames);
+            if (fits(h, shape, q, fever)) add(q);
+        };
         if (placement_allowed(h, shape, p.x, p.r, fever)) result[p.x][p.r] = true;
         for (int dx : {-1, 1}) {
-            if (auto q = shift(h, shape, p, dx, fever)) add(*q);
+            if (auto q = shift(h, shape, p, dx, fever)) arrive(*q, 5);
             for (int step : {-1, 1})
-                if (auto q = wall_exit(h, shape, p, dx, step, fever)) add(*q);
+                if (auto q = wall_exit(h, shape, p, dx, step, fever)) arrive(*q, duration(p, {dx, step, *q, false, 0}, fever));
         }
         for (int step : (shape == 3 && std::find(h, h + 6, 12) != h + 6 ? std::array<int, 2>{-1, 1} : std::array<int, 2>{1, -1})) {
             if (shape == 0 && step == -1) continue;
-            if (auto q = rotate(h, shape, p, step, fever)) add(*q);
+            if (auto q = rotate(h, shape, p, step, fever)) arrive(*q, p.fall_frames ? duration(p, {0, step, *q, false, 0}, fever) : 0);
         }
     }
     return result;
@@ -158,35 +175,46 @@ std::optional<std::vector<Press>> route(const int* h, int shape, Pose start,
     };
     using Cost = std::tuple<int, int, int>;
     const Cost infinity{100000, 100000, 100000};
-    std::array<Cost, count> costs;
-    costs.fill(infinity);
-    std::array<int, count> parents;
-    parents.fill(-1);
-    std::array<Press, count> edges{};
-    using Entry = std::tuple<Cost, int, int, int, int, bool>;
+    const int phases = phases_for(h, shape, start, fever);
+    auto node = [&](Pose p) { return index(p) * phases + p.fall_frames; };
+    std::vector<Cost> costs(count * phases, infinity);
+    std::vector<int> parents(count * phases, -1);
+    std::vector<Press> edges(count * phases);
+    using Entry = std::tuple<Cost, int, int, int, int, bool, int>;
     std::priority_queue<Entry, std::vector<Entry>, std::greater<Entry>> heap;
     int serial = 0;
-    costs[index(start)] = {0, 0, 0};
-    heap.push({{0, 0, 0}, serial, start.x, start.y, start.r, start.armed});
+    costs[node(start)] = {0, 0, 0};
+    heap.push({{0, 0, 0}, serial, start.x, start.y, start.r, start.armed, start.fall_frames});
     while (!heap.empty()) {
-        auto [cost, order, x, y, r, armed] = heap.top(); heap.pop();
-        Pose p{x, y, r, armed};
-        if (costs[index(p)] != cost) continue;
+        auto [cost, order, x, y, r, armed, fall] = heap.top(); heap.pop();
+        Pose p{x, y, r, armed, fall};
+        if (costs[node(p)] != cost) continue;
         if (goal(p)) {
             std::vector<Press> result;
-            for (int i = index(p); parents[i] != -1; i = parents[i]) result.push_back(edges[i]);
+            for (int i = node(p); parents[i] != -1; i = parents[i]) result.push_back(edges[i]);
             std::reverse(result.begin(), result.end());
             return result;
         }
         auto add = [&](int dx, int turn, Pose q, bool quick) {
             Press press{dx, turn, q, quick, 0};
             press.frames = duration(p, press, fever);
+            if (fever && shape == 2) {
+                // Start this measured fall clock at translation off a raised
+                // support. Stationary row-14 rotation/lift timing remains the
+                // existing trial model; it is a separate live failure class.
+                const int elapsed = dx ? (turn ? press.frames : 5) : p.fall_frames ? press.frames : 0;
+                q = fever_fall::advance(h, p, q, elapsed);
+                if (!fits(h, shape, q, fever)) return;
+                press.after = q;
+                press.after.y = fever_fall::row(q);
+                press.after.fall_frames = 0;
+            }
             int risk = shape == 2 && (q.r == 1 || q.r == 3) ? h[q.x + ox[q.r]] : 0;
             Cost next{std::get<0>(cost) + press.frames,
                       std::get<1>(cost) + bool(dx) + bool(turn), std::get<2>(cost) + risk};
-            if (costs[index(q)] <= next) return;
-            costs[index(q)] = next; parents[index(q)] = index(p); edges[index(q)] = press;
-            heap.push({next, ++serial, q.x, q.y, q.r, q.armed});
+            if (costs[node(q)] <= next) return;
+            costs[node(q)] = next; parents[node(q)] = node(p); edges[node(q)] = press;
+            heap.push({next, ++serial, q.x, q.y, q.r, q.armed, q.fall_frames});
         };
         for (int dx : {-1, 1}) {
             if (auto q = shift(h, shape, p, dx, fever)) add(dx, 0, *q, false);

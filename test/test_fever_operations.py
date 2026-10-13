@@ -1,5 +1,6 @@
 """The battle placement generator and live operation library must agree."""
 import ctypes as C
+import os
 from pathlib import Path
 import random
 import sys
@@ -19,7 +20,7 @@ class OperationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.engine = JsonProcess([NATIVE])
-        cls.dll = C.CDLL(str(ROOT / 'bin/fever/operations.dll'))
+        cls.dll = C.CDLL(os.environ.get('AMA_TEST_OPERATION_DLL', str(ROOT / 'bin/fever/operations.dll')))
         cls.dll.ama_operation_route.argtypes = [C.POINTER(C.c_int)] + [C.c_int] * 9 + [C.POINTER(Press), C.c_int]
         cls.dll.ama_operation_route.restype = C.c_int
         assert cls.dll.ama_operation_version() == 1 and cls.dll.ama_operation_rule() == 1
@@ -106,6 +107,38 @@ class OperationTests(unittest.TestCase):
             answer = self.engine.ask(dict(op='placements', field=self.field(h), piece=text))
             self.assertTrue(answer['placements'])
             self.assertTrue(all(p['x'] >= 2 for p in answer['placements']))
+
+    def path_from(self, h, start, goal):
+        out = (Press * 1024)()
+        n = self.dll.ama_operation_route((C.c_int * 6)(*h), 2, *start, 0,
+                                         *goal, 0, 1, out, len(out))
+        return None if n < 0 else list(out[:n])
+
+    def test_logged_airborne_traverse_cannot_turn_onto_thirteen_row_column(self):
+        # seed 0 / AI2 / pair32: after the lift at x=5, the three left
+        # translations end at y=-1.77, not the row-14 y=-2 needed by LEFT.
+        h = (13, 13, 9, 7, 11, 12)
+        self.assertIsNone(self.path_from(h, (5, -2, 2), (2, 3)))
+        self.assertFalse(self.route(h, 2, 2, 3))
+        offered = self.engine.ask(dict(op='placements', field=self.field(h), piece='2:YB'))
+        self.assertNotIn((2, 'L'), {(p['x'], p['r']) for p in offered['placements']})
+        # Mirror the observed lifted start, independently of the spawn column.
+        self.assertIsNone(self.path_from(h[::-1], (0, -2, 2), (3, 1)))
+
+    def test_airborne_translation_to_open_column_uses_entered_row(self):
+        h = (13, 13, 9, 7, 11, 12)
+        path = self.path_from(h, (5, -2, 2), (2, 2))
+        self.assertIsNotNone(path)
+        self.assertEqual((path[-1].x, path[-1].y, path[-1].r), (2, -1, 2))
+        self.assertTrue(all(p.y >= -1 for p in path if p.dx))
+
+    def test_supported_thirteen_row_traverse_stays_at_fourteenth_row(self):
+        # The pivot of an upright pair remains on a 13-row surface. These
+        # placements are not removed by the airborne clearance check.
+        h = (0, 0, 0, 13, 13, 13)
+        path = self.path_from(h, (5, -2, 0), (2, 0))
+        self.assertIsNotNone(path)
+        self.assertEqual([(p.x, p.y) for p in path], [(4, -2), (3, -2), (2, -1)])
 
 
 if __name__ == '__main__':

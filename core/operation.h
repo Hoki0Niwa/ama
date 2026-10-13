@@ -9,6 +9,8 @@ namespace operation {
 struct Pose {
     int x, y, r;
     bool armed = false;
+    // Fever pair routes only: natural fall since leaving an elevated support.
+    int fall_frames = 0;
     bool operator==(const Pose&) const = default;
 };
 struct Press {

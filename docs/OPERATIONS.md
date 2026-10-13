@@ -5,7 +5,8 @@
 The bridge calls the versioned cdecl ABI directly, without waiting for the
 placement-search process. Each edge returns input, resulting x/y/r, quick-turn
 arming, and nominal input duration (3 frames, or 9 for a sideways kick).
-The bridge observes each result and requests a new route on a mismatch.
+The bridge observes each result. Fever step execution plans once and drops at
+the observed position on a mismatch; it does not request a replacement route.
 There is no Python/archive fallback when the library is absent or incompatible.
 
 Coordinates: x=0..5, y=0 at the visible top, floor y=11. ABI 1 reports rule 0
@@ -58,3 +59,15 @@ bridgeは先行入力をAmaの経路の先頭の純粋な横移動だけにす�
 ログのAI1ツモ52・AI2ツモ28の盤面と左右反転、子が上／下の計8経路で指定の3入力を確認。実行側も独立した人間の操作例の観測姿勢を使う入力試験で左右・上下4通りを再生し、同時入力と解放を確認した。これは操作例との一致を確認するもので、Steam実機の成功率検証ではない。
 
 Fever triple hook requires the pivot approach column to have at most 10 rows. The logged 11-row approach pushes away through the ordinary kick; it must not use the 12-row hook. This restriction applies only to triples.
+
+## 2026-10-13 作業A：14段目からの横移動中の自然落下
+
+Feverの2個組で、軸が14段目（y=-2）に上がった後に足場を離れて横移動する経路へ、自然落下の位相を追加した。配置候補の `reachable` と操作DLLの `route` が同じ遷移を使う。1段24フレーム、横移動1列5フレーム（bridgeの `bring` に記載されたタップ移動の見積もり）で、足場のある姿勢では落下を止める。持ち上げの完了は従来どおり整数高さから始める。
+
+少しでも14段目から落ちた姿勢は、衝突検査とABIの期待高さに切り上げた占有段を使う。たとえば -1.77 は -1 であり、-2の余裕を必要とする13段の列には移れない。途中で失った高さを未測定の空中蹴りで取り戻す経路も生成しない。空いた列への移動は残し、実行側に落下分を見込んだ期待高さを返す。照合条件の緩和、操作開始後の再計画、出現後の配置差し替えは追加しない。
+
+今回の時計は横移動で足場を離れた時点から数える。13段目以下の操作、静止中の14段目回転・持ち上げ、3個組は既存のモデルを維持する。これらの実機不一致は別件であり、全操作の時間校正ではない。5フレームは保持入力や全入力位相を保証する測定値ではなく、今回の経路検査の保守的な見積もり。
+
+再現例：高さ `[13,13,9,7,11,12]`、2個組の目標 `(2,L)` は、従来の「右端で浮かせる→左3列→左向きへ回転」では届かない。候補から外す。壁越え、端の12段足場を使う2個組廃棄、13段の足場に載ったままの横移動は回帰で維持する。Tsuの遷移・ABI 1・構造体の公開レイアウトは維持する。
+
+検証状況と実機受入れの残件は `doc/WORK_LOG.md` の作業Aの追記を参照。オフラインの旧ログ照合は新AIの対局結果を予測するものではない。
