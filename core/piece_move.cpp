@@ -1,5 +1,6 @@
 #include "move.h"
 #include "operation.h"
+#include "../fever/operation_suspensions.h"
 
 namespace move
 {
@@ -7,6 +8,11 @@ namespace {
 // Empirical Fever triple placements. Input timing is owned by the bridge;
 // these exceptions only extend placement selection, never Tsu reachability.
 bool measured_triple(const int* h, int axis, int r) {
+    // These generator-only extensions have no native route. While the failed
+    // spawn operations are suspended, do not let solo construction bypass
+    // the same restriction which the battle/live route already enforces.
+    if (!operation::fever_suspensions::triple_hooks_enabled ||
+        !operation::fever_suspensions::triple_high_lateral_kicks_enabled) return false;
     const bool left_outer = (axis == 0 && (r == 0 || r == 1)) ||
                             (axis == 1 && (r == 2 || r == 3));
     const bool right_outer = (axis == 5 && (r == 2 || r == 3)) ||

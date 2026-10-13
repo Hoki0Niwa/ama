@@ -1,5 +1,6 @@
 #include "operation.h"
 #include "../fever/operation_fall.h"
+#include "../fever/operation_suspensions.h"
 #include <algorithm>
 #include <array>
 #include <limits>
@@ -90,6 +91,10 @@ std::optional<Pose> rotate(const int* h, int shape, const Pose& p, int step, boo
         for (int r : {direct.r, (direct.r + 1) % 4}) {
             if (!occupied(h, p.x + ox[r], p.y + oy[r])) continue;
             Pose kicked{p.x - ox[r], p.y - oy[r], direct.r};
+            const int wall = p.x + ox[r];
+            if (!fever_suspensions::triple_high_lateral_kicks_enabled &&
+                p.y <= 0 && kicked.x != p.x && wall >= 0 && wall < 6 && h[wall] >= 12)
+                continue;
             if (fits(h, shape, kicked, fever)) return kicked;
         }
     }
@@ -99,6 +104,7 @@ std::optional<Pose> rotate(const int* h, int shape, const Pose& p, int step, boo
 // It is valid only during the spawn-height window; never pre-rotate the piece.
 std::optional<Pose> hook(const int* h, int shape, Pose p, int dx, int step, bool fever) {
     if (!fever || p.y != 0 || (shape != 2 && shape != 3)) return std::nullopt;
+    if (shape == 3 && !fever_suspensions::triple_hooks_enabled) return std::nullopt;
     if (shape == 2 && (p.r != 0 || step != dx)) return std::nullopt;
     // Triple asymmetry: left is CCW once; right is CCW three times (U,L,D,R).
     if (shape == 3 && (step != -1 || p.r != (dx < 0 ? 0 : 2))) return std::nullopt;

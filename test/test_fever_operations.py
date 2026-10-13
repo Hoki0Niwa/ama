@@ -1,6 +1,7 @@
 """The battle placement generator and live operation library must agree."""
 import ctypes as C
 import os
+import json
 from pathlib import Path
 import random
 import sys
@@ -23,6 +24,8 @@ class OperationTests(unittest.TestCase):
         cls.dll = C.CDLL(os.environ.get('AMA_TEST_OPERATION_DLL', str(ROOT / 'bin/fever/operations.dll')))
         cls.dll.ama_operation_route.argtypes = [C.POINTER(C.c_int)] + [C.c_int] * 9 + [C.POINTER(Press), C.c_int]
         cls.dll.ama_operation_route.restype = C.c_int
+        cls.dll.ama_operation_rotate.argtypes = [C.POINTER(C.c_int)] + [C.c_int] * 6 + [C.POINTER(Press)]
+        cls.dll.ama_operation_rotate.restype = C.c_int
         assert cls.dll.ama_operation_version() == 1 and cls.dll.ama_operation_rule() == 1
 
     @classmethod
@@ -139,6 +142,31 @@ class OperationTests(unittest.TestCase):
         path = self.path_from(h, (5, -2, 0), (2, 0))
         self.assertIsNotNone(path)
         self.assertEqual([(p.x, p.y) for p in path], [(4, -2), (3, -2), (2, -1)])
+
+    def test_logged_failed_triple_edges_are_suspended(self):
+        cases = json.loads((ROOT / 'data/fever/baselines/2026-10-14-disabled-triple-operations.json').read_text(encoding='utf-8'))
+        for case in cases:
+            x, r = case['trace'][-1][0]
+            step = case['diverged']['steps'][0][1]
+            out = Press()
+            with self.subTest(case=case['id']):
+                self.assertEqual(self.dll.ama_operation_rotate((C.c_int * 6)(*case['heights']),
+                    3, x, 0, r, 0, step, C.byref(out)), -1)
+                answer = self.engine.ask(dict(op='placements', field=case['field'], piece=case['piece']))
+                self.assertNotIn((case['target'][0], 'URDL'[case['target'][1]]),
+                                 {(p['x'], p['r']) for p in answer['placements']})
+            # The same high-wall push in reflected triple geometry is unsafe.
+            self.assertEqual(self.dll.ama_operation_rotate((C.c_int * 6)(*case['heights'][::-1]),
+                3, 5-x, 0, (3-r)%4, 0, -step, C.byref(out)), -1)
+
+    def test_triple_ordinary_wall_turn_and_lower_floor_kick_remain(self):
+        out = Press()
+        self.assertEqual(self.dll.ama_operation_rotate((C.c_int * 6)(*([0]*6)),
+            3, 0, 0, 0, 0, -1, C.byref(out)), 0)
+        self.assertEqual((out.x, out.y, out.r), (1, 0, 3))
+        self.assertEqual(self.dll.ama_operation_rotate((C.c_int * 6)(0,0,0,6,0,0),
+            3, 3, 5, 0, 0, 1, C.byref(out)), 0)
+        self.assertEqual((out.x, out.y, out.r), (3, 4, 1))
 
 
 if __name__ == '__main__':
