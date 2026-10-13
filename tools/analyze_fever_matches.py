@@ -13,7 +13,9 @@ One report with the measurements the open questions need (doc/WORK_LOG.md, 2026-
                      what a confirmed packet did to a normal board by its size against the room left
   timing             tools/analyze_fever_arrival.py on the same logs, and the bridge's notes
   losses             each lost round under every cause it shows and under the first of them in the
-                     order of CAUSES (--losses prints this part as a table, most frequent first)
+                     order of CAUSES (--losses prints this part as a table, most frequent first).
+                     winner_shows applies the same tests to the winner of the same rounds: a cause the
+                     winners show as often as the losers does not tell them apart
 A match's loser is read from the boards the bridge samples when the clock stops, or inferred from the
 last decisions (loser_of); where the log does not tell, the match is left out of the parts that need a loser. Logs from before 2026-10-08 13:00 lack
 the opponent's side and what was held, and the parts that need them say so.
@@ -89,7 +91,8 @@ def middle_height(text):
 # Causes of a lost round, in the order that names the main one: the nearest to the death first, the
 # broadest (most lost rounds show it) last.
 CAUSES = (
-    ('operation_mismatch', '操作の不一致', 'last 6 placements: one landed off its target, or the steering gave up'),
+    ('unprepared_spawn', '準備なしの出現で出現列にそのまま落下',
+     '2 or more pieces appeared with no decision ready (spawn_without_prepared_decision) from 3 s before the last decision on'),
     ('few_nuisance_death', '配置の悪さによってお邪魔が数個くらいしか降っていないのに自滅',
      'died on a normal board with 6 or fewer nuisance on it and 6 or fewer pending'),
     ('died_holding_main', '撃てる本線を持ったまま死亡', 'last 12 normal decisions: one trigger fired 8+ and no 8+ was fired after'),
@@ -99,14 +102,19 @@ CAUSES = (
      'the winner fired 10+ on its normal board and the loser fired no 8+ from then on'),
     ('seed_failed', 'タネ消化失敗', 'a seed fired below its level'),
     ('entered_fever_first', '先に突入させられた', 'entered Fever before the winner did, or alone'),
+    # last: over 90 rounds the winners showed it as often as the losers (38 against 34, 2026-10-13)
+    ('operation_mismatch', '操作の不一致', 'last 6 placements: one landed off its target, or the steering gave up'),
     ('other', 'その他', 'none of the above'),
 )
 LAST_PLACEMENTS, LAST_DECISIONS, MAIN, SECOND_DECISIONS, FEW = 6, 12, 8, 10, 6
 
 
-def causes_of(events, other, slips, boards):
-    """Every cause in CAUSES the loser's decisions show; slips are the times its steering gave up."""
+def causes_of(events, other, slips, boards, unready=()):
+    """Every cause in CAUSES the loser's decisions show; slips are the times its steering gave up, unready
+    the times a piece of its appeared with no decision ready (those are not among the decisions)."""
     found = set()
+    if sum(t >= events[-1]['t'] - 3 for t in unready) >= 2:
+        found.add('unprepared_spawn')
     chain = lambda e: (e['lock'] or {}).get('chain', 0)
     tail = events[-LAST_PLACEMENTS:]
     if (any(e['lock'] and e['lock'].get('on_target') is False for e in tail)
@@ -244,8 +252,10 @@ def analyse(logs, boards):
     offsets, entries, growth, hits = [], [], [], []
     notes = Counter()
     for log_name, log in logs:
-        slips = defaultdict(list)
+        slips, unready = defaultdict(list), defaultdict(list)
         for d in log:
+            if d.get('auto') == 'planning' and d.get('reason') == 'spawn_without_prepared_decision' and 't' in d:
+                unready[d.get('ai')].append(d['t'])
             if d.get('auto') in ('steering gave up', 'analysis failed, retrying') and 't' in d:
                 slips[d.get('ai')].append(d['t'])
             if d.get('auto') in ('opponent chain not followed', 'surprise landing'):
@@ -281,7 +291,10 @@ def analyse(logs, boards):
             loser, told = loser_of(sides, stops[first:], seats, boards, overs)
             matches.append(dict(match=match[-12:], frames=max(e['frame'] for ev in sides.values() for e in ev),
                                 loser=loser, loser_told_by=told, sides=summary, log=log_name,
-                                causes=causes_of(sides[loser], sides[3 - loser], slips[loser], boards) if loser else None))
+                                causes=causes_of(sides[loser], sides[3 - loser], slips[loser], boards,
+                                                 [t for t in unready[loser] if start <= t < until]) if loser else None,
+                                winner_shows=causes_of(sides[3 - loser], sides[loser], slips[3 - loser], boards,
+                                                       [t for t in unready[3 - loser] if start <= t < until]) if loser else None))
             for ai, events in sides.items():
                 died = loser == ai
                 # --- after a Fever, and decisions under a packet
@@ -377,7 +390,8 @@ def analyse(logs, boards):
         losses=dict(n=len(lost), loser_not_told=len(matches) - len(lost),
             loser_told_by=dict(Counter(m['loser_told_by'] for m in lost)),
             causes=sorted((dict(cause=key, label=label, definition=definition,
-                                main=sum(m['causes'][0] == key for m in lost), shown=sum(key in m['causes'] for m in lost))
+                                main=sum(m['causes'][0] == key for m in lost), shown=sum(key in m['causes'] for m in lost),
+                                winner_shows=sum(key in m['winner_shows'] for m in lost))
                            for key, label, definition in CAUSES), key=lambda row: (-row['main'], -row['shown']))),
         matches=dict(n=len(matches), finished=len(finished), frames=spread([m['frames'] for m in finished]),
             lost_by_ai=dict(Counter(m['loser'] for m in finished)),
@@ -444,10 +458,10 @@ def main():
         print(f"敗局 {losses['n']}（敗者を判定できない対局 {losses['loser_not_told']}、ログ {len(logs)}）")
         print(f"敗者の判定：{losses['loser_told_by']}")
         print()
-        print('| 原因 | 主因 | 該当（重複あり） |')
-        print('| --- | ---: | ---: |')
+        print('| 原因 | 主因 | 該当（重複あり） | 勝者側の該当 |')
+        print('| --- | ---: | ---: | ---: |')
         for row in losses['causes']:
-            print(f"| {row['label']} | {row['main']} | {row['shown']} |")
+            print(f"| {row['label']} | {row['main']} | {row['shown']} | {row['winner_shows']} |")
     else:
         print(json.dumps(report, ensure_ascii=False, indent=1))
     if args.output:
