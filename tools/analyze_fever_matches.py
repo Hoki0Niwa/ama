@@ -14,8 +14,8 @@ One report with the measurements the open questions need (doc/WORK_LOG.md, 2026-
   timing             tools/analyze_fever_arrival.py on the same logs, and the bridge's notes
   losses             each lost round under every cause it shows and under the first of them in the
                      order of CAUSES (--losses prints this part as a table, most frequent first)
-A match's loser is inferred from the last decisions (loser_of); where they do not tell, the match is
-left out of the parts that need a loser. Logs from before 2026-10-08 13:00 lack
+A match's loser is read from the boards the bridge samples when the clock stops, or inferred from the
+last decisions (loser_of); where the log does not tell, the match is left out of the parts that need a loser. Logs from before 2026-10-08 13:00 lack
 the opponent's side and what was held, and the parts that need them say so.
 Offline reading of logs: it measures what happened between these two AIs, not what is best.
 """
@@ -60,6 +60,21 @@ class Boards:
             except (ValueError, KeyError):
                 self.cache[text] = None
         return self.cache[text]
+
+    def after(self, e):
+        """(board, dead, chained) once the piece of this decision stood where it was locked; None if not known."""
+        lock = e['lock']
+        if not lock or not e.get('queue'):
+            return None
+        key = (e['field'], e['queue'][0], lock.get('x'), lock.get('r'))
+        if key not in self.cache:
+            try:
+                moves = self.engine.native.ask(dict(op='placements', field=e['field'].split('/'), piece=e['queue'][0]))
+                move = next((m for m in moves['placements'] if (m['x'], m['r']) == key[2:]), None)
+                self.cache[key] = move and ('/'.join(move['field']), move['dead'], bool(move['links']))
+            except (ValueError, KeyError):
+                self.cache[key] = None
+        return self.cache[key]
 
 
 def cells(text):
@@ -123,30 +138,59 @@ def causes_of(events, other, slips, boards):
     return [key for key, _, _ in CAUSES if key in found] or ['other']
 
 
-def loser_of(sides):
-    """(loser, how it was told) from the last decision of each side; (None, None) where they do not tell.
+def death_cells(text):
+    """A puyo stands in the 12th row of the 3rd or 4th column (the rows are top-first, 14 of them)."""
+    row = text.split('/')[2]
+    return row[2] != '.' or row[3] != '.'
 
-    The bridge does not log who won. In order: the engine found no rescue; the nuisance pending on a
-    normal board reaches the top of the middle columns while the other side's does not; the middle
-    columns stand at 10 or more against 8 or less. The height is the last seen by either side.
+
+def loser_of(sides, stops=(), seats=None, boards=None):
+    """(loser, how it was told); (None, None) where the log does not tell.
+
+    A player loses when a puyo stands in the 12th row of the 3rd or 4th column once their board has
+    come to rest; while their chain runs they are still alive and the other may die first. In order:
+      round_end   the bridge's samples of both boards after the clock stopped (2026-10-13 on): the one
+                  player with a death cell filled and no chain running
+      death_cell  the same seen by the opponent's last decisions (their view of this board, no chain)
+      last_lock   the last piece locked, with no chain, fills a death cell, or the confirmed nuisance
+                  that falls after it does (whole rows only); of two such players the earlier lock
+      no_rescue   the engine found no placement that survives
+      buried      the nuisance pending on a normal board reaches the top of the middle columns and the
+                  other side's does not: a forecast, the death itself is not in the log
     """
     if len(sides) != 2:
         return None, None
+    for stop in stops:
+        players = stop.get('players')
+        if seats and isinstance(players, list) and len(players) == 2:
+            dead = [ai for ai, seat in seats.items() if any(players[seat]['death_cells']) and not players[seat]['link']]
+            if len(dead) == 1 and dead[0] in sides:
+                return dead[0], 'round_end'
     last = {ai: events[-1] for ai, events in sides.items()}
+    seen = [ai for ai in sides if any(not e.get('enemy_chain') and (e.get('enemy') or {}).get('field')
+                                      and death_cells(e['enemy']['field']) for e in sides[3 - ai][-2:])]
+    if len(seen) == 1:
+        return seen[0], 'death_cell'
+    locked = {}
+    for ai, e in last.items():
+        after = boards.after(e) if boards else None
+        if after and not after[2]:
+            rows = min(5, (e.get('tray') or [0])[0] // 6) if e['mode'] == 'normal' else 0
+            if after[1] or death_cells(after[0]) or middle_height(after[0]) + rows >= 12:
+                locked[ai] = e['lock'].get('frame') or e['frame']
+    if locked and (len(locked) == 1 or len(set(locked.values())) == 2):
+        return min(locked, key=locked.get), 'last_lock'
     gone = [ai for ai, e in last.items() if e.get('reason') == 'no_rescue_fast_finish']
     if len(gone) == 1:
         return gone[0], 'no_rescue'
-    height, buried = {}, {}
-    for ai, e in last.items():
-        seen = (last[3 - ai].get('enemy') or {})
-        height[ai] = max(middle_height(e['field']), middle_height(seen['field']) if seen.get('mode') == e['mode'] else 0)
-        buried[ai] = height[ai] + (min(5, -(-e['nuisance'][0] // 6)) if e['mode'] == 'normal' else 0)
+    buried = {}
+    for ai, e in last.items():      # the height is the last seen by either side
+        theirs = last[3 - ai].get('enemy') or {}
+        height = max(middle_height(e['field']), middle_height(theirs['field']) if theirs.get('mode') == e['mode'] else 0)
+        buried[ai] = height + (min(5, -(-e['nuisance'][0] // 6)) if e['mode'] == 'normal' else 0)
     for ai in last:
         if buried[ai] >= 12 > buried[3 - ai]:
             return ai, 'buried'
-    for ai in last:
-        if height[ai] >= 10 and height[3 - ai] <= 8:
-            return ai, 'height'
     return None, None
 
 
@@ -193,7 +237,17 @@ def analyse(logs, boards):
                 slips[d.get('ai')].append(d['t'])
             if d.get('auto') in ('opponent chain not followed', 'surprise landing'):
                 notes[d['auto'] + ((': ' + str(d.get('what'))) if d.get('what') else '')] += 1
-        for match, sides in rounds_of(log).items():
+        rounds = rounds_of(log)
+        starts = sorted(min(events[0]['t'] for events in sides.values()) for sides in rounds.values())
+        assigned = [d for d in log if d.get('auto') == 'controller assignment' and d.get('seats')]
+        for match, sides in rounds.items():
+            start = min(events[0]['t'] for events in sides.values())
+            until = next((t for t in starts if t > start), float('inf'))
+            # the last time the clock stopped in this round: its samples in order
+            stops = [d for d in log if d.get('auto') == 'clock stopped' and start < d.get('t', 0) < until]
+            first = max((i for i, d in enumerate(stops) if d.get('sample') == 1), default=0)
+            seats = next(({ai: seat - 1 for ai, seat in zip((1, 2), d['seats'])}
+                          for d in reversed(assigned) if d['t'] <= until), None)
             summary = {}
             for ai, events in sides.items():
                 last = events[-1]
@@ -210,7 +264,7 @@ def analyse(logs, boards):
                     biggest_fever_chain=max((f['chain'] for f in fires if f.get('mode') == 'fever'), default=0),
                     seeds_at_level=sum(c >= lv for c, lv in seeds), seeds_below_level=sum(c < lv for c, lv in seeds),
                     nuisance_landed=landed, last_reason=last.get('reason'))
-            loser, told = loser_of(sides)
+            loser, told = loser_of(sides, stops[first:], seats, boards)
             matches.append(dict(match=match[-12:], frames=max(e['frame'] for ev in sides.values() for e in ev),
                                 loser=loser, loser_told_by=told, sides=summary, log=log_name,
                                 causes=causes_of(sides[loser], sides[3 - loser], slips[loser], boards) if loser else None))
