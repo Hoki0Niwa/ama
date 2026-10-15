@@ -2,7 +2,7 @@
 
 ![14段目から横へ渡る2個組の経路](images/disabled-triple-20261014/pair-airborne-route.png)
 
-これは成功する手順の紹介ではなく、現在の到達モデルが除外している経路の説明。シード0・2P32手目、`2:YB`、高さ `[13,13,9,7,11,12]` の実ログ例。列は1始まり。黄が軸、青が子。
+現在の到達モデルが除外する経路の説明。シード0・2P32手目、`2:YB`、高さ `[13,13,9,7,11,12]` の実ログ例。列は1始まり。黄が軸、青が子。
 
 1. 出現列の3列目から右へ2回、5列目へ動く。
 2. 右回転で6列目の12段の壁へ引っ掛け、左回転で上向きに戻す。旧モデルでは軸が13段目になる。
@@ -15,4 +15,4 @@
 
 右端までの上昇や2個組の特殊回転を一律禁止しているわけではない。現在の制限は、足場を離れて横に渡る間の落下によって届かなくなる経路に適用する。
 
-元ログ：`ama-memory-bridge/observations/session-logs/input-session-20261013-210914.log` の `planning`、`steering gave up`。旧DLLの11入力と図の①〜④の姿勢を照合した。再作図：`python tools/render_pair_airborne_route.py`。この説明の作成では操作設定・コード・バイナリを変更していない。
+元ログ：`ama-memory-bridge/observations/session-logs/input-session-20261013-210914.log` の `planning`、`steering gave up`。旧DLLの11入力と図の①〜④の姿勢を照合した。再作図：`python tools/render_pair_airborne_route.py`。
