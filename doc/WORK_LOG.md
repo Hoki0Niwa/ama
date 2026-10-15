@@ -3344,3 +3344,68 @@ Ama評価編集画面で説明のなかったupper_12・upper_13・clear_cost・
 
 - 分割した7工程のcommit/push後、測定証拠のGit blobと元ファイルのバイト比較でCRLF→LF変換を検出した。元データや記録hashは変更せず、baselineの-text属性を適用してindexを再取込みする補助コミットを追加する。
 - 保存snapshot/JSONL/patch等の元バイトを保持し、測定記録のSHA256を新しいcloneでも検証できるようにする。研究方策・製品動作・実験結果を変更したものではない。元バイトとcommit blobの全件一致、およびpush後のremote先端を確認する。
+
+## 2026-10-13：S0Cの独立確認・250ms比較を実施
+
+- 依頼：「次の計画を進めてください」。S0C-0〜4だけを実施。研究ブランチ13ac392のclean状態を確認し、AGENTS/README/実装計画/WORK_LOG/S0C仕様を読んだ。研究716tracked、元製品298ファイル・4バイナリ、Actorと仕様を開始時にhash固定した。
+- 追加：confirm_fever_firstscore40_s0.py、確認設定JSON、13意味的テスト。ScoreBackendと新得点審判を再利用し、記録wrapperで失敗時の公開Observation／last_plannerも保持する。Actorへseedや隠れ未来を渡さず、B0/S0/v4/native・製品・セカンド・Tsuの方策コード／設定／既定binaryは変更しない。旧H1用仕様コピー・gateを使わず専用manifest/gateを作った。
+- 実装中確認：新テストの早期非悪化fixtureはS0の既存gainが1件の早期lossを上回るため初回1失敗。両者の@40成功を保ったまま@30を比較するfixtureへ直し、残り期限の検査を加えて13件成功。方策の修正や新群での調整ではない。
+- 回帰：新13＋score14＋first40 13＋R1 11＋Tsu8、計59 Python成功/skip0、hashが現sourceに一致するnative既存検査を再実行して成功。Tsu bench同seed1/2は非時間全列一致（130470点15連鎖53手／132900点16連鎖37手）。native再ビルドは不要で既存v4を再利用した。
+- 再生：保存1095公開観測を25msで1回ずつ再生。全完了、decision差0、保存30Fの取り逃し0。往復mean/P95/max 6.483/12.321/18.896ms。旧配置不能1件のprobeログは元から未保存で再生群に含めず、元試行の分母からは除かない。
+- smoke：raffina31002/31004・rafisol31003/31010の4組×2条件、8試行276配置がS40記録と一致。予算250msで成功し、成績を確認群へ加算せず新群へ進んだ。
+- seed/固定：61001〜61064は予約データと自分の出力を除いたJSON/JSONL数値seed項目で未使用を再確認。両キャラ、位相0・空盤面・可視3、総250ms/probe25ms、B0幅250/深さ8/仮想6、逐次・順序交互。45分上限。source/settings/binary/仕様を固定し、結果を見て変更しない。
+- 測定：256/256開始・完了、8750実配置、timeout8。死亡/配置不能/engine_error/unfinished0。wall896.00秒。timeoutを失敗・費用へ含め、同じseedの再試験や救済予算を使っていない。
+- 成績：Pscore@30/35/40はラフィーナB0 4/14/20→S0 9/22/27、ラフィソル10/19/25→15/26/34（各64）。gain/loss 10/3・9/0、合計19/3、純増16。64seedクラスタ平均差+12.5pt、bootstrap95% +6.25〜+19.53pt、一側sign-flip p=0.00032997。旧16群とは別表で、Steam実績や80%を主張しない。
+- 診断：S0全4316probe（失敗返信を含む）が完了、打切り0、内部mean/P95/max 6.688/12.913/20.326ms。F採用61試行は全て最初の期限内に実目標点で発火し、183採用手・366予測transitionを参照nativeで再生して一致。未達67試行は全てF未採用。3lossはraffina61014/61033/61061のF介入前の総250ms timeoutで、失敗までの32実配置と失敗観測がB0と一致。19gain中2はB0 timeoutからの成功で、純粋な発火効果と混同しない。
+- 費用：choose mean/P95/maxはraffina B0 99.29/174.28/266.31ms→S0 108.09/188.85/253.82、rafisol 91.30/166.57/255.66→96.82/175.10/267.60。最大は失敗も含む。CPU/判断+2.64%/+1.48%、P95+25ms/CPU+15%条件内。B0/S0のtimeoutはそれぞれ4。外部driver peak158.47MB、CPU31.047秒は記録harnessの費用も含み、窓内CPUへ二重加算しない。
+- 採否：改善幅・統計・早期・F期限・費用は通過したがloss0とtimeout0が不成立。not_adopted_current_s0_250で停止。得点発火の改善を観測したことと、直列probe＋B0が実用条件を満たすことを区別する。H1/B2/別方式、25/250ms予算変更、追加seed、最終holdout、製品採用へ進まない。
+- 保存：data/fever/baselines/2026-10-13-firstscore40-s0-confirm/へ仕様/settings/source/native/planner ZIPとhash、seed検査、テスト、再生、smoke、主raw/全steps、資源監視、F監査、全gain/loss反例、audit_results.py/独立auditを保存。既存非Markdown・製品source/binary不変を確認。source ZIP 7082b6229e0584e0dc0992b541b4ec0c7280ccd2c08331934795b1079b4f5de3、主steps 1c96949f788204dc88b2ac75d3f8b4fcf7b180a4817d0c3f129fc2052c228e1e。測定中・後の方策/harness/settings変更なし。
+- 文書/未確認：FEVER_FIRSTSCORE40_S0_CONFIRMATION_RESULT_2026-10-13.mdと入口文書を更新。本書の結果後バナーは測定仕様コピーとは別。新追加はHEAD＋dirty source snapshotで特定し、commit/pushは行っていない。Steam実機、時間超過を解消した新版、80%・他キャラの汎化は未検証。結果を提出して停止する。
+
+## 2026-10-13：S0の改善を活かす次計画へ改訂
+
+- 依頼：新しい計画を作成し、改善があるのに時間切れ等の理由だけで見送る判断を見直す。中断後も同じ計画作成を再開した。
+- 判断：旧S0Cの事前gateは不合格として保存するが、S0自体は純増16/128・+12.5ptとF61試行の期限内実成功を根拠に研究基準候補として継続する。旧loss0・両方式timeout0を研究継続の必須条件にしたことを見直し、次の独立比較は全失敗を含む純効果と費用で判断する。製品採用とは区別する。
+- 調査：凍結ScoreBackendのplanner→B0直列経路、共通250ms deadline、score-probeの毎回reset、可視深さmin(3,40-t)、初回10以上の吸収判定、Piece個数を確認。製品feverには別件の倍率上書き等の未コミット変更が存在し、触れていない。
+- 保存分析：S0Cの全4316公開観測（失敗4返信を含む）を、盤面のRYGB＋期限内可視Piece個数で再集計。40未満は1647回（38.16%）、該当probeの旧内部wall14086.92ms（48.80%）、遷移12411309（56.48%）。保存F183の省略0。4timeout観測の資源上限は33/6/35/28で全て該当する。新しいエンジン実行・色列生成なし。
+- 解釈：40個は実10以上の必要資源から定まり、得点目標を15連鎖必須へ戻すものではない。1〜9整理を制限せず、B0の構築は続ける。記録した省略対象時間をAI全体の高速化と扱わず、timeoutの回復・新成功率は未測定とする。ラフィソル61031は旧総時間からprobe内部時間だけを引いても250ms超で、全件解消は約束できない。
+- 計画：FEVER_FIRSTSCORE40_S0_CONTINUATION_PLAN_2026-10-13.mdにS0G-0〜4を作成。新planner proxy/adapterだけで必要条件を検査し、既存S0/B0/native/予算を凍結。意味的テスト→保存4316＋1095再生→4失敗観測×3方式×20反復→既知8組×3方式→新62001〜62064の両キャラ×3方式384試行。初回目標点@40を主指標とし、lossゼロ条件は使わない。新基準・費用・停止条件とSol High向けファイル責務を明記した。
+- seed/出所：ローカルdata/binの506 JSON/JSONLで62001〜62064の数値seed重複0。ZIP・別checkout・リモートは対象外、実行前に再監査する。data/fever/baselines/2026-10-13-firstscore40-s0-next-plan/へ入力hash付きevidence、seed監査、開始状態、検証を保存。研究HEAD13ac392、元製品HEAD61ffc08。
+- 変更/確認：計画・入口・関連仕様・旧結果への後続判断リンク・本記録と、保存分析の新規JSON/READMEだけ。S0G実装、新benchmark、新学習、製品/セカンド/Tsu/bridge、commit/pushは未実施。文書・入力不変の検査を行い、回帰テストはコード変更がないため再実行しない。
+- 次：実行指示を受けたらS0G-0〜4のみ実施して報告する。軽量化が不調でもS0の有効性と混同せず、並列化・時間予算変更・別探索・最終holdoutを同時追加しない。
+
+- 最終整合検査：研究765既存ファイルの変更は予定したMarkdown8件だけで、分析入力・S0C旧baseline・凍結native4本のhashが一致。新文書のリンク・git diff --checkも成功。元feverは作業中に別作業のcommitで61ffc08→a081d8fへ進み、WORK_LOGとanalyze_fever_matches.pyが開始時から変化したため、全checkout不変を要求した初回検査は失敗した。その検査結果をverification-first.jsonへ残し、本タスクから元feverへ書込みをしていないこと、研究入力にその更新を混ぜていないことをverification.jsonへ明示した。元feverの変更を巻き戻していない。
+
+## 2026-10-13：S0Gの実装・独立比較を実施
+
+- 依頼：「次の計画を進めてください」。S0G-0〜4を実施。AGENTS/README/実装計画/WORK_LOG/最新S0G計画を確認し、研究HEAD13ac392と前工程のdirty成果物、研究772／元製品458ファイルの開始hashを保存した。元製品HEADはa081d8f。
+- 実装：新firstscore40_s0_mass_gate.pyで公開7項目・盤面/形状/周期を検証し、N<40の場合だけscore-probeを省略。既存ScoreBackendのdeadlineとB0状態・fallbackを再利用するproxy/adapter。省略は列挙完了null・実probe時間nullとして記録し、failed RPCでもguard情報を保つ。新3条件CLI、18テスト、設定JSONを追加した。既存S0/B0/C++/製品設定/セカンド/Tsu/bridgeは変更なし、新nativeビルドなし。
+- 初回検査：新18のうち2fixtureが失敗。ラフィーナ初期可視2/2/Lは7個であることを境界へ反映し、旧S0記録をS0G省略として模擬するfixtureのcompleteフラグをnullへ訂正。修正前sourceと説明を保存した。さらに不正RPC envelope/limitsは省略せずnativeのvalidationへ委譲する。修正後にsource/settings/spec/binaryを凍結し、正式測定中に変更しない。
+- 回帰：新18＋既存59、計77 Python成功/skip0。native既存検査成功。Tsu同seed1/2の時間以外全列一致（130470点15連鎖53手／132900点16連鎖37手）。既定binaryを更新していない。
+- 再生：S0C4316（失敗4返信を含む）＋旧S40 1095の全5411公開観測。省略1647＋416、委譲2669＋679。元S0全完了、委譲全完了、意味の差0、保存F183＋30の取り逃し0。S0C同入力のprobe往復mean6.967→3.646ms、省略対象のみ8.928→0.049ms。全chooseの速度と区別する。
+- 固定：保存4timeout観測×3方式×20反復、240返答を保存。完了配置差0、B0共通要求差0。choose mean B0 189.62/S0 190.19/S0G 177.50ms、timeout1/0/0。初期化は別窓。独立成功率の240標本とは数えない。
+- smoke：既知8組×3方式の24試行完了、共通S0/S0G配置差0、F不整合0。timeout2/2/2も保持し、旧S0Cの失敗や結果を置換せず、新群へ加算しない。probeを省いてもB0の遅延は残ることを確認。
+- 固定条件：62001〜62064は実行前にローカルJSON/JSONLの数値seed未使用を再監査。両キャラ・空盤面・位相0・可視3・総250ms/probe25ms、幅250/深さ8/仮想6/最大6thread。seedごとにキャラ順交互、3方式6順列を循環して逐次。60分cap。seed/隠れ未来/試行IDをActorへ渡さない。
+- 主測定：384/384完了、12908実配置、失敗choose23（timeout20＋nomove3）、死亡/engine_error/unfinished/未開始0。trial wall1405.27秒。再試行・追加seed・予算変更なし。
+- 成績：各64の@30/35/40はraffina B0 3/11/15、S0 7/17/22、S0G 8/18/24。rafisol B0 8/10/14、S0 11/17/21、S0G 11/16/20。合計@40は29→43→44/128。主S0G−B0 gain15/loss0、+11.72pt、64seedクラスタ95% +6.25〜+17.97pt、一側sign-flip p0.00006104。元S0−B0 +10.94ptで効果を再現。S0G−S0はgain3/loss2・+0.78pt、95%−2.34〜+4.69pt、成功率の有意改善とは扱わない。
+- 意味の保持：同公開観測4153実配置が一致。S0 F43/S0G F44試行は全て最初の期限内に実発火。参照nativeで258/264予測transitionを再生して盤面・消去群・廃棄・死亡・通常点が一致。S0G−S0の5差は全てF前timeoutで、共通prefixの配置差なし。
+- 費用：S0G mean/P95/maxはraffina108.35/180.23/270.02ms、rafisol99.77/172.95/263.62ms（失敗含む）。元S0比mean−5.14%/−3.53%、CPU/判断−2.46%/−0.93%。B0比CPU+0.24%/+0.94%、費用gate内。S0G4319 choose中1638省略/2681実行、実行全完了、guardmean0.038ms。追加transition S0 22021429→S0G9929202。B0内部量は未測定。
+- 遅延と資源：本試験timeout B0/S0/S0G 6/9/5、nomove各1。S0Gの2loss対S0は省略済みのB0応答待ち11/8手目で、263.62/257.73ms。time safetyを保証しない。外部driverpeak253.64MB・全CPU52.453秒、trial窓driver27.016秒と二重加算しない。ホストbusy60.35%は他処理/OSを含み、専用機独占ではない。
+- 採否：事前の新gate全通過、eligible_for_next_research_baseline。次の構築研究の基準候補をS0Gへ進める。旧S0C gateを改変していない。S0G未達84は全てF未採用で、目標未満43/未発火35/nomove1/timeout5。80%安定、Steam、他キャラ、実対戦、容量/評価/候補脱落の支配原因は未検証。
+- 保存：data/fever/baselines/2026-10-13-firstscore40-s0-mass-gate/へspec/settings/source/native/planner ZIP、manifest/hash、77テスト、再生、固定240、24smoke、384主比較/allsteps/F監査、資源、全gain/loss反例、独立auditを保存。source ZIP eafb189e128dfd40db2aab5f9526f3952180dcc129094697e297273e7c254b37、主steps13ce6e9708dae63455f896ddbd5996b11faa512c58dbf3dd3bff8c7200fbf2be。独立auditの不整合0。
+- 文書/停止：FEVER_FIRSTSCORE40_S0_MASS_GATE_RESULT_2026-10-13.mdと入口・仕様・本記録を更新。計画の結果バナーは測定終了後に追加し、凍結specとZIPは保持。製品既定、追加探索・点数上界・並列化・275/300ms・学習・最終holdout・commit/pushへ進まず、結果提出で停止する。
+
+- 最終照合：研究772既存ファイルは予定したMarkdown7件だけが変化し、測定source/settings/native、旧baseline、分析入力はhash一致。source ZIPの内部hash、凍結spec、新文書リンク、diff --checkも確認。元feverは並行する別作業のcommitでa081d8f→a24b699へ進み、WORK_LOGとmatch分析ツールが変化した。こちらから書込み・巻戻し・commitをせず、別更新としてverificationへ記録した。成果物51ファイル約71.2MB（inventory自身を除く）。
+
+## 2026-10-14：構築の事前学習と自己対戦RLの計画
+
+- 依頼：フィーバー戦術を自己対戦の強化学習で改善し、その過程で16万点超えの連鎖構築も学べるか、実験結果と合わせて新計画を提案する。
+- 確認範囲：両checkoutのAGENTS・README・実装計画・WORK_LOG、研究S0G/S0C/F40-1/B1/R1/H1、製品側の最新対戦分析とmod周期、simulate/model/modeのコード。研究HEAD13ac392＋dirty、製品HEAD205c9e3＋別作業dirtyを記録し、開始時の研究829／製品493ファイルのhashを保存。製品側の実機ログrawは再集計せず、文書にある185局／既知6局をその限界付きで参照した。
+- 保存結果再集計：S0G主比較の384 runsからキャラ・方式・@30/35/40・終端を再集計しaudit.jsonと一致。合計@40 B0 29/S0 43/S0G 44/128。S0G未達84の内訳は点数不足43・未発火35・nomove1・timeout5。78/84の分類は原因の同定ではない。過去のraw・gate・成績を変更していない。
+- 判断：自己対戦で大連鎖を学ぶ可能性はあるが、勝敗報酬だけから16万点@40の習得は保証できない。S0Gの成功例を教師とし、全合法配置の方策を実成否で改善、その後に構築課題を併用して対戦へ転移する。改善済みのS0Gは保持。ビームの限界やRLの優位を未測定のまま断定しない。
+- 環境の不足：simulateは通常・ゲージ0、ModeRefereeは明示イベント型で、完全Feverの閉ループscheduler／未知タネ供給は別に必要。最新実機modの周期・操作制約は凍結研究と異なる。既存の研究成績を現在製品の実機成績に読み替えない。
+- 研究資料：JSAI2023のぷよぷよ自己対戦、2025の並列Actor/PER（抄録と書誌、PDF取得失敗）、AlphaStarの論文概要・開発元説明、KataGoとPPOの一次資料を確認。内部Eloと構築の別評価、教師初期化とリーグの参考にし、Feverの達成率を外挿しない。
+- 資源：read-onlyのnvidia-smiでRTX5060Ti 16311MiB、CPU名Ryzen5 5600Xを確認。PATHのtorchは2.5.1+cpu、CUDA不可。他venvは未調査。GPU学習可能とはまだ確認していない。CIMのRAM取得はできず未測定、package変更なし。
+- 文書：FEVER_SELFPLAY_RL_PLAN_2026-10-14.mdを追加し、入口4文書と本記録を更新。Sol Highの次の一案RL-P1-0〜5（環境adapter→教師→NN＋同じF→3run小規模PPO→対応比較）、上限と未使用seed監査、漏洩/意味的検査、改善を保持する段階的採否を記載。selfplay_rl_plan_evidence_2026-10-14.jsonに参照元hash・再集計・資料・ハードウェア確認を保存。
+- 未実施／停止：新ベンチ、教師生成、RL環境／NN実装、学習、Fever閉ループ環境、製品統合、Tsu・セカンド・bridge・既定・binary変更、commit/pushなし。文書のみのため製品回帰の再走行も行わず、過去77件等の成功と今回の確認を分ける。次はRL-P1を実施するか本計画に基づいて判断する。
+- 最終照合：研究829既存ファイルの変更は入口4文書＋本記録の5件のみ。製品493ファイルと両HEAD、過去の研究ソース・設定・rawは開始時から不変。参照元28ファイルのhash、保存384結果の集計、新計画のローカルリンク、git diff --checkを確認。selfplay_rl_plan_verification_2026-10-14.jsonへ保存する。

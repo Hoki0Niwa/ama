@@ -1,0 +1,48 @@
+{
+  "research": {
+    "head_at_start": "13ac3923fa7ca03fdd17a34d072218bb08f8deb1",
+    "head_now": "13ac3923fa7ca03fdd17a34d072218bb08f8deb1",
+    "changed_since_start": [
+      "doc/FEVER_CHAIN15_PROTOTYPE_SPEC.md",
+      "doc/IMPLEMENTATION_PLAN.md",
+      "doc/README.md",
+      "doc/SEARCH_PLAN.md",
+      "doc/WORK_LOG.md"
+    ],
+    "added_since_start": [
+      "data/fever/research/selfplay_rl_plan_evidence_2026-10-14.json",
+      "doc/FEVER_SELFPLAY_RL_PLAN_2026-10-14.md",
+      "data/fever/research/selfplay_rl_plan_verification_2026-10-14.json"
+    ],
+    "new_file_hashes": {
+      "data/fever/research/selfplay_rl_plan_evidence_2026-10-14.json": "07d2656acf958e16e363d571516a9f179d0c67be27b87f7b5043066c75c2b2d1",
+      "doc/FEVER_SELFPLAY_RL_PLAN_2026-10-14.md": "00e1f08d90be7459ecdad2c0952e70a4ad44c5e0d8159a590d8e5b01734b65a3"
+    },
+    "updated_document_hashes": {
+      "doc/FEVER_CHAIN15_PROTOTYPE_SPEC.md": "9ff6374c538203aba07ca7ba1afc76b54c48148f76935b6ea4e9a61fd4d37c47",
+      "doc/IMPLEMENTATION_PLAN.md": "bb3265c75caf5298918e1cec83f3fb10703a234e4998b1c5d5098f2db32ffc31",
+      "doc/README.md": "04f854b34246b15ea6da8ffb0a3d4fee6d8c947f7ed0ae616ecf8b271f4778ee",
+      "doc/SEARCH_PLAN.md": "45c8708db7da50dd712736aed0e7eae9e027a6cf53711502d9ae9b23283a53c5",
+      "doc/WORK_LOG.md": "b1fd86ca77a5d28c186de353437efdfb19443f5baddb47677592af93c5f46b84"
+    }
+  },
+  "product": {
+    "head_at_start": "205c9e3a9207d87e96e801e0a0b0364e598e89e5",
+    "head_now": "205c9e3a9207d87e96e801e0a0b0364e598e89e5",
+    "changed_since_start": [],
+    "added_since_start": []
+  },
+  "schema": "ama.fever.selfplay_rl_plan_verification.v1",
+  "date": "2026-10-14",
+  "source_input_hashes_match": true,
+  "source_inputs": 28,
+  "missing_local_plan_links": [],
+  "new_engine_runs": 0,
+  "new_training_runs": 0,
+  "product_tests_rerun": false,
+  "plan_sha256": "00e1f08d90be7459ecdad2c0952e70a4ad44c5e0d8159a590d8e5b01734b65a3",
+  "evidence_sha256": "07d2656acf958e16e363d571516a9f179d0c67be27b87f7b5043066c75c2b2d1",
+  "notes": "Only planning documents and saved-data evidence changed; existing dirty work preserved. Hardware runtime read-only checks performed; no dependency changes.",
+  "git_diff_check": "passed; CRLF conversion warnings only",
+  "saved_verification_path": "data/fever/research/selfplay_rl_plan_verification_2026-10-14.json"
+}

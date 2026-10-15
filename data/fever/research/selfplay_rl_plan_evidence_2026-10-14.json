@@ -1,0 +1,586 @@
+{
+  "schema": "ama.fever.selfplay_rl_plan_evidence.v1",
+  "date": "2026-10-14",
+  "timezone": "Asia/Tokyo",
+  "scope": "planning and saved-data reaggregation only; no new engine run, model training, package install, product change, commit or push",
+  "checkouts": {
+    "research": {
+      "root": "C:\\Users\\ho_ki\\git\\ama-fever\\bin\\first40-benchmark\\worktree",
+      "head_at_start": "13ac3923fa7ca03fdd17a34d072218bb08f8deb1",
+      "dirty_status_at_start": " M doc/FEVER_CHAIN15_PROTOTYPE_SPEC.md\n M doc/FEVER_FIRST40_BENCHMARK.md\n M doc/FEVER_FIRSTSCORE40_S0_CONFIRMATION_PLAN_2026-10-12.md\n M doc/IMPLEMENTATION_PLAN.md\n M doc/README.md\n M doc/SEARCH_PLAN.md\n M doc/WORK_LOG.md\n?? data/fever/baselines/2026-10-13-firstscore40-s0-confirm/\n?? data/fever/baselines/2026-10-13-firstscore40-s0-mass-gate/\n?? data/fever/baselines/2026-10-13-firstscore40-s0-next-plan/\n?? data/fever/research/firstscore40_s0_confirm_v1.json\n?? data/fever/research/firstscore40_s0_mass_gate_v1.json\n?? doc/FEVER_FIRSTSCORE40_S0_CONFIRMATION_RESULT_2026-10-13.md\n?? doc/FEVER_FIRSTSCORE40_S0_CONTINUATION_PLAN_2026-10-13.md\n?? doc/FEVER_FIRSTSCORE40_S0_MASS_GATE_RESULT_2026-10-13.md\n?? fever_battle/firstscore40_s0_mass_gate.py\n?? test/test_fever_firstscore40_s0_confirmation.py\n?? test/test_fever_firstscore40_s0_mass_gate.py\n?? tools/bench_fever_firstscore40_s0_mass_gate.py\n?? tools/confirm_fever_firstscore40_s0.py\n"
+    },
+    "product": {
+      "root": "C:\\Users\\ho_ki\\git\\ama-fever",
+      "head_at_start": "205c9e3a9207d87e96e801e0a0b0364e598e89e5",
+      "dirty_status_at_start": " M data/fever/battle_policy.json\n M doc/DROPSETS.md\n M doc/HANDOFF_2026-10-13.md\n M doc/WORK_LOG.md\n M fever_battle/mode_engine.py\n M fever_battle/tactics.cpp\n?? doc/OVERNIGHT_LOG_ANALYSIS_2026-10-14.md\n?? test/test_fever_clear_burial.py\n?? test/test_fever_main_keep.py\n?? test/test_fever_retain.py\n?? tools/bench_fever_pace.py\n?? tools/investigate_round44_burial.py\n"
+    }
+  },
+  "inputs": {
+    "research": [
+      {
+        "path": "doc/FEVER_FIRSTSCORE40_S0_MASS_GATE_RESULT_2026-10-13.md",
+        "sha256": "70e7b2fddf0cd3035da13084cfa2795f40b1cdb53c2e87e983d9fe575f31c396"
+      },
+      {
+        "path": "doc/FEVER_FIRSTSCORE40_S0_CONFIRMATION_RESULT_2026-10-13.md",
+        "sha256": "6dedf97d36190a0957b680ea8b387224d704dbbfc184987ea5b57b0187ad8ab4"
+      },
+      {
+        "path": "doc/FEVER_FIRST40_DIAGNOSTICS_2026-10-12.md",
+        "sha256": "a1a153435aa4962436ef253477f3114219abe8d6736a73c1cdc01c0f157c9159"
+      },
+      {
+        "path": "doc/FEVER_FIRST40_DEADLINE_RESULT_2026-10-12.md",
+        "sha256": "4463e2358773dc4ef4d5627e5ce03f05d8319d404b365cea49a208638109d5ef"
+      },
+      {
+        "path": "doc/FEVER_FIRST40_ROOT_EVALUATION_RESULT_2026-10-12.md",
+        "sha256": "d7d00b8a0f1dd883c9219d0df240e727ce99aefc010768f42eefc9119363f94d"
+      },
+      {
+        "path": "doc/FEVER_FIRSTSCORE40_RESULT_2026-10-12.md",
+        "sha256": "87aeefe44aab21d80900f33164ceac259baf16fcfa25168593d7dcf4300f0352"
+      },
+      {
+        "path": "fever_battle/first40_benchmark.py",
+        "sha256": "7bc7079d4b90162f30def47ad8d97d8780b660ed8db3a1301265d2119e65b1e0"
+      },
+      {
+        "path": "fever_battle/firstscore40_benchmark.py",
+        "sha256": "8144d7ecb821a40d88316df734038c3db3e60d60be1eb40c198e62b2befb6593"
+      },
+      {
+        "path": "fever_battle/firstscore40_backend.py",
+        "sha256": "510d9a3c7a2f7b39330cc1804aaf181d0c6a3f8db07716e8f98a693578c9120b"
+      },
+      {
+        "path": "fever_battle/firstscore40_s0_mass_gate.py",
+        "sha256": "9a7839bbd5295d54442bc3f6da937fc36485c39c5d9930d820ef12fee4673544"
+      },
+      {
+        "path": "data/fever/research/firstscore40_s0_mass_gate_v1.json",
+        "sha256": "86e1ae0e4aa017906e0cb871722ced61e81c8d2fcc1b7b25b1c43e4288a383c8"
+      },
+      {
+        "path": "data/fever/baselines/2026-10-13-firstscore40-s0-mass-gate/audit.json",
+        "sha256": "7e169251849028bdf612db51c30216cc65dc91561d250542e9e8e9150882c3e8"
+      },
+      {
+        "path": "data/fever/baselines/2026-10-13-firstscore40-s0-mass-gate/confirmation/runs.json",
+        "sha256": "016f6ebf131631076cdd284fd33f784155654a06252899dfb68546c250d128e8"
+      },
+      {
+        "path": "data/fever/baselines/2026-10-13-firstscore40-s0-mass-gate/confirmation/steps.jsonl",
+        "sha256": "13ce6e9708dae63455f896ddbd5996b11faa512c58dbf3dd3bff8c7200fbf2be"
+      },
+      {
+        "path": "data/fever/baselines/2026-10-13-firstscore40-s0-mass-gate/confirmation/results.json",
+        "sha256": "f7ec4114457d5554f3de3c66617f36486cb020eca03ffda8a63a17e01c00230b"
+      },
+      {
+        "path": "data/fever/baselines/2026-10-13-firstscore40-s0-mass-gate/source-snapshot.zip",
+        "sha256": "eafb189e128dfd40db2aab5f9526f3952180dcc129094697e297273e7c254b37"
+      },
+      {
+        "path": "data/fever/baselines/2026-10-13-firstscore40-s0-mass-gate/manifest.json",
+        "sha256": "b438bd85ff986457529a85d4a4b6012548b7536db96d67ba3ca4ebb61b8bb5a1"
+      }
+    ],
+    "product": [
+      {
+        "path": "doc/WORK_LOG.md",
+        "sha256": "b979efbd70bd791cc9f21801f127d4f62a59cd2dc8018b6e3a41d647988c9cb7"
+      },
+      {
+        "path": "doc/DROPSETS.md",
+        "sha256": "abc9e4eda712ce8c82cdcf9157a03597a25c2820fbfade8b79206c6f20c32165"
+      },
+      {
+        "path": "doc/OVERNIGHT_LOG_ANALYSIS_2026-10-14.md",
+        "sha256": "db05492130a5d1ecef0fef9355d4a0dda1e02bf16c17fc55cbe628186b30fd5f"
+      },
+      {
+        "path": "doc/FEVER_BATTLE_ENGINE.md",
+        "sha256": "bffeba619d477bb223630a7210129f323d4ae8e73f2c8c03e31f9e68f662a631"
+      },
+      {
+        "path": "doc/FEVER_MODE_ENGINE.md",
+        "sha256": "ed2a1bc41b55fb5cc89245990eed3dae8128561073607628aed398f2971721be"
+      },
+      {
+        "path": "fever_battle/simulate.py",
+        "sha256": "b553efafec4fd17179f5d92585189214b774994201988ec41ece27a440a5d0a3"
+      },
+      {
+        "path": "fever_battle/model.py",
+        "sha256": "90ade15f65249811854644966309ed33e419f55eb130040b8983b1d616680cde"
+      },
+      {
+        "path": "fever_battle/mode.py",
+        "sha256": "28d93afce162eccd2d217ab0e28725204d3d71784171208857e055f49bce8524"
+      },
+      {
+        "path": "data/fever/battle_policy.json",
+        "sha256": "2f120cb4f2d4076a648f21fef8975c66d757d38659142a214703636d90c099b6"
+      },
+      {
+        "path": "fever_battle/mode_engine.py",
+        "sha256": "de2133b45c7796af57f075955853bdf6f589dec6d6bd2ca784bc8c3b3c155bac"
+      },
+      {
+        "path": "fever_battle/tactics.cpp",
+        "sha256": "80bae0eb6b7fb35cae9148b19d50c3671d40e10fa99268669ce535e9f082d92a"
+      }
+    ]
+  },
+  "saved_run_reaggregation": {
+    "runs": 384,
+    "per_character_and_arm": {
+      "raffina/b0": {
+        "n": 64,
+        "counts": {
+          "30": 3,
+          "35": 11,
+          "40": 15
+        },
+        "outcomes": {
+          "no_mainline": 21,
+          "first_below_score": 23,
+          "nomove": 1,
+          "success": 15,
+          "timeout": 4
+        }
+      },
+      "raffina/s0": {
+        "n": 64,
+        "counts": {
+          "30": 7,
+          "35": 17,
+          "40": 22
+        },
+        "outcomes": {
+          "no_mainline": 17,
+          "first_below_score": 16,
+          "nomove": 1,
+          "success": 22,
+          "timeout": 8
+        }
+      },
+      "raffina/s0g": {
+        "n": 64,
+        "counts": {
+          "30": 8,
+          "35": 18,
+          "40": 24
+        },
+        "outcomes": {
+          "no_mainline": 18,
+          "first_below_score": 19,
+          "nomove": 1,
+          "success": 24,
+          "timeout": 2
+        }
+      },
+      "rafisol/b0": {
+        "n": 64,
+        "counts": {
+          "30": 8,
+          "35": 10,
+          "40": 14
+        },
+        "outcomes": {
+          "first_below_score": 28,
+          "no_mainline": 20,
+          "success": 14,
+          "timeout": 2
+        }
+      },
+      "rafisol/s0": {
+        "n": 64,
+        "counts": {
+          "30": 11,
+          "35": 17,
+          "40": 21
+        },
+        "outcomes": {
+          "first_below_score": 25,
+          "no_mainline": 17,
+          "success": 21,
+          "timeout": 1
+        }
+      },
+      "rafisol/s0g": {
+        "n": 64,
+        "counts": {
+          "30": 11,
+          "35": 16,
+          "40": 20
+        },
+        "outcomes": {
+          "first_below_score": 24,
+          "no_mainline": 17,
+          "success": 20,
+          "timeout": 3
+        }
+      }
+    },
+    "pooled": {
+      "b0": {
+        "n": 128,
+        "counts": {
+          "30": 11,
+          "35": 21,
+          "40": 29
+        },
+        "outcomes": {
+          "no_mainline": 41,
+          "first_below_score": 51,
+          "nomove": 1,
+          "success": 29,
+          "timeout": 6
+        }
+      },
+      "s0": {
+        "n": 128,
+        "counts": {
+          "30": 18,
+          "35": 34,
+          "40": 43
+        },
+        "outcomes": {
+          "no_mainline": 34,
+          "first_below_score": 41,
+          "nomove": 1,
+          "success": 43,
+          "timeout": 9
+        }
+      },
+      "s0g": {
+        "n": 128,
+        "counts": {
+          "30": 19,
+          "35": 34,
+          "40": 44
+        },
+        "outcomes": {
+          "no_mainline": 35,
+          "first_below_score": 43,
+          "nomove": 1,
+          "success": 44,
+          "timeout": 5
+        }
+      }
+    },
+    "matches_saved_audit": true,
+    "old_trials_rerun": 0,
+    "new_trials": 0,
+    "s0g_non_success": 84,
+    "s0g_below_score_or_no_mainline": 78,
+    "s0g_failure_cause_attribution": "not identified by this outcome classification",
+    "comparisons_from_saved_audit": {
+      "s0g_vs_b0": {
+        "gains": [
+          [
+            "raffina",
+            62010
+          ],
+          [
+            "rafisol",
+            62010
+          ],
+          [
+            "rafisol",
+            62015
+          ],
+          [
+            "raffina",
+            62017
+          ],
+          [
+            "rafisol",
+            62025
+          ],
+          [
+            "rafisol",
+            62029
+          ],
+          [
+            "raffina",
+            62035
+          ],
+          [
+            "rafisol",
+            62041
+          ],
+          [
+            "raffina",
+            62042
+          ],
+          [
+            "raffina",
+            62048
+          ],
+          [
+            "raffina",
+            62055
+          ],
+          [
+            "raffina",
+            62060
+          ],
+          [
+            "raffina",
+            62061
+          ],
+          [
+            "rafisol",
+            62062
+          ],
+          [
+            "raffina",
+            62063
+          ]
+        ],
+        "losses": [],
+        "net": 15,
+        "difference": 0.1171875,
+        "sign_flip_one_sided": 6.103515625e-05
+      },
+      "s0g_vs_s0": {
+        "gains": [
+          [
+            "rafisol",
+            62037
+          ],
+          [
+            "raffina",
+            62046
+          ],
+          [
+            "raffina",
+            62048
+          ]
+        ],
+        "losses": [
+          [
+            "rafisol",
+            62030
+          ],
+          [
+            "rafisol",
+            62039
+          ]
+        ],
+        "net": 1,
+        "difference": 0.0078125,
+        "sign_flip_one_sided": 0.5
+      },
+      "s0_vs_b0": {
+        "gains": [
+          [
+            "raffina",
+            62010
+          ],
+          [
+            "rafisol",
+            62010
+          ],
+          [
+            "rafisol",
+            62015
+          ],
+          [
+            "raffina",
+            62017
+          ],
+          [
+            "rafisol",
+            62025
+          ],
+          [
+            "rafisol",
+            62029
+          ],
+          [
+            "rafisol",
+            62030
+          ],
+          [
+            "raffina",
+            62035
+          ],
+          [
+            "rafisol",
+            62039
+          ],
+          [
+            "rafisol",
+            62041
+          ],
+          [
+            "raffina",
+            62042
+          ],
+          [
+            "raffina",
+            62055
+          ],
+          [
+            "raffina",
+            62060
+          ],
+          [
+            "raffina",
+            62061
+          ],
+          [
+            "rafisol",
+            62062
+          ],
+          [
+            "raffina",
+            62063
+          ]
+        ],
+        "losses": [
+          [
+            "rafisol",
+            62037
+          ],
+          [
+            "raffina",
+            62046
+          ]
+        ],
+        "net": 14,
+        "difference": 0.109375,
+        "sign_flip_one_sided": 0.0010528564453125
+      }
+    },
+    "proof_summary_from_saved_audit": {
+      "b0": {
+        "adopted_trials": 0,
+        "reference_transitions": 0,
+        "issues": 0
+      },
+      "s0": {
+        "adopted_trials": 43,
+        "reference_transitions": 258,
+        "issues": 0
+      },
+      "s0g": {
+        "adopted_trials": 44,
+        "reference_transitions": 264,
+        "issues": 0
+      }
+    },
+    "costs_from_saved_audit": {
+      "raffina/b0": {
+        "n": 2180,
+        "mean_ms": 105.43228899120191,
+        "p95_ms": 178.34909999510273,
+        "maximum_ms": 331.0324999911245,
+        "over_250ms": 4,
+        "cpu_seconds": 1123.25,
+        "cpu_per_decision": 0.5152522935779816,
+        "response_over_250ms": 0
+      },
+      "raffina/s0": {
+        "n": 2067,
+        "mean_ms": 114.22324934693553,
+        "p95_ms": 191.86809999519028,
+        "maximum_ms": 290.85759998997673,
+        "over_250ms": 8,
+        "cpu_seconds": 1094.53125,
+        "cpu_per_decision": 0.5295264876632801,
+        "response_over_250ms": 0
+      },
+      "raffina/s0g": {
+        "n": 2183,
+        "mean_ms": 108.34991181839045,
+        "p95_ms": 180.2280999836512,
+        "maximum_ms": 270.0157999934163,
+        "over_250ms": 2,
+        "cpu_seconds": 1127.46875,
+        "cpu_per_decision": 0.5164767521759047,
+        "response_over_250ms": 0
+      },
+      "rafisol/b0": {
+        "n": 2182,
+        "mean_ms": 96.38104807529938,
+        "p95_ms": 169.4087999931071,
+        "maximum_ms": 291.05929998331703,
+        "over_250ms": 2,
+        "cpu_seconds": 1023.21875,
+        "cpu_per_decision": 0.46893618240146656,
+        "response_over_250ms": 0
+      },
+      "rafisol/s0": {
+        "n": 2183,
+        "mean_ms": 103.42169189174251,
+        "p95_ms": 180.96469997544773,
+        "maximum_ms": 252.2054000000935,
+        "over_250ms": 1,
+        "cpu_seconds": 1043.0625,
+        "cpu_per_decision": 0.4778114979386166,
+        "response_over_250ms": 0
+      },
+      "rafisol/s0g": {
+        "n": 2136,
+        "mean_ms": 99.76809705046881,
+        "p95_ms": 172.95229999581352,
+        "maximum_ms": 263.62449998850934,
+        "over_250ms": 3,
+        "cpu_seconds": 1011.09375,
+        "cpu_per_decision": 0.47335849719101125,
+        "response_over_250ms": 0
+      }
+    }
+  },
+  "hardware_readonly": {
+    "gpu": "NVIDIA GeForce RTX 5060 Ti",
+    "gpu_memory_mib": 16311,
+    "cpu": "AMD Ryzen 5 5600X 6-Core Processor",
+    "path_python_torch": "2.5.1+cpu",
+    "path_python_torch_cuda_build": null,
+    "path_python_torch_cuda_available": false,
+    "other_python_environments_checked": false,
+    "package_changes": false,
+    "ram_gib": null
+  },
+  "product_reading_limits": "Latest local documents and simulator code read. Live log raw not reanalysed; 185 and 6-match findings are cited local reports with confounded changes. Mod/drop pattern and native legality differ from frozen S0G research.",
+  "references": [
+    {
+      "title": "Adaptation of Self-Play with Deep Reinforcement Learning in Puyo-Puyo (2023)",
+      "url": "https://www.jstage.jst.go.jp/article/pjsai/JSAI2023/0/JSAI2023_2M5GS1001/_article/-char/ja/",
+      "access": "abstract and PDF"
+    },
+    {
+      "title": "Deep Reinforcement Learning Using Parallel Actors and Prioritized Experience Replay for Puyo Puyo AI (2025)",
+      "url": "https://www.jstage.jst.go.jp/article/jsoft/37/1/37_501/_article/-char/ja",
+      "access": "abstract and bibliographic record; PDF fetch failed"
+    },
+    {
+      "title": "Grandmaster level in StarCraft II using multi-agent reinforcement learning (2019)",
+      "url": "https://www.nature.com/articles/s41586-019-1724-z",
+      "access": "search-provided paper abstract; publisher full open failed"
+    },
+    {
+      "title": "AlphaStar: Mastering the real-time strategy game StarCraft II (2019)",
+      "url": "https://deepmind.google/blog/alphastar-mastering-the-real-time-strategy-game-starcraft-ii/",
+      "access": "developer primary explanation"
+    },
+    {
+      "title": "Accelerating Self-Play Learning in Go (2019)",
+      "url": "https://arxiv.org/abs/1902.10565",
+      "access": "paper abstract"
+    },
+    {
+      "title": "Proximal Policy Optimization Algorithms (2017)",
+      "url": "https://arxiv.org/abs/1707.06347",
+      "access": "paper abstract"
+    }
+  ],
+  "proposed_next_task": "RL-P1: S0G teacher warm-start plus small construction PPO; not implemented",
+  "budgets_status": "proposed caps and throughput scenarios, not measured RL capacity or success forecasts"
+}
