@@ -1,10 +1,8 @@
-# Engine integration from Ama Memory Bridge
+# Tsu engine: build and API
 
-The `irregular-form` engine incorporates the engine changes developed in
-`ama-memory-bridge` through 2026-10-03. It remains a Puyo Puyo Tsu engine and
-provides a starting point for a separate Fever version.
+This API belongs to the Tsu engine, `bin/pvp/pvp.exe`. Fever has separate binaries and protocols; see [Fever documentation](doc/README.md).
 
-## Integrated changes
+## Capabilities
 
 - Optional beam width/depth, preserving the engine defaults of 250/16.
 - Tactical decisions prepare only the construction search they need.
@@ -68,7 +66,19 @@ prefetch scheduling and challenge timing remain in `ama-memory-bridge`.
 They are client components rather than engine dependencies. Its 50/8 automatic
 play defaults do not replace this engine's 250/16 defaults.
 
-Fever needs its own piece representation, rules, tactical policy, game-state
-protocol and memory profile. Existing fields/cache keys only describe Tsu:
-mode transitions, character, piece shape and Fever state must be represented
-before reusing searches in a Fever implementation.
+Fever uses `bin/fever/fever.exe` for solo construction and `bin/fever_battle/fever_battle.exe` for battle search. See [protocol 3](doc/FEVER_MODE_ENGINE.md).
+
+## Tsu benchmark
+
+```powershell
+./build.ps1 -Target bench
+python -c "import json;json.dump(json.load(open('config.json'))['build'],open('bin/build-weights.json','w'))"
+bin/bench/bench.exe bin/build-weights.json 1 101 bin/bench-results.tsv
+python bench/compare.py --summary-only candidate=bin/bench-results.tsv
+```
+
+The end seed is exclusive. Compare the same seeds and configuration; wall-time columns vary. `BEAM_WIDTH`, `BEAM_DEPTH`, `BEAM_TRIGGER`, and `QUEUE_VISIBLE` control experiments. Visibility above 3 supplies real future pairs and is not a production observation model. `bench/measure_next.py` measures known-NEXT effects; inspect its `--help` for output and seed options.
+
+`build.form` enables shared GTR/SGTR/FRON pattern bias (0 disables). `build.clear_cost` charges actual points per colored puyo cleared by a first move worth less than 5,000; missing values default to 0. It does not change raw score or fire thresholds. Relevant checks are `test/test_form_evaluation.py` and `test/test_chain_quality.py`.
+
+The Tsu match simulator is `bin/pvp/pvp.exe --games 30 --seed 1 local local:other.json`. Frame assumptions and replay limits are in [pvp/TIMING.md](pvp/TIMING.md). It is separate from the full Fever simulator.
