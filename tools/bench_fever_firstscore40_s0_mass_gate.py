@@ -27,7 +27,7 @@ from tools.bench_fever_first40_deadline import prepare as prepare_reference
 from tools.bench_fever_firstscore40 import contract
 
 SETTINGS = ROOT/'data/fever/research/firstscore40_s0_mass_gate_v1.json'
-PLAN = ROOT/'doc/FEVER_FIRSTSCORE40_S0_CONTINUATION_PLAN_2026-10-13.md'
+PLAN = ROOT/'doc/contracts/FIRSTSCORE40_S0_MASS_GATE.md'
 START = ROOT/'bin/s0-mass-gate/20261013/start/preflight.json'
 S0C = ROOT/'data/fever/baselines/2026-10-13-firstscore40-s0-confirm'
 ARMS = ('b0', 's0', 's0g')

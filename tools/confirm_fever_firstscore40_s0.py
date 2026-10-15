@@ -24,7 +24,7 @@ from tools.bench_fever_firstscore40 import contract
 from tools.bench_fever_first40_deadline import prepare as prepare_reference
 
 SETTINGS = ROOT / 'data/fever/research/firstscore40_s0_confirm_v1.json'
-PLAN = ROOT / 'doc/FEVER_FIRSTSCORE40_S0_CONFIRMATION_PLAN_2026-10-12.md'
+PLAN = ROOT / 'doc/contracts/FIRSTSCORE40_S0_CONFIRMATION.md'
 OLD = ROOT / 'data/fever/baselines/2026-10-12-firstscore40'
 START = ROOT / 'bin/s0-confirm/20261013/start'
 

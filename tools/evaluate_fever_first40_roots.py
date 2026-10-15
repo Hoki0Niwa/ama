@@ -165,7 +165,7 @@ def main():
         raise ValueError("frozen plan/diagnostic fingerprint mismatch")
     args.mode, args.baseline = "root-evaluation", PLAN
     out, manifest = native_prepare(args)  # Reuse raw native archive/provenance validation.
-    spec = ROOT / "doc/FEVER_FIRST40_ROOT_EVALUATION_PLAN_2026-10-12.md"
+    spec = ROOT / "doc/contracts/FIRST40_ROOT_EVALUATION.md"
     (out / "experiment-spec.md").write_bytes(spec.read_bytes())
     (out / "selection-plan.json").write_bytes(PLAN.read_bytes())
     plan = json.loads(PLAN.read_text(encoding="utf8")); rows = source_rows(plan)

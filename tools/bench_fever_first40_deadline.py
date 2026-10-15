@@ -125,7 +125,7 @@ def prepare(args):
         native_source_archive_sha256=sha(archive),
         base_source_content_equal_after_crlf_normalization=True,
         base_source_raw_line_ending_differences=line_ending_differences)
-    specification = ROOT / "doc/FEVER_FIRST40_NEXT_STEP_2026-10-12.md"
+    specification = ROOT / "doc/contracts/FIRST40_DEADLINE.md"
     (out / "experiment-spec.md").write_bytes(specification.read_bytes())
     manifest["specification_sha256"] = sha(specification)
     manifest.update(contract=contract(), experiment="B1 deadline cap only", mode=args.mode,
