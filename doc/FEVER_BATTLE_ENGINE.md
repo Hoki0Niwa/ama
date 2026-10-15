@@ -8,7 +8,7 @@
 - `fever_battle/model.py`：キャラ別通常得点、予告パケット、相殺、確定、落下、全消し待機の審判。
 - `fever_battle/engine.py`：対戦JSONの検査と共通判断。建築には別プロセスの単独エンジンとClaude調整済み設定を使う。
 - `fever_battle/observation.py`：同一フレームでの観測と入力前の決定再検査。メモリの読み書きやパッド操作は行わない。
-- `fever_battle/simulate.py`・`replay.py`：イベント方式の自己対戦とログ検証。
+- `fever_battle/replay.py`：ログ検証。自己対戦は `C:\Users\ho_ki\git\fever-simulator`（2026-10-15に旧 `fever_battle/simulate.py` から置き換え）。
 
 ```powershell
 ./build.ps1 -Target fever
@@ -73,11 +73,11 @@ python -m fever_battle.engine
 ## 自己対戦と再生
 
 ```powershell
-python -m fever_battle.simulate --characters raffina schezo --seed 1 --max-moves 80 --placement-frames 48 --link-frames 48 --output bin/t8-t13/example.json
-python -m fever_battle.replay bin/t8-t13/example.json
+python C:\Users\ho_ki\git\fever-simulator\tools\ama_selfplay.py --ama-root C:\Users\ho_ki\git\ama-fever --seed 0 --matches 4 --workers 2 --output results/ama --audit
+python -m fever_battle.replay <state・events を持つ旧形式のログ.json>
 ```
 
-48はこの例の任意の試作値で、実測した設置時間・連鎖時間ではない。配置と連鎖のフレーム値は必須指定。`data/fever/timing.json` は既存ブリッジの部分計測だけを記録し、対戦コストの既定値は未校正としてnullにした。平均や最小値から攻撃締切の上限を作らない。
+旧 `fever_battle.simulate`（試作の色列 `prototype_splitmix4`、任意のフレーム値48）は削除した。以後の自己対戦は `fever-simulator` のSteam由来の色列・演出時間・Fever処理で行う。その `match-*.replay.json` は同リポジトリの `fever_simulator.exe --replay` で再生する。`fever_battle.replay` は旧形式のログ用に残す。`data/fever/timing.json` は既存ブリッジの部分計測だけを記録し、対戦コストの既定値は未校正としてnullにした。平均や最小値から攻撃締切の上限を作らない。
 
 ログに両者の配置決定、リンク別の送受、明示したイベント順、終状態を保存し、再生では全イベントの効果と終状態を照合する。色列はSteam版を再現しない `prototype_splitmix4`。相手のまだ表示されていない次手は判断に渡さない。
 

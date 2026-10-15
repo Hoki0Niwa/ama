@@ -55,16 +55,23 @@ class OperationTests(unittest.TestCase):
                             if self.route(h, shape, x, r)}
                 self.assertEqual(offered, expected, (trial, h, text))
 
-    def test_trial_triple_kick_is_offered_without_a_special_penalty(self):
+    def test_trial_triple_kick_that_lifts_from_the_spawn_row_is_suspended(self):
+        # Offered until 2026-10-14: the turn lifted the axis from the spawn row to the 13th row, the climb
+        # `hook` was stopped for; five of six giving-ups of the 16:10 session were such routes.
         h = (11, 8, 2, 0, 0, 2)
-        self.assertFalse(self.route(h, 3, 0, 1, special=False))
-        self.assertTrue(self.route(h, 3, 0, 1))
+        self.assertFalse(self.route(h, 3, 0, 1))
         answer = self.engine.ask(dict(op='placements', field=self.field(h), piece='L:RRG'))
-        kicked = next(p for p in answer['placements'] if (p['x'], p['r']) == (0, 'R'))
-        # It has exactly the same transition schema as ordinary placements.
-        ordinary = next(p for p in answer['placements'] if (p['x'], p['r']) == (2, 'U'))
-        self.assertEqual(set(kicked), set(ordinary))
-        self.assertNotIn('operation_penalty', kicked)
+        self.assertNotIn((0, 'R'), {(p['x'], p['r']) for p in answer['placements']})
+        self.assertIn((2, 'U'), {(p['x'], p['r']) for p in answer['placements']})
+
+    def test_logged_spawn_row_lifts_are_suspended(self):
+        data = json.loads((ROOT / 'data/fever/baselines/2026-10-14-spawn-row-lift-triples.json').read_text(encoding='utf-8'))
+        for case in data['cases']:
+            with self.subTest(case=case['id']):
+                x, r = case['target']
+                self.assertFalse(self.route(case['heights'], 3, x, r))
+                answer = self.engine.ask(dict(op='placements', field=self.field(case['heights']), piece=case['piece']))
+                self.assertNotIn((x, 'URDL'[r]), {(p['x'], p['r']) for p in answer['placements']})
 
     def test_pair_crosses_twelve_without_eleven_support(self):
         for h, x in (((0, 0, 0, 0, 12, 0), 5), ((0, 12, 0, 0, 0, 0), 0)):

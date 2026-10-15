@@ -333,6 +333,7 @@ class ModeBattleEngine(BattleEngine):
         options.setdefault('beam_depth', 8)
         options['construction_scoring'] = True
         threat = self._under_attack(request, own)
+        self.normal_threat = bool(threat)
         second = self._after_opening(own, options)
         if second:
             options['rebuild'] = True
@@ -449,9 +450,35 @@ class ModeBattleEngine(BattleEngine):
         if 'sustained_min_chain' in options: floor = options['sustained_min_chain']
         elif options.get('trigger', 2) <= 1: floor = options.get('build_chain', 14)
         else: floor = max(4, min(options.get('build_chain', 14), options.get('panic_chain', 14)))
+        # A main chain below the firing chain is no less worth keeping: the 12 and 11 chains of
+        # 2026-10-14 (seeds 0 and 4, AI 2) were each buried by one placement the build chose over
+        # a placement that kept them, and never came back.
+        normal_floor = floor
+        retain_floor = self.policy.get('normal_build', {}).get('retain_floor')
+        retain_when = self.policy.get('normal_build', {}).get('retain_when', 'always')
+        retain_cells = self.policy.get('normal_build', {}).get('retain_cells', 0)
+        threatened = getattr(self, 'normal_threat', False)
+        if (retain_floor is not None and (retain_when == 'always' or (retain_when == 'threat') == threatened)
+                and sum(c not in '.#' for row in own['field'] for c in row) >= retain_cells):
+            floor = max(4, min(floor, int(retain_floor)))
         if (not result.get('fire') and space.get('available_chain',0)>=floor):
             retain=[p for p in space.get('extensions',[]) if p['retains']]
             selected=any((p['x'],p['r'])==(result['x'],result['r']) for p in retain)
+            # Below the firing chain a placement that keeps the main is taken; with none the main is fired
+            # only from `retain_fire_cells` puyos on, and the build goes on as it chose before: firing every
+            # 10 to 12 chain with no room kept left the solo build at 11 chains instead of 13 (2026-10-14).
+            fire_cells = self.policy.get('normal_build', {}).get('retain_fire_cells')
+            below = space.get('available_chain', 0) < normal_floor
+            fire_chain = self.policy.get('normal_build', {}).get('retain_fire_chain', 0)
+            # No room left to go on building (`retain_fire_safe_moves` or fewer placements that pop nothing
+            # and live): the main is fired whatever its length, as the build would bury it or die with it
+            # (ally, solo seed 17: a 12 held from the 28th piece, an 11 fireable at the 36th, dead at the 39th).
+            safe_k = self.policy.get('normal_build', {}).get('retain_fire_safe_moves')
+            no_room = safe_k is not None and space.get('safe_moves', 99) <= int(safe_k)
+            if (not selected and below and not retain and not no_room and (fire_cells is None or
+                    sum(c not in '.#' for row in own['field'] for c in row) < int(fire_cells)
+                    or space.get('available_chain', 0) < int(fire_chain))):
+                selected = True
             if not selected:
                 if retain:
                     chosen=max(retain,key=lambda p:(p['chain'],p['score']))
@@ -1067,6 +1094,9 @@ class ModeBattleEngine(BattleEngine):
         decision = self._tactical_decision(request, own, enemy, rate, build)
         if decision.status == 'build' and any(not p['dead'] for p in placements):
             return self._normal_builder_reply(own, options, placements)
+        window = self._window_build(request, own, enemy, options, placements, decision)
+        if window is not None:
+            return window
         answer = decision.reply
         if (answer is not None and not answer['selected_move_loses'] and
                 answer['tactics_forecast']['choice']['survives']):
@@ -1143,10 +1173,103 @@ class ModeBattleEngine(BattleEngine):
                     all_clear=p['all_clear']) for p in placements])
         return self._normal_builder_reply(own, options, placements)
 
+    def _window_build(self, request, own, enemy, options, placements, decision):
+        """While the opponent's chain is still some pieces from landing and a main chain is held, go on
+        building it (the builder's placement) instead of the tactical search's small answers; the search
+        answers again when only `min_pieces` are left. Off unless policy normal_tactics.window_build is set
+        ({hold, min_pieces}): nothing here is tuned in battle."""
+        cfg = self.policy['normal_tactics'].get('window_build')
+        reply = decision.reply
+        if not cfg or reply is None or reply.get('decision_kind') not in ('stack', 'offset', 'take'):
+            return None
+        if reply.get('chain', 0) >= cfg.get('hold', 10):
+            return None             # the search fires the main chain itself: not a wait to be bettered
+        if own['confirmed'] or own['mode'] != 'normal':
+            return None
+        end = next((e['frame'] for e in self._enemy_events(request, enemy) if e['type'] == 'end'), None)
+        if end is None:
+            return None
+        pieces = 1 + max(0, end) // max(1, self.pace or 60)
+        if pieces < cfg.get('min_pieces', 3):
+            return None
+        held = self.native.ask(dict(op='holding', field=own['field']))['longest']
+        if held < cfg.get('hold', 10):
+            return None
+        if pieces <= cfg.get('fire_pieces', 0):
+            # Whether the held main can be fired depends on the colors that come: a placement that fires it
+            # now may not be there two pieces on (seed 4 of 2026-10-14, 12:32: a 10 chain at 144 frames,
+            # none at 60). Fired here, it still lands before the packet.
+            fires = [p for p in placements if not p['dead'] and len(p['links']) >= cfg.get('hold', 10)]
+            if fires:
+                choice = max(fires, key=lambda p: (len(p['links']), sum(self.scoring.chain(own['character'], p['links']))))
+                points = self.scoring.chain(own['character'], choice['links'])
+                return dict(x=choice['x'], r=choice['r'], shape=own['queue'][0][0], reason='normal_fire_in_window',
+                            fire=True, chain=len(points), next_chain=len(points), next_score=sum(points),
+                            next_field=choice['field'], link_points=points, next_all_clear=choice['all_clear'],
+                            normal_search_reused=False, searched_visible=len(own['queue']),
+                            normal_decision_status='build')
+        try:
+            # On top of the tactical search that has just run: a narrower beam where the build is not cached
+            # (decisions of 125 to 430 ms in the 2026-10-14 16:04 session, all on this path).
+            result = self._solo_build(own, dict(options, beam_width=min(options.get('beam_width', 50),
+                                                                         cfg.get('beam_width', 30))))
+        except ValueError:
+            return None
+        choice = next((p for p in placements if (p['x'], p['r']) == (result['x'], result['r']) and not p['dead']), None)
+        if choice is None or choice['links']:
+            return None             # the builder's own fire is the builder's decision, not a way to wait
+        if self.native.ask(dict(op='holding', field=choice['field']))['longest'] < held:
+            return None
+        answer = self._normal_builder_reply(own, options, placements)
+        answer['reason'] = 'normal_build_in_window'
+        return answer
+
+    def _forced_lookahead(self, own, placements, choice):
+        """The placement to make instead of `choice`, or `choice`. A placement that pops nothing and leaves
+        no placement for the next visible piece that pops nothing forces a fire (or a death) next move: the
+        chain it can reach there is known exactly, and another placement may force a bigger one, or fire a
+        bigger one now. The build's choice is kept where room remains or nothing forces more
+        (policy normal_build.forced_lookahead; WORK_LOG 2026-10-13 続き22, 作業B)."""
+        if not self.policy.get('normal_build', {}).get('forced_lookahead'):
+            return choice
+        if choice['links'] or len(own['queue']) < 2:
+            return choice
+        rows = None
+        rated = {}
+        for p in placements:
+            if p['dead']:
+                continue
+            key = (p['x'], p['r'])
+            if p['links']:
+                rated[key] = ('fire', len(p['links']), p)
+                continue
+            following = self.native.ask(dict(op='placements', field=p['field'], piece=own['queue'][1]))['placements']
+            alive = [q for q in following if not q['dead']]
+            if any(not q['links'] for q in alive):
+                rated[key] = ('room', 0, p)
+            elif alive:
+                rated[key] = ('forced', max(len(q['links']) for q in alive), p)
+            else:
+                rated[key] = ('dead', -1, p)
+        mine = rated.get((choice['x'], choice['r']))
+        if mine is None or mine[0] in ('room', 'fire'):
+            return choice
+        better = [v for v in rated.values() if v[0] in ('fire', 'forced') and v[1] > mine[1]]
+        if mine[0] == 'forced' and (not better or max(v[1] for v in better) < mine[1] + 1):
+            return choice
+        if not better:
+            room = [v for v in rated.values() if v[0] == 'room']
+            if not room:
+                return choice
+            # nothing reaches a chain from here: any placement that keeps room beats a forced death
+            return room[0][2]
+        return max(better, key=lambda v: (v[1], -abs(v[2]['x'] - choice['x'])))[2]
+
     def _normal_builder_reply(self, own, options, placements):
         safe = [p for p in placements if not p['dead']]
         result = self._solo_build(own, options)
         choice = next((p for p in safe if (p['x'], p['r']) == (result['x'], result['r'])), safe[0])
+        choice = self._forced_lookahead(own, placements, choice)
         points = self.scoring.chain(own['character'], choice['links'])
         return dict(x=choice['x'], r=choice['r'], shape=own['queue'][0][0], reason='normal_build_or_fire',
                     fire=bool(points), chain=len(points), next_chain=len(points), next_score=sum(points),

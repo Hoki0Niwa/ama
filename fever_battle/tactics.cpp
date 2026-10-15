@@ -204,6 +204,10 @@ public:
         // Charge only its excess over this move's model before locking; chains
         // retain their own measured duration rather than paying cadence twice.
         advance(n, n.frame + std::max(placement, pace - spawn - extra));
+        // What the board could fire before this piece: a clear is charged against it, so a piece
+        // that stands on the trigger and pops something small is not free (round-44, 2026-10-14).
+        const int main_held = fever::stock::longest(n.field);
+        bool falls_now = false;         // nuisance is confirmed and falls on a placement that pops nothing
         if (!n.field.drop_piece(move.x, move.r, piece, rules)) return false;
         advance(n, n.frame + extra);
         // A clear is due when popping nothing would let nuisance fall now, or
@@ -211,11 +215,13 @@ public:
         {
             auto peek = n; advance(peek, peek.frame + check);
             step.due = peek.fixed > 0;
+            falls_now = peek.fixed > 0;
             const int pending = int(std::min<i64>(30, peek.fixed + peek.flying));
             if (!step.due && pending)
                 drops(n.field, pending, n.phase, [&](Field board) { step.due = step.due || board.is_dead(rules); });
         }
         const auto locked = n.field;
+        int spent_here = 0;
         auto masks = n.field.pop();
         step.chain = masks.get_size();
         step.cleared = n.field;
@@ -225,9 +231,10 @@ public:
         if (step.chain) {
             // Attribute resource loss to our clears. Nuisance damage after
             // a nonclearing placement is a drop cost, not voluntary firing.
-            const int main_before = std::max(step.chain, fever::stock::longest(locked));
+            const int main_before = std::max({step.chain, fever::stock::longest(locked), main_held});
             if (main_before >= w->mainline_min)
-                n.main_links_spent += std::max(0, main_before - fever::stock::longest(step.cleared));
+                spent_here = std::max(0, main_before - fever::stock::longest(step.cleared));
+            n.main_links_spent += spent_here;
             // ai/ai.cpp on main: classify by the resources left, not by chain length.
             step.main = step.cleared.get_count() < std::max(24, root_cells / 2);
             auto before = locked, after = step.cleared;
@@ -265,6 +272,16 @@ public:
             }
             i64 shot_points = 0;
             for (auto p : step.points) shot_points += p;
+            // The share of the chain that went to taking something off what was coming did what a main
+            // chain is for: it is not a loss. (Round-6 of 2026-10-14: a 13 chain taking 1000 of 1048 was
+            // valued below a 10 chain taking 352, each link of the longer one being charged as spent.)
+            // Taking little with a big chain earns little: the share is what was taken over what the chain is worth.
+            // Only where waiting is over (`due`): before that the chain is still the thing to be built and kept,
+            // and a fire that happens to cancel a lot is no reason to spend it early.
+            if (step.due && spent_here > 0 && shot_points > 0) {
+                const i64 worth = std::max<i64>(1, shot_points / rates->at(n.frame));
+                n.main_links_spent -= int(std::min(spent_here, step.chain) * std::min<i64>(step.cancelled, worth) / worth);
+            }
             if (shot_points > n.return_points) {
                 n.return_points = shot_points;
                 n.return_nuisance = step.cancelled + step.sent;
@@ -288,6 +305,16 @@ public:
             advance(n, n.frame + chain_ready);
             return true;
         }
+        // A placement that pops nothing can cost the main chain as well: stood on the
+        // trigger it buries it. Until nuisance actually falls there is time to put the
+        // piece elsewhere and go on building, so the links lost are spent like fired
+        // ones. (Unpriced, a 12 chain held against a 13 under way, with twelve pieces'
+        // time left, went to 3 by one upright pair on its trigger column: 2026-10-13,
+        // and round-44 of 2026-10-14.) `due` is not that time: it is also set while the
+        // opponent's chain still runs, for any board that what is on its way would kill
+        // whenever it lands, and with that as the test the same placement stayed free.
+        if (!falls_now && main_held >= w->mainline_min)
+            n.main_links_spent += std::max(0, main_held - fever::stock::longest(locked));
         advance(n, n.frame + check);
         step.dropped = int(std::min<i64>(30, n.fixed));
         n.fixed -= step.dropped; n.dropped += step.dropped;

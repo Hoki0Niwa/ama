@@ -16,7 +16,6 @@ from fever_battle.model import EMPTY, Referee, Scoring, convert, drop_garbage
 from fever_battle.worker import JsonProcess
 from fever_battle.observation import authorize_reply
 from fever_battle.replay import replay
-from fever_battle.simulate import simulate
 
 NATIVE = Path(os.environ.get('AMA_BATTLE_NATIVE', ROOT / 'bin/fever_battle/fever_battle.exe'))
 SOLO = Path(os.environ.get('AMA_TEST_FEVER_ENGINE', ROOT / 'bin/fever/fever.exe'))
@@ -278,7 +277,17 @@ class NativeAndProtocolTests(unittest.TestCase):
         self.assertEqual(reply['enemy_possible_score_now'], 0)
 
     def test_two_engine_log_replay_and_tamper_detection(self):
-        document = simulate(self.engine, ['raffina', 'schezo'], 1, 45, 48, 48, width=15, depth=4)
+        # Full self-play lives in C:\Users\ho_ki\git\fever-simulator; this builds a small
+        # two-player log through the referee and native transition.
+        characters = ['raffina', 'schezo']
+        ref = Referee(characters)
+        for order, (player, piece, x) in enumerate([(0, '2:RG', 0), (1, '2:BY', 3), (0, '2:BY', 1)]):
+            transition = self.engine.native.ask(
+                {'op': 'transition', 'field': ref.players[player].rows, 'piece': piece, 'x': x, 'r': 'U'})
+            ref.apply({'type': 'place', 'player': player, 'frame': order, 'order': order,
+                       'result': transition, 'chain': f'{player}:{order}'})
+        document = {'characters': characters, 'initial_target_point': 120,
+                    'state': ref.snapshot(), 'events': ref.log}
         self.assertTrue(replay(document)['state_matches'])
         altered = copy.deepcopy(document)
         altered['events'][0]['effect']['dropped'] = 999
