@@ -70,7 +70,7 @@ class BattleEngine:
             self.patterns[character] = pattern
 
     def sync_powers(self, side):
-        """Follow a modified game: side['powers'] = {'normal': 19 values, 'fever': 17 values} read from
+        """Follow a modified game: side['powers'] = {'normal': 19 values, 'fever': 19 values} read from
         the game's memory. Without it (or per missing key) the table of scoring.json applies."""
         character = side['character']
         if character not in self.official_patterns:

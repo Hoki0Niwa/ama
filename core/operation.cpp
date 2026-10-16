@@ -26,7 +26,7 @@ constexpr int count = 15 * 6 * 4 * 2;
 int phases_for(const int* h, int shape, Pose start, bool fever) {
     return fever && shape == 2 && (start.y == -2 ||
         std::any_of(h, h + 6, [](int height) { return height >= 12; }))
-        ? fever_fall::frames_per_row : 1;
+        ? fever_fall::units_per_row : 1;
 }
 bool valid(const int* h, int shape, Pose p, bool fever) {
     if (!h || (shape != 2 && (!fever || (shape != 3 && shape != 4 && shape != 0)))) return false;

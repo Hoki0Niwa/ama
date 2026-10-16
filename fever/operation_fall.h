@@ -5,11 +5,14 @@
 #include <cstdint>
 
 namespace operation::fever_fall {
-// Logged lateral motion advances about 1/24 row per game frame. Use the
-// entered row for clearance: a fraction below row 14 cannot cross a row-13
-// column. The integer ABI reports this conservative row, never rounded up
-// into the clearance which has already been lost.
-constexpr int frames_per_row = 24;
+// The game's natural fall adds 10/256 row per frame (fever-simulator
+// docs/REVERSE_ENGINEERING.md, piece controller), i.e. 25.6 frames per row.
+// Pose::fall_frames holds the fraction in 1/256 rows. Use the entered row for
+// clearance: a fraction below row 14 cannot cross a row-13 column. The integer
+// ABI reports this conservative row, never rounded up into the clearance which
+// has already been lost.
+constexpr int units_per_row = 256;
+constexpr int units_per_frame = 10;
 struct CachedReachable {
     std::uint32_t key = 0, mask = 0;
     bool used = false;
@@ -37,9 +40,9 @@ inline Pose advance(const int* h, Pose before, Pose after, int frames) {
         after.fall_frames = 0;
         return after;
     }
-    const int total = after.fall_frames + frames;
-    after.y += total / frames_per_row;
-    after.fall_frames = total % frames_per_row;
+    const int total = after.fall_frames + frames * units_per_frame;
+    after.y += total / units_per_row;
+    after.fall_frames = total % units_per_row;
     const int floor = rest(h, after);
     if (row(after) > floor) {
         after.y = floor;

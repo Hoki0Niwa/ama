@@ -38,7 +38,7 @@ python test/test_engine_protocol.py
 
 2026-10-16に、Amaの古いFever仕様を `fever-simulator`（simulation_revision 7）の抽出データと逆アセンブル（`F:/ghidra/PPe`、unpacked PE SHA256 `b91c5ce8…`）へ合わせた。
 
-- 倍率：`scoring.json` の全26キャラ×通常19・Fever17リンクが `steam_tables.json` の先頭と一致することをスクリプトで確認。ヘド・セリリ・サタン・ハルトマンの5値を修正し、`normal_scoring_data.h` を再生成。
+- 倍率：`scoring.json` の全26キャラ×通常・Fever各19リンクが `steam_tables.json` の先頭と一致することをスクリプトで確認。ヘド・セリリ・サタン・ハルトマンの5値を修正し、`normal_scoring_data.h` を再生成。
 - タネ基準：`next_seed` と `seed_search.cpp` を `FUN_1400505a0` の式へ変更。全消し＋2を失敗下限より先に、通常全消し突入の最初のタネは+2前の基準から更新（`test_fever_mode.py` に回帰検査）。
 - マージン：`margin_reference.json` と `margin.py` を8秒刻み・27段の係数表へ変更。初期120以外も同じ表で扱う（`test_fever_final_failure.py`）。
 - 得点式・群／色ボーナス・端数持越し・おじゃま列順 `{0,3,2,5,1,4}`（抽選なし）・通常の連鎖終了→操作13F・ちぎり表は元から一致。出典の記載だけを更新。
@@ -46,7 +46,9 @@ python test/test_engine_protocol.py
 
 確認（2026-10-16、他作業の未コミット変更を含む作業ツリー）：`fever_check.py test` 44ファイル433件成功（変更前430件、追加3件）。`replay` 2563要求で、変更前のバイナリと返答が変わったのは得点表の出典文字列 `provenance` の56件と壁時計値1件だけ（記録済み要求に該当キャラ・境界が無い）。`test_engine_protocol.py` 成功（Tsuのソースは未変更）。実機と独立シミュレーターでの対戦試行は未実施。
 
-残る相違は、最低1個相殺の判定時点（Steamは発射時、Amaの明示イベント審判はリンク時）、操作モデルの自然落下（`operation_fall.h` は1/24段／F、Steamは10/256段／F）、倍率表の収録長（Steamは24リンク）、審判のモデル時計900／1800F（実機・シミュレーターは内部960／1860F）。いずれも [実装計画](IMPLEMENTATION_PLAN.md) の残件。
+続けて、審判の時計を内部960／1860Fへ統一し、審判の送信・相殺を `fever-simulator` revision 10 の3段階トレー（発射時に飛行中として受け手へ入り、相殺は作成時と到着時、飛行中も相殺でき、最低1個相殺は発射時の両トレーの保留で判定）へ合わせ、操作モデルの自然落下を10/256段／Fへ合わせた。`fever_check.py test` 436件成功（審判の3段階トレーの試験2件を追加。`arrive` は明示イベントで、旧来のリンク時送信を前提にした試験は書き換えた）、`replay` の差異865件は、これらを戻した場合と同数（他作業の未コミット変更によるもので、今回の変更に起因する差は無い）。`test_engine_protocol.py` 成功。実機・独立シミュレーターでの対戦試行と、自然落下変更後の実機の到達確認は未実施。
+
+Fever倍率表も19リンクへ広げ、ブリッジ（`fever_memory.POWER_LINKS`）も19値を渡す。20リンク以上は盤面に出ないため収録しない（Steamは24リンク）。実機での改造表の読み取りは未確認。
 
 ## 実機の操作と残件
 

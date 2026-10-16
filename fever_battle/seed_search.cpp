@@ -130,7 +130,7 @@ json seed_search(Field field, const json& request) {
     // Steam build 15209927's internal Fever timer caps at 1860 frames.
     // The Python protocol validates the caller's explicit clock domain.
     const int remaining = number(request, "remaining_frames", 0, 1860);
-    const int maximum = request.contains("maximum_frames") ? number(request, "maximum_frames", 1800, 1860) : 1800;
+    const int maximum = request.contains("maximum_frames") ? number(request, "maximum_frames", 1800, 1860) : 1860;
     const int target = number(request, "seed_chain", 3, 15);
     // Unboosted level behind a normal all-clear entry's first seed (FUN_140050e00); the next level starts from it.
     const int seed_base = request.contains("seed_base") ? number(request, "seed_base", 3, 15) : target;
@@ -154,8 +154,8 @@ json seed_search(Field field, const json& request) {
     for (const auto& v : split_costs) if (!v.is_number_integer() || v < 0 || v > 10000)
         throw std::invalid_argument("explicit split timing required");
     const auto powers = request.at("powers");
-    if (!powers.is_array() || powers.size() != 17)
-        throw std::invalid_argument("17 Fever powers required");
+    if (!powers.is_array() || (powers.size() != 17 && powers.size() != 19))
+        throw std::invalid_argument("19 Fever powers required (17 from older clients: links 18 and 19 then have no power)");
     for (const auto& v : powers) if (!v.is_number_integer() || v < 0 || v > 999)
         throw std::invalid_argument("invalid Fever power");
     const auto power_table = powers.get<std::vector<int>>();

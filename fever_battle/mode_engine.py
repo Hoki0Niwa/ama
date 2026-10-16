@@ -37,17 +37,15 @@ def identity(request):
 
 
 def clock_limit(policy):
-    """Keep the referee's displayed-time model distinct from Steam's raw timer.
+    """Build 15209927 initializes FeverGauge at 960 and caps it at 1860 frames.
 
-    Build 15209927 initializes FeverGauge at 960 and caps it at 1860 frames.
-    The UI starts at 15 seconds. Live captures may pass the internal timer as-is;
-    subtracting 60 would shorten the actual input deadline.
+    The UI starts at 15 seconds. The referee uses the same internal timer, so
+    live captures are passed as-is; subtracting 60 would shorten the actual
+    input deadline. 'model' is kept as an alias of the internal domain.
     """
     domain = policy.get('frame_domain', 'model')
-    if domain == 'model':
+    if domain in ('model', 'pc_15209927_internal'):
         return rules()['max_time_frames']
-    if domain == 'pc_15209927_internal':
-        return 1860
     raise ValueError('unsupported Fever clock frame domain')
 
 

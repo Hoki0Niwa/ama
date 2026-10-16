@@ -74,14 +74,14 @@ class Scoring:
             for power in entry['normal']:
                 integer(power, 'chain power', 0, 999)
             if 'fever' in entry:
-                if len(entry['fever']) != 17:
-                    raise ValueError('Fever power table must contain 17 links')
+                if len(entry['fever']) != 19:
+                    raise ValueError('Fever power table must contain 19 links')
                 for power in entry['fever']:
                     integer(power, 'Fever chain power', 0, 999)
 
     def set_powers(self, character, normal=None, fever=None):
         """A game with modified chain power tables (ppmod bonus_normal_N / bonus_fever_N).
-        normal: the first 19 links, fever: the first 17. None restores the table of scoring.json."""
+        normal: the first 19 links, fever: the first 19. None restores the table of scoring.json."""
         if character not in self.data['characters']:
             raise ValueError('unknown character')
         if not hasattr(self, '_official'):
@@ -89,7 +89,7 @@ class Scoring:
                               for k, v in self.data['characters'].items()}
         entry = self.data['characters'][character]
         updates = {}
-        for mode, size, values in (('normal', 19, normal), ('fever', 17, fever)):
+        for mode, size, values in (('normal', 19, normal), ('fever', 19, fever)):
             if mode not in entry:
                 continue
             if values is None:
@@ -141,8 +141,9 @@ def convert(points, remainder, target_point, pending=0):
     nuisance, rest = divmod(points + remainder, target_point)
     # FUN_14003e670 divides the accumulator at link start and keeps the rest. The
     # minimum one (FUN_1400480d0) only raises an amount of 0 to 1 and leaves the
-    # remainder alone; Steam decides it at launch (24F after a normal link, 19F in
-    # Fever) with both trays, this explicit-event model at the link.
+    # remainder alone. Steam decides it at launch (24F after a normal link, 19F in
+    # Fever) with both trays; Referee defers it the same way. This helper reports
+    # the immediate answer for planners that do not model the launch delay.
     forced = pending > 0 and nuisance == 0 and points > 0
     return nuisance if not forced else 1, rest, forced
 
@@ -152,6 +153,21 @@ class Packet:
     count: int
     chain: str
     confirmed: bool = False
+    flying: bool = False   # launched by the sender, not yet arrived (tray +0x34)
+
+
+def take_from(packets, count, confirmed_only=False):
+    """Slot 0x140027590 of a tray: confirmed (+0x3c), then arrived (+0x38), then flying (+0x34)."""
+    taken = 0
+    for stage in (0, 1, 2):
+        for p in packets:
+            if (0 if p.confirmed else 2 if p.flying else 1) != stage or (confirmed_only and stage):
+                continue
+            amount = min(p.count, count - taken)
+            p.count -= amount
+            taken += amount
+    packets[:] = [p for p in packets if p.count]
+    return taken
 
 
 @dataclass
@@ -170,22 +186,14 @@ class Player:
     awaiting_seed: bool = False
     alive: bool = True
     moves_since_chain: int = 0
+    launches: list[dict] = field(default_factory=list)  # links whose attack object has not launched yet
+    flights: list[dict] = field(default_factory=list)   # launched attack objects that have not arrived
 
     def pending(self, confirmed=None):
         return sum(p.count for p in self.packets if confirmed is None or p.confirmed == confirmed)
 
     def consume(self, count, confirmed_only=False):
-        taken = 0
-        # Explicit causal model: oldest packet first. Steam ordering of fixed
-        # versus running packets is not silently assumed to be verified.
-        for p in self.packets:
-            if confirmed_only and not p.confirmed:
-                continue
-            amount = min(p.count, count - taken)
-            p.count -= amount
-            taken += amount
-        self.packets = [p for p in self.packets if p.count]
-        return taken
+        return take_from(self.packets, count, confirmed_only)
 
 
 class Referee:
@@ -206,10 +214,95 @@ class Referee:
         self.reset_moves_at_chain = integer(json.loads((ROOT / 'data/fever/battle_policy.json').read_text(
             encoding='utf-8'))['reset_moves_at_chain'], 'reset_moves_at_chain', 1, 19)
 
+    LAUNCH_FRAMES = 24
+
+    def _launch_frames(self, actor):
+        return self.LAUNCH_FRAMES
+
+    def _trays(self, player):
+        return [player.packets]
+
+    def _offset_made(self, index):
+        """Hook: a counter object offset garbage (gauge and time reward in the Fever referee)."""
+
+    def _into_tray(self, index, flight):
+        """FUN_1400149d0: an attack enters the target's tray as flying garbage when it launches."""
+        enemy = self.players[1 - index]
+        enemy.packets.append(Packet(flight['amount'], flight['chain'], False, True))
+        flight['tray_fever'] = getattr(enemy, 'mode', 'normal') == 'fever'
+
+    def _launch_due(self, frame):
+        """FUN_1400480d0: every link launches an attack object LAUNCH_FRAMES after its score. With garbage
+        pending in either tray (flying garbage included) it is a counter object: it offsets at once and
+        arrives to offset again and relaunch the rest. A zero amount becomes 1 only then; without pending
+        garbage a zero amount disappears. Without pending garbage it is an attack that enters the enemy
+        tray flying."""
+        due = sorted(((rec['frame'], index, rec) for index, actor in enumerate(self.players)
+                      for rec in actor.launches if rec['frame'] <= frame), key=lambda t: t[:2])
+        effects = []
+        for _, index, rec in due:
+            actor = self.players[index]
+            actor.launches.remove(rec)
+            counter = actor.pending() > 0
+            amount = rec['amount'] or (1 if counter else 0)
+            if not amount:
+                effects.append({'player': index, 'chain': rec['chain'], 'link': rec['link'], 'amount': 0})
+                continue
+            flight = {'chain': rec['chain'], 'link': rec['link'], 'hop': 0, 'amount': amount, 'counter': counter,
+                      'cancelled': 0, 'launch_frame': rec['frame']}
+            if counter:
+                flight['cancelled'] = actor.consume(amount)
+                flight['amount'] -= flight['cancelled']
+            else:
+                self._into_tray(index, flight)
+            actor.flights.append(flight)
+            effects.append({'player': index, 'chain': rec['chain'], 'link': rec['link'], 'amount': amount,
+                            'counter': counter, 'cancelled': flight['cancelled']})
+            if flight['cancelled']:
+                self._offset_made(index)
+        return effects
+
+    def _arrive(self, event, index):
+        actor, enemy = self.players[index], self.players[1 - index]
+        hop = event.get('hop')
+        flights = [f for f in actor.flights if f['chain'] == event['chain'] and f['link'] == event['link']
+                   and (hop is None or f['hop'] == hop)]
+        if not flights:
+            raise ValueError('arrival of an attack that was not launched')
+        flight = flights[0]
+        actor.flights.remove(flight)
+        if flight['counter']:
+            # FUN_140015370: offset again what pending garbage there is now; relaunch the rest as an attack.
+            cancelled = actor.consume(flight['amount']) if flight['amount'] and actor.pending() > 0 else 0
+            rest = flight['amount'] - cancelled
+            if cancelled or flight['cancelled']:
+                self._offset_made(index)
+            if rest > 0:
+                again = {'chain': flight['chain'], 'link': flight['link'], 'hop': flight['hop'] + 1,
+                         'amount': rest, 'counter': False, 'cancelled': 0, 'launch_frame': event['frame']}
+                self._into_tray(index, again)
+                actor.flights.append(again)
+            return {'counter': True, 'cancelled': cancelled, 'relaunched': max(0, rest)}
+        # Tray slot 0x60 moves the sender's flying garbage to arrived; once the chain is over, slot 0x50
+        # confirms everything that has arrived.
+        trays = self._trays(enemy)
+        for tray in trays:
+            for packet in tray:
+                packet.flying = False
+        confirmed = actor.active_chain != flight['chain']
+        if confirmed:
+            for tray in trays:
+                for packet in tray:
+                    packet.confirmed = True
+        return {'counter': False, 'arrived': flight['amount'], 'confirmed': confirmed}
+
     def apply(self, event):
         saved = deepcopy((self.players, self.target_point, self.last_key, self.used_chains))
         try:
+            launched = self._launch_due(integer(event['frame'], 'frame'))
             output = self._apply(event)
+            if launched:
+                output = {**output, 'launches': launched}
         except Exception:
             self.players, self.target_point, self.last_key, self.used_chains = saved
             raise
@@ -282,20 +375,22 @@ class Referee:
             if actor.next_link > actor.expected_links:
                 raise ValueError('too many links')
             points = integer(event['points'], 'link points', 1)
-            nuisance, actor.remainder, forced = convert(points, actor.remainder, self.target_point, actor.pending())
-            cancelled = actor.consume(nuisance)
-            sent = nuisance - cancelled
-            if sent:
-                enemy.packets.append(Packet(sent, actor.active_chain, False))
+            nuisance, actor.remainder, _ = convert(points, actor.remainder, self.target_point)
+            launch_frame = integer(event['frame'], 'frame') + self._launch_frames(actor)
+            actor.launches.append({'frame': launch_frame, 'amount': nuisance, 'chain': actor.active_chain, 'link': link})
             actor.next_link += 1
-            return {'points': points, 'cancelled': cancelled, 'sent': sent,
-                    'remainder': actor.remainder, 'forced_minimum_offset': forced, 'gauge': actor.gauge}
+            return {'points': points, 'amount': nuisance, 'launch_frame': launch_frame,
+                    'remainder': actor.remainder, 'gauge': actor.gauge}
+        if kind == 'arrive':
+            return self._arrive(event, index)
         if kind == 'end':
             if actor.active_chain != event['chain'] or actor.next_link != actor.expected_links + 1:
                 raise ValueError('cannot finish incomplete or wrong chain')
-            for packet in enemy.packets:
-                if packet.chain == actor.active_chain:
-                    packet.confirmed = True
+            # Only what has arrived is confirmed; flying garbage is confirmed when it arrives.
+            for tray in self._trays(enemy):
+                for packet in tray:
+                    if packet.chain == actor.active_chain and not packet.flying:
+                        packet.confirmed = True
             actor.rows = actor.final_field
             actor.final_field = None
             actor.active_chain = None

@@ -35,6 +35,10 @@ class ModeTests(unittest.TestCase):
         self.order += 1
         return self.ref.apply(dict(type=kind, player=player, frame=frame, order=self.order, **kwargs))
 
+    def settle(self, frame=30):
+        """Advance to a frame past the launch of zero-amount links (24F normal, 19F Fever)."""
+        return self.event('rate', frame=frame, target_point=self.ref.target_point)
+
     def chain(self, count=1, player=0, all_clear=False, frame=0, points=40):
         name = str(self.order)
         rows = list(EMPTY)
@@ -52,20 +56,73 @@ class ModeTests(unittest.TestCase):
     def test_offset_per_link_and_enemy_preparation(self):
         self.event('incoming', count=50, confirmed=True, chain='attack', destination='normal')
         name = self.chain(7)
+        self.assertLess(self.ref.players[0].gauge, 7)
+        self.settle()
         self.assertEqual(self.ref.players[0].gauge, 7)
-        self.assertEqual(self.ref.players[1].prepared_frames, 1320)
+        self.assertEqual(self.ref.players[1].prepared_frames, 1380)
         with self.assertRaises(ValueError):
-            self.event('enter', clock_running=True)
-        self.event('end', chain=name)
-        self.event('enter', clock_running=True)
+            self.event('enter', frame=30, clock_running=True)
+        self.event('end', frame=30, chain=name)
+        self.event('enter', frame=30, clock_running=True)
         self.assertEqual(self.ref.players[0].mode, 'fever')
 
     def test_zero_gain_regression_and_no_unearned_gauge(self):
         self.ref = ModeReferee(['raffina', 'ally'], gauge_gain_on_offset=0)
         self.event('incoming', count=30, confirmed=True, chain='attack', destination='normal')
         self.chain(2, points=40)
+        self.settle()
         self.assertEqual(self.ref.players[0].gauge, 0)
-        self.assertEqual(self.ref.players[1].prepared_frames, 1020)
+        self.assertEqual(self.ref.players[1].prepared_frames, 1080)
+
+    def test_three_stage_tray_flying_garbage_counts_and_is_offset_last(self):
+        # attack of player 1 is in the air; player 0 already holds a confirmed 2
+        self.event('incoming', count=2, confirmed=True, chain='old', destination='normal')
+        name = self.chain(points=600, player=1)
+        self.settle()
+        p = self.ref.players[0]
+        self.assertEqual([(q.count, q.confirmed, q.flying) for q in p.packets], [(2, True, False), (5, False, True)])
+        self.assertEqual(p.pending(), 7)
+        # a counter takes confirmed, then arrived, then flying garbage
+        self.assertEqual(p.consume(3), 3)
+        self.assertEqual([(q.count, q.confirmed, q.flying) for q in p.packets], [(4, False, True)])
+        # the attacker's own end does not confirm flying garbage; the arrival does, once the chain is over
+        self.event('end', player=1, frame=30, chain=name)
+        self.assertFalse(p.packets[0].confirmed)
+        self.assertTrue(self.event('arrive', player=1, frame=30, chain=name, link=1)['confirmed'])
+        self.assertTrue(p.packets[0].confirmed and not p.packets[0].flying)
+
+    def test_counter_offsets_again_on_arrival_and_relaunches_the_rest(self):
+        self.event('incoming', count=1, confirmed=False, chain='mine', destination='normal')
+        name = self.chain(points=600, player=0)       # amount 5 against 1 pending: a counter
+        self.settle()
+        p0, p1 = self.ref.players
+        self.assertEqual(p0.pending(), 0)              # offset 1 at creation
+        self.assertEqual(p1.pending(), 0)
+        self.event('incoming', frame=30, count=1, confirmed=False, chain='late', destination='normal')
+        effect = self.event('arrive', frame=31, chain=name, link=1)
+        self.assertEqual((effect['cancelled'], effect['relaunched']), (1, 3))   # 4 left, 1 pending now
+        self.assertEqual([(q.count, q.flying) for q in p1.packets], [(3, True)])
+        self.assertEqual(self.event('arrive', frame=32, chain=name, link=1)['arrived'], 3)
+
+    def test_minimum_offset_is_decided_at_launch_from_both_trays(self):
+        rows = list(EMPTY)
+        rows[-1] = '.Y....'
+        self.event('place', chain='a', result=dict(field=rows, links=[{}]))
+        self.event('link', chain='a', link=1, points=40)
+        self.assertEqual(self.ref.players[0].remainder, 40)
+        # garbage arriving before the launch is cancelled by the minimum offset
+        self.event('incoming', frame=10, count=3, confirmed=False, chain='x', destination='normal')
+        self.event('rate', frame=23, target_point=120)
+        self.assertEqual(self.ref.players[0].pending(), 3)
+        self.event('rate', frame=24, target_point=120)
+        self.assertEqual(self.ref.players[0].pending(), 2)
+        # nothing pending at launch: the link disappears without an offset
+        self.event('end', frame=24, chain='a')
+        self.event('place', frame=30, chain='b', result=dict(field=rows, links=[{}]))
+        self.event('link', frame=30, chain='b', link=1, points=40)
+        self.ref.players[0].packets.clear()
+        self.event('rate', frame=60, target_point=120)
+        self.assertEqual(self.ref.players[0].pending(), 0)
 
     def test_preserve_normal_board_and_merge_both_queues(self):
         self.ref.players[0].rows[-1] = 'G.....'
@@ -78,7 +135,7 @@ class ModeTests(unittest.TestCase):
         p = self.ref.players[0]
         self.assertEqual(p.rows[-1], 'G.....')
         self.assertEqual(p.pending(True), 11)
-        self.assertEqual((p.garbage_phase, p.gauge, p.prepared_frames), (4, 0, 900))
+        self.assertEqual((p.garbage_phase, p.gauge, p.prepared_frames), (4, 0, 960))
 
     def test_fever_offsets_active_before_held_and_drops_only_active(self):
         self.event('incoming', count=5, confirmed=True, chain='held', destination='normal')
@@ -86,18 +143,24 @@ class ModeTests(unittest.TestCase):
         self.event('seed', field=seed3(), seed_id=1, seed_chain=5)
         self.event('incoming', count=2, confirmed=True, chain='active', destination='fever')
         name = self.chain(points=360)
+        self.settle()
         self.assertEqual(self.ref.players[0].active_pending(), 0)
         self.assertEqual(self.ref.players[0].pending(), 4)
-        self.event('end', chain=name)
-        self.event('seed', field=seed3(), seed_id=2, seed_chain=3)
-        effect = self.event('place', result=dict(field=seed3(), links=[]))
+        self.event('end', frame=30, chain=name)
+        self.event('seed', frame=30, field=seed3(), seed_id=2, seed_chain=3)
+        effect = self.event('place', frame=30, result=dict(field=seed3(), links=[]))
         self.assertEqual(effect['dropped'], 0)
         self.assertEqual(self.ref.players[0].pending(), 4)
 
     def test_confirmation_survives_recipient_mode_switch(self):
         name = self.chain(points=600, player=1)
-        self.enter()
-        self.event('end', player=1, chain=name)
+        self.settle()
+        self.assertTrue(self.ref.players[0].packets[0].flying)
+        self.enter(frame=30)
+        self.event('arrive', player=1, frame=30, chain=name, link=1)
+        self.assertFalse(self.ref.players[0].held_packets[0].flying)
+        self.assertFalse(self.ref.players[0].held_packets[0].confirmed)  # the sender's chain is still running
+        self.event('end', player=1, frame=30, chain=name)
         self.assertEqual(self.ref.players[0].held_packets[0].count, 5)
         self.assertTrue(self.ref.players[0].held_packets[0].confirmed)
 
@@ -131,7 +194,7 @@ class ModeTests(unittest.TestCase):
         name = self.chain(5)
         effect = self.event('end', chain=name)
         self.assertEqual(effect['seed_chain'], 6)
-        self.assertEqual(effect['remaining_frames'], 990)
+        self.assertEqual(effect['remaining_frames'], 1050)
         self.assertTrue(effect['awaiting_seed'])
         before = self.ref.snapshot()
         with self.assertRaises(ValueError):
@@ -171,12 +234,12 @@ class ModeTests(unittest.TestCase):
         self.assertEqual(self.ref.players[0].seed_id, 2)
 
     def test_all_clear_entry_boost_and_time_cap(self):
-        self.ref.players[0].prepared_frames = 1790
+        self.ref.players[0].prepared_frames = 1850
         name = self.chain(all_clear=True)
         self.event('end', chain=name)
         effect = self.enter()
         self.assertEqual(effect['seed_chain'], 7)
-        self.assertEqual(effect['remaining_frames'], 1800)
+        self.assertEqual(effect['remaining_frames'], 1860)
         self.assertEqual(self.ref.players[0].seed_base, 5)
 
     def test_normal_all_clear_seed_consumes_entry_bonus(self):
@@ -188,8 +251,9 @@ class ModeTests(unittest.TestCase):
     def test_invalid_event_rolls_back_clock_and_mode_and_replay(self):
         self.event('incoming', count=50, confirmed=True, chain='attack', destination='normal')
         name = self.chain(7)
-        self.event('end', chain=name)
-        self.event('enter', clock_running=True)
+        self.settle()
+        self.event('end', frame=30, chain=name)
+        self.event('enter', frame=30, clock_running=True)
         before = self.ref.snapshot()
         with self.assertRaises(ValueError):
             self.event('exit', frame=20)
@@ -573,10 +637,11 @@ class NativeModeTests(unittest.TestCase):
         self.assertEqual(score.link('raffina', 10, [4], 1, 'fever'), 6760)
         self.assertEqual(score.link('paprisu', 17, [4], 1, 'fever'), 16400)
         self.assertEqual(score.link('schezo', 17, [4], 1, 'fever'), 13120)
+        self.assertEqual(score.link('schezo', 19, [4], 1, 'fever'), 15120)
         for c in score.data['characters']:
-            self.assertEqual(len(score.data['characters'][c]['fever']), 17)
+            self.assertEqual(len(score.data['characters'][c]['fever']), 19)
         with self.assertRaises(ValueError):
-            score.link('raffina', 18, [4], 1, 'fever')
+            score.link('raffina', 20, [4], 1, 'fever')
 
     def test_steam_internal_clock_keeps_the_full_observed_deadline(self):
         req = request()
@@ -594,11 +659,10 @@ class NativeModeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'clock_policy changed'):
             authorize_mode_reply(req, reply, latest)
 
-    def test_raw_clock_requires_explicit_domain_and_rejects_unknown_units(self):
+    def test_clock_rejects_unknown_units_and_values_above_the_internal_cap(self):
         req = request()
         req['self']['prepared_frames'] = 1860
-        with self.assertRaises(ValueError):
-            self.engine.answer(req)
+        self.assertEqual(self.engine.answer(req)['action'], 'place')
         req['clock_policy']['frame_domain'] = 'seconds'
         with self.assertRaisesRegex(ValueError, 'clock frame domain'):
             self.engine.answer(req)

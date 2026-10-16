@@ -85,6 +85,11 @@ class CausalTests(unittest.TestCase):
         self.ref = Referee(['raffina', 'paprisu'])
         self.order = 0
 
+    def tick(self, frames):
+        """Advance the referee clock; due attack launches happen before the event."""
+        self.order += frames
+        return self.ref.apply({'type': 'rate', 'frame': self.order, 'order': 0, 'target_point': 120})
+
     def event(self, kind, player=0, **kw):
         self.order += 1
         return self.ref.apply(dict(type=kind, player=player, frame=self.order, order=0, **kw))
@@ -99,10 +104,17 @@ class CausalTests(unittest.TestCase):
     def test_cancelled_running_packets_do_not_reappear_on_confirmation(self):
         self.start(0, 'a')
         self.event('link', chain='a', link=1, points=1200)
+        self.assertEqual(self.ref.players[1].pending(False), 0)  # nothing is in the tray before the launch
+        self.tick(24)
         self.assertEqual(self.ref.players[1].pending(False), 10)
+        self.assertTrue(self.ref.players[1].packets[0].flying)
         self.start(1, 'b')
-        reply = self.event('link', 1, chain='b', link=1, points=480)
-        self.assertEqual(reply['cancelled'], 4)
+        self.event('link', 1, chain='b', link=1, points=480)
+        # the counter object offsets flying garbage as soon as it is created
+        launch = self.tick(24)['launches'][0]
+        self.assertEqual((launch['counter'], launch['cancelled']), (True, 4))
+        self.assertEqual(self.event('arrive', 0, chain='a', link=1)['confirmed'], False)
+        self.event('arrive', 1, chain='b', link=1)
         self.event('end', chain='a')
         self.assertEqual(self.ref.players[1].pending(True), 6)
         self.assertEqual(self.ref.players[1].pending(False), 0)
@@ -121,7 +133,8 @@ class CausalTests(unittest.TestCase):
         self.event('incoming', count=20, confirmed=True, chain='old')
         self.start(0, 'a')
         effect = self.event('link', chain='a', link=1, points=40)
-        self.assertEqual(effect['cancelled'], 1)
+        self.assertEqual(effect['amount'], 0)  # the minimum offset is decided at launch, 24F later
+        self.assertEqual(self.tick(24)['launches'][0]['cancelled'], 1)
         self.event('end', chain='a')
         self.assertEqual(self.ref.players[0].pending(True), 19)
         self.assertEqual(sum(row.count('#') for row in self.ref.players[0].rows), 0)

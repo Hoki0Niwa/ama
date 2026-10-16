@@ -7,7 +7,7 @@ The normal-only Referee and protocol 2 retain their original behavior.
 from dataclasses import dataclass, field
 import json
 import hashlib
-from .model import ROOT, Player, Packet, Referee, convert, dead, integer, settled_field
+from .model import ROOT, Player, Packet, Referee, convert, dead, integer, settled_field, take_from
 
 
 def rules():
@@ -33,7 +33,7 @@ class ModePlayer(Player):
     mode: str = 'normal'
     stored_rows: list[str] | None = None
     held_packets: list[Packet] = field(default_factory=list)
-    prepared_frames: int = 900
+    prepared_frames: int = 960
     remaining_frames: int = 0
     clock_running: bool = False
     mode_generation: int = 0
@@ -55,11 +55,7 @@ class ModePlayer(Player):
     def consume(self, count, confirmed_only=False):
         taken = super().consume(count, confirmed_only)
         if not confirmed_only:
-            for packet in self.held_packets:
-                amount = min(packet.count, count - taken)
-                packet.count -= amount
-                taken += amount
-            self.held_packets = [p for p in self.held_packets if p.count]
+            taken += take_from(self.held_packets, count - taken)
         return taken
 
 
@@ -73,6 +69,22 @@ class ModeReferee(Referee):
                                    seed_base=self.config['initial_seed_chain'],
                                    seed_chain=self.config['initial_seed_chain'],
                                    next_seed_chain=self.config['initial_seed_chain']) for c in characters]
+
+    LAUNCH_FRAMES_FEVER = 19
+
+    def _launch_frames(self, actor):
+        return self.LAUNCH_FRAMES_FEVER if actor.mode == 'fever' else self.LAUNCH_FRAMES
+
+    def _trays(self, player):
+        return [player.packets, player.held_packets]
+
+    def _offset_made(self, index):
+        # A counter object that offset garbage earns the gauge and the enemy's time reward.
+        actor, enemy = self.players[index], self.players[1 - index]
+        if actor.mode == 'normal':
+            actor.gauge = min(self.config['gauge_max'], actor.gauge + self.gain)
+        if enemy.mode == 'normal':
+            self._reward(enemy, self.config['offset_time_reward_frames'])
 
     def _reward(self, player, frames):
         if player.mode == 'normal':
@@ -188,11 +200,6 @@ class ModeReferee(Referee):
             # The inherited operation validates chain and event identity, then
             # consumes via ModePlayer's Fever-first packet ordering.
             effect = super()._apply(event)
-            if effect['cancelled']:
-                if actor.mode == 'normal':
-                    actor.gauge = min(self.config['gauge_max'], actor.gauge + self.gain)
-                if enemy.mode == 'normal':
-                    self._reward(enemy, self.config['offset_time_reward_frames'])
             effect['gauge'] = actor.gauge
             effect['entry_pending'] = actor.mode == 'normal' and actor.gauge == self.config['gauge_max']
             return effect
@@ -202,7 +209,7 @@ class ModeReferee(Referee):
             effect = super()._apply(event)
             # Packets sent before recipient entry retain their chain identity.
             for packet in enemy.held_packets:
-                if packet.chain == chain_id:
+                if packet.chain == chain_id and not packet.flying:
                     packet.confirmed = True
             if actor.mode == 'fever':
                 actor.next_seed_chain = next_seed(actor.seed_base, count, all_clear, self.config, actor.seed_chain)

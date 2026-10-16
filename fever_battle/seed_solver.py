@@ -43,7 +43,7 @@ class SeedSolver:
 
     def solve(self, side, rate, count_chain_frames, options=None, match_id=None, allowed=None,
 
-              enemy_events=None, enemy=None, maximum_frames=1800, margin=None,
+              enemy_events=None, enemy=None, maximum_frames=1860, margin=None,
 
               quiet_carry_limit=None, press=False, pace=None, fever=None):
 

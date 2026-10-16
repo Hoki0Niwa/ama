@@ -10,7 +10,7 @@ struct Pose {
     int x, y, r;
     bool armed = false;
     // Fever pair routes only: natural fall since leaving an elevated support.
-    int fall_frames = 0;
+    int fall_frames = 0;  // Fever pair: fraction of a row in 1/256 (see fever/operation_fall.h)
     bool operator==(const Pose&) const = default;
 };
 struct Press {
