@@ -22,7 +22,7 @@ inline int number(const nlohmann::json& j, const char* key, i64 low, i64 high) {
     return v.get<int>();
 }
 
-// The player's documented Fever order of the columns that take a partial row.
+// Columns that take a partial row: Steam's field init FUN_14004d900 (table 0x1402b12a0); the default rule block leaves the shuffle (bit2) off.
 // The next remainder resumes after the last nuisance puyo actually dropped.
 constexpr int GARBAGE_ORDER[] = {0, 3, 2, 5, 1, 4};
 

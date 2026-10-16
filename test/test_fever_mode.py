@@ -149,6 +149,15 @@ class ModeTests(unittest.TestCase):
         self.assertEqual(next_seed(5, 3, displayed=7), 4)
         self.assertEqual(next_seed(5, 1, displayed=7), 3)
 
+    def test_all_clear_bonus_precedes_failure_floor_as_in_steam(self):
+        # FUN_1400505a0: clamp(max(base-2, chain+1+2), 3, 15). Base 9, one-link all clear -> 7, not 9.
+        self.assertEqual(next_seed(9, 1, True), 7)
+        self.assertEqual(next_seed(9, 5, True), 8)
+        self.assertEqual(next_seed(9, 6, True), 9)
+        # After a normal all-clear entry the first seed shows base+2; the update starts from the base.
+        self.assertEqual(next_seed(5, 6, displayed=7), 7)
+        self.assertEqual(next_seed(5, 5, displayed=7), 6)
+
     def test_single_clear_fails_seed_and_cannot_continue_cleaned_board(self):
         self.enter()
         self.event('seed', field=seed3(), seed_chain=5, seed_id=1)

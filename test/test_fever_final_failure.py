@@ -95,6 +95,22 @@ class MarginTests(unittest.TestCase):
         self.assertEqual(rate_at(120,report['rate_events'],980),60)
         self.assertEqual(rate_at(120,report['rate_events'],1940),45)
 
+    def test_explicit_curve_uses_steam_eight_second_factor_table(self):
+        # FUN_140059e60: 192 s start, 8 s steps, rate 120*factor>>8. The old 16 s list had 10 at 288-304 s and 5 at 328-336 s.
+        policy = dict(start_frame=11520,initial_target_point=120)
+        for seconds, expected in ((191, 120), (192, 90), (200, 90), (208, 60), (288, 11), (296, 7), (320, 5), (328, 3), (352, 2), (368, 1), (500, 1)):
+            report = MarginForecast().observe(self.packet(seconds*60, expected, margin_policy=policy))
+            self.assertEqual(report['status'], 'explicit_setting_steam_code_curve', seconds)
+        report = MarginForecast().observe(self.packet(17000, 15, margin_policy=policy))
+        self.assertEqual(rate_at(15, report['rate_events'], 17280-17000), 11)
+        self.assertEqual(rate_at(15, report['rate_events'], 17760-17000), 7)
+
+    def test_explicit_curve_scales_the_same_table_for_another_initial_rate(self):
+        policy = dict(start_frame=0,initial_target_point=70)
+        report = MarginForecast().observe(self.packet(0, 52, margin_policy=policy))
+        self.assertEqual(report['status'], 'explicit_setting_steam_code_curve')
+        self.assertEqual(rate_at(52, report['rate_events'], 960), 35)
+
     def test_observed_boundaries_keep_opponent_earlier_and_own_later(self):
         model=MarginForecast()
         model.observe(self.packet(11510))

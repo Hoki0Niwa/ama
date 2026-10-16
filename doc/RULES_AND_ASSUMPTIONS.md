@@ -38,13 +38,15 @@
 
 確定色は現在手＋NEXT2まで。形状は16手周期で、モード切替では戻さない。全26キャラの資料・照合範囲は [ドロップセット](DROPSETS.md)。modの `pattern` を標準表より優先する。試作のsplitmix4と仮想色列をSteamの実際の色列と扱わない。
 
+Steamの色列は試合シードのLCG32（`s=s*0x5d588b65+0x269ec3`）で3／4／5色の256色表を作り（計1,587回）、その後の値が各プレイヤーの乱数の初期値になる。タネ抽選・タネの色回転・消え残りの飛散（1個5回）・おじゃま列抽選（既定では無効）はこのプレイヤー乱数を共有する。独立シミュレーターが元ルーチンと照合済み（`fever-simulator/docs/COLORS.md`、`SPECIFICATION.md`）。AIは見えているツモだけを使い、この乱数を推定しない。
+
 ## ゲージ・時計・タネ
 
 標準モデルのゲージ上限は7。相殺リンクごとに通常側のゲージを増やし、連鎖後に突入を処理する。ゲージ加算0のprotocol 2は検証専用設定。時計・突入・復帰を含む実機対戦は [protocol 3](FEVER_MODE_ENGINE.md) を使う。
 
 準備時間は表示15秒、上限30秒。内部期限の960/1860Fとモデル既定900/1800Fを混同しない。観測した `clock_running` と期限を使い、例外的な停止条件を補わない。[観測仕様](FEVER_MODE_OBSERVATION.md) と [時間モデル](FEVER_TIMING.md) を参照。
 
-タネは3〜15連鎖。最初の消去で成功・失敗にかかわらず交換する。実装の `next_seed` は規定以上なら実連鎖+1、未達なら規定との差1/2/3以上で据置き/−1/−2を使う。全消しの加算と基準の順序は `mode_rules.json` と `mode.py` を正本とし、全境界をSteam照合済みとは扱わない。
+タネは3〜15連鎖。最初の消去で成功・失敗にかかわらず交換する。次の基準は `clamp(max(基準−2, 実連鎖+1+全消し2), 3, 15)`（逆アセンブル `FUN_1400505a0`）。全消しの+2は失敗時の下限より先に加える（基準9で1連鎖全消しなら7）。通常全消しで突入した最初のタネは基準+2で出るが、基準（`seed_base`、場+0x1790）は+2前の値のまま次の計算に使う（`FUN_140050e00`）。実装は `mode.py` の `next_seed` と `seed_search.cpp`。コード由来で、全境界の実機捕捉照合ではない。
 
 通常の全消しはタネ供給と準備時間加算を扱い、Tsuの+30個へ置き換えない。Feverの全消しは次タネと時計に報酬を与える。連鎖時間加算は終了時、全消し時間加算は別イベント。時計0から復活させないモデル。
 
@@ -52,7 +54,7 @@
 
 通常／Feverの予告は確定・未確定の4値で保持する。突入前の予告は通常用の保留へ移り、Fever終了後に復帰盤面で扱う。両モードの送信先・相殺・確定・落下の時刻を区別する。
 
-倍率はキャラとモードごとに `scoring.json` を参照し、未収録値をTsuや別キャラで代用しない。実機レートは観測値を使う。得点式、最低相殺、端数・落下上限と未確認事項は [対戦ルール](FEVER_BATTLE_RULES.md)。
+倍率はキャラとモードごとに `scoring.json` を参照し、未収録値をTsuや別キャラで代用しない。値はSteam実行ファイルの静的表（RVA `0x3bdb40`／`0x3bdc20`）から独立シミュレーターが抽出したもの。実機レートは観測値を使う。得点式、最低相殺、端数・落下上限と未確認事項は [対戦ルール](FEVER_BATTLE_RULES.md)。
 
 ## 未確認事項
 
@@ -73,3 +75,4 @@
 - [List of attack powers - Puyo Nexus Wiki](https://puyonexus.com/wiki/Chain_Power_Table)
 - [各種ルール - ぷよぷよ！15th anniversary@2ch Wiki](https://w.atwiki.jp/puyo15th/pages/7.html)
 - [ama README](https://github.com/citrus610/ama)：Steam版ゲームとの接続部分が公開されていない点にも注意。
+- 独立シミュレーター `C:/Users/ho_ki/git/fever-simulator` の `docs/REVERSE_ENGINEERING.md`・`SPECIFICATION.md`・`TIMING.md`・`COLORS.md` と `data/steam_tables.json`・`rule_config.json`・`phase_timing.json`：ローカルのSteam実行ファイル（unpacked PE SHA256 `b91c5ce8…`）の逆アセンブルと読み取り専用のフェーズ捕捉。コード由来と実機捕捉由来を区別して記載されている。

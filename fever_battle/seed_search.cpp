@@ -132,6 +132,8 @@ json seed_search(Field field, const json& request) {
     const int remaining = number(request, "remaining_frames", 0, 1860);
     const int maximum = request.contains("maximum_frames") ? number(request, "maximum_frames", 1800, 1860) : 1800;
     const int target = number(request, "seed_chain", 3, 15);
+    // Unboosted level behind a normal all-clear entry's first seed (FUN_140050e00); the next level starts from it.
+    const int seed_base = request.contains("seed_base") ? number(request, "seed_base", 3, 15) : target;
     const bool unknown_phase = request.value("unknown_garbage_phase", false);
     // Nuisance the stored normal board takes without harm when Fever ends (-1: not given).
     const i64 quiet_limit = request.contains("quiet_carry_limit")
@@ -226,9 +228,9 @@ json seed_search(Field field, const json& request) {
     const auto template_points = [&](int chain) {
         return template_table[std::clamp(chain, 0, int(power_table.size()))];
     };
+    // FUN_1400505a0: the all-clear +2 comes before the failure floor.
     const auto next_level = [&](int chain, bool all_clear) {
-        const int level = chain >= target ? chain + 1 : target - std::min(2, std::max(0, target - chain - 1));
-        return std::clamp(level + (all_clear ? 2 : 0), 3, 15);
+        return std::clamp(std::max(seed_base - 2, chain + 1 + (all_clear ? 2 : 0)), 3, 15);
     };
     const auto chain_frames = [&](int chain) {
         return first_link + std::max(0, chain - 1) * (pop_frames + settle_frames + 14) + pop_frames;

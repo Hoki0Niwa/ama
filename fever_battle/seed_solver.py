@@ -82,6 +82,7 @@ class SeedSolver:
             unknown_garbage_phase=side['garbage_phase'] is None,
 
             target_point=rate, remaining_frames=side['remaining_frames'], seed_chain=side['seed_chain'],
+            seed_base=side.get('seed_base', side['seed_chain']),
 
             maximum_frames=integer(maximum_frames, 'maximum_frames', 1800, 1860),
 

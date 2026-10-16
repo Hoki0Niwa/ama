@@ -1,6 +1,7 @@
 """Fever-mode event model. Seeds and animation boundaries are explicit inputs.
 
-Values from player measurements remain unverified on the local Steam build.
+The seed update follows the Steam code (FUN_1400505a0); clock and reward values
+are code-derived or measured as noted in data/fever/mode_rules.json.
 The normal-only Referee and protocol 2 retain their original behavior.
 """
 from dataclasses import dataclass, field
@@ -14,12 +15,17 @@ def rules():
 
 
 def next_seed(base, chain, all_clear=False, config=None, displayed=None):
+    """FUN_1400505a0: clamp(max(base-2, chain+1+2*all_clear), 3, 15).
+
+    The all-clear +2 comes before the failure floor. `base` is the unboosted level
+    (field +0x1790): a normal all-clear entry shows base+2 (FUN_140050e00) but the
+    update still starts from base. `displayed` is accepted for callers and unused.
+    """
     cfg = config or rules()
     integer(base, 'seed base', cfg['min_seed_chain'], cfg['max_seed_chain'])
     integer(chain, 'chain', 1, 19)
-    # On all-clear entry, failure is measured against the unboosted base.
-    level = chain + 1 if chain >= (displayed or base) else base - min(2, max(0, base - chain - 1))
-    return max(cfg['min_seed_chain'], min(cfg['max_seed_chain'], level + (2 if all_clear else 0)))
+    level = max(base - 2, chain + 1 + (2 if all_clear else 0))
+    return max(cfg['min_seed_chain'], min(cfg['max_seed_chain'], level))
 
 
 @dataclass

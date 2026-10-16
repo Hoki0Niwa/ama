@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 EMPTY = ['......'] * 14
-GARBAGE_ORDER = (0, 3, 2, 5, 1, 4)  # player's documented Fever order, zero based
+GARBAGE_ORDER = (0, 3, 2, 5, 1, 4)  # zero based; Steam field init FUN_14004d900, table 0x1402b12a0, no shuffle (rule bit2 clear)
 
 
 def integer(value, name, low=0, high=10**12):
@@ -139,8 +139,10 @@ def convert(points, remainder, target_point, pending=0):
     integer(target_point, 'target_point', 1, 100000)
     integer(pending, 'pending')
     nuisance, rest = divmod(points + remainder, target_point)
-    # The guaranteed one-puyo offset is documented; the interaction with the
-    # carried remainder is a prototype assumption awaiting a Fever recording.
+    # FUN_14003e670 divides the accumulator at link start and keeps the rest. The
+    # minimum one (FUN_1400480d0) only raises an amount of 0 to 1 and leaves the
+    # remainder alone; Steam decides it at launch (24F after a normal link, 19F in
+    # Fever) with both trays, this explicit-event model at the link.
     forced = pending > 0 and nuisance == 0 and points > 0
     return nuisance if not forced else 1, rest, forced
 
