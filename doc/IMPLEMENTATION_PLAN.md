@@ -33,6 +33,8 @@ Steam版Feverで、通常盤面の大連鎖を繰り返し構築し、相殺・�
      
      詳細は [対戦ルール](FEVER_BATTLE_RULES.md)・[時間モデル](FEVER_TIMING.md)・[独立シミュレーター](FEVER_SIMULATOR_REPOSITORY.md)。
 
+7. 独立シミュレーターを学習用に凍結する前に、入力時間のモデル（`direct` か `source_control` か）と観測の項目を実機に合わせて決める。原因の分からないおじゃま落下の1〜3Fは既知の相違として残す。条件は [独立シミュレーター](FEVER_SIMULATOR_REPOSITORY.md)「学習用に凍結する条件」。
+
 再現入口と既知の制約は [DEBUGGING.md](DEBUGGING.md)、検証結果の読み方は [VALIDATION.md](VALIDATION.md) を参照する。新しい学習・自己対戦環境は独立の `fever-simulator` と責務を分ける。
 
 ## 設計・保守の制約
