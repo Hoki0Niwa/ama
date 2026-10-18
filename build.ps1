@@ -32,8 +32,15 @@ try {
     # Observed-pose operation ABI, owned and rebuilt with this checkout.
     $operationPath = Join-Path (Split-Path $outputPath) 'operations.dll'
     $operationFlags = @('-std=c++20', '-O2', '-shared', '-static', '-s')
-    if ($Target -in 'fever', 'fever_battle', 'bench_fever') { $operationFlags += '-DAMA_FEVER_OPERATION' }
-    & $compilerPath @operationFlags (Join-Path $PSScriptRoot 'core/operation.cpp') '-o' $operationPath
+    $operationSources = @(Join-Path $PSScriptRoot 'core/operation.cpp')
+    if ($Target -in 'fever', 'fever_battle', 'bench_fever') {
+        $operationFlags += @('-DAMA_FEVER_OPERATION', '-msse4.1')
+        # Fever adds the triple programs of the game's ported controller (fever/control_moves.cpp), which
+        # need the core's board and piece code.
+        $operationSources = @(Get-ChildItem (Join-Path $PSScriptRoot 'core/*.cpp') | ForEach-Object FullName) +
+            @('fever/control.cpp', 'fever/control_moves.cpp' | ForEach-Object { Join-Path $PSScriptRoot $_ })
+    }
+    & $compilerPath @operationFlags @operationSources '-o' $operationPath
     if ($LASTEXITCODE -ne 0) { throw "Ama operation library build failed: $LASTEXITCODE" }
     Write-Output "Built $operationPath"
 

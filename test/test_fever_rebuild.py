@@ -21,7 +21,7 @@ class RebuildTests(unittest.TestCase):
         output.parent.mkdir(parents=True,exist_ok=True)
         sources=list((ROOT/'core').glob('*.cpp')) + [ROOT/'ai/search/beam'/n for n in
             ('eval.cpp','quiet.cpp','form.cpp','layer.cpp','table.cpp')] + [ROOT/'fever'/n for n in
-            ('evaluation.cpp','rebuild.cpp','search.cpp','fire.cpp')]
+            ('evaluation.cpp','rebuild.cpp','search.cpp','fire.cpp','control.cpp','control_moves.cpp')]
         # Layer/table implementations may be header-only; only compile existing sources.
         sources=[s for s in sources if s.exists()]
         environment={**os.environ,'PATH':str(compiler.parent)+os.pathsep+os.environ.get('PATH','')}

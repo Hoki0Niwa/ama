@@ -285,7 +285,7 @@ json answer(const json& request)
     auto rules = rule::FEVER;
     rules.plain_pairs = true; rules.special_moves = true;
     if (op == "closing_transition") rules.death_columns = 0;
-    auto moves = fever::normal_space::moves(field, *piece, rules);
+    auto moves = fever::normal_space::moves(field, *piece, rules, true);   // the piece about to be placed
     const auto transition = [&](const move::Placement& placement) {
         auto copy = field;
         const auto drop = copy.drop_piece(placement.x, placement.r, *piece, rules);

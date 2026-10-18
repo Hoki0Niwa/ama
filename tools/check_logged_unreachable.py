@@ -63,14 +63,20 @@ def heights(field):
 
 
 def check(fixture, engine_path, dll_path, kinds=('triple',)):
-    """The logged moves are ones the game could not execute. A build passes for a piece kind when it no
-    longer offers them. `routable` reports whether the operations library models the move as executable:
-    True means the route model agrees with the engine and is itself wrong about the game."""
+    """The logged moves are ones the game could not execute by the route the build planned. A build passes for
+    a piece kind when it offers none of them without an executable program: a triple offered with the game
+    controller's program (fever/control_moves.cpp, run by the bridge in place of the failed route) counts as
+    `offered_with_program`, not as a failure. `routable` reports whether the operations library models the move
+    as executable: True means the route model agrees with the engine and is itself wrong about the game."""
     from fever_battle.worker import JsonProcess
     data = json.loads(Path(fixture).read_text(encoding='utf-8'))
     dll = C.CDLL(str(dll_path))
     dll.ama_operation_route.argtypes = [C.POINTER(C.c_int)] + [C.c_int] * 9 + [C.POINTER(Press), C.c_int]
     dll.ama_operation_route.restype = C.c_int
+    program = getattr(dll, 'ama_operation_triple_program', None)
+    if program is not None:
+        program.argtypes = [C.POINTER(C.c_int), C.c_char_p, C.c_int, C.c_int, C.c_int, C.POINTER(C.c_ubyte), C.c_int]
+        program.restype = C.c_int
     engine = JsonProcess([str(engine_path)])
     stats = {}
     for case in data['cases']:
@@ -83,8 +89,13 @@ def check(fixture, engine_path, dll_path, kinds=('triple',)):
         routable = dll.ama_operation_route((C.c_int * 6)(*h), shape, 2, 0, 0, 0, pivot, r, 0, 1, out, len(out)) >= 0
         answer = engine.ask(dict(op='placements', field=case['field'], piece=case['piece']))
         offered = (x, 'URDL'[r]) in {(p['x'], p['r']) for p in answer['placements']}
-        entry = stats.setdefault(kind, dict(cases=0, still_offered=0, library_routable=0, examples=[]))
+        buttons = (C.c_ubyte * 1024)()
+        programmed = bool(offered and shape == 3 and program is not None and
+                          program((C.c_int * 6)(*h), case['piece'].encode(), x, r, 1, buttons, len(buttons)) >= 0)
+        entry = stats.setdefault(kind, dict(cases=0, still_offered=0, offered_with_program=0, library_routable=0, examples=[]))
         entry['cases'] += 1
+        entry['offered_with_program'] += programmed
+        offered = offered and not programmed
         entry['still_offered'] += offered
         entry['library_routable'] += routable
         if offered and len(entry['examples']) < 3:

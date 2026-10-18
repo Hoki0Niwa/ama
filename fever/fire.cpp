@@ -34,7 +34,7 @@ static void walk(
     const Configs* sustained = nullptr, int elapsed = 0
 )
 {
-    auto locks = normal_space::moves(field, queue[depth], rules);
+    auto locks = normal_space::moves(field, queue[depth], rules, depth == 0);   // the root: the piece about to be placed
 
     for (auto i = 0; i < locks.get_size(); ++i) {
         auto f = field;

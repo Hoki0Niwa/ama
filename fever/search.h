@@ -154,7 +154,8 @@ void expand(
     const beam::eval::Weight& w,
     const rule::Rule& rules,
     std::function<void(beam::node::Data&, const move::Placement&, const chain::Score&)> callback,
-    const normal_scoring::Entry* normal = nullptr
+    const normal_scoring::Entry* normal = nullptr,
+    bool current = false    // the root: the piece about to be placed (normal_space::moves)
 );
 
 // Beam search over a fully known queue

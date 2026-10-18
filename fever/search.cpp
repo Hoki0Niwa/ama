@@ -11,11 +11,12 @@ void expand(
     const beam::eval::Weight& w,
     const rule::Rule& rules,
     std::function<void(beam::node::Data&, const move::Placement&, const chain::Score&)> callback,
-    const normal_scoring::Entry* normal
+    const normal_scoring::Entry* normal,
+    bool current
 )
 {
     // Generates moves
-    auto locks = normal_space::moves(node.field, piece, rules);
+    auto locks = normal_space::moves(node.field, piece, rules, current);
 
     for (auto i = 0; i < locks.get_size(); ++i) {
         // Creates child node
@@ -195,7 +196,7 @@ Result search(
             // Pushes
             result.candidates.push_back(candidate);
             layers[0].data.push_back(child);
-        }, configs.normal
+        }, configs.normal, true
     );
 
     // If there aren't any candidates, stops searching

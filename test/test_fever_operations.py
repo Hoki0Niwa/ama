@@ -26,6 +26,9 @@ class OperationTests(unittest.TestCase):
         cls.dll.ama_operation_route.restype = C.c_int
         cls.dll.ama_operation_rotate.argtypes = [C.POINTER(C.c_int)] + [C.c_int] * 6 + [C.POINTER(Press)]
         cls.dll.ama_operation_rotate.restype = C.c_int
+        cls.dll.ama_operation_triple_program.argtypes = [C.POINTER(C.c_int), C.c_char_p, C.c_int, C.c_int, C.c_int,
+                                                         C.POINTER(C.c_ubyte), C.c_int]
+        cls.dll.ama_operation_triple_program.restype = C.c_int
         assert cls.dll.ama_operation_version() == 1 and cls.dll.ama_operation_rule() == 1
 
     @classmethod
@@ -44,24 +47,35 @@ class OperationTests(unittest.TestCase):
                                          pivot, r, 0, special, out, len(out))
         return n >= 0
 
+    def program(self, h, piece, x, r):
+        """The game controller's program for a triple placement (fever/control_moves.cpp), or None."""
+        out = (C.c_ubyte * 1024)()
+        n = self.dll.ama_operation_triple_program((C.c_int * 6)(*h), piece.encode(), x, r, 1, out, len(out))
+        return bytes(out[:n]) if n >= 0 else None
+
     def test_random_pair_and_triple_candidates_have_executable_native_routes(self):
+        # Everything the route model takes is offered; a triple it cannot take is offered only with the game
+        # controller's program (spawn-row lifts, fever/normal_space.h), which the bridge then runs.
         rng = random.Random(1009)
         for trial in range(64):
             h = [rng.randrange(14 if x not in (2, 3) else 12) for x in range(6)]
             for text, shape in (('2:RG', 2), ('L:RRG', 3), ('J:RGR', 3)):
                 answer = self.engine.ask(dict(op='placements', field=self.field(h), piece=text))
                 offered = {(p['x'], 'URDL'.index(p['r'])) for p in answer['placements']}
-                expected = {(x, r) for x in range(6 if shape == 2 else 5) for r in range(4)
-                            if self.route(h, shape, x, r)}
-                self.assertEqual(offered, expected, (trial, h, text))
+                routed = {(x, r) for x in range(6 if shape == 2 else 5) for r in range(4) if self.route(h, shape, x, r)}
+                self.assertLessEqual(routed, offered, (trial, h, text))
+                for x, r in offered - routed:
+                    self.assertTrue(shape == 3 and self.program(h, text, x, r) is not None, (trial, h, text, x, r))
 
     def test_trial_triple_kick_that_lifts_from_the_spawn_row_is_suspended(self):
         # Offered until 2026-10-14: the turn lifted the axis from the spawn row to the 13th row, the climb
         # `hook` was stopped for; five of six giving-ups of the 16:10 session were such routes.
+        # The route model still does not take it; the goal comes back only with the game controller's program.
         h = (11, 8, 2, 0, 0, 2)
         self.assertFalse(self.route(h, 3, 0, 1))
         answer = self.engine.ask(dict(op='placements', field=self.field(h), piece='L:RRG'))
-        self.assertNotIn((0, 'R'), {(p['x'], p['r']) for p in answer['placements']})
+        if (0, 'R') in {(p['x'], p['r']) for p in answer['placements']}:
+            self.assertIsNotNone(self.program(h, 'L:RRG', 0, 1))
         self.assertIn((2, 'U'), {(p['x'], p['r']) for p in answer['placements']})
 
     def test_logged_spawn_row_lifts_are_suspended(self):
@@ -71,52 +85,57 @@ class OperationTests(unittest.TestCase):
                 x, r = case['target']
                 self.assertFalse(self.route(case['heights'], 3, x, r))
                 answer = self.engine.ask(dict(op='placements', field=self.field(case['heights']), piece=case['piece']))
-                self.assertNotIn((x, 'URDL'[r]), {(p['x'], p['r']) for p in answer['placements']})
+                if (x, 'URDL'[r]) in {(p['x'], p['r']) for p in answer['placements']}:
+                    self.assertIsNotNone(self.program(case['heights'], case['piece'], x, r))
 
-    def test_logged_unreachable_triples_of_2026_10_15_are_not_offered(self):
+    def controller_program(self, case):
+        heights = [sum(row[x] != '.' for row in case['field'][1:]) for x in range(6)]
+        return self.program(heights, case['piece'], int(case['move'][:-1]), 'URDL'.index(case['move'][-1]))
+
+    def test_logged_unreachable_triples_of_2026_10_15_come_back_only_with_a_controller_program(self):
         # 100 distinct boards where the 11:28 build offered a triple the game could not execute and the
-        # controller then retried the same move for seconds (piece falling unoperated). Pairs are not
-        # asserted: their 28 isolated failures are a different cause.
+        # controller then retried the same move for seconds (piece falling unoperated): the route model's
+        # lift from the spawn row. The game's own controller (fever/control.*) locks most of these goals by
+        # another order of presses; such a goal is offered exactly when the library has its program, which
+        # the bridge then runs. Pairs are not asserted: their 28 isolated failures are a different cause.
         path = ROOT / 'data/fever/baselines/2026-10-15-unreachable-placements.json'
         if not path.exists():
             self.skipTest('fixture not present')
         cases = [c for c in json.loads(path.read_text(encoding='utf-8'))['cases'] if c['piece'][0] in 'LJ']
         self.assertGreaterEqual(len(cases), 100)
+        offered = 0
         for case in cases:
             x, r = int(case['move'][:-1]), case['move'][-1]
             answer = self.engine.ask(dict(op='placements', field=case['field'], piece=case['piece']))
-            self.assertNotIn((x, r), {(p['x'], p['r']) for p in answer['placements']}, case['first'])
+            here = (x, r) in {(p['x'], p['r']) for p in answer['placements']}
+            if here:
+                self.assertIsNotNone(self.controller_program(case), case['first'])
+            offered += here
+        self.assertGreaterEqual(offered, 90)        # 91 of 100 on 2026-10-18; the rest stay suspended
 
-    def test_spawn_row_lifts_come_back_only_under_the_bridge_allow_list(self):
-        # Triple placements the game executed on target through measured input programs (5 h log, 2026-10-15)
-        # were suspended together with the 100 lifts that failed. The bridge sends the conditions of its
-        # measured programs (`lift_allowances` op, request key `lift_allow`); only those goals come back.
+    def test_spawn_row_lifts_the_game_executed_are_offered_with_or_without_the_allow_list(self):
+        # Triple placements the game executed on target through measured input programs (5 h log, 2026-10-15).
+        # The controller locks them all, so they no longer need the bridge's allow-list (`lift_allowances`,
+        # request key `lift_allow`), and the allow-list adds none of the failed lifts.
         path = ROOT / 'data/fever/baselines/2026-10-15-measured-lifts-executed.json'
         if not path.exists():
             self.skipTest('fixture not present')
         data = json.loads(path.read_text(encoding='utf-8'))
         self.assertGreaterEqual(len(data['executed']), 25)
+        failed = [c for c in json.loads((ROOT / 'data/fever/baselines/2026-10-15-unreachable-placements.json')
+                                        .read_text(encoding='utf-8'))['cases'] if c['piece'][0] in 'LJ']
 
         def offered(case):
             answer = self.engine.ask(dict(op='placements', field=case['field'], piece=case['piece']))
-            return {(p['x'], p['r']) for p in answer['placements']}
+            return (int(case['move'][:-1]), case['move'][-1]) in {(p['x'], p['r']) for p in answer['placements']}
         try:
             self.engine.ask({'op': 'lift_allowances', 'cases': []})
-            for case in data['executed']:
-                move = (int(case['move'][:-1]), case['move'][-1])
-                self.assertNotIn(move, offered(case), case['move'])
+            self.assertTrue(all(offered(case) for case in data['executed']))
+            without = [offered(case) for case in failed]
             self.assertEqual(self.engine.ask({'op': 'lift_allowances', 'cases': data['lift_allow']})['cases'],
                              len(data['lift_allow']))
-            for case in data['executed']:
-                move = (int(case['move'][:-1]), case['move'][-1])
-                self.assertIn(move, offered(case), case['move'])
-            # the failed lifts of the same log stay suspended even with the allow-list
-            failed = json.loads((ROOT / 'data/fever/baselines/2026-10-15-unreachable-placements.json')
-                                .read_text(encoding='utf-8'))['cases']
-            for case in failed:
-                if case['piece'][0] in 'LJ':
-                    move = (int(case['move'][:-1]), case['move'][-1])
-                    self.assertNotIn(move, offered(case), case['move'])
+            self.assertTrue(all(offered(case) for case in data['executed']))
+            self.assertEqual([offered(case) for case in failed], without)
         finally:
             self.engine.ask({'op': 'lift_allowances', 'cases': []})
 
@@ -228,8 +247,8 @@ class OperationTests(unittest.TestCase):
                 self.assertEqual(self.dll.ama_operation_rotate((C.c_int * 6)(*case['heights']),
                     3, x, 0, r, 0, step, C.byref(out)), -1)
                 answer = self.engine.ask(dict(op='placements', field=case['field'], piece=case['piece']))
-                self.assertNotIn((case['target'][0], 'URDL'[case['target'][1]]),
-                                 {(p['x'], p['r']) for p in answer['placements']})
+                if (case['target'][0], 'URDL'[case['target'][1]]) in {(p['x'], p['r']) for p in answer['placements']}:
+                    self.assertIsNotNone(self.program(case['heights'], case['piece'], *case['target']))
             self.assertEqual(self.dll.ama_operation_rotate((C.c_int * 6)(*case['heights'][::-1]),
                 3, 5-x, 0, (3-r)%4, 0, -step, C.byref(out)), -1)
 

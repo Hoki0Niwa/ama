@@ -669,7 +669,7 @@ json tactics(Field field, const json& request) {
     };
     struct First { move::Placement move; Node node; Step step; Outcome here; i64 bonus = 0; };
     std::vector<First> firsts;
-    auto moves = fever::normal_space::moves(field, search.pieces[0], search.rules);
+    auto moves = fever::normal_space::moves(field, search.pieces[0], search.rules, true);   // the root
     for (int i = 0; i < moves.get_size(); ++i) {
         const auto r = std::string(1, fever::text::from_direction(moves[i].r));
         if (request.contains("allowed")) {
