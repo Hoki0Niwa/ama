@@ -4,7 +4,7 @@
 
 ## 用途と実行
 
-C++20のイベント駆動審判で、通常→突入→タネ交換→復帰→勝敗を進める。全26キャラ、52タネ、倍率、相殺、2系統予告、時計、マージン、並列試行、記録・再生、学習用batch APIを扱う。
+C++20のイベント駆動審判で、通常→突入→タネ交換→復帰→勝敗を進める。全26キャラ、52タネ、倍率、相殺、2系統予告、時計、マージン、並列試行、記録・再生、学習用batch APIを扱う。学習（PPFAI）向けに、試合を作らず多数の盤面の置ける手・連鎖・点数・次の判断までのフレーム・潜在連鎖をまとめて返すDLL（`build/fever_board.dll`、`tools/board_api.py`）もある（2026-10-19、試合の経過は不変で revision 20 のまま）。
 
 ```powershell
 python C:/Users/ho_ki/git/fever-simulator/tools/ama_selfplay.py --ama-root C:/Users/ho_ki/git/ama-fever --seed 0 --matches 4 --workers 2 --output bin/simulator-check --audit
@@ -14,7 +14,7 @@ Amaの `ModeBattleEngine`／nativeを2席へ接続し、現在手＋NEXT2と同�
 
 ## 色源と時間
 
-`steam_seed32` は元処理の21000手、タネ抽選・強制色補正455例との照合を記録している。タネ抽選の乱数は色表の生成（1,587回）後のゲーム管理乱数から始まり、飛散（1個5回）とも共有する（revision 7）。`training_chacha12` は長い学習列用で、独立実装147456色と照合。両色源を同一の評価分布としない。
+`steam_seed32` は元処理の21000手、タネ抽選・強制色補正455例との照合を記録している。タネ抽選の乱数は色表の生成（1,587回）後のゲーム管理乱数から始まり、飛散（1個5回）とも共有する（revision 7）。`training_chacha12` は長い学習列用で、独立実装147456色と照合。両色源を同一の評価分布としない。`training_chacha12_opening` は同じ列の前に実機の初手（R・G・B・R/G/Bから1色）を付ける学習用の方式（2026-10-19）。
 
 simulation_revision 20（2026-10-18時点）。元処理の生成・飛散・列抽選・地形運動を照合し、保存Steam148区間の連鎖時間で誤差0F。元コードから移植したもの：
 
