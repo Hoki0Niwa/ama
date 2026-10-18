@@ -33,7 +33,7 @@ Steam版Feverで、通常盤面の大連鎖を繰り返し構築し、相殺・�
      
      詳細は [対戦ルール](FEVER_BATTLE_RULES.md)・[時間モデル](FEVER_TIMING.md)・[独立シミュレーター](FEVER_SIMULATOR_REPOSITORY.md)。
 
-7. 独立シミュレーターはrevision 18で学習用に凍結した（入力時間は `direct`、置ける手はAmaの `placements` と同じ規則、落下の1〜3Fは既知の相違、飛行中の攻撃は観測に残す）。3個組の持ち上げの停止と `lift_allow` をコミットしたら、シミュレーターに取り込み直す。飛行中の攻撃はブリッジの要求の `observation.in_flight` にも入れた（実機の対戦では未確認）。根拠は [独立シミュレーター](FEVER_SIMULATOR_REPOSITORY.md)「学習用に凍結する条件」。
+7. 独立シミュレーターはrevision 19で学習用に凍結した（入力時間は `direct`、置ける手はAmaの `placements` と同じ規則で、測定済みの持ち上げは `lift_allow` で渡す、落下の1〜3Fは既知の相違、飛行中の攻撃は観測に残す）。ブリッジの測定が増えたら、シミュレーターの `data/lift_allow.json` を写し直す。飛行中の攻撃はブリッジの要求の `observation.in_flight` にも入れた（実機の対戦では未確認）。根拠は [独立シミュレーター](FEVER_SIMULATOR_REPOSITORY.md)「学習用に凍結する条件」。
 
 再現入口と既知の制約は [DEBUGGING.md](DEBUGGING.md)、検証結果の読み方は [VALIDATION.md](VALIDATION.md) を参照する。新しい学習・自己対戦環境は独立の `fever-simulator` と責務を分ける。
 
