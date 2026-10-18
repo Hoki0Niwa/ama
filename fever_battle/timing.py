@@ -4,6 +4,16 @@ import json
 from pathlib import Path
 from .model import integer
 
+# Frames added to the normal board's nuisance check (policy timing.nuisance_check_margin, set by the engine).
+# The check follows the lock by 16 frames in the model; in the 2026-10-15 overnight log nuisance still fell
+# on the piece up to 10 to 20 frames after the model's check (doc/OVERNIGHT_LOG_ANALYSIS_2026-10-15.md, 10).
+_NORMAL_CHECK_MARGIN = 0
+
+
+def set_normal_check_margin(frames):
+    global _NORMAL_CHECK_MARGIN
+    _NORMAL_CHECK_MARGIN = integer(frames, 'nuisance_check_margin', 0, 200)
+
 
 @dataclass(frozen=True)
 class ChainTiming:
@@ -36,6 +46,12 @@ class ChainTiming:
             first_link_frames=data['lock_to_first_link_without_split_frames'],
             chain_ready_frames=data['seed_exchange_estimate_frames'],
             split_extra_frames=tuple(data['split_extra_frames']))
+
+    @property
+    def check_frames(self):
+        """Lock to nuisance check, with the margin the policy puts on the normal board's."""
+        margin = _NORMAL_CHECK_MARGIN if self.mode == 'normal' and self.geometry_enabled else 0
+        return self.nuisance_check_frames + margin
 
     @property
     def geometry_enabled(self):
@@ -73,7 +89,7 @@ class ChainTiming:
         result.update(geometry_timing=self.geometry_enabled,
                       first_link_frames=integer(self.first_link_frames,'first link duration',0,10000) if self.geometry_enabled else 0,
                       chain_ready_frames=integer(self.chain_ready_frames,'chain ready duration',0,10000) if self.geometry_enabled else self.spawn_frames,
-                      nuisance_check_frames=self.nuisance_check_frames if self.geometry_enabled else 0,
+                      nuisance_check_frames=self.check_frames if self.geometry_enabled else 0,
                       nuisance_ready_frames=integer(self.nuisance_ready_frames,'nuisance ready duration',0,10000) if self.geometry_enabled else 0,
                       mode=self.mode)
         return result

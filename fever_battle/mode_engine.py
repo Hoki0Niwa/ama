@@ -16,7 +16,7 @@ from .mode import ModeReferee, rules, next_seed
 from .model import ROOT, integer, settled_field
 from .observation import coherent
 from .seed_solver import SeedSolver
-from .timing import ChainTiming
+from .timing import ChainTiming, set_normal_check_margin
 from .nuisance import Trays
 from .threat import enemy_events
 from .mode_tactics import QUICK_FRAMES, offset_gauge
@@ -164,6 +164,7 @@ class ModeBattleEngine(BattleEngine):
     def __init__(self, native, solo, config):
         super().__init__(native, solo, config)
         self.mode_rules = rules()
+        set_normal_check_margin(self.policy.get('timing', {}).get('nuisance_check_margin', 0))
         self.seed_solver = SeedSolver(self.native, self.scoring)
         self.seed_solver.value_model = self.policy.get('fever_seed', {}).get('value_model')
         self.prepared = None
@@ -428,18 +429,6 @@ class ModeBattleEngine(BattleEngine):
             plain_pairs=True, special_moves=True, include_next=True, **build), **(
                 {'weight_set': options['weight_set']} if 'weight_set' in options else {}))
         space = getattr(self, 'normal_capacity', {})
-        if (self.policy.get('normal_build', {}).get('capacity_extensions') and space.get('crowded') and not space.get('release') and space.get('available_chain', 0) > 0
-                and not result.get('fire')):
-            growth = [p for p in space.get('extensions', []) if p['improves']]
-            if growth and not any((p['x'], p['r']) == (result['x'], result['r']) for p in growth):
-                chosen = max(growth, key=lambda p: (p['chain'], p['score']))
-                actual = self.native.ask(dict(op='transition', field=own['field'], piece=own['queue'][0],
-                                              x=chosen['x'], r=chosen['r']))
-                result.update(x=chosen['x'], r=chosen['r'], chain=chosen['chain'], eval=chosen['score'],
-                              next_chain=len(actual['links']), next_score=sum(self.scoring.chain(own['character'], actual['links'])),
-                              next_field=actual['field'], next_all_clear=actual['all_clear'],
-                              next_discarded=0,
-                              normal_extension_selected=True)
         # A visible main at the configured firing chain is not left to decay under
         # more stacking (a 13-14 seen for several moves that is gone when the board
         # fills): a placement that retains it is taken, or the main is fired. The
@@ -580,7 +569,7 @@ class ModeBattleEngine(BattleEngine):
             timing = ChainTiming.for_mode('normal')
             transition = self.native.ask(dict(op='transition', field=own['field'], piece=own['queue'][0],
                                              x=reply['x'], r=reply['r']))
-            check = (timing.placement_frames + timing.nuisance_check_frames +
+            check = (timing.placement_frames + timing.check_frames +
                      timing.split_extra_frames[max(transition['split_distances'], default=0)])
             return not any(e['type'] == 'end' and e['frame'] <= check
                            for e in self._enemy_events(request, enemy))
@@ -631,7 +620,7 @@ class ModeBattleEngine(BattleEngine):
             return 'clear_or_mode_transition_requires_observation'
         if request.get('enemy_chain'):
             timing = ChainTiming.for_mode(own['mode'])
-            check = timing.placement_frames + timing.split_extra_frames[max(result['split_distances'], default=0)] + timing.nuisance_check_frames
+            check = timing.placement_frames + timing.split_extra_frames[max(result['split_distances'], default=0)] + timing.check_frames
             if any(e['type'] == 'end' and e['frame'] <= check for e in self._enemy_events(request, request['enemy'])):
                 return 'enemy_delivery_can_change_next_board'
         future = deepcopy(own)
@@ -1030,9 +1019,15 @@ class ModeBattleEngine(BattleEngine):
         board that already has as much pending as fills it gains nothing from a little more:
         there the seed is built on.
         """
+        # Below these a packet is too small to take their time or their board: the seed is built on.
+        # (Policy fever_seed.press_min_held / press_min_lands; prototype values, not tuned in battle.)
+        seed_policy = self.policy.get('fever_seed', {})
+        floor_held = int(seed_policy.get('press_min_held', 0))
+        floor_lands = int(seed_policy.get('press_min_lands', 1))
         if enemy['mode'] == 'fever':
             enemy = self.enemy_analysis['enemy'] if self.enemy_analysis else enemy
-            return 'opponent_in_fever_holds_nuisance' if enemy['normal_confirmed'] + enemy['normal_unconfirmed'] else None
+            held = enemy['normal_confirmed'] + enemy['normal_unconfirmed']
+            return 'opponent_in_fever_holds_nuisance' if held and held >= floor_held else None
         if request.get('enemy_chain'):
             return None
         rows = enemy['field']
@@ -1042,7 +1037,28 @@ class ModeBattleEngine(BattleEngine):
         seed = sum(self.scoring.chain(own['character'], [dict(groups=[4], colors=1)] * own['seed_chain'], 'fever'))
         mine = own['confirmed'] + own['unconfirmed'] + own['normal_confirmed'] + own['normal_unconfirmed']
         lands = seed // rate - mine - self._board_hold(enemy['character'], enemy['field']) // rate
-        return 'lands_on_their_normal_board' if lands > 0 else None
+        return 'lands_on_their_normal_board' if lands >= max(1, floor_lands) else None
+
+    def _placement_timing(self, own, reply):
+        """For the log: the split rows of the move and when the model expects the nuisance check after it.
+
+        `split_rows` is the largest fall of a split half, `split_extra` the frames the table adds for it,
+        `model_lock_in` the frames from the decision to the lock (as the tactical search charges it) and
+        `model_check_in` the frames to the nuisance check (lock plus the check, with the policy's margin).
+        A packet confirmed before `model_check_in` falls on this piece. Read against the next observation
+        of the board this tells whether nuisance fell where the model said it would
+        (doc/OVERNIGHT_LOG_ANALYSIS_2026-10-15.md, 10)."""
+        if reply.get('action') != 'place' or 'x' not in reply or not own.get('queue'):
+            return {}
+        placements = self.native.ask(dict(op='placements', field=own['field'], piece=own['queue'][0]))['placements']
+        placed = next((p for p in placements if (p['x'], p['r']) == (reply['x'], reply['r'])), None)
+        if placed is None:
+            return {}
+        rows = max(placed.get('split_distances') or [0])
+        timing = ChainTiming.for_mode(own['mode'])
+        extra = timing.split_extra_frames[min(rows, len(timing.split_extra_frames) - 1)]
+        lock = max(timing.placement_frames, (self.pace or 0) - timing.spawn_frames - extra) + extra
+        return dict(split_rows=rows, split_extra=extra, model_lock_in=lock, model_check_in=lock + timing.check_frames)
 
     def _arrival(self, request, own, enemy):
         """What the decision took for the timing of nuisance, to be checked against what then happens.
@@ -1182,6 +1198,9 @@ class ModeBattleEngine(BattleEngine):
             return None
         if reply.get('chain', 0) >= cfg.get('hold', 10):
             return None             # the search fires the main chain itself: not a wait to be bettered
+        picked = (reply.get('tactics_forecast') or {}).get('choice') or {}
+        if picked.get('disruption_kind') in ('jab', 'overpower') and (picked.get('projected_disrupt') or 0) > 0:
+            return None             # a timed hit on an opponent in Fever is the answer, not a wait to be bettered
         if own['confirmed'] or own['mode'] != 'normal':
             return None
         end = next((e['frame'] for e in self._enemy_events(request, enemy) if e['type'] == 'end'), None)
@@ -1275,11 +1294,23 @@ class ModeBattleEngine(BattleEngine):
                     normal_search_reused=False, searched_visible=len(own['queue']),
                     normal_decision_status='build')
 
+    def apply_lift_allow(self, cases):
+        """`lift_allow`: the spawn-row triple lifts the bridge has a measured input program for (see
+        operation.h MeasuredLift). Sent to the native engine when it changes, not with every request."""
+        if not isinstance(cases, list):
+            raise ValueError('lift_allow must be a list')
+        key = json.dumps(cases, sort_keys=True)
+        if key != getattr(self, 'lift_allow_sent', None):
+            self.native.ask({'op': 'lift_allowances', 'cases': cases})
+            self.lift_allow_sent = key
+
     def answer(self, request):
         if not isinstance(request, dict):
             raise ValueError('request must be a JSON object')
         if request.get('protocol_version') != 3 or request.get('rule') != 'fever_battle':
             raise ValueError('requires protocol_version=3 and rule=fever_battle')
+        if 'lift_allow' in request:
+            self.apply_lift_allow(request['lift_allow'])
         op = request.get('op', 'think')
         if op == 'ready':
             return dict(ready=True, protocol_version=3)
@@ -1345,7 +1376,7 @@ class ModeBattleEngine(BattleEngine):
                             0, timing.spawn_frames-timing.nuisance_check_frames)
                         safety = max(0, move.get('input_required_frames', check+8)-check)
                         state['minimum_clock_frames'] = first['end_at'] + delay + safety
-                    state['delivery_check_frames'] = check + timing.nuisance_check_frames
+                    state['delivery_check_frames'] = check + timing.check_frames
                     events = self._enemy_events(request, enemy)
                     state['delivery_frame'] = next((request['frame']+e['frame'] for e in events
                         if e['type']=='end'), None)
@@ -1520,6 +1551,10 @@ class ModeBattleEngine(BattleEngine):
                                        else ChainTiming.for_mode('fever').effective_status)
         reply['margin_forecast'] = self.margin
         reply['arrival'] = self._arrival(request, own, enemy)
+        try:
+            reply['arrival'].update(self._placement_timing(own, reply))
+        except (ValueError, KeyError, TypeError, RuntimeError):
+            pass                    # a log field: never a reason to lose the decision
         target = self._enemy_fever(enemy, self._enemy_events(request, enemy), rate) or {}
         guard = disruption.contract(request, reply, target)
         if target:

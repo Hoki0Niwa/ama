@@ -10,6 +10,7 @@ import test_fever_mode as fixtures
 request, side, seed3, NATIVE, SOLO = fixtures.request, fixtures.side, fixtures.seed3, fixtures.NATIVE, fixtures.SOLO
 from fever_battle.mode_engine import ModeBattleEngine, authorize_mode_reply
 from fever_battle.uncertainty import choose
+from fever_battle.timing import set_normal_check_margin
 
 
 class ClockAwardTests(unittest.TestCase):
@@ -50,6 +51,9 @@ class DeadlineSearchTests(unittest.TestCase):
     def setUpClass(cls): cls.engine=ModeBattleEngine(NATIVE,SOLO,ROOT/'config.json')
     @classmethod
     def tearDownClass(cls): cls.engine.close()
+    def setUp(self):
+        # the policy's nuisance_check_margin is a battle setting; these tests check the model's own deadlines
+        set_normal_check_margin(0)
 
     def test_current_piece_is_authorized_across_clock_zero(self):
         req=request(); req['self']['remaining_frames']=10

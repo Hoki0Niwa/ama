@@ -12,8 +12,11 @@
     "patience_step": 3
   },
   "reset_moves_at_chain": 4,
+  "timing": {
+    "nuisance_check_margin": 10,
+    "status": "prototype_heuristic_from_2026_10_15_overnight_log_not_battle_tuned"
+  },
   "normal_build": {
-    "capacity_extensions": false,
     "forced_lookahead": true,
     "retain_floor": 10,
     "retain_when": "quiet",
@@ -59,7 +62,6 @@
       "mainline_min": 4,
       "arrival_pieces": 2,
       "fever_reach": 100,
-      "growth_cells": 6,
       "harass": 400,
       "kill": 30000,
       "all_clear": 5000,
@@ -69,6 +71,8 @@
   },
   "fever_seed": {
     "status": "prototype_heuristic_not_battle_tuned",
+    "press_min_held": 30,
+    "press_min_lands": 6,
     "value_model": {
       "seed_odds": 0.85,
       "carried_level": 0.5,

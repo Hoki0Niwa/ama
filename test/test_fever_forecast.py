@@ -25,6 +25,11 @@ class Tests(unittest.TestCase):
     def tearDownClass(cls):
         cls.native.close()
 
+    def setUp(self):
+        # an engine started by another test sets the policy's nuisance_check_margin; these check the model's own timing
+        from fever_battle.timing import set_normal_check_margin
+        set_normal_check_margin(0)
+
     def test_launcher_build_only_config_starts_and_predicts(self):
         from fever_battle.mode_engine import ModeBattleEngine
         from fever_battle.engine import SoloBuilder

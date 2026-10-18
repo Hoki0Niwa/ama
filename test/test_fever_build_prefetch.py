@@ -8,11 +8,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT), str(ROOT/'test')]
 from fever_fixtures import NATIVE, SOLO, request, side, seed3, seed_with_small_green
 from fever_battle.mode_engine import ModeBattleEngine, authorize_mode_reply
+from fever_battle.timing import set_normal_check_margin
 
 
 class BuildPrefetchTests(unittest.TestCase):
     def setUp(self):
         self.engine = ModeBattleEngine(NATIVE, SOLO, ROOT/'config.json')
+        set_normal_check_margin(0)    # the margin is a battle setting; these tests check the build cache
 
     def tearDown(self):
         self.engine.close()

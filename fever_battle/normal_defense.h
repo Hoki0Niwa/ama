@@ -9,6 +9,7 @@ struct NormalDefense {
     i64 pending = 0;
     i64 reply_exposure = 0; // next-seed estimate, not an observed delivery
     int lost_links = 0;
+    int fired_links = 0;    // of lost_links, the ones a clear fired (not the ones a piece buried)
     bool landing_safe = true;
     bool entered = false;
 

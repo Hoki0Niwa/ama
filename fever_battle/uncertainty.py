@@ -38,7 +38,7 @@ def choose(native, scoring, side, rate, options=None, allowed_placements=None,
             continue
         points = scoring.chain(side['character'], candidate['links'], side['mode'])
         fire_at = timing.placement_frames + timing.split_extra_frames[max(candidate['split_distances'], default=0)] + (timing.first_link_frames if points else 0)
-        check_at = fire_at + (0 if points else timing.nuisance_check_frames)
+        check_at = fire_at + (0 if points else timing.check_frames)
         fixed, flying, remainder = side['confirmed'], side['unconfirmed'], side['remainder']
         opponent = enemy or {}
         trays = Trays(opponent)

@@ -47,7 +47,8 @@ struct Node {
     i64 enemy_remainder = 0;
     int event = 0, frame = 0, phase = 0, gauge = 0;
     int popped = 0, dropped = 0, early = 0, early_gauge = 0, steps = 0;
-    int main_links_spent = 0;
+    int main_links_spent = 0;       // links of the main chain fired, popped or buried (priced)
+    int main_links_fired = 0;       // of those, the ones a clear took: only these make the main "unready"
     i64 return_points = 0, return_nuisance = 0;
     int return_frame = 0;
     bool builder_fire = false;      // the builder's own fire that leaves nothing pending
@@ -221,7 +222,7 @@ public:
                 drops(n.field, pending, n.phase, [&](Field board) { step.due = step.due || board.is_dead(rules); });
         }
         const auto locked = n.field;
-        int spent_here = 0;
+        int spent_here = 0, fired_here = 0;
         auto masks = n.field.pop();
         step.chain = masks.get_size();
         step.cleared = n.field;
@@ -234,7 +235,16 @@ public:
             const int main_before = std::max({step.chain, fever::stock::longest(locked), main_held});
             if (main_before >= w->mainline_min)
                 spent_here = std::max(0, main_before - fever::stock::longest(step.cleared));
+            // What the clear itself took, without the links the piece buried by standing on the trigger:
+            // a small clear beside the main is a jab, and burying is priced below but does not make the
+            // main unready (2026-10-15: jabs and overpowers at 4 to 9 held links vanished once buried
+            // links were counted as fired ones).
+            const int fire_before = std::max(step.chain, fever::stock::longest(locked));
+            if (fire_before >= w->mainline_min)
+                fired_here = std::max(0, fire_before - fever::stock::longest(step.cleared));
+            fired_here = std::min(fired_here, spent_here);
             n.main_links_spent += spent_here;
+            n.main_links_fired += fired_here;
             // ai/ai.cpp on main: classify by the resources left, not by chain length.
             step.main = step.cleared.get_count() < std::max(24, root_cells / 2);
             auto before = locked, after = step.cleared;
@@ -281,6 +291,7 @@ public:
             if (step.due && spent_here > 0 && shot_points > 0) {
                 const i64 worth = std::max<i64>(1, shot_points / rates->at(n.frame));
                 n.main_links_spent -= int(std::min(spent_here, step.chain) * std::min<i64>(step.cancelled, worth) / worth);
+                n.main_links_fired -= int(std::min(fired_here, step.chain) * std::min<i64>(step.cancelled, worth) / worth);
             }
             if (shot_points > n.return_points) {
                 n.return_points = shot_points;
@@ -361,6 +372,7 @@ public:
         result.reply_exposure = enemy_fever ? std::max<i64>(0, seed_reply - settled.enemy.seed()) : 0;
         result.entered = n.gauge >= 7;
         result.lost_links = n.main_links_spent;
+        result.fired_links = std::min(n.main_links_fired, n.main_links_spent);
         if (result.pending)
             drops(n.field, int(std::min<i64>(78, result.pending)), n.phase,
                 [&](Field board) { result.landing_safe = result.landing_safe && !board.is_dead(rules); });
@@ -395,7 +407,7 @@ public:
         // The normal builder owns the target/capacity fire policy. A future
         // main in the tactical horizon must not pay for breaking that build
         // now, even if one low seed can be beaten by a short main.
-        const bool unready_main = enemy_fever && defense_state.lost_links > 0 && !n.builder_fire;
+        const bool unready_main = enemy_fever && defense_state.fired_links > 0 && !n.builder_fire;
         const bool protected_main = (unready_main || (quiet && n.fired_main && !n.builder_fire)) && root_cells >= 24;
         const double kills = 0.0; // Kill estimates are not an attack objective in Fever battles.
         // A packet of this line's own, left on a Fever opponent after their chain.
@@ -845,6 +857,7 @@ json tactics(Field field, const json& request) {
             {"defense_commitment", values[i].defense.can_commit()},
             {"survives_known_exchange",values[i].alive && values[i].defense.known_survival()},
             {"main_links_lost", values[i].defense.lost_links},
+            {"main_links_fired", values[i].defense.fired_links},
             {"can_receive", receives(first)},
             {"projected_return_points", values[i].return_points},
             {"projected_return_frame", values[i].return_frame},

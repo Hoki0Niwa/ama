@@ -61,22 +61,6 @@ class CapacityTimingTests(unittest.TestCase):
         self.assertTrue(c['release'] == (c['safe_moves']==0 or
             (c['crowded'] and c['available_chain']>2 and c['improving_moves']==0)))
 
-    def test_crowded_builder_selects_a_verified_growth_move(self):
-        run=next(r for r in self.saved['runs'] if r['character']=='raffina' and r['seed']==2)
-        item=run['trace'][29]
-        own=side('normal',item['before'],[r['piece'] for r in run['trace'][29:32]])
-        own.update(normal_chain_max=14,dropset_index=29,piece_id=29)
-        req=request(own); req.update(second_target_chain=14,solo_options=dict(beam_width=50,beam_depth=8))
-        self.engine.policy['normal_build']['capacity_extensions']=True
-        try:
-            options=self.engine._normal_options(req,own)
-            self.assertEqual(options['trigger'],14)
-            result=self.engine._solo_build(own,options)
-            growth=self.engine.normal_capacity['extensions']
-            self.assertIn((result['x'],result['r']),[(p['x'],p['r']) for p in growth if p['improves']])
-        finally:
-            self.engine.policy['normal_build']['capacity_extensions']=False
-
     def test_changed_cadence_invalidates_prepared_defense_identity(self):
         req=request(side('normal',queue=['2:RY','2:BG']))
         self.engine.pace=42
