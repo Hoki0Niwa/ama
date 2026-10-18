@@ -73,6 +73,74 @@ class OperationTests(unittest.TestCase):
                 answer = self.engine.ask(dict(op='placements', field=self.field(case['heights']), piece=case['piece']))
                 self.assertNotIn((x, 'URDL'[r]), {(p['x'], p['r']) for p in answer['placements']})
 
+    def test_logged_unreachable_triples_of_2026_10_15_are_not_offered(self):
+        # 100 distinct boards where the 11:28 build offered a triple the game could not execute and the
+        # controller then retried the same move for seconds (piece falling unoperated). Pairs are not
+        # asserted: their 28 isolated failures are a different cause.
+        path = ROOT / 'data/fever/baselines/2026-10-15-unreachable-placements.json'
+        if not path.exists():
+            self.skipTest('fixture not present')
+        cases = [c for c in json.loads(path.read_text(encoding='utf-8'))['cases'] if c['piece'][0] in 'LJ']
+        self.assertGreaterEqual(len(cases), 100)
+        for case in cases:
+            x, r = int(case['move'][:-1]), case['move'][-1]
+            answer = self.engine.ask(dict(op='placements', field=case['field'], piece=case['piece']))
+            self.assertNotIn((x, r), {(p['x'], p['r']) for p in answer['placements']}, case['first'])
+
+    def test_spawn_row_lifts_come_back_only_under_the_bridge_allow_list(self):
+        # Triple placements the game executed on target through measured input programs (5 h log, 2026-10-15)
+        # were suspended together with the 100 lifts that failed. The bridge sends the conditions of its
+        # measured programs (`lift_allowances` op, request key `lift_allow`); only those goals come back.
+        path = ROOT / 'data/fever/baselines/2026-10-15-measured-lifts-executed.json'
+        if not path.exists():
+            self.skipTest('fixture not present')
+        data = json.loads(path.read_text(encoding='utf-8'))
+        self.assertGreaterEqual(len(data['executed']), 25)
+
+        def offered(case):
+            answer = self.engine.ask(dict(op='placements', field=case['field'], piece=case['piece']))
+            return {(p['x'], p['r']) for p in answer['placements']}
+        try:
+            self.engine.ask({'op': 'lift_allowances', 'cases': []})
+            for case in data['executed']:
+                move = (int(case['move'][:-1]), case['move'][-1])
+                self.assertNotIn(move, offered(case), case['move'])
+            self.assertEqual(self.engine.ask({'op': 'lift_allowances', 'cases': data['lift_allow']})['cases'],
+                             len(data['lift_allow']))
+            for case in data['executed']:
+                move = (int(case['move'][:-1]), case['move'][-1])
+                self.assertIn(move, offered(case), case['move'])
+            # the failed lifts of the same log stay suspended even with the allow-list
+            failed = json.loads((ROOT / 'data/fever/baselines/2026-10-15-unreachable-placements.json')
+                                .read_text(encoding='utf-8'))['cases']
+            for case in failed:
+                if case['piece'][0] in 'LJ':
+                    move = (int(case['move'][:-1]), case['move'][-1])
+                    self.assertNotIn(move, offered(case), case['move'])
+        finally:
+            self.engine.ask({'op': 'lift_allowances', 'cases': []})
+
+    def test_mode_engine_forwards_lift_allow_once_per_change(self):
+        from fever_battle.mode_engine import ModeBattleEngine
+        from fever_fixtures import SOLO, request
+        engine = ModeBattleEngine(str(NATIVE), str(SOLO), str(ROOT / 'config.json'))
+        try:
+            asked = []
+            original = engine.native.ask
+            engine.native.ask = lambda message, *a, **k: (asked.append(message.get('op')), original(message, *a, **k))[1]
+            table = [dict(axis=0, rotations=[0], heights=[13, 12, 0, 0, 0, 0], match_columns=[0, 1],
+                          max_heights={}, allow_full_goal=True)]
+            for _ in range(2):
+                engine.answer(dict(request(), lift_allow=table))
+            self.assertEqual(asked.count('lift_allowances'), 1)
+            engine.answer(dict(request(), lift_allow=[]))
+            self.assertEqual(asked.count('lift_allowances'), 2)
+            with self.assertRaises(ValueError):
+                engine.answer(dict(request(), lift_allow='all'))
+        finally:
+            engine.native.ask({'op': 'lift_allowances', 'cases': []})
+            engine.close()
+
     def test_pair_crosses_twelve_without_eleven_support(self):
         for h, x in (((0, 0, 0, 0, 12, 0), 5), ((0, 12, 0, 0, 0, 0), 0)):
             self.assertNotIn(11, h)

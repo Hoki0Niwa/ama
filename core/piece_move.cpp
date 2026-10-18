@@ -1,5 +1,6 @@
 #include "move.h"
 #include "operation.h"
+#include <array>
 #include "../fever/operation_suspensions.h"
 
 namespace move
@@ -39,12 +40,20 @@ avec<Placement, 22> generate(Field& field, const piece::Piece& value, const rule
         const bool pair = value.shape == piece::Shape::PAIR;
         const bool same = pair && value.colors[0] == value.colors[1];
         const auto reachable = operation::reachable(h, pair ? 2 : 3, {2, 0, 0}, true);
+        // Spawn-row lifts the bridge has a measured input program for (operation.h, MeasuredLift).
+        std::array<std::array<bool, 4>, 6> lifts{};
+        if (!pair && operation::has_measured_lifts()) {
+            operation::SpawnRowLifts enable;
+            const auto loose = operation::reachable(h, 3, {2, 0, 0}, true);
+            for (int a = 0; a < 6; ++a) for (int q = 0; q < 4; ++q)
+                lifts[a][q] = !reachable[a][q] && loose[a][q] && operation::measured_lift_allowed(h, a, q);
+        }
         for (u8 r = 0; r < 4; ++r) for (i8 x = 0; x <= (pair ? 5 : 4); ++x) {
             if (same && r == 2 && reachable[x][0]) continue;
             if (same && r == 3 && x > 0 && reachable[x - 1][1]) continue;
             const auto geometry = piece::geometry(value, direction::Type(r));
             const int pivot = pair ? x : x + geometry->pivot_x;
-            if (reachable[pivot][r] || (!pair && measured_triple(h, pivot, r)))
+            if (reachable[pivot][r] || (!pair && (lifts[pivot][r] || measured_triple(h, pivot, r))))
                 result.add({x, direction::Type(r)});
         }
         return result;

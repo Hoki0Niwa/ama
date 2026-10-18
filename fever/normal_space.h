@@ -17,7 +17,7 @@ inline auto moves(Field field, const piece::Piece& piece, const rule::Rule& rule
     for (int x=0;x<6;++x) heights[x]=h[x];
     const bool pair=piece.shape==piece::Shape::PAIR;
     const bool same=pair && piece.colors[0]==piece.colors[1];
-    u64 key=(u64(pair)<<24)|(u64(same)<<25);
+    u64 key=(u64(pair)<<24)|(u64(same)<<25)|(u64(operation::measured_lift_generation()&0xffffu)<<32);
     for (int x=0;x<6;++x) key|=u64(heights[x])<<(4*x);
     // POD storage avoids MinGW's thread-local dynamic destructor registration
     // across inline call sites when virtual-queue worker threads are recreated.
@@ -29,8 +29,13 @@ inline auto moves(Field field, const piece::Piece& piece, const rule::Rule& rule
     else {
         for (int x=0;x<(pair ? 6 : 5);++x) for (int r=0;r<4;++r) {
             auto geometry=piece::geometry(piece,direction::Type(r));
-            if (operation::route(heights,pair ? 2 : 3,{2,0,0},x+geometry->pivot_x,r,same,true,true))
-                mask|=u32(1)<<(4*x+r);
+            const int pivot=x+geometry->pivot_x;
+            bool executable=operation::route(heights,pair ? 2 : 3,{2,0,0},pivot,r,same,true,true).has_value();
+            if (!executable && !pair && operation::has_measured_lifts() && operation::measured_lift_allowed(heights,pivot,r)) {
+                operation::SpawnRowLifts enable;
+                executable=operation::route(heights,3,{2,0,0},pivot,r,same,true,true).has_value();
+            }
+            if (executable) mask|=u32(1)<<(4*x+r);
         }
         cached={key,mask,true};
     }

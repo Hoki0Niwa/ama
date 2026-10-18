@@ -10,6 +10,9 @@
 
 namespace operation {
 namespace {
+thread_local bool spawn_row_lifts_on = false;
+std::vector<MeasuredLift> measured_lifts;
+unsigned measured_generation = 0;
 constexpr int ox[4] = {0, 1, 0, -1}, oy[4] = {-1, 0, 1, 0};
 bool occupied(const int* h, int x, int y, bool fever = false) {
     return x < 0 || x >= 6 || y < (fever ? -3 : -2) || y > 11 || y > 11 - h[x];
@@ -94,6 +97,12 @@ std::optional<Pose> rotate(const int* h, int shape, const Pose& p, int step, boo
             const int wall = p.x + ox[r];
             if (!fever_suspensions::triple_high_lateral_kicks_enabled &&
                 p.y <= 0 && kicked.x != p.x && wall >= 0 && wall < 6 && h[wall] >= 12)
+                continue;
+            // 2026-10-14 16:10 session: this push also lifts the axis from the spawn row to the 13th row
+            // (y 0 -> -1), a climb the game does not make. Not offered while suspended, unless the caller
+            // enabled it for a goal that has a measured input program (SpawnRowLifts).
+            if (!fever_suspensions::triple_spawn_row_lifts_enabled && !spawn_row_lifts_on && fever &&
+                p.y == 0 && kicked.y < p.y)
                 continue;
             if (fits(h, shape, kicked, fever)) return kicked;
         }
@@ -260,6 +269,31 @@ std::optional<std::vector<Press>> route(const int* h, int shape, Pose start,
         }
     }
     return std::nullopt;
+}
+}
+
+namespace operation {
+SpawnRowLifts::SpawnRowLifts() : previous(spawn_row_lifts_on) { spawn_row_lifts_on = true; }
+SpawnRowLifts::~SpawnRowLifts() { spawn_row_lifts_on = previous; }
+void set_measured_lifts(std::vector<MeasuredLift> cases) {
+    measured_lifts = std::move(cases);
+    ++measured_generation;
+}
+unsigned measured_lift_generation() { return measured_generation; }
+bool has_measured_lifts() { return !measured_lifts.empty(); }
+bool measured_lift_allowed(const int* h, int goal_x, int goal_r) {
+    for (const auto& c : measured_lifts) {
+        if (c.axis != goal_x || !(c.rotations >> goal_r & 1)) continue;
+        bool ok = true;
+        for (int x = 0; x < 6 && ok; ++x) {
+            if ((c.match >> x & 1) && h[x] != c.wanted[x]) ok = false;
+            if (c.max_height[x] >= 0 && h[x] > c.max_height[x]) ok = false;
+        }
+        if (!ok) continue;
+        if (h[goal_x] >= 13 && !c.allow_full_goal) continue;
+        return true;
+    }
+    return false;
 }
 }
 

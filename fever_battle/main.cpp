@@ -183,6 +183,30 @@ json answer(const json& request)
             throw std::invalid_argument("unknown character or invalid dropset pattern");
         return {{"ok", true}, {"character", id}, {"pattern", std::string(dropset::find(id)->pattern)}};
     }
+    if (op == "lift_allowances") {
+        // Spawn-row triple lifts that the bridge has a measured input program for (operation.h MeasuredLift).
+        // An empty list restores the suspension for every goal.
+        std::vector<operation::MeasuredLift> cases;
+        for (const auto& item : request.value("cases", json::array())) {
+            operation::MeasuredLift c;
+            c.axis = int(bounded_integer(item.at("axis"), 0, 5, "axis"));
+            for (const auto& r : item.at("rotations")) c.rotations |= 1u << int(bounded_integer(r, 0, 3, "rotation"));
+            const auto heights = item.at("heights");
+            if (!heights.is_array() || heights.size() != 6) throw std::invalid_argument("heights needs six columns");
+            for (int x = 0; x < 6; ++x) c.wanted[x] = int(bounded_integer(heights[x], 0, 14, "height"));
+            c.match = 0;
+            for (const auto& x : item.value("match_columns", json::array({0, 1, 2, 3, 4, 5})))
+                c.match |= 1u << int(bounded_integer(x, 0, 5, "column"));
+            const json limits = item.value("max_heights", json::object());
+            for (const auto& [column, limit] : limits.items())
+                c.max_height[std::stoi(column) % 6] = bounded_integer(limit, 0, 14, "limit");
+            c.allow_full_goal = item.value("allow_full_goal", false);
+            cases.push_back(c);
+        }
+        const auto count = cases.size();
+        operation::set_measured_lifts(std::move(cases));
+        return {{"ok", true}, {"cases", count}};
+    }
     if (op == "queue") {
         const auto count = bounded_integer(request.at("count"), 1, 10000, "count");
         const auto seed = request.at("seed");
