@@ -407,6 +407,47 @@ class NativeModeTests(unittest.TestCase):
             self.assertFalse(reply['normal_search_reused'])
             build.assert_called_once()
 
+    def prepared_with_ahead_piece(self, ahead='2:GY'):
+        original=request(side('normal',queue=['2:RY','2:BB','L:RRY']))
+        first=self.engine.answer(original)
+        preparation=copy.deepcopy(original)
+        preparation.update(op='prepare_normal',placement=dict(x=first['x'],r=first['r']),ahead_piece=ahead)
+        prepared=self.engine.answer(preparation)
+        self.assertTrue(prepared['prepared'],prepared)
+        current=copy.deepcopy(original)
+        current['self'].update(field=first['next_field'],queue=original['self']['queue'][1:]+[ahead],
+            piece_id=1,dropset_index=1,moves_since_chain=1)
+        return prepared,current
+
+    def test_ahead_piece_prepares_with_all_three_pieces_and_is_reused_when_it_appears(self):
+        prepared,current=self.prepared_with_ahead_piece()
+        self.assertEqual(prepared['searched_visible'],3)
+        self.assertEqual(prepared['plan']['queue'],['2:BB','L:RRY','2:GY'])
+        current['frame']=20
+        current['observation'].update(frame_before=20,frame_after=20)
+        for side_ in (current['self'],current['enemy']):side_['observed_frame']=20
+        with patch.object(self.engine.solo,'ask',wraps=self.engine.solo.ask) as build:
+            reply=self.engine.answer(current)
+        build.assert_not_called()
+        self.assertTrue(reply['normal_search_reused'])
+        self.assertEqual(reply['searched_visible'],3)
+        self.assertTrue(authorize_mode_reply(current,reply,current))
+
+    def test_ahead_piece_decision_is_discarded_when_another_piece_appears(self):
+        _,current=self.prepared_with_ahead_piece()
+        current['self']['queue'][2]='2:YY'
+        with patch.object(self.engine.solo,'ask',wraps=self.engine.solo.ask) as build:
+            reply=self.engine.answer(current)
+        self.assertFalse(reply['normal_search_reused'])
+        build.assert_called_once()
+
+    def test_ahead_piece_must_fit_the_dropset_position(self):
+        original=request(side('normal',queue=['2:RY','2:BB','L:RRY']))
+        first=self.engine.answer(original)
+        original.update(op='prepare_normal',placement=dict(x=first['x'],r=first['r']),ahead_piece='L:RRY')
+        with self.assertRaisesRegex(ValueError,'ahead_piece'):
+            self.engine.answer(original)
+
     def test_normal_prefetch_bypassed_when_incoming_nuisance_changes(self):
         current=self.prepared_next_request()
         current['self'].update(confirmed=3,normal_confirmed=3,garbage_phase=None,garbage_phase_status='unknown')
@@ -422,8 +463,75 @@ class NativeModeTests(unittest.TestCase):
         fired=next(p for p in placements if p['links'])
         req.update(op='prepare_normal',placement=dict(x=fired['x'],r=fired['r']))
         result=self.engine.answer(req)
-        self.assertFalse(result['prepared'])
+        # No decision is prepared across a clear, only the builder's search for the board expected after it.
+        self.assertTrue(result['build_only'])
+        self.assertNotIn('plan',result)
+        self.assertIsNone(result['prepared_state']['prepared'])
         self.assertIsNone(self.engine.prepared)
+
+    def build_prepared_after_a_clear(self, ahead='2:GY'):
+        own=side('normal',queue=['2:RR','2:BB','L:RRY'])
+        own['field'][-1]='RRR...'
+        req=request(own)
+        placements=self.engine.native.ask(dict(op='placements',field=own['field'],piece='2:RR'))['placements']
+        fired=next(p for p in placements if p['links'])
+        prep=copy.deepcopy(req)
+        prep.update(op='prepare',placement=dict(x=fired['x'],r=fired['r']),ahead_piece=ahead)
+        result=self.engine.answer(prep)
+        self.assertTrue(result['build_only'],result)
+        self.assertEqual(result['searched_visible'],3)
+        current=copy.deepcopy(req)
+        current['self'].update(field=fired['field'],queue=['2:BB','L:RRY',ahead],piece_id=1,dropset_index=1,
+            moves_since_chain=0)
+        return current
+
+    def test_the_builder_prepared_after_a_clear_is_used_on_the_expected_board_only(self):
+        current=self.build_prepared_after_a_clear()
+        current['frame']=40
+        current['observation'].update(frame_before=40,frame_after=40)
+        for side_ in (current['self'],current['enemy']):side_['observed_frame']=40
+        with patch.object(self.engine.solo,'ask',wraps=self.engine.solo.ask) as build:
+            reply=self.engine.answer(current)
+        build.assert_not_called()
+        self.assertTrue(reply['normal_build_search_reused'])
+        self.assertEqual(reply['action'],'place')
+        # another board (a delivery landed) or another piece behind it is searched again
+        other=self.build_prepared_after_a_clear()
+        other['self']['field'][-1]=other['self']['field'][-1][:5]+'G'
+        with patch.object(self.engine.solo,'ask',wraps=self.engine.solo.ask) as build:
+            self.engine.answer(other)
+        build.assert_called()
+
+    def test_nuisance_held_after_a_chain_is_what_the_chain_leaves_of_it(self):
+        own=side('normal',queue=['2:RR','2:BB','L:RRY']); own['field'][-1]='RRR...'
+        own.update(confirmed=3,normal_confirmed=3)
+        placements=self.engine.native.ask(dict(op='placements',field=own['field'],piece='2:RR'))['placements']
+        fired=next(p for p in placements if p['links'])
+        future=copy.deepcopy(own)
+        self.engine._offset_by_chain(future,own,fired['links'],120)
+        # a pending packet is offset by at least one per link; what is left is held on both counts
+        self.assertLess(future['confirmed'],3)
+        self.assertEqual((future['unconfirmed'],future['normal_confirmed']),(0,future['confirmed']))
+        # nothing pending: nothing to offset
+        clean=copy.deepcopy(own); clean.update(confirmed=0,normal_confirmed=0)
+        after=copy.deepcopy(clean); self.engine._offset_by_chain(after,clean,fired['links'],120)
+        self.assertEqual((after['confirmed'],after['unconfirmed']),(0,0))
+
+    def test_a_fever_chain_with_little_clock_left_prepares_the_normal_board_it_returns_to(self):
+        stored=list(EMPTY); stored[-1]='GG....'
+        own=side('fever',seed3(),['2:RY','2:BB','L:RRY'])
+        own.update(stored_field=stored,remaining_frames=113,prepared_frames=113)
+        req=request(own)
+        placements=self.engine.native.ask(dict(op='placements',field=own['field'],piece='2:RY'))['placements']
+        fired=next((p for p in placements if p['links']),None)
+        if fired is None:self.skipTest('no placement of the fixture seed fires')
+        prep=copy.deepcopy(req)
+        prep.update(op='prepare',placement=dict(x=fired['x'],r=fired['r']),ahead_piece='2:GY')
+        result=self.engine.answer(prep)
+        self.assertTrue(result['build_only'],result)
+        # a seed with a long clock left continues in Fever: nothing is prepared for a normal board
+        long=copy.deepcopy(prep); long['self']['remaining_frames']=1800
+        self.assertFalse(self.engine.answer(long)['prepared'])
 
     def prepared_seed_request(self, remaining=900):
         original=request(side('fever',seed3(),['2:GG','2:RY','L:RRY']))

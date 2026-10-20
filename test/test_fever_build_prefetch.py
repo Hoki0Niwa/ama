@@ -259,8 +259,11 @@ class BuildPrefetchTests(unittest.TestCase):
         req['enemy_chain']['elapsed'] = 30
         req.update(op='prepare', placement=dict(x=5, r='U'))
         result = self.engine.answer(req)
-        self.assertFalse(result['prepared'])
-        self.assertEqual(result['reason'], 'enemy_delivery_can_change_next_board')
+        # No decision is prepared (the delivery may change the board); the builder's search for the board
+        # expected without it is kept, and is used only if that is the board that appears.
+        self.assertTrue(result['build_only'])
+        self.assertNotIn('plan', result)
+        self.assertIsNone(self.engine.prepared)
 
     def test_prediction_can_prepare_build_before_later_enemy_end(self):
         req = self.active(); req['self']['queue'].append('L:RRY')
