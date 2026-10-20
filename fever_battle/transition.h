@@ -75,6 +75,25 @@ struct Link {
     i64 points = 0;
 };
 
+// The points of one link, as score_link() gives them, without listing its groups.
+inline i64 link_points(Field mask, int power, const Bonuses& bonuses) {
+    int group_bonus = 0, colors = 0, cells = 0;
+    for (int c = 0; c < cell::COUNT - 1; ++c) {
+        if (mask.data[c].is_empty()) continue;
+        ++colors;
+        while (!mask.data[c].is_empty()) {
+            auto group = mask.data[c].get_mask_group_lsb();
+            const int n = group.get_count();
+            cells += n;
+            group_bonus += bonuses.group.at(std::min(11, n));
+            mask.data[c] = mask.data[c] & ~group;
+        }
+    }
+    const int multiplier = std::clamp(power + group_bonus + bonuses.color.at(colors),
+        bonuses.minimum, bonuses.maximum);
+    return i64(10) * cells * multiplier;
+}
+
 // One link of a chain: `mask` holds the puyos it pops, `power` its chain power.
 inline Link score_link(Field mask, int power, const Bonuses& bonuses) {
     Link link; int group_bonus = 0;

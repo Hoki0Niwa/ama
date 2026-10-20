@@ -10,7 +10,12 @@
 #include "../core/fever_queue.h"
 #include <chrono>
 #include <exception>
+#include <algorithm>
+#include <array>
 #include <map>
+#include <cstring>
+#include <unordered_map>
+#include <memory>
 #include <thread>
 #include <cmath>
 #include <limits>
@@ -75,6 +80,13 @@ struct Step {
     }
 };
 using Rank = std::tuple<int, i64, int, int, int, i64>;
+// The placements of a line before its last one, shared by every line that goes on from them:
+// a node copies one placement, not its whole line.
+struct Link {
+    Step step;
+    std::shared_ptr<const Link> before;
+};
+using Line = std::shared_ptr<const Link>;
 struct SeedNode {
     Field field;
     int frame = 0, confirmed = 0, flying = 0, held_fixed = 0, held_flying = 0, phase = 0;
@@ -82,35 +94,61 @@ struct SeedNode {
     EnemyTrays enemy;
     i64 enemy_remainder = 0;
     size_t event_index = 0;
-    std::vector<Step> path;
+    Line before;        // the placements before the last one
+    Step last;          // the last placement (none at the root)
+    int length = 0;     // placements in the line
     int value = 0;      // of the line so far: which nodes go on to the next piece
     Rank rank;          // of the line if it ended here
     int root = -1;      // the line's first placement, by its index among the root's moves
     double sound = 1;   // odds that the placements that popped nothing left the seed as planned
 };
+Line line_of(const SeedNode& node) {
+    return std::make_shared<const Link>(Link{node.last, node.before});
+}
+std::vector<Step> steps_of(Line line) {
+    std::vector<Step> steps;
+    for (; line; line = line->before) steps.push_back(line->step);
+    std::reverse(steps.begin(), steps.end());
+    return steps;
+}
 // Geometric evaluation only: these single-color additions are not future
 // pieces, executable paths or evidence that the observed seed is solved.
-Potential potential(Field field, const rule::Rule& rules) {
-    Potential result;
-    // Where an upright pair can go does not depend on its colour: generated once.
+// The chain potential() found, as it resolves: the board it pops from and its links.
+struct PotentialFire { Field unpopped; avec<Field, 19> masks; };
+// The columns an upright pair can be placed in, as a bit each. Where an upright pair can go does not
+// depend on its colour, and move::generate lists its upright placements by column, lowest first.
+u8 upright_columns(Field& field, const rule::Rule& rules) {
     const auto probe_color = static_cast<cell::Type>(0);
     auto moves = move::generate(field, piece::from_pair({probe_color, probe_color}), rules);
+    u8 columns = 0;
+    for (int i = 0; i < moves.get_size(); ++i)
+        if (moves[i].r == direction::Type::UP) columns |= u8(1 << moves[i].x);
+    return columns;
+}
+Potential potential(Field field, const rule::Rule& rules, PotentialFire* fire = nullptr, int columns = -1) {
+    Potential result;
+    if (columns < 0) columns = upright_columns(field, rules);
     for (int c = 0; c < cell::COUNT - 1; ++c) {
         if (field.data[c].is_empty()) continue;
         auto color = static_cast<cell::Type>(c);
-        for (int i = 0; i < moves.get_size(); ++i) {
-            if (moves[i].r != direction::Type::UP) continue;
-            int x = moves[i].x, height = field.get_height(x);
+        for (int x = 0; x < 6; ++x) {
+            if (!(columns & (1 << x))) continue;
+            int height = field.get_height(x);
             auto probe = field;
             for (int n = 1; n <= 3 && height + n <= 11; ++n) {
                 probe.set_cell(x, height + n - 1, color);
+                // The settled board pops nothing: only the group of the added puyos can, and only from four.
+                if (probe.data[c].get_mask_group_4(i8(x), i8(height)).get_count() < 4) continue;
                 auto resolved = probe;
-                int chain = resolved.pop_count();
+                auto masks = resolved.pop();
+                int chain = masks.get_size();
                 if (!chain) continue;
                 int residue = resolved.get_count();
                 if (std::make_tuple(chain, -residue, -n) >
-                    std::make_tuple(result.chain, -result.residue, -result.needed))
+                    std::make_tuple(result.chain, -result.residue, -result.needed)) {
                     result = {chain, n, residue, x, color};
+                    if (fire) *fire = {probe, masks};
+                }
                 // Additional same-color cells after ignition just inflate a
                 // group; they do not describe a nonclearing build sequence.
                 break;
@@ -304,10 +342,24 @@ json seed_search(Field field, const json& request) {
     const auto seed_defense=request.value("enemy_seed_defense",json::array());
     const bool extending=request.value("enemy_extending",false);
     const double PRESSED = 10 * double(template_points(15));
-    const auto holds = [&](Field& board) {
-        const double share = CROWDED / std::max(1, 72 - int(board.get_count()));
+    const auto holds_count = [&](int count) {
+        const double share = CROWDED / std::max(1, 72 - count);
         return 1 - std::min(0.9, share * share * share);
     };
+    const auto holds = [&](Field& board) { return holds_count(int(board.get_count())); };
+    // std::pow(held, k), std::pow(one, needed) and std::pow(1 - one, k) of the waiting lines below, read
+    // from tables of the same values: held is 1 or holds() of the board's count, one is PIECE_ODDS / needed.
+    constexpr int POWERS = 64;
+    std::vector<double> held_power(80 * POWERS), one_power(5 * POWERS), miss_power(5 * POWERS);
+    for (int count = 0; count < 80; ++count)
+        for (int k = 0; k < POWERS; ++k) held_power[count * POWERS + k] = std::pow(holds_count(count), k);
+    for (int needed = 1; needed <= 4; ++needed) {
+        const double one = PIECE_ODDS / needed;
+        for (int k = 0; k < POWERS; ++k) {
+            one_power[needed * POWERS + k] = std::pow(one, k);
+            miss_power[needed * POWERS + k] = std::pow(1 - one, k);
+        }
+    }
     // A seed is not fired for sure because one piece still fits: by the odds
     // that one of the pieces left brings its colour. On a long clock that is
     // close to certain, on the last piece it is PIECE_ODDS.
@@ -316,7 +368,7 @@ json seed_search(Field field, const json& request) {
     // What the seeds after this one bring: the points they score on the clock,
     // and the level that is left for the next Fever. Only the points offset.
     struct Later { double points, level; };
-    const auto future = [&](int level, int clock) {
+    const auto later_raw = [&](int level, int clock) {
         double total = 0, kept = 0, odds = 1;
         for (int k = 0; k < 24; ++k) {
             const int pieces = pieces_left(clock);
@@ -333,6 +385,15 @@ json seed_search(Field field, const json& request) {
         }
         return Later{total, kept + odds * CARRIED_LEVEL * template_points(level)};
     };
+    // future() is asked for every line that pops nothing, once for each piece the colour could come with:
+    // read from a table of every level and clock instead (the same values).
+    std::vector<Later> later_table(16 * 1861);
+    for (int level = 3; level <= 15; ++level)
+        for (int clock = 1; clock <= 1860; ++clock) later_table[level * 1861 + clock] = later_raw(level, clock);
+    const auto future = [&](int level, int clock) {
+        return level >= 3 && level <= 15 && clock >= 1 && clock <= 1860 ? later_table[level * 1861 + clock]
+            : later_raw(level, clock);
+    };
     // Points that offset are worth what they stop, the same as points sent, so
     // nuisance pending is no separate term: more points is less of it. Only
     // what the stored board cannot take at the end weighs beyond that.
@@ -342,8 +403,56 @@ json seed_search(Field field, const json& request) {
         const double left = std::max(0.0, double(carry) - points_to_come / rate);
         return std::max(0.0, left - double(std::max<i64>(0, quiet_limit))) * rate * HARMFUL_CARRY;
     };
-    const auto consider = [&](SeedNode& node, int chain, bool alive, int fire_at, int end_at, i64 sent) {
-        auto& last = node.path.back();
+    // A board that pops nothing is weighed by the chain it holds: where it is fired from, what it scores
+    // and how long it runs. That depends on the board alone, and lines that place the same pieces in
+    // another order reach the same board: worked out once per board in a search (WaitCache).
+    struct Waiting { Potential p; i64 built = 0; int running = 0; };
+    // A board as a key: its colour planes and row 14.
+    using BoardKey = std::array<u64, 2 * cell::COUNT + 1>;
+    static_assert(sizeof(Field::data) == 16 * cell::COUNT);
+    struct BoardHash {
+        size_t operator()(const BoardKey& key) const {
+            u64 h = 0x9E3779B97F4A7C15ull;
+            for (const auto word : key) { h ^= word; h *= 0xBF58476D1CE4E5B9ull; h ^= h >> 31; }
+            return size_t(h);
+        }
+    };
+    struct WaitCache {
+        std::unordered_map<BoardKey, Waiting, BoardHash> boards;
+        // A pair's placements depend on the column heights (and whether the board is dead) alone
+        // (move::generate: operation::reachable of the heights): its upright columns, by those.
+        std::unordered_map<u64, u8> columns;
+        i64 hits = 0, misses = 0;
+    };
+    const auto waiting = [&](Field board, WaitCache& cache) {
+        Waiting w;
+        PotentialFire fire;
+        u8 heights[6];
+        board.get_heights(heights);
+        u64 shape = u64(board.is_dead(rules));
+        for (int x = 0; x < 6; ++x) shape = shape << 8 | heights[x];
+        auto known = cache.columns.find(shape);
+        if (known == cache.columns.end()) known = cache.columns.emplace(shape, upright_columns(board, rules)).first;
+        w.p = potential(board, rules, &fire, known->second);
+        if (w.p.chain) {
+            // The board with the puyos it waits for, and its links: as potential() resolved them.
+            auto& masks = fire.masks;
+            int falls[19];
+            contact_frames_by_link(fire.unpopped, masks, falls);
+            for (int k = 0; k < masks.get_size(); ++k) {
+                if (k >= int(power_table.size())) throw std::invalid_argument("missing Fever chain power; no normal fallback");
+                w.built += link_points(masks[k], power_table[k], bonuses);
+            }
+            w.running = first_link;
+            for (int k = 0; k < masks.get_size(); ++k)
+                w.running += link_frames(falls[k], k == masks.get_size() - 1, pop_frames, settle_frames) +
+                    (falls[k] ? 2 : 0);
+        }
+        return w;
+    };
+    const auto consider = [&](SeedNode& node, int chain, bool alive, int fire_at, int end_at, i64 sent,
+                              WaitCache& cache) {
+        auto& last = node.last;
         const bool in_time = (chain ? fire_at : end_at) + safety < remaining;
         const int tier = alive && in_time ? 3 : alive ? 2 : 1;
         const int reward_clear = chain && node.field.is_empty() && in_time ? 1 : 0;
@@ -382,26 +491,21 @@ json seed_search(Field field, const json& request) {
             if (press && chain >= target && in_time)
                 worth += PRESSED * (last.all_clear ? 2 : 1) - double(fire_at) * PRESSED / (2.0 * maximum);
         } else {
-            const auto p = potential(node.field, rules);
-            last.has_extension = true; last.extension = p;
-            last.target_preserved = p.chain >= target && last.all_cases_preserve();
             // What the chain on the board scores and how long it runs, as a
             // fire is weighed: the chain is known, only its last puyos are not.
-            i64 built = 0;
-            int running = 0;
-            if (p.chain) {
-                auto fired = node.field;
-                const int height = fired.get_height(p.x);
-                for (int n = 0; n < p.needed; ++n) fired.set_cell(p.x, height + n, p.color);
-                const auto unpopped = fired;
-                auto masks = fired.pop();
-                const auto falls = contact_frames_by_link(unpopped, masks);
-                for (const auto point : points_for(masks, power_table, bonuses)) built += point;
-                running = first_link;
-                for (int k = 0; k < masks.get_size(); ++k)
-                    running += link_frames(falls[k], k == masks.get_size() - 1, pop_frames, settle_frames) +
-                        (falls[k] ? 2 : 0);
-            }
+            BoardKey key{};
+            std::memcpy(key.data(), &node.field.data, sizeof(node.field.data));
+            key.back() = node.field.row14;
+            auto found = cache.boards.find(key);
+            if (found == cache.boards.end()) {
+                ++cache.misses;
+                found = cache.boards.emplace(std::move(key), waiting(node.field, cache)).first;
+            } else ++cache.hits;
+            const Potential p = found->second.p;
+            const i64 built = found->second.built;
+            const int running = found->second.running;
+            last.has_extension = true; last.extension = p;
+            last.target_preserved = p.chain >= target && last.all_cases_preserve();
             // The puyos come with the first piece, the second, ...: each is a
             // later fire on a shorter clock, for as long as the clock and the
             // free board last. If they never come nothing is fired, and the
@@ -410,6 +514,11 @@ json seed_search(Field field, const json& request) {
             // PIECE_ODDS / needed.
             const int room = int(std::max(0, 72 - int(node.field.get_count())) / WAIT_CELLS);
             const double held = p.chain > target ? holds(node.field) : 1;
+            const int held_row = int(node.field.get_count());
+            const auto held_to = [&](int k) {
+                return p.chain > target ? (k < POWERS && held_row < 80 ? held_power[held_row * POWERS + k]
+                    : std::pow(held, k)) : 1.0;    // held is 1
+            };
             const int count = p.chain ? std::min(pieces_left(remaining - end_at), room) : 0;
             const int level = next_level(p.chain, false);
             const double one = PIECE_ODDS / p.needed;
@@ -428,18 +537,20 @@ json seed_search(Field field, const json& request) {
             // left only where a drop ended it.) After them the colours are not
             // known, and a piece brings one puyo at PIECE_ODDS / needed.
             int seen = 0; bool known = false;
-            for (size_t k = node.path.size(); k < pieces.size() && seen < count && !known; ++k) {
+            for (size_t k = size_t(node.length); k < pieces.size() && seen < count && !known; ++k) {
                 ++seen;
                 int have = 0;
                 if (pieces[k].shape == piece::Shape::BIG) have = p.needed <= 2 ? p.needed : 0;
                 else for (const auto color : pieces[k].colors) have += color == p.color;
-                if (have >= p.needed) { fires(seen, std::pow(held, seen - 1)); known = true; }
+                if (have >= p.needed) { fires(seen, held_to(seen - 1)); known = true; }
             }
             if (!known) {
                 double ways = 1;
                 for (int j = p.needed; j <= count - seen; ++j) {
-                    const double now = ways * std::pow(one, p.needed) * std::pow(1 - one, j - p.needed) *
-                        std::pow(held, seen + j - 1);
+                    const bool tabled = p.needed >= 1 && p.needed <= 4 && j - p.needed < POWERS;
+                    const double now = ways * (tabled ? one_power[p.needed * POWERS + p.needed] : std::pow(one, p.needed)) *
+                        (tabled ? miss_power[p.needed * POWERS + j - p.needed] : std::pow(1 - one, j - p.needed)) *
+                        held_to(seen + j - 1);
                     ways = ways * j / (j - p.needed + 1);
                     fires(seen + j, now);
                 }
@@ -477,13 +588,14 @@ json seed_search(Field field, const json& request) {
     // that follow are known.
     // One search over one queue: the visible pieces, or them and one virtual queue.
     struct Run {
-        std::vector<Step> best_path;
+        Line best_path;
         Rank best_rank{-1, 0, 0, 0, 0, 0};
         int expanded = 0; bool cutoff = false;
         Rank kind_rank[3];
-        std::vector<Step> kind_path[3];
+        Line kind_path[3];
         bool root_complete = false, root_build_preserves_target = false;
-        std::map<int, std::pair<Rank, std::vector<Step>>> roots;    // the best line of each root placement
+        std::map<int, std::pair<Rank, Line>> roots;    // the best line of each root placement
+        i64 cache_hits = 0, cache_misses = 0;
     };
     const auto run = [&](const std::vector<piece::Piece>& pieces) {
     Run out;
@@ -492,22 +604,27 @@ json seed_search(Field field, const json& request) {
     auto& kind_rank = out.kind_rank; auto& kind_path = out.kind_path;
     auto& root_complete = out.root_complete; auto& root_build_preserves_target = out.root_build_preserves_target;
     std::vector<SeedNode> layer{root};
+    WaitCache cache;
     const auto offer = [&](const SeedNode& node) {
-        if (node.rank > best_rank) { best_rank = node.rank; best_path = node.path; }
-        const int chain = node.path.back().chain;
+        Line line;
+        const auto line_once = [&] { if (!line) line = line_of(node); return line; };
+        if (node.rank > best_rank) { best_rank = node.rank; best_path = line_once(); }
+        const int chain = node.last.chain;
         const int kind = !chain ? 2 : chain >= target ? 0 : 1;
-        if (kind_path[kind].empty() || node.rank > kind_rank[kind]) {
-            kind_rank[kind] = node.rank; kind_path[kind] = node.path;
+        if (!kind_path[kind] || node.rank > kind_rank[kind]) {
+            kind_rank[kind] = node.rank; kind_path[kind] = line_once();
         }
         auto found = out.roots.find(node.root);
-        if (found == out.roots.end()) out.roots.emplace(node.root, std::make_pair(node.rank, node.path));
-        else if (node.rank > found->second.first) found->second = {node.rank, node.path};
+        if (found == out.roots.end()) out.roots.emplace(node.root, std::make_pair(node.rank, line_once()));
+        else if (node.rank > found->second.first) found->second = {node.rank, line_once()};
     };
     for (size_t depth = 0; depth < pieces.size() && !layer.empty() && !cutoff; ++depth) {
         std::vector<SeedNode> next;
         size_t done = 0;        // parents whose every placement was tried
         for (auto& parent : layer) {
             bool continued = false;
+            // The placements up to the parent's, shared by all its children.
+            const Line parent_line = parent.length ? line_of(parent) : Line();
             auto moves = move::generate(parent.field, pieces[depth], rules);
             for (int i = 0; i < moves.get_size(); ++i) {
                 if (depth == 0 && request.contains("allowed")) {
@@ -519,7 +636,7 @@ json seed_search(Field field, const json& request) {
                 }
                 // Always establish an executable root fallback before honoring
                 // node cutoffs. Node termination returns a complete JSON.
-                if ((!best_path.empty() || depth > 0 || !next.empty()) &&
+                if ((best_path || depth > 0 || !next.empty()) &&
                     max_nodes && expanded >= max_nodes) {
                     cutoff = true; break;
                 }
@@ -637,12 +754,14 @@ json seed_search(Field field, const json& request) {
                 step.enemy_trays = their_trays;
                 step.carry = i64(child.held_fixed) + child.held_flying + ahead_fixed + ahead_flying +
                     (dropped && end_at + safety >= remaining ? dropped : 0);
-                child.path.push_back(std::move(step));
+                child.before = parent_line;
+                child.last = std::move(step);
+                child.length = parent.length + 1;
                 if (!chain) child.sound *= holds(parent.field);
-                consider(child, chain, alive, fire_at, end_at, sent);
+                consider(child, chain, alive, fire_at, end_at, sent, cache);
                 continued = true;
                 if (depth == 0 && alive && !chain) {
-                    const auto& last = child.path.back();
+                    const auto& last = child.last;
                     root_build_preserves_target |= last.extension.chain >= target && last.all_cases_preserve();
                 }
                 // The line goes on to the next visible piece across a drop as well:
@@ -680,6 +799,7 @@ json seed_search(Field field, const json& request) {
             if (layer.size() >= size_t(width)) break;
         }
     }
+    out.cache_hits = cache.hits; out.cache_misses = cache.misses;
     return out;
     };
     std::vector<Run> runs(lines.size());
@@ -696,11 +816,16 @@ json seed_search(Field field, const json& request) {
     }
     const Run& first = runs[0];
     const auto& kind_rank = first.kind_rank;
-    const auto& kind_path = first.kind_path;
+    std::vector<Step> kind_path[3];
+    for (int k = 0; k < 3; ++k) kind_path[k] = steps_of(first.kind_path[k]);
     const bool root_complete = first.root_complete, root_build_preserves_target = first.root_build_preserves_target;
     int expanded = 0; bool cutoff = false;
-    for (const auto& one : runs) { expanded += one.expanded; cutoff |= one.cutoff; }
-    std::vector<Step> best_path = first.best_path;
+    i64 cache_hits = 0, cache_misses = 0;
+    for (const auto& one : runs) {
+        expanded += one.expanded; cutoff |= one.cutoff;
+        cache_hits += one.cache_hits; cache_misses += one.cache_misses;
+    }
+    std::vector<Step> best_path = steps_of(first.best_path);
     json virtual_values = json::array();
     i64 expected = 0;
     bool truncated = false;
@@ -723,7 +848,7 @@ json seed_search(Field field, const json& request) {
             if (chosen_root < 0 || key > chosen) { chosen = key; chosen_root = r; }
         }
         if (chosen_root >= 0) {
-            best_path = first.roots.at(chosen_root).second;
+            best_path = steps_of(first.roots.at(chosen_root).second);
             for (const auto& one : runs) virtual_values.push_back(std::get<1>(one.roots.at(chosen_root).first));
             expected = std::get<1>(chosen) / i64(runs.size());
         }
@@ -763,6 +888,7 @@ json seed_search(Field field, const json& request) {
     }
     return {{"choice", line[0]}, {"path", line}, {"solved", solved}, {"alternatives", alternatives},
         {"target_chain", target}, {"expanded", expanded}, {"cutoff", cutoff},
+        {"waiting_boards", {{"evaluated", cache_misses}, {"reused", cache_hits}}},
         {"requires_new_seed_after_clear", best_path.back().chain > 0},
         {"new_seed_spawn_possible", last.chain > 0 && (count_chain ? last.end_at < remaining+safety : last.fire_at < remaining)},
         {"requires_reobservation_after_drop", best_path.back().dropped > 0},
