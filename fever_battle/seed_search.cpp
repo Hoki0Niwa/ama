@@ -7,7 +7,11 @@
 #include "rate_schedule.h"
 #include "transition.h"
 #include "nuisance.h"
+#include "../core/fever_queue.h"
 #include <chrono>
+#include <exception>
+#include <map>
+#include <thread>
 #include <cmath>
 #include <limits>
 #include <bit>
@@ -81,6 +85,7 @@ struct SeedNode {
     std::vector<Step> path;
     int value = 0;      // of the line so far: which nodes go on to the next piece
     Rank rank;          // of the line if it ended here
+    int root = -1;      // the line's first placement, by its index among the root's moves
     double sound = 1;   // odds that the placements that popped nothing left the seed as planned
 };
 // Geometric evaluation only: these single-color additions are not future
@@ -126,7 +131,8 @@ std::vector<i64> points_for(avec<Field, 19>& masks, const std::vector<int>& powe
 
 json seed_search(Field field, const json& request) {
     const int width = number(request, "width", 1, 1000);
-    const int max_nodes = number(request, "max_nodes", 1, 100000);
+    // 0: no node limit, as the normal builder's beam (its width and depth bound the search).
+    const int max_nodes = number(request, "max_nodes", 0, 100000000);
     // Steam build 15209927's internal Fever timer caps at 1860 frames.
     // The Python protocol validates the caller's explicit clock domain.
     const int remaining = number(request, "remaining_frames", 0, 1860);
@@ -174,6 +180,26 @@ json seed_search(Field field, const json& request) {
         if (!p) throw std::invalid_argument("invalid piece");
         pieces.push_back(*p);
     }
+    // Deeper than the visible pieces, the search reads the same virtual queues as the normal
+    // builder (fever::search_multi): the character's cycle gives the shapes, VIRTUAL_COUNT fixed
+    // colour bags the colours. Every root placement is ranked by its lines over all of them;
+    // what is returned is a visible plan only. Without beam_depth only the visible pieces are read.
+    const size_t visible = pieces.size();
+    const int depth_limit = request.contains("beam_depth") ? number(request, "beam_depth", int(visible), 64) : int(visible);
+    const bool deep = depth_limit > int(visible);
+    std::vector<std::vector<piece::Piece>> lines;
+    if (deep) {
+        const auto* character = dropset::find(request.at("character").get<std::string>());
+        if (!character) throw std::invalid_argument("unknown character");
+        const u64 index = u64(number(request, "dropset_index", 0, 1000000000));
+        for (i32 v = 0; v < fever::VIRTUAL_COUNT; ++v) {
+            auto tail = fever::create_queue_virtual(*character, v, usize(depth_limit) - visible, index + visible);
+            if (!tail) throw std::invalid_argument("unknown cycle: no virtual pieces");
+            auto line = pieces;
+            line.insert(line.end(), tail->begin(), tail->end());
+            lines.push_back(std::move(line));
+        }
+    } else lines.push_back(pieces);
     auto rules = rule::FEVER; rules.plain_pairs = true; rules.special_moves = true;
     if (field.is_dead(rules)) throw std::invalid_argument("already dead field");
     SeedNode root; root.field = field;
@@ -207,14 +233,6 @@ json seed_search(Field field, const json& request) {
     auto enemy_baseline = root;
     advance(enemy_baseline, std::numeric_limits<int>::max());
     const i64 enemy_seed_baseline = enemy_baseline.enemy.seed();
-    const auto start = std::chrono::steady_clock::now();
-    std::vector<SeedNode> layer{root};
-    std::vector<Step> best_path;
-    Rank best_rank{-1, 0, 0, 0, 0, 0};
-    int expanded = 0; bool cutoff = false;
-    Rank kind_rank[3];
-    std::vector<Step> kind_path[3];
-    bool root_complete = false, root_build_preserves_target = false;
     // One measure for every line, the points expected by
     // the end of this Fever. A fire is worth its own points and what the
     // seeds after it can still score on the clock it leaves; a line that pops
@@ -457,6 +475,23 @@ json seed_search(Field field, const json& request) {
     // end. A placement that pops nothing and is followed by a visible piece is
     // worth its best continuation, not the puyos it could wait for: the pieces
     // that follow are known.
+    // One search over one queue: the visible pieces, or them and one virtual queue.
+    struct Run {
+        std::vector<Step> best_path;
+        Rank best_rank{-1, 0, 0, 0, 0, 0};
+        int expanded = 0; bool cutoff = false;
+        Rank kind_rank[3];
+        std::vector<Step> kind_path[3];
+        bool root_complete = false, root_build_preserves_target = false;
+        std::map<int, std::pair<Rank, std::vector<Step>>> roots;    // the best line of each root placement
+    };
+    const auto run = [&](const std::vector<piece::Piece>& pieces) {
+    Run out;
+    auto& best_path = out.best_path; auto& best_rank = out.best_rank;
+    auto& expanded = out.expanded; auto& cutoff = out.cutoff;
+    auto& kind_rank = out.kind_rank; auto& kind_path = out.kind_path;
+    auto& root_complete = out.root_complete; auto& root_build_preserves_target = out.root_build_preserves_target;
+    std::vector<SeedNode> layer{root};
     const auto offer = [&](const SeedNode& node) {
         if (node.rank > best_rank) { best_rank = node.rank; best_path = node.path; }
         const int chain = node.path.back().chain;
@@ -464,6 +499,9 @@ json seed_search(Field field, const json& request) {
         if (kind_path[kind].empty() || node.rank > kind_rank[kind]) {
             kind_rank[kind] = node.rank; kind_path[kind] = node.path;
         }
+        auto found = out.roots.find(node.root);
+        if (found == out.roots.end()) out.roots.emplace(node.root, std::make_pair(node.rank, node.path));
+        else if (node.rank > found->second.first) found->second = {node.rank, node.path};
     };
     for (size_t depth = 0; depth < pieces.size() && !layer.empty() && !cutoff; ++depth) {
         std::vector<SeedNode> next;
@@ -482,11 +520,12 @@ json seed_search(Field field, const json& request) {
                 // Always establish an executable root fallback before honoring
                 // node cutoffs. Node termination returns a complete JSON.
                 if ((!best_path.empty() || depth > 0 || !next.empty()) &&
-                    expanded >= max_nodes) {
+                    max_nodes && expanded >= max_nodes) {
                     cutoff = true; break;
                 }
                 ++expanded;
                 SeedNode child = parent;
+                if (depth == 0) child.root = i;
                 auto splits = split_distances(child.field, pieces[depth], moves[i].x, moves[i].r);
                 int split = *std::max_element(splits.begin(), splits.end());
                 advance(child, child.frame + placement + split_costs[split].get<int>());
@@ -641,6 +680,55 @@ json seed_search(Field field, const json& request) {
             if (layer.size() >= size_t(width)) break;
         }
     }
+    return out;
+    };
+    std::vector<Run> runs(lines.size());
+    if (runs.size() == 1) runs[0] = run(lines[0]);
+    else {
+        std::vector<std::exception_ptr> errors(runs.size());
+        std::vector<std::thread> threads;
+        for (size_t v = 0; v < runs.size(); ++v)
+            threads.emplace_back([&, v] {
+                try { runs[v] = run(lines[v]); } catch (...) { errors[v] = std::current_exception(); }
+            });
+        for (auto& t : threads) t.join();
+        for (const auto& e : errors) if (e) std::rethrow_exception(e);
+    }
+    const Run& first = runs[0];
+    const auto& kind_rank = first.kind_rank;
+    const auto& kind_path = first.kind_path;
+    const bool root_complete = first.root_complete, root_build_preserves_target = first.root_build_preserves_target;
+    int expanded = 0; bool cutoff = false;
+    for (const auto& one : runs) { expanded += one.expanded; cutoff |= one.cutoff; }
+    std::vector<Step> best_path = first.best_path;
+    json virtual_values = json::array();
+    i64 expected = 0;
+    bool truncated = false;
+    if (deep) {
+        // A root placement is ranked by its worst tier over the queues, then by its points summed
+        // over them (as search_multi sums each candidate's chain score). Its line is the first queue's.
+        std::tuple<int, i64, int> chosen{-1, 0, 0};
+        int chosen_root = -1;
+        for (const auto& [r, entry] : first.roots) {
+            int tier = 3, clears = 0; i64 sum = 0; bool everywhere = true;
+            for (const auto& one : runs) {
+                const auto found = one.roots.find(r);
+                if (found == one.roots.end()) { everywhere = false; break; }
+                tier = std::min(tier, std::get<0>(found->second.first));
+                sum += std::get<1>(found->second.first);
+                clears += std::get<2>(found->second.first);
+            }
+            if (!everywhere) continue;
+            const auto key = std::make_tuple(tier, sum, clears);
+            if (chosen_root < 0 || key > chosen) { chosen = key; chosen_root = r; }
+        }
+        if (chosen_root >= 0) {
+            best_path = first.roots.at(chosen_root).second;
+            for (const auto& one : runs) virtual_values.push_back(std::get<1>(one.roots.at(chosen_root).first));
+            expected = std::get<1>(chosen) / i64(runs.size());
+        }
+        if (best_path.size() > visible) { best_path.resize(visible); truncated = true; }
+    }
     if (best_path.empty()) throw std::invalid_argument("no conservative legal placement");
     // The line ranked first stands: nothing is swapped in after the search.
     const auto& last = best_path.back();
@@ -662,6 +750,7 @@ json seed_search(Field field, const json& request) {
         if (!step.field_known && &step != &best_path.back()) { guessed = true; break; }
     }
     if (guessed) line.back()["expected_points"] = best_path.back().worth;
+    if (deep) line.back()["expected_points"] = expected;
     // The best line of each kind, to read why the chosen one was ranked first.
     json alternatives = json::object();
     const char* kinds[3] = {"regular_fire", "short_fire", "no_pop"};
@@ -677,7 +766,9 @@ json seed_search(Field field, const json& request) {
         {"requires_new_seed_after_clear", best_path.back().chain > 0},
         {"new_seed_spawn_possible", last.chain > 0 && (count_chain ? last.end_at < remaining+safety : last.fire_at < remaining)},
         {"requires_reobservation_after_drop", best_path.back().dropped > 0},
-        {"searched_visible", queue.size()}, {"press", press}, {"pending_arrival_status", events.empty() ? "unconfirmed_not_scheduled" : "observed_enemy_chain_timeline"},
+        {"searched_visible", queue.size()}, {"beam_depth", depth_limit},
+        {"virtual_count", deep ? lines.size() : 0}, {"virtual_values", virtual_values},
+        {"virtual_line_truncated", truncated}, {"press", press}, {"pending_arrival_status", events.empty() ? "unconfirmed_not_scheduled" : "observed_enemy_chain_timeline"},
         {"strategy", "value"},
         {"seed_color_needs", color_needs(field).describe(pieces, 0)},
         {"intentional_seed_failure", intentional_failure},

@@ -1,4 +1,4 @@
-"""Bounded observed-seed search using only current piece and NEXT2."""
+"""Observed-seed search: the current piece and NEXT2, and with `depth` the normal builder's virtual queues."""
 
 from .model import drop_garbage, integer
 
@@ -23,13 +23,14 @@ class SeedSolver:
 
     def validate_options(options):
 
-        allowed = {'width', 'max_nodes', 'budget_ms', 'safety_frames', 'placement_frames'}
+        allowed = {'width', 'depth', 'max_nodes', 'budget_ms', 'safety_frames', 'placement_frames'}
 
         if not isinstance(options, dict) or set(options) - allowed:
 
             raise ValueError('unknown seed solver option')
 
-        bounds = dict(width=(1,1000), max_nodes=(1,100000), budget_ms=(1,1000),
+        # max_nodes 0: no node limit (the width and depth bound the search, as the normal builder's beam)
+        bounds = dict(width=(1,1000), depth=(1,64), max_nodes=(0,100000000), budget_ms=(1,1000),
 
                       safety_frames=(0,600), placement_frames=(1,10000))
 
@@ -56,6 +57,8 @@ class SeedSolver:
         self.validate_options(options)
 
         budget = integer(options.get('budget_ms', 50), 'seed budget_ms', 1, 1000)
+        depth = options.get('depth')
+        deep = None if depth is None or depth <= len(side['queue']) else integer(depth, 'seed depth', 1, 64)
 
         timing = ChainTiming.for_mode('fever', placement_frames=integer(options.get('placement_frames', 14),
 
@@ -91,7 +94,10 @@ class SeedSolver:
 
             width=integer(options.get('width', 64), 'seed width', 1, 1000),
 
-            max_nodes=integer(options.get('max_nodes', 8000), 'seed max_nodes', 1, 100000),
+            max_nodes=integer(options.get('max_nodes', 8000), 'seed max_nodes', 0, 100000000),
+            # Deeper than the visible pieces: the virtual queues of the character's cycle (seed_search.cpp)
+            **({} if deep is None else dict(beam_depth=deep, character=side['character'],
+                                             dropset_index=side['dropset_index'])),
 
             budget_ms=budget, safety_frames=integer(options.get('safety_frames', 8), 'safety_frames', 0, 600),
 
@@ -105,7 +111,7 @@ class SeedSolver:
 
                 quiet_carry_limit=integer(quiet_carry_limit, 'quiet_carry_limit', 0, 10**9)))),
 
-            timeout=max(2, budget / 1000 + 1))
+            timeout=max(2, budget / 1000 + 1) if deep is None and options.get('max_nodes', 8000) else 120)
 
         result['press_reason'] = press or None
         result['timing_status'] = timing.effective_status
