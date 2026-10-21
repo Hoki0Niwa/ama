@@ -59,6 +59,18 @@ class SeedDepthTests(unittest.TestCase):
         result = self.native.ask(seed_request(max_nodes=0, width=1000))
         self.assertFalse(result['cutoff'])
 
+    def test_a_cold_decision_narrows_the_seed_search_as_the_build(self):
+        engine = ModeBattleEngine(NATIVE, SOLO, ROOT/'config.json')
+        try:
+            message = dict(seed_options=dict(width=250, depth=16, max_nodes=0))
+            engine.cold_spawn = True
+            self.assertEqual(engine._seed_options(message, None, None)[0], dict(width=50, depth=16, max_nodes=0))
+            engine.cold_spawn = False
+            self.assertEqual(engine._seed_options(message, None, None)[0], dict(width=250, depth=16, max_nodes=0))
+            self.assertEqual(message['seed_options']['width'], 250)    # the request is not changed
+        finally:
+            engine.close()
+
     def test_the_engine_passes_depth_from_seed_options(self):
         SeedSolver.validate_options(dict(width=50, depth=8, max_nodes=0))
         with self.assertRaises(ValueError):

@@ -838,8 +838,13 @@ class ModeBattleEngine(BattleEngine):
     def _seed_options(self, request, own, enemy):
         options = request.get('seed_options', {})
         self.seed_solver.validate_options(options)
+        options = dict(options)
+        # A cold decision (no prepared answer for the piece) narrows the seed search as it narrows the
+        # normal build: width 50 at most, the same depth.
+        if getattr(self, 'cold_spawn', False) and options.get('width', 64) > 50:
+            options['width'] = 50
         # One measure ranks every line (seed_search.cpp); there is no strategy to choose.
-        return dict(options), 'expected_points_by_the_end_of_this_fever'
+        return options, 'expected_points_by_the_end_of_this_fever'
 
     def _tactical_decision(self, request, own, enemy, rate, build=None, allowed=None):
         """The single search's reply to a threat on the normal board, or None to leave it to the rest."""
