@@ -80,13 +80,16 @@ struct Step {
     }
 };
 using Rank = std::tuple<int, i64, int, int, int, i64>;
-// The placements of a line before its last one, shared by every line that goes on from them:
-// a node copies one placement, not its whole line.
+// The placements of a line, the last one first, shared by every line that goes on from them:
+// a node holds its state and this, as the normal builder's nodes hold their board and scores.
 struct Link {
     Step step;
     std::shared_ptr<const Link> before;
 };
 using Line = std::shared_ptr<const Link>;
+Line extend(const Line& line, Step step) {
+    return std::make_shared<const Link>(Link{std::move(step), line});
+}
 struct SeedNode {
     Field field;
     int frame = 0, confirmed = 0, flying = 0, held_fixed = 0, held_flying = 0, phase = 0;
@@ -94,17 +97,13 @@ struct SeedNode {
     EnemyTrays enemy;
     i64 enemy_remainder = 0;
     size_t event_index = 0;
-    Line before;        // the placements before the last one
-    Step last;          // the last placement (none at the root)
+    Line line;          // its placements (none at the root)
     int length = 0;     // placements in the line
     int value = 0;      // of the line so far: which nodes go on to the next piece
     Rank rank;          // of the line if it ended here
     int root = -1;      // the line's first placement, by its index among the root's moves
     double sound = 1;   // odds that the placements that popped nothing left the seed as planned
 };
-Line line_of(const SeedNode& node) {
-    return std::make_shared<const Link>(Link{node.last, node.before});
-}
 std::vector<Step> steps_of(Line line) {
     std::vector<Step> steps;
     for (; line; line = line->before) steps.push_back(line->step);
@@ -450,9 +449,8 @@ json seed_search(Field field, const json& request) {
         }
         return w;
     };
-    const auto consider = [&](SeedNode& node, int chain, bool alive, int fire_at, int end_at, i64 sent,
+    const auto consider = [&](SeedNode& node, Step& last, int chain, bool alive, int fire_at, int end_at, i64 sent,
                               WaitCache& cache) {
-        auto& last = node.last;
         const bool in_time = (chain ? fire_at : end_at) + safety < remaining;
         const int tier = alive && in_time ? 3 : alive ? 2 : 1;
         const int reward_clear = chain && node.field.is_empty() && in_time ? 1 : 0;
@@ -586,6 +584,39 @@ json seed_search(Field field, const json& request) {
     // end. A placement that pops nothing and is followed by a visible piece is
     // worth its best continuation, not the puyos it could wait for: the pieces
     // that follow are known.
+    // What every child reads, out of the request once.
+    int split_frames[14];
+    for (int k = 0; k < 14; ++k) split_frames[k] = split_costs[k].get<int>();
+    const int nuisance_check = timing.value("nuisance_check_frames", 0);
+    const int nuisance_ready = timing.value("nuisance_ready_frames", 0);
+    // The state that tells the nodes of a layer apart (transition.h state_key, as fixed data: the whole
+    // Field and the same numbers).
+    struct StateKey {
+        std::array<char, sizeof(Field)> field;
+        std::array<i64, 14> numbers;
+        bool operator==(const StateKey& other) const {
+            return field == other.field && numbers == other.numbers;
+        }
+    };
+    struct StateHash {
+        size_t operator()(const StateKey& key) const {
+            u64 h = 0x9E3779B97F4A7C15ull;
+            const auto mix = [&](u64 word) { h ^= word; h *= 0xBF58476D1CE4E5B9ull; h ^= h >> 31; };
+            for (size_t k = 0; k + 8 <= key.field.size(); k += 8) {
+                u64 word; std::memcpy(&word, key.field.data() + k, 8); mix(word);
+            }
+            for (const auto number : key.numbers) mix(u64(number));
+            return size_t(h);
+        }
+    };
+    const auto state_of = [](const SeedNode& n) {
+        StateKey key;
+        std::memcpy(key.field.data(), &n.field, sizeof(Field));
+        key.numbers = {i64(n.frame), i64(n.confirmed), i64(n.flying), i64(n.held_fixed), i64(n.held_flying),
+            i64(n.remainder), i64(n.phase), i64(n.event_index), i64(n.enemy.normal_fixed), i64(n.enemy.normal_flying),
+            i64(n.enemy.fever_fixed), i64(n.enemy.fever_flying), i64(n.enemy.fever), i64(n.enemy_remainder)};
+        return key;
+    };
     // One search over one queue: the visible pieces, or them and one virtual queue.
     struct Run {
         Line best_path;
@@ -605,11 +636,12 @@ json seed_search(Field field, const json& request) {
     auto& root_complete = out.root_complete; auto& root_build_preserves_target = out.root_build_preserves_target;
     std::vector<SeedNode> layer{root};
     WaitCache cache;
-    const auto offer = [&](const SeedNode& node) {
-        Line line;
-        const auto line_once = [&] { if (!line) line = line_of(node); return line; };
+    // A line that ends: a layer node (last null: its line is complete), or a child with its last placement.
+    const auto offer = [&](const SeedNode& node, const Step* last) {
+        Line line = last ? Line() : node.line;
+        const auto line_once = [&] { if (!line) line = extend(node.line, *last); return line; };
         if (node.rank > best_rank) { best_rank = node.rank; best_path = line_once(); }
-        const int chain = node.last.chain;
+        const int chain = last ? last->chain : node.line->step.chain;
         const int kind = !chain ? 2 : chain >= target ? 0 : 1;
         if (!kind_path[kind] || node.rank > kind_rank[kind]) {
             kind_rank[kind] = node.rank; kind_path[kind] = line_once();
@@ -619,12 +651,12 @@ json seed_search(Field field, const json& request) {
         else if (node.rank > found->second.first) found->second = {node.rank, line_once()};
     };
     for (size_t depth = 0; depth < pieces.size() && !layer.empty() && !cutoff; ++depth) {
-        std::vector<SeedNode> next;
+        // The children that go on, each with the record of its placement until the layer is chosen.
+        struct Child { SeedNode node; Step step; };
+        std::vector<Child> next;
         size_t done = 0;        // parents whose every placement was tried
         for (auto& parent : layer) {
             bool continued = false;
-            // The placements up to the parent's, shared by all its children.
-            const Line parent_line = parent.length ? line_of(parent) : Line();
             auto moves = move::generate(parent.field, pieces[depth], rules);
             for (int i = 0; i < moves.get_size(); ++i) {
                 if (depth == 0 && request.contains("allowed")) {
@@ -645,7 +677,7 @@ json seed_search(Field field, const json& request) {
                 if (depth == 0) child.root = i;
                 auto splits = split_distances(child.field, pieces[depth], moves[i].x, moves[i].r);
                 int split = *std::max_element(splits.begin(), splits.end());
-                advance(child, child.frame + placement + split_costs[split].get<int>());
+                advance(child, child.frame + placement + split_frames[split]);
                 if (!child.field.drop_piece(moves[i].x, moves[i].r, pieces[depth], rules)) continue;
                 auto locked = child.field;
                 auto masks = child.field.pop();
@@ -677,7 +709,7 @@ json seed_search(Field field, const json& request) {
                 std::vector<Field> drop_boards;
                 auto observed_result = child.field;
                 if (!chain) {
-                    advance(child, child.frame + timing.value("nuisance_check_frames", 0));
+                    advance(child, child.frame + nuisance_check);
                     dropped = std::min(30, child.confirmed); child.confirmed -= dropped;
                     if (unknown_phase && dropped % 6) {
                         // Every remainder subset must preserve both survival
@@ -754,48 +786,49 @@ json seed_search(Field field, const json& request) {
                 step.enemy_trays = their_trays;
                 step.carry = i64(child.held_fixed) + child.held_flying + ahead_fixed + ahead_flying +
                     (dropped && end_at + safety >= remaining ? dropped : 0);
-                child.before = parent_line;
-                child.last = std::move(step);
                 child.length = parent.length + 1;
                 if (!chain) child.sound *= holds(parent.field);
-                consider(child, chain, alive, fire_at, end_at, sent, cache);
+                consider(child, step, chain, alive, fire_at, end_at, sent, cache);
                 continued = true;
-                if (depth == 0 && alive && !chain) {
-                    const auto& last = child.last;
-                    root_build_preserves_target |= last.extension.chain >= target && last.all_cases_preserve();
-                }
+                if (depth == 0 && alive && !chain)
+                    root_build_preserves_target |= step.extension.chain >= target && step.all_cases_preserve();
                 // The line goes on to the next visible piece across a drop as well:
                 // what the pieces in sight then do is read, not estimated. On
                 // unknown columns it is read on the worst board they can leave
                 // (chosen above). That board weighs the line and is never
                 // returned: the caller places one piece and observes the drop.
-                const int ready = dropped ? timing.value("nuisance_ready_frames", 0)
-                    : std::max(0, spawn-timing.value("nuisance_check_frames", 0));
+                const int ready = dropped ? nuisance_ready : std::max(0, spawn - nuisance_check);
                 if (depth + 1 < pieces.size() && alive && !chain &&
                     end_at + ready + safety < remaining) {
                     advance(child, end_at + ready);
-                    next.push_back(std::move(child));
-                } else offer(child);
+                    next.push_back({std::move(child), std::move(step)});
+                } else offer(child, &step);
             }
             if (cutoff) break;
-            if (depth > 0 && !continued) offer(parent);     // no placement of the next piece: it ends here
+            if (depth > 0 && !continued) offer(parent, nullptr);     // no placement of the next piece: it ends here
             ++done;
         }
         if (cutoff) {
             // The search stops here: what was not followed is ranked as it stands.
-            for (size_t i = done; depth > 0 && i < layer.size(); ++i) offer(layer[i]);
-            for (const auto& node : next) offer(node);
+            for (size_t i = done; depth > 0 && i < layer.size(); ++i) offer(layer[i], nullptr);
+            for (const auto& one : next) offer(one.node, &one.step);
         }
         if (depth == 0 && !cutoff) root_complete = true;
-        // Preserve distinct boards and garbage state at each visible position.
-        std::stable_sort(next.begin(), next.end(), [&](const SeedNode& a, const SeedNode& b) {
-            return std::make_tuple(a.value, -a.frame) > std::make_tuple(b.value, -b.frame);
+        // Preserve distinct boards and garbage state at each visible position: the children in order of
+        // value, then the earlier, then as they came (sorted by index), the first of each state kept.
+        std::vector<int> order(next.size());
+        for (size_t k = 0; k < order.size(); ++k) order[k] = int(k);
+        std::stable_sort(order.begin(), order.end(), [&](int a, int b) {
+            return std::make_tuple(next[a].node.value, -next[a].node.frame) >
+                std::make_tuple(next[b].node.value, -next[b].node.frame);
         });
-        std::unordered_set<std::string> seen; layer.clear();
-        for (auto& n : next) {
-            auto key = state_key(n.field, n.frame, n.confirmed, n.flying, n.held_fixed, n.held_flying, n.remainder, n.phase,
-                n.event_index, n.enemy.normal_fixed, n.enemy.normal_flying, n.enemy.fever_fixed, n.enemy.fever_flying, n.enemy.fever, n.enemy_remainder);
-            if (seen.insert(key).second) layer.push_back(std::move(n));
+        std::unordered_set<StateKey, StateHash> seen; layer.clear();
+        for (const int k : order) {
+            auto& n = next[k].node;
+            if (seen.insert(state_of(n)).second) {
+                n.line = extend(n.line, std::move(next[k].step));
+                layer.push_back(std::move(n));
+            }
             if (layer.size() >= size_t(width)) break;
         }
     }
