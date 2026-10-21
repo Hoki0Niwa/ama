@@ -1,0 +1,1458 @@
+{
+  "source_commit": "3cdcdcee397bc7ee5b4e971258b8499ca64590f0",
+  "cases": [
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....R",
+            ".....B",
+            ".....B",
+            "G..BRR",
+            "G.YYBB",
+            "G.YBRR"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:GY",
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        }
+      },
+      "expected": {
+        "action": "place",
+        "x": 5,
+        "r": "U",
+        "color": null,
+        "reason": "normal_build_or_fire",
+        "fire": false,
+        "chain": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....Y",
+          ".....G",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "G..BRR",
+          "G.YYBB",
+          "G.YBRR"
+        ],
+        "link_points": []
+      }
+    },
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....R",
+            ".....B",
+            ".....B",
+            "G..BRR",
+            "G.YYBB",
+            "G.YBRR"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:GY",
+            "2:RY"
+          ],
+          "confirmed": 18,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 18,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        }
+      },
+      "expected": {
+        "action": "place",
+        "x": 5,
+        "r": "U",
+        "color": null,
+        "reason": "tactics_take_drop",
+        "fire": false,
+        "chain": 0,
+        "next_field": [
+          "......",
+          "......",
+          ".....#",
+          ".....#",
+          ".....#",
+          ".....Y",
+          ".....G",
+          ".....R",
+          "#..##R",
+          "#.###B",
+          "#.###B",
+          "G##BRR",
+          "G#YYBB",
+          "G#YBRR"
+        ],
+        "link_points": []
+      }
+    },
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....R",
+            ".....B",
+            ".....B",
+            "G..BRR",
+            "G.YYBB",
+            "G.YBRR"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:GY",
+            "2:RY"
+          ],
+          "confirmed": 200,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 200,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        }
+      },
+      "expected": {
+        "action": "place",
+        "x": 0,
+        "r": "U",
+        "color": null,
+        "reason": "tactics_offset",
+        "fire": true,
+        "chain": 1,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "Y.YBRR"
+        ],
+        "link_points": [
+          40
+        ]
+      }
+    },
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....R",
+            ".....B",
+            ".....B",
+            "G..BRR",
+            "G.YYBB",
+            "G.YBRR"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:GY",
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 2,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        }
+      },
+      "expected": {
+        "action": "place",
+        "x": 5,
+        "r": "U",
+        "color": null,
+        "reason": "normal_build_or_fire",
+        "fire": false,
+        "chain": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....Y",
+          ".....G",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "G..BRR",
+          "G.YYBB",
+          "G.YBRR"
+        ],
+        "link_points": []
+      }
+    },
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....R",
+            ".....B",
+            ".....B",
+            "G..BRR",
+            "G.YYBB",
+            "G.YBRR"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:GY",
+            "2:RY"
+          ],
+          "confirmed": 18,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 2,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 18,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        }
+      },
+      "expected": {
+        "action": "place",
+        "x": 5,
+        "r": "U",
+        "color": null,
+        "reason": "tactics_take_drop",
+        "fire": false,
+        "chain": 0,
+        "next_field": [
+          "......",
+          "......",
+          ".....#",
+          ".....#",
+          ".....#",
+          ".....Y",
+          ".....G",
+          ".....R",
+          "#..##R",
+          "#.###B",
+          "#.###B",
+          "G##BRR",
+          "G#YYBB",
+          "G#YBRR"
+        ],
+        "link_points": []
+      }
+    },
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....R",
+            ".....B",
+            ".....B",
+            "G..BRR",
+            "G.YYBB",
+            "G.YBRR"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:GY",
+            "2:RY"
+          ],
+          "confirmed": 200,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 2,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 200,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 6,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        }
+      },
+      "expected": {
+        "action": "place",
+        "x": 0,
+        "r": "U",
+        "color": null,
+        "reason": "tactics_offset",
+        "fire": true,
+        "chain": 1,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "Y.YBRR"
+        ],
+        "link_points": [
+          40
+        ]
+      }
+    },
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....R",
+            ".....B",
+            ".....B",
+            "...BRR",
+            "..YYBB",
+            "..YBRR"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY",
+            "2:GG"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....R",
+            ".....B",
+            ".....B",
+            "...BRR",
+            "..YYBB",
+            "..YBRR"
+          ],
+          "mode": "fever",
+          "gauge": 7,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 1,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 900,
+          "clock_running": true,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        }
+      },
+      "expected": {
+        "action": "place",
+        "x": 4,
+        "r": "L",
+        "color": null,
+        "reason": "normal_build_or_fire",
+        "fire": false,
+        "chain": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          "...YRB",
+          "...BRR",
+          "..YYBB",
+          "..YBRR"
+        ],
+        "link_points": []
+      }
+    },
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....R",
+            ".....B",
+            ".....B",
+            "...BRR",
+            "..YYBB",
+            "..YBRR"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY",
+            "2:GG"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        }
+      },
+      "expected": {
+        "action": "place",
+        "x": 4,
+        "r": "L",
+        "color": null,
+        "reason": "normal_build_or_fire",
+        "fire": false,
+        "chain": 0,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....R",
+          ".....B",
+          "...YRB",
+          "...BRR",
+          "..YYBB",
+          "..YBRR"
+        ],
+        "link_points": []
+      }
+    },
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "RGBYRG",
+            "RGBYRG",
+            "RGBYRG",
+            "RGBYRG"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY",
+            "2:GG"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        }
+      },
+      "expected": {
+        "action": "place",
+        "x": 4,
+        "r": "L",
+        "color": null,
+        "reason": "normal_build_or_fire",
+        "fire": true,
+        "chain": 1,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......"
+        ],
+        "link_points": [
+          2600
+        ]
+      }
+    },
+    {
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "mode-test",
+        "frame": 0,
+        "observation": {
+          "frame_before": 0,
+          "frame_after": 0,
+          "match_status": "running"
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true
+        },
+        "self": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "RGBYRG",
+            "RGBYRG",
+            "RGBYRG",
+            "RGBYRG",
+            "RGBYRG",
+            "RGBYRG",
+            "RGBYRG",
+            "RGBYRG"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY",
+            "2:GG"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "enemy": {
+          "character": "raffina",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......"
+          ],
+          "mode": "normal",
+          "gauge": 0,
+          "observed_frame": 0,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "dropset_index": 0,
+          "piece_id": 0,
+          "queue": [
+            "2:RY"
+          ],
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 0,
+          "garbage_phase": 0,
+          "mode_generation": 0,
+          "seed_id": 1,
+          "prepared_frames": 900,
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 3,
+          "seed_chain": 3,
+          "stored_field": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0
+        },
+        "seed_options": {
+          "budget_ms": 500,
+          "max_nodes": 20000
+        },
+        "solo_options": {
+          "beam_width": 10,
+          "beam_depth": 3
+        }
+      },
+      "expected": {
+        "action": "place",
+        "x": 4,
+        "r": "L",
+        "color": null,
+        "reason": "normal_build_or_fire",
+        "fire": true,
+        "chain": 1,
+        "next_field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......"
+        ],
+        "link_points": [
+          17000
+        ]
+      }
+    }
+  ]
+}

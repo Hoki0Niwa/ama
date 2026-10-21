@@ -958,7 +958,8 @@ class ModeBattleEngine(BattleEngine):
             e['type'] == 'link' and e.get('points', 0) > 0 for e in events)
         # Offsets earn no gauge: the nuisance search of the gauge-free battle answers.
         # Without a threat only a recovery (allowed) has anything to decide here.
-        if request['gauge_gain_on_offset'] <= 0:
+        new_attack = policy['pressure']['enabled'] or policy['finish']['enabled']
+        if request['gauge_gain_on_offset'] <= 0 and not new_attack:
             return tactics.Decision('build' if not threat and allowed is None else 'unavailable')
         if own['gauge'] >= self.mode_rules['gauge_max']:
             return tactics.Decision('unavailable')
@@ -992,7 +993,7 @@ class ModeBattleEngine(BattleEngine):
                     builder = built
             except ValueError:
                 builder = None      # nothing the builder plays survives; the search decides alone
-        harass = tactical_options.harass_enabled(policy, own, enemy, quiet, second, finish, fever)
+        harass = not new_attack and tactical_options.harass_enabled(policy, own, enemy, quiet, second, finish, fever)
         # Shapes of the pieces after the visible ones: the character's cycle is known, the colors are not.
         after = own['dropset_index'] + len(own['queue'])
         upcoming = ''.join(self.patterns[own['character']][(after + i) % 16] for i in range(16))

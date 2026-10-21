@@ -1,4 +1,6 @@
 #include "tactics.h"
+#include "normal_pressure.h"
+#include <memory>
 #include "counter_order.h"
 #include "normal_defense.h"
 #include "transition.h"
@@ -63,6 +65,9 @@ struct Node {
     double offense_limit = std::numeric_limits<double>::infinity();
     bool offense_timed = false;
     std::string offense_kind = "none";
+    int attack_chain = 0, attack_redundancy = 0;
+    i64 attack_sent = 0, normal_limit = std::numeric_limits<i64>::max();
+    nlohmann::json normal_first = nlohmann::json::object();
 };
 // What one placement did, for the reply. Boards on unknown columns are kept
 // only to be weighed; none of them becomes the next board.
@@ -76,7 +81,7 @@ struct Step {
     Field cleared;                  // after the chain, before any drop
     std::vector<Field> boards;      // every board an unknown drop can leave
 };
-struct Outcome { bool alive = false; i64 value = 0; int gauge = 0; i64 sent = 0; double kills = 0; double disrupt = 0; bool cleared = false; std::string disruption_kind = "none"; bool useful_harass = false; NormalDefense defense; bool timed_pressure = false; i64 return_points = 0; int return_frame = 0; bool sufficient_return = false; };
+struct Outcome { bool alive = false; i64 value = 0; int gauge = 0; i64 sent = 0; double kills = 0; double disrupt = 0; bool cleared = false; std::string disruption_kind = "none"; bool useful_harass = false; NormalDefense defense; bool timed_pressure = false; i64 return_points = 0; int return_frame = 0; bool sufficient_return = false; nlohmann::json normal_attack = nlohmann::json::object(); };
 bool better(const Outcome& a, const Outcome& b, bool needs_return, bool avoid_entry = false, bool fatal = false) {
     if (a.alive != b.alive) return a.alive;
     if (fatal && a.defense.known_survival() != b.defense.known_survival()) return a.defense.known_survival();
@@ -147,6 +152,7 @@ public:
     i64 enemy_hold = 0;             // nuisance the opponent can still send with what they hold
     Defense defense;                // what they have against nuisance that lands (transition.h)
     GaugeResponse response;
+    std::unique_ptr<NormalPressure> normal_pressure;
     // The opponent is in Fever (or about to enter it). Nuisance confirmed for them there has to be met
     // with the next piece or it falls on the seed: a packet that is waiting when a new seed arrives
     // disrupts for sure, one that arrives while they build on a seed makes them fire early.
@@ -299,6 +305,9 @@ public:
                 n.return_frame = n.frame;
             }
             if (step.sent > 0) {
+                n.attack_chain = std::max(n.attack_chain, step.chain);
+                n.attack_redundancy = std::max(n.attack_redundancy, step.redundancy);
+                n.attack_sent += step.sent;
                 n.sent_end = n.frame;
                 if (enemy_fever && !disruption::timed(n.sent_end, their_end, window)) n.mistimed_attack = true;
             }
@@ -409,7 +418,19 @@ public:
         // now, even if one low seed can be beaten by a short main.
         const bool unready_main = enemy_fever && defense_state.fired_links > 0 && !n.builder_fire;
         const bool protected_main = (unready_main || (quiet && n.fired_main && !n.builder_fire)) && root_cells >= 24;
-        const double kills = 0.0; // Kill estimates are not an attack objective in Fever battles.
+        auto normal_attack = json::object();
+        if (quiet && !enemy_fever && normal_pressure->enabled()) {
+            normal_attack = normal_pressure->rate(field, n.attack_chain, n.attack_redundancy,
+                n.attack_sent, n.sent_end, invite_fever);
+            const auto score = std::min(n.normal_limit,normal_attack.value("score",i64(0)));
+            normal_attack["score"] = score;
+            if (score && !n.normal_first.empty()) {
+                for (const auto* key : {"kind","pressure","finish"}) normal_attack[key] = n.normal_first.at(key);
+            }
+            if (!score) normal_attack.update({{"kind","none"},{"pressure",false},{"finish",false}});
+            value += score;
+        }
+        const double kills = normal_attack.value("finish",false) ? 1.0 : 0.0;
         // A packet of this line's own, left on a Fever opponent after their chain.
         i64 reply_capacity=seed_reply; bool counter_unknown=false;
         if(extending && seed_defense.size()==31) {
@@ -465,7 +486,7 @@ public:
         const bool sufficient = incoming > 0 && n.return_nuisance >= incoming
             && defense_state.pending == 0 && defense_state.can_commit();
         if (entered) return {true, value + (avoid_own_fever ? -w->entry : enemy_fever ? i64(w->entry * pressure)
-            : (n.fired_main || n.builder_fire ? 0 : -w->entry)), n.gauge, sent_here, kills, disrupts, n.cleared && !protected_main, disruption.kind, useful_harass, defense_state, timed_pressure, n.return_points, n.return_frame, sufficient};
+            : (n.fired_main || n.builder_fire ? 0 : -w->entry)), n.gauge, sent_here, kills, disrupts, n.cleared && !protected_main, disruption.kind, useful_harass, defense_state, timed_pressure, n.return_points, n.return_frame, sufficient, normal_attack};
         u8 heights[6]; field.get_heights(heights);
         value += stock.units * w->stock + stock.colors * w->color
             - i64(std::max(0, int(std::max(heights[2], heights[3])) - 8)) * w->height
@@ -479,7 +500,7 @@ public:
             drops(field, pending, n.phase, [&](Field board) { stands = stands && !board.is_dead(rules); });
             if (!stands) value -= w->exposed * (4 - std::min(3, stock.colors));
         }
-        return {true, value, n.gauge, sent_here, kills, disrupts, n.cleared && !protected_main, disruption.kind, useful_harass, defense_state, timed_pressure, n.return_points, n.return_frame, sufficient};
+        return {true, value, n.gauge, sent_here, kills, disrupts, n.cleared && !protected_main, disruption.kind, useful_harass, defense_state, timed_pressure, n.return_points, n.return_frame, sufficient, normal_attack};
     }
     // The worst board an unknown drop can leave.
     Outcome leaf(const Node& n, const Step& step) const {
@@ -585,7 +606,7 @@ json tactics(Field field, const json& request) {
     const RateSchedule rates(request, rate);
     const Weights weights(request.at("weights"));
     search.rates = &rates; search.w = &weights;
-    search.gain = number(request, "gain", 1, 7);
+    search.gain = number(request, "gain", request.contains("normal_pressure") ? 0 : 1, 7);
     search.width = number(request, "width", 1, 64);
     search.max_nodes = number(request, "max_nodes", 1, 1000000);
     search.margin = request.contains("margin") ? number(request, "margin", 0, 6) : 1;
@@ -632,6 +653,8 @@ json tactics(Field field, const json& request) {
     search.split_costs = timing.value("split_extra_frames", json::array());
     if (!search.split_costs.empty() && (!search.split_costs.is_array() || search.split_costs.size() != 14))
         throw std::invalid_argument("split duration table must have 14 entries");
+
+    search.normal_pressure = std::make_unique<NormalPressure>(request, rates, search.bonuses);
 
     Node root; root.field = field;
     root.fixed = number(request, "confirmed", 0, 1000000000);
@@ -694,6 +717,8 @@ json tactics(Field field, const json& request) {
             first.node.offense_limit = first.here.disrupt;
             first.node.offense_timed = first.here.timed_pressure;
             first.node.offense_kind = first.here.disruption_kind;
+            first.node.normal_limit = first.here.normal_attack.value("score",i64(0));
+            first.node.normal_first = first.here.normal_attack;
         }
         firsts.push_back(std::move(first));
     }
@@ -867,6 +892,10 @@ json tactics(Field field, const json& request) {
             {"field", fever::text::from_field(shown)},
             {"confirmed", first.node.fixed}, {"unconfirmed", first.node.flying},
             {"remainder", first.node.remainder}, {"frame", first.node.frame}});
+        if (search.normal_pressure->enabled()) {
+            candidates.back()["normal_attack"] = first.here.normal_attack;
+            candidates.back()["projected_normal_attack"] = values[i].normal_attack;
+        }
     }
     bool held_main = false;
     const bool weak_builder = std::any_of(firsts.begin(), firsts.end(), [&](const First& f) {

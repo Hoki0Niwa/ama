@@ -60,6 +60,23 @@ def evaluate(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=
         budget_ms=policy.get('budget_ms', 100), margin=policy.get('margin', 1),
         main_trigger_points=policy.get('main_trigger_points',
             40 * sum(max(1, p) for p in scoring.data['characters'][own['character']]['normal'][:14])))
+    new_attack = policy.get('pressure', {}).get('enabled', False) or policy.get('finish', {}).get('enabled', False)
+    if new_attack:
+        # Replace the older invite/buried-opponent bonuses so they cannot bypass the new gates.
+        request.update(harass=False, finish_buried=False)
+        harass = False
+        request['normal_pressure'] = {k: policy[k] for k in ('pressure', 'finish', 'counter_read')}
+        rows = opponent['field']
+        request['normal_pressure_enemy'] = dict(
+            available=opponent.get('mode') == 'normal' and opponent.get('phase') == 'controllable'
+                and not enemy_events and not (fever and fever.get('enemy_fever')),
+            field=rows, queue=opponent['queue'],
+            powers=scoring.data['characters'][opponent['character']]['normal'],
+            gauge=opponent['gauge'], gain=gain, remainder=opponent['remainder'],
+            pending=opponent['confirmed'] + opponent['unconfirmed'],
+            experienced=opponent.get('mode_generation', 0) > 0,
+            seed_chain=opponent.get('seed_chain', 19),
+            third_height=sum(row[2] != '.' for row in rows))
     if allowed is not None:
         request['allowed'] = allowed
     if builder is not None:
@@ -79,10 +96,17 @@ def evaluate(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=
         whole = choice.get('attack_kind') == 'main'
         disrupt = choice['projected_sent'] > 0 and choice['projected_disrupt'] >= 0.5
         useful_harass = harass and choice.get('projected_harass', False)
-        if builder is not None and (choice['x'], choice['r']) == tuple(builder) and not disrupt:
+        attack = choice.get('projected_normal_attack', {})
+        pressure = attack.get('pressure', False)
+        finish = attack.get('finish', False)
+        if builder is not None and (choice['x'], choice['r']) == tuple(builder) and not (disrupt or pressure or finish):
             return Decision('build', forecast=result)
         if result.get('held_main_for_counter'):
             reason = 'tactics_hold_for_fever_counter'
+        elif finish:
+            reason = 'tactics_finish' if choice['chain'] else 'tactics_prepare_finish'
+        elif pressure:
+            reason = 'tactics_pressure'
         elif choice['projected_all_clear']:
             reason = 'tactics_all_clear'
         elif disrupt:

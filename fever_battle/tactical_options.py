@@ -1,6 +1,7 @@
 """Request-local protocol-3 tactical controls; never mutate the shared policy."""
 from copy import deepcopy
 from .model import integer
+from . import normal_pressure_options
 
 WEIGHTS = {
     name: (0, 1000000) for name in (
@@ -21,7 +22,8 @@ def object_keys(value, allowed, name):
 
 def validate(request):
     value = request.get('normal_tactics', {})
-    object_keys(value, {'invite_fever', 'avoid_own_fever', 'harass', 'weights', 'window_build'} | LIMITS.keys(), 'normal_tactics')
+    object_keys(value, {'invite_fever', 'avoid_own_fever', 'harass', 'weights', 'window_build', *normal_pressure_options.DEFAULTS} | LIMITS.keys(), 'normal_tactics')
+    normal_pressure_options.validate(value)
     for key in ('invite_fever', 'avoid_own_fever', 'harass'):
         if key in value and type(value[key]) is not bool:
             raise ValueError(f'normal_tactics.{key} must be a boolean')
@@ -50,9 +52,10 @@ def resolve(policy, request, own, enemy):
     first = own['mode'] == enemy['mode'] == 'normal' and own['mode_generation'] == enemy['mode_generation'] == 0
     effective.update(invite_fever=first, avoid_own_fever=first, harass=True,
                      harass_min_count=24, harass_max_count=52, harass_min_height=4, harass_columns=3)
-    effective.update({k: v for k, v in overrides.items() if k not in ('weights', 'window_build')})
+    effective.update({k: v for k, v in overrides.items() if k not in ('weights', 'window_build', *normal_pressure_options.DEFAULTS)})
     effective['weights'].update(overrides.get('weights', {}))
     effective['window_build'] = resolve_window(policy, request)
+    effective.update(normal_pressure_options.resolve(overrides))
     return effective
 
 
@@ -76,7 +79,8 @@ def harass_enabled(policy, own, enemy, quiet, second, finish, fever):
 def report(policy, reply, evaluated):
     choice = reply.get('tactics_forecast', {}).get('choice', {})
     effective = {k: deepcopy(policy[k]) for k in (
-        'invite_fever', 'avoid_own_fever', 'harass', *LIMITS, 'window_build')}
+        'invite_fever', 'avoid_own_fever', 'harass', *LIMITS, 'window_build', *normal_pressure_options.DEFAULTS)}
     effective['weights'] = {k: policy['weights'][k] for k in WEIGHTS if k in policy['weights']}
     return dict(selected=reply['reason'], evaluated_switches=evaluated,
-                disruption_kind=choice.get('disruption_kind', 'none'), effective=effective)
+                disruption_kind=choice.get('disruption_kind', 'none'), effective=effective,
+                normal_attack=deepcopy(choice.get('projected_normal_attack')))

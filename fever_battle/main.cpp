@@ -8,6 +8,7 @@
 #include "search.h"
 #include "physics.h"
 #include "tactics.h"
+#include "normal_pressure.h"
 #include "color_needs.h"
 #include "transition.h"
 #include "main_attack.h"
@@ -258,6 +259,15 @@ json answer(const json& request)
     if (op == "garbage_search") return fever_battle::search(field, request);
     if (op == "seed_search") return fever_battle::seed_search(field, request);
     if (op == "seed_defense") return fever_battle::seed_defense(field, request);
+    if (op == "normal_pressure_probe") {
+        const fever_battle::RateSchedule rates(request, bounded_integer(request.at("target_point"),1,100000,"target_point"));
+        const fever_battle::Bonuses bonuses(request.at("bonuses"));
+        const fever_battle::NormalPressure pressure(request,rates,bonuses);
+        return pressure.rate(field, bounded_integer(request.at("chain"),1,19,"chain"),
+            bounded_integer(request.at("redundancy"),0,84,"redundancy"),
+            bounded_integer(request.at("sent"),1,1000000,"sent"),
+            bounded_integer(request.at("deadline"),0,1000000,"deadline"),request.value("invite_fever",false));
+    }
     if (op == "tactics") return fever_battle::tactics(field, request);
     if (op == "normal_colors") return fever_battle::normal_colors(field, request);
     if (op == "validate") return {{"valid", true}, {"dead", field.is_dead(rule::FEVER)}};
