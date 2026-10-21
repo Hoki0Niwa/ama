@@ -12,6 +12,16 @@ python test/test_engine_protocol.py
 
 テスト成功、ビルド成功、再生一致、実機入力、対戦の強さは別の確認。文書だけの変更で過去のテスト件数を今回の実行結果として転載しない。時間制限のある対戦ログは同じバイナリでも変わり得るため、固定seedのログ一致だけを互換性の根拠にしない。
 
+## protocol 3の通常戦術指定
+
+`normal_tactics` の要求単位の切替・閾値・重み、型と範囲の拒否、共有方針への非漏出、先読みと入力承認の設定照合を自動検証する。`test/test_fever_tactical_options.py` の8テストに、初回・再構築・相手Fever・観測待ち・妨害範囲の境界を含む。
+
+省略時の互換性は `data/fever/golden/normal-tactics-defaults.json` の10局面で確認する。変更前の `source_commit` のPython層が返した配置・色・発火・理由・連鎖点・次盤面を保存し、現在の返答と比較する。これは代表局面の回帰保証で、全局面・勝率の同値証明ではない。
+
+`build.ps1 -Target fever_battle`、`-Target pvp`、`-Target bench` のビルド成功。`python tools/fever_check.py test` は47ファイル462件成功（追加8件を含む）、`python test/test_engine_protocol.py` は8件成功。Windows sandboxの一時ディレクトリの権限エラーを避けるため、Fever全件検証では `TMP` と `TEMP` を作業ツリー内の `bin/test-temp`、`PYTHONIOENCODING` を `utf-8` にした。Tsuのソースは変更せず、変更前コミットと作業ツリーのそれぞれを再ビルドした `bench` でseed 42、幅10・深さ3・10手を比較し、時間以外の17列が一致した。
+
+長い対戦・掃引、PPFAIとの接続、実機確認、戦術の強さの校正は実施していない。`window_build` は現行方針JSONに設定があるため、省略時は従来どおり条件付きで有効になる。要求による無効化と部分上書きは自動検証済み。
+
 ## 証拠の所在
 
 - `data/fever/golden/`：Git管理の要求と期待返答。

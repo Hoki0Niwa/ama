@@ -23,7 +23,7 @@ from .mode_tactics import QUICK_FRAMES, offset_gauge
 from .normal_colors import report as report_colors
 from .uncertainty import choose as uncertain_move
 from .finish import choose as fast_finish
-from . import tactics
+from . import tactics, tactical_options
 from .uncertainty import outcomes
 from .margin import MarginForecast, rate_at
 from . import disruption
@@ -52,6 +52,8 @@ def clock_limit(policy):
 def authorize_mode_reply(request, reply, latest):
     coherent(request)
     coherent(latest)
+    if request.get('normal_tactics') != latest.get('normal_tactics'):
+        raise ValueError('normal tactics changed; discard decision')
     if request.get('margin_policy') != latest.get('margin_policy'):
         raise ValueError('margin policy changed; discard decision')
     if reply.get('action') != 'place' or reply.get('decision_identity') != identity(request):
@@ -119,7 +121,7 @@ def preview_prepared(state, request):
     own = request['self']
     if old['self']['queue'] != own['queue'][:len(old['self']['queue'])]:
         return None
-    for name in ('solo_options', 'seed_options', 'second_target_chain'):
+    for name in ('solo_options', 'seed_options', 'second_target_chain', 'normal_tactics'):
         if old.get(name) != request.get(name):
             return None
     # A hint belongs to this opponent seed/attack. A new firing is a new model.
@@ -575,7 +577,7 @@ class ModeBattleEngine(BattleEngine):
             gauge_gain_on_offset=request['gauge_gain_on_offset'], clock_policy=request['clock_policy'],
             margin={key: [{**e, 'frame': request['frame'] + e['frame']} for e in self.margin.get(key, [])]
                     for key in ('rate_events', 'enemy_rate_events')},
-            options=options, pace=self.pace, second_target_chain=request.get('second_target_chain', 'legacy'), side=side,
+            options=options, pace=self.pace, normal_tactics=request.get('normal_tactics', {}), second_target_chain=request.get('second_target_chain', 'legacy'), side=side,
             enemy_prediction=chain, enemy_state=enemy), sort_keys=True)
 
     def _prepared_delivery_stable(self, request, own, enemy, reply):
@@ -949,7 +951,7 @@ class ModeBattleEngine(BattleEngine):
         """The single search's reply to a threat on the normal board, or None to leave it to the rest."""
         trigger = self.last_normal_options.get('trigger', 15) if hasattr(self, 'last_normal_options') else 15
         points = 40 * sum(max(1, p) for p in self.scoring.data['characters'][own['character']]['normal'][:trigger])
-        policy = {**self.policy['normal_tactics'], 'main_trigger_points': points, 'margin': self.last_normal_options.get('margin', 1)
+        policy = {**tactical_options.resolve(self.policy['normal_tactics'], request, own, enemy), 'main_trigger_points': points, 'margin': self.last_normal_options.get('margin', 1)
                   if hasattr(self, 'last_normal_options') else 1}
         events = self._enemy_events(request, enemy)
         threat = own['confirmed'] + own['unconfirmed'] or any(
@@ -968,14 +970,14 @@ class ModeBattleEngine(BattleEngine):
             # Worth a search where there is a main chain to send, an opponent in Fever to disrupt,
             # or a board small enough to clear whole within the visible pieces.
             puyos = sum(c not in '.#' for row in own['field'] for c in row)
-            if not policy.get('quiet', False) or not (fever is not None or puyos <= policy.get('all_clear_puyos', 24)
-                    or puyos >= 24):
+            if not policy.get('quiet', False) or (not request.get('normal_tactics') and not (
+                    fever is not None or puyos <= policy.get('all_clear_puyos', 24) or puyos >= 24)):
                 return tactics.Decision('build')
         second=self._after_opening(own,{**self.policy['solo_options'],**request.get('solo_options',{})})
         garbage=sum(c=='#' for row in enemy.get('field',[]) for c in row)
         colors=sum(c not in '.#' for row in enemy.get('field',[]) for c in row)
         finish=enemy['mode']=='normal' and garbage>=24 and colors<=8
-        if quiet and second and not finish:
+        if quiet and second and not finish and not request.get('normal_tactics'):
             return tactics.Decision('build')
         policy['finish_buried']=bool(second and finish)
         builder = None
@@ -990,22 +992,17 @@ class ModeBattleEngine(BattleEngine):
                     builder = built
             except ValueError:
                 builder = None      # nothing the builder plays survives; the search decides alone
-        harass = bool(quiet and second and finish)
-        if quiet and fever is None:
-            # main's crush search is available beside a built field, independently
-            # of whether the builder happened to choose a small clear itself.
-            count = sum(c != '.' for row in own['field'] for c in row)
-            heights = [sum(row[x] != '.' for row in own['field']) for x in range(6)]
-            harass = harass or policy['weights'].get('harass', 0) > 0 and 24 <= count < 52 and all(h > 3 for h in heights[:3])
+        harass = tactical_options.harass_enabled(policy, own, enemy, quiet, second, finish, fever)
         # Shapes of the pieces after the visible ones: the character's cycle is known, the colors are not.
         after = own['dropset_index'] + len(own['queue'])
         upcoming = ''.join(self.patterns[own['character']][(after + i) % 16] for i in range(16))
         defense = dict(self._enemy_defense(enemy, events, rate), offset_gain=request['gauge_gain_on_offset'])
-        first_normal_battle = own['mode'] == enemy['mode'] == 'normal' and own['mode_generation'] == enemy['mode_generation'] == 0
+        self.last_tactical_controls = dict(invite_fever=policy['invite_fever'],
+            avoid_own_fever=policy['avoid_own_fever'], harass=harass)
         decision = tactics.evaluate(self.native, self.scoring, own, rate, request['gauge_gain_on_offset'],
             policy, events, enemy, self.margin, allowed, builder, defense, upcoming, harass, self.pace, quiet,
             fever, self._enemy_hold(enemy, events, rate),
-            invite_fever=first_normal_battle, avoid_own_fever=first_normal_battle, builder_fire=builder_fire)
+            invite_fever=policy['invite_fever'], avoid_own_fever=policy['avoid_own_fever'], builder_fire=builder_fire)
         # A position every placement loses belongs to the finish probe below.
         return decision
 
@@ -1405,9 +1402,9 @@ class ModeBattleEngine(BattleEngine):
         building it (the builder's placement) instead of the tactical search's small answers; the search
         answers again when only `min_pieces` are left. Off unless policy normal_tactics.window_build is set
         ({hold, min_pieces}): nothing here is tuned in battle."""
-        cfg = self.policy['normal_tactics'].get('window_build')
+        cfg = tactical_options.resolve_window(self.policy['normal_tactics'], request)
         reply = decision.reply
-        if not cfg or reply is None or reply.get('decision_kind') not in ('stack', 'offset', 'take'):
+        if not cfg['enabled'] or reply is None or reply.get('decision_kind') not in ('stack', 'offset', 'take'):
             return None
         if reply.get('chain', 0) >= cfg.get('hold', 10):
             return None             # the search fires the main chain itself: not a wait to be bettered
@@ -1522,6 +1519,7 @@ class ModeBattleEngine(BattleEngine):
             raise ValueError('request must be a JSON object')
         if request.get('protocol_version') != 3 or request.get('rule') != 'fever_battle':
             raise ValueError('requires protocol_version=3 and rule=fever_battle')
+        tactical_options.validate(request)
         if 'lift_allow' in request:
             self.apply_lift_allow(request['lift_allow'])
         op = request.get('op', 'think')
@@ -1640,6 +1638,7 @@ class ModeBattleEngine(BattleEngine):
 
     def _think(self, request, own, enemy, rate, policy, op, prepared=None):
         started = time.monotonic()
+        self.last_tactical_controls = None
         budget = request.get('decision_budget_ms')
         if budget is not None:
             integer(budget, 'decision_budget_ms', 10, 1000)
@@ -1647,7 +1646,11 @@ class ModeBattleEngine(BattleEngine):
         self.planning_deadline = None  # CPU budgets are compatibility input only; never truncate search
         if own.get('awaiting_seed') or (
             own['mode'] == 'normal' and own['gauge'] == self.mode_rules['gauge_max']):
-            return dict(action='wait', reason='await_observed_mode_or_seed', decision_identity=identity(request))
+            reply = dict(action='wait', reason='await_observed_mode_or_seed', decision_identity=identity(request))
+            if own['mode'] == 'normal':
+                effective = tactical_options.resolve(self.policy['normal_tactics'], request, own, enemy)
+                reply['normal_tactics'] = tactical_options.report(effective, reply, None)
+            return reply
         seen = prepared[4] if prepared is not None and len(prepared) > 4 else None
         if (op == 'think' and prepared is not None and (
                     prepared[0] == self._signature(request, own, visible=seen) or
@@ -1791,6 +1794,9 @@ class ModeBattleEngine(BattleEngine):
                 kind=forecast.get('choice', {}).get('disruption_kind', 'none'))
         if guard:
             reply['disruption_timing'] = guard
+        if own['mode'] == 'normal':
+            effective = tactical_options.resolve(self.policy['normal_tactics'], request, own, enemy)
+            reply['normal_tactics'] = tactical_options.report(effective, reply, self.last_tactical_controls)
         if reply['shape'] == '0':
             reply['color'] = 'RYGB'['URDL'.index(reply['r'])]
         return reply

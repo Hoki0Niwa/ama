@@ -32,6 +32,49 @@
 
 返答は `action: "place"` または `"wait"`。でかぷよは `color` を含む。`wait` を配置として実行しない。`reason`・`decision_kind` は診断値で、依存関係は `decision_dependencies` に持つ。入力前に `authorize_mode_reply()` で現在の盤面・ツモ・モード・世代・予告・時計・攻撃期限を照合する。
 
+## 通常戦術の要求単位の指定
+
+`think`、`prepare` 系、`recover_placement` のトップレベルに任意の `normal_tactics` オブジェクトを渡せる。方針JSONを変更せず、その要求とその先読みだけに適用する。省略または `{}` は従来の判断を維持する。子項目は部分指定でき、省略した値は現在の方針を継承する。null、未知のキー、型違い、範囲外は `ValueError`（JSON入口では既存のエラー返答）になる。整数にbooleanや小数は使えない。
+
+| 項目（`normal_tactics.` 以下） | 型・範囲 | 省略時 |
+| --- | --- | --- |
+| `invite_fever` | boolean | 双方通常かつ双方 `mode_generation == 0` のときtrue |
+| `avoid_own_fever` | boolean | 同上 |
+| `harass` | boolean | true（探索の許可。必ず撃つ指定ではない） |
+| `harass_min_count` | 整数 0〜84 | 24（以上） |
+| `harass_max_count` | 整数 0〜85 | 52（未満） |
+| `harass_min_height` | 整数 0〜14 | 4（以上） |
+| `harass_columns` | 整数 1〜6 | 左から3列 |
+| `window_build` | 下記のオブジェクト | 方針JSONを継承 |
+| `window_build.enabled` | boolean | 方針JSONに非空の設定があればtrue（現在true） |
+| `window_build.hold` | 整数 1〜19 | 現在10 |
+| `window_build.min_pieces` | 整数 1〜100 | 現在3 |
+| `window_build.fire_pieces` | 整数 0〜100 | 現在4（0で窓内の即発火を無効） |
+| `window_build.beam_width` | 整数 1〜10000 | 現在30 |
+| `weights` | 下記の整数値のオブジェクト | 方針JSONの各値 |
+
+`harass_min_count <= harass_max_count` が必要。同値なら通常の範囲条件を満たさない。個数・高さはおじゃまを含む。通常の妨害は予告のない局面で、個数の範囲と指定列すべての最低高さを満たすときに探索する。従来の「再構築期の埋まった相手への処理」は別の許可条件で、範囲の外でも残す。`harass: false` は両方を無効にする。相手がFever中なら一般のharassは無効で、タネ交換への攻撃を使う。
+
+明示指定した非空オブジェクトでは、従来の「再構築期の静かな盤面は戦術探索を省く」「色ぷよ17〜23個は省く」という入口を外す。これにより初回以外でも切替と範囲の指定が評価される。ゲージ満杯・相殺加算なしなどの探索不能条件は維持する。`invite_fever` は相手の突入を促す評価、`avoid_own_fever` は自分の突入を避ける評価であり、突入を強制・禁止するものではない。
+
+`weights` の受理キーと現在の既定値（評価式は `tactics.cpp` の `Weights`）：
+
+| キーと現在値 | 型・範囲 |
+| --- | --- |
+| `entry=6000`, `gauge=1000`, `stock=40`, `color=60`, `drop=150`, `consume=12` | 各整数 0〜1000000 |
+| `mainline=1120`, `height=300`, `early=1500`, `builder=250`, `step=400`, `exposed=700` | 各整数 0〜1000000 |
+| `pending=0`, `uncountered=2500`, `fever_reach=100`, `harass=400`, `all_clear=5000`, `disrupt=3000` | 各整数 0〜1000000 |
+| `mainline_min=4` | 整数 1〜19 |
+| `arrival_pieces=2` | 整数 0〜100 |
+
+方針JSONの `kill` は `Weights` では使っておらず要求で受理しない。上表の値は現行既定の説明で、調整結果や戦術の有効性を示さない。
+
+```json
+{"normal_tactics":{"invite_fever":true,"avoid_own_fever":false,"harass":true,"harass_min_count":20,"harass_max_count":54,"harass_min_height":3,"harass_columns":3,"window_build":{"enabled":false},"weights":{"entry":4000,"disrupt":5000}}}
+```
+
+通常モードの判断返答には `normal_tactics` を追加する。`selected` は最終採用した `reason`（構築・戦術・窓内の構築／発火・回復・観測待ちを含む）、`disruption_kind` は採用した戦術候補の攻撃区分（なければ `none`）。`effective` は解決した切替・閾値・重み、`evaluated_switches` は戦術探索へ渡した `invite_fever`、`avoid_own_fever`、盤面条件適用後の `harass`。探索を省略した場合はnullで、指定値が評価されたと誤認しない。先読みの一致検査と入力承認にも `normal_tactics` を含め、変更した要求に古い判断を流用しない。
+
 ## 可視情報と時間の制約
 
 - 色は現在手＋NEXT2だけを使い、先の色は仮想列と区別する。未知タネ・突入先・全消し交換後は確定探索しない。
