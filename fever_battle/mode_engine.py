@@ -168,7 +168,7 @@ class ModeBattleEngine(BattleEngine):
         self.seed_solver = SeedSolver(self.native, self.scoring)
         self.seed_solver.value_model = self.policy.get('fever_seed', {}).get('value_model')
         self.prepared = None
-        self.pace, self.pace_state, self.pace_samples = None, {}, {}
+        self.pace, self.pace_states, self.pace_samples = None, {}, {}
         self.margin_forecast = MarginForecast()
         self.margin = {}
         self.normal_build_cache = None
@@ -660,7 +660,9 @@ class ModeBattleEngine(BattleEngine):
         delivered = None
         if request.get('enemy_chain'):
             timing = ChainTiming.for_mode(own['mode'])
-            check = timing.placement_frames + timing.split_extra_frames[max(result['split_distances'], default=0)] + timing.check_frames
+            extra = timing.split_extra_frames[max(result['split_distances'], default=0)]
+            lock = max(timing.placement_frames, (self.pace or 0) - timing.spawn_frames - extra) + extra
+            check = lock + timing.check_frames
             if any(e['type'] == 'end' and e['frame'] <= check for e in self._enemy_events(request, request['enemy'])):
                 # The opponent's chain ends before this placement's check: what it sent is confirmed by then
                 # and falls on the board at the check, on the columns the cursor gives.
@@ -683,6 +685,36 @@ class ModeBattleEngine(BattleEngine):
             split = timing.split_extra_frames[max(result['split_distances'], default=0)]
             future['remaining_frames'] = max(0, own['remaining_frames'] - timing.placement_frames - timing.spawn_frames - split)
         return future
+
+    def _until_next_piece(self, own, placement):
+        """Frames from the start of the piece in hand to the start of the next: the measured pace, or the
+        model's fastest piece (placement, its split, spawn)."""
+        result = self.native.ask(dict(op='transition', field=own['field'], piece=own['queue'][0], **placement))
+        timing = ChainTiming.for_mode(own['mode'])
+        extra = timing.split_extra_frames[max(result['split_distances'], default=0)]
+        return max(timing.placement_frames + extra + timing.spawn_frames, self.pace or 0)
+
+    @staticmethod
+    def _advanced(request, frames):
+        """The request as it will stand `frames` later with nothing new observed: its clock, the
+        observation, the opponent's Fever clock and the observed chain's progress move on."""
+        later = deepcopy(request)
+        later['frame'] = request['frame'] + frames
+        observation = later.get('observation')
+        if isinstance(observation, dict):
+            for key in ('frame_before', 'frame_after'):
+                if isinstance(observation.get(key), int):
+                    observation[key] += frames
+        for name in ('self', 'enemy'):
+            if isinstance(later[name].get('observed_frame'), int):
+                later[name]['observed_frame'] += frames
+        enemy = later['enemy']
+        if enemy.get('clock_running') and isinstance(enemy.get('remaining_frames'), int):
+            enemy['remaining_frames'] = max(0, enemy['remaining_frames'] - frames)
+        chain = later.get('enemy_chain')
+        if isinstance(chain, dict) and isinstance(chain.get('elapsed'), int):
+            chain['elapsed'] += frames
+        return later
 
     def _delivered_until(self, request, own, enemy, until):
         """This side's (confirmed, unconfirmed) nuisance once the opponent's predicted chain has gone on for
@@ -766,7 +798,22 @@ class ModeBattleEngine(BattleEngine):
         ahead = {key: value for key, value in request.items() if key not in ('op', 'placement', 'ahead_piece')}
         ahead['self'] = future
         started = time.monotonic()
-        reply = self._think(ahead, future, enemy, rate, policy, 'think')
+        if observed:
+            reply = self._think(ahead, future, enemy, rate, policy, 'think')
+        else:
+            # A prepare is sent as the piece in hand starts: the next piece starts one piece later, and
+            # its nuisance, the opponent's chain and the rates are timed from then (2026-10-21: prepared
+            # decisions timed from the prepare stacked seven pieces in three games that the drop then hit).
+            delay = self._until_next_piece(own, request['placement'])
+            ahead = self._advanced(ahead, delay)
+            enemy = self._advanced(dict(frame=0, self={}, enemy=enemy), delay)['enemy']   # the side as read
+            margin = self.margin
+            self.margin = {key: [{**e, 'frame': e['frame'] - delay} for e in margin.get(key, [])]
+                           for key in ('rate_events', 'enemy_rate_events')}
+            try:
+                reply = self._think(ahead, future, enemy, rate, policy, 'think')
+            finally:
+                self.margin = margin
         if reply.get('action') != 'place' or reply.get('selected_move_loses'):
             return dict(prepared=False, reason=reply.get('reason'),
                         **({'normal_build_prepared': self.normal_build_used} if speculative else {}))
@@ -1554,31 +1601,40 @@ class ModeBattleEngine(BattleEngine):
             reply['enemy_analysis_state'] = deepcopy(self.enemy_analysis)
             return reply
         prepared, self.prepared = self.prepared, None       # kept for one decision only
-        if op == 'think':
-            self._observe_pace(request, own)
+        if op in ('think', 'prepare'):
+            self._observe_pace(request, own, op)
         reply = self._think(request, own, enemy, rate, policy, op, prepared)
         if self.normal_build_miss:
             reply['normal_build_miss'] = self.normal_build_miss
         if op == 'think':
-            self.pace_state['popped'] = bool(reply.get('fire'))
+            self.pace_states['think']['popped'] = bool(reply.get('fire'))
         reply['enemy_analysis_state'] = deepcopy(self.enemy_analysis)
         return reply
 
-    def _observe_pace(self, request, own):
+    def _observe_pace(self, request, own, op='think'):
         """Frames this side takes per piece in its present mode: the upper quartile of its last
-        twelve pieces there, measured between two decisions for consecutive pieces with no chain
-        of its own between them. The searches count the pieces left before a deadline with it
-        instead of the model's fastest piece; the upper quartile, so that the count is not
-        optimistic. Kept apart by mode (a Fever piece is quicker). None until three are measured.
+        twelve pieces there, measured between two requests of one kind for consecutive pieces with
+        no chain of its own between them: two thinks (at their pieces' spawns), or two prepares (sent
+        as each piece starts; a piece decided by its prepared answer sends no think, so with the
+        prepares the pace is measured while the decisions are prepared). The searches count the
+        pieces left before a deadline with it instead of the model's fastest piece; the upper
+        quartile, so that the count is not optimistic. Kept apart by mode (a Fever piece is
+        quicker). None until three are measured.
         """
-        last, key = self.pace_state, (request['match_id'], own['mode'])
-        if last.get('key', (None,))[0] != request['match_id']:
+        last, key = self.pace_states.get(op, {}), (request['match_id'], own['mode'])
+        if any(state.get('key', (None,))[0] != request['match_id'] for state in self.pace_states.values()):
             self.pace_samples = {}
-        elif last['key'] == key and own['piece_id'] == last['piece'] + 1 and not last['popped']:
+            self.pace_states = {}
+        elif last.get('key') == key and own['piece_id'] == last['piece'] + 1 and not last['popped']:
             taken = request['frame'] - last['frame']
             if 0 < taken <= 300:
                 self.pace_samples[own['mode']] = (self.pace_samples.get(own['mode'], []) + [taken])[-12:]
-        self.pace_state = dict(key=key, piece=own['piece_id'], frame=request['frame'], popped=False)
+        popped = False
+        placement = request.get('placement')
+        if op == 'prepare' and isinstance(placement, dict) and set(placement) == {'x', 'r'} and own.get('queue'):
+            popped = bool(self.native.ask(dict(op='transition', field=own['field'], piece=own['queue'][0],
+                                               **placement))['links'])
+        self.pace_states[op] = dict(key=key, piece=own['piece_id'], frame=request['frame'], popped=popped)
         samples = sorted(self.pace_samples.get(own['mode'], []))
         self.pace = samples[int(.75 * (len(samples) - 1))] if len(samples) >= 3 else None
 

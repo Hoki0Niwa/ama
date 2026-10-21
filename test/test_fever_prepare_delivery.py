@@ -73,6 +73,35 @@ class PrepareDeliveryTests(unittest.TestCase):
         self.assertEqual(future['field'], dropped['field'])
         self.assertEqual((future['confirmed'], future['garbage_phase']), (0, (2 + left) % 6))
 
+    def test_the_pace_is_measured_between_prepares(self):
+        self.engine.pace, self.engine.pace_states, self.engine.pace_samples = None, {}, {}
+        for k, frame in enumerate((0, 55, 115, 170)):
+            own = own_normal(piece_id=k)
+            self.engine._observe_pace(dict(match_id='pace', frame=frame, placement=dict(x=0, r='U')), own, 'prepare')
+        self.assertEqual(self.engine.pace_samples['normal'], [55, 60, 55])
+        self.assertEqual(self.engine.pace, 55)
+        # a chain of its own between two prepares is not a piece's pace
+        own = own_normal(piece_id=4, confirmed=0)
+        self.engine._observe_pace(dict(match_id='pace', frame=225, placement=dict(x=5, r='U')), own | {'queue': ['2:RR', '2:GG', 'L:RRG']}, 'prepare')
+        self.engine._observe_pace(dict(match_id='pace', frame=400, placement=dict(x=0, r='U')), own_normal(piece_id=5), 'prepare')
+        self.assertEqual(len(self.engine.pace_samples['normal']), 4)
+        self.engine.pace, self.engine.pace_states, self.engine.pace_samples = None, {}, {}
+
+    def test_the_next_piece_is_decided_as_of_its_start(self):
+        own = side('normal', seed3(), ['2:RY', '2:GG', 'L:RRG'])
+        message = request(own, bystander())
+        message.update(op='prepare', placement=dict(x=0, r='U'))
+        seen = []
+        think = self.engine._think
+        def spy(ahead, *rest, **named):
+            seen.append(ahead['frame'])
+            return think(ahead, *rest, **named)
+        self.engine.pace = None
+        with patch.object(self.engine, '_think', side_effect=spy):
+            self.engine.answer(message)
+        # the fastest piece of the model: placement 14 (no split), spawn 28
+        self.assertEqual(seen, [message['frame'] + 14 + 28])
+
 
 if __name__ == '__main__':
     unittest.main()
