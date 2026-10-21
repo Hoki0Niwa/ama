@@ -25,7 +25,7 @@ from .uncertainty import choose as uncertain_move
 from .finish import choose as fast_finish
 from . import tactics
 from .uncertainty import outcomes
-from .margin import MarginForecast
+from .margin import MarginForecast, rate_at
 from . import disruption
 from .seed_defense import SeedDefenses
 
@@ -657,18 +657,24 @@ class ModeBattleEngine(BattleEngine):
         result = self.native.ask(dict(op='transition', field=own['field'], piece=own['queue'][0], **placement))
         if result['dead'] or result['links']:
             return 'clear_or_mode_transition_requires_observation'
+        delivered = None
         if request.get('enemy_chain'):
             timing = ChainTiming.for_mode(own['mode'])
             check = timing.placement_frames + timing.split_extra_frames[max(result['split_distances'], default=0)] + timing.check_frames
             if any(e['type'] == 'end' and e['frame'] <= check for e in self._enemy_events(request, request['enemy'])):
-                return 'enemy_delivery_can_change_next_board'
+                # The opponent's chain ends before this placement's check: what it sent is confirmed by then
+                # and falls on the board at the check, on the columns the cursor gives.
+                delivered = self._delivered_until(request, own, request['enemy'], check)
         future = deepcopy(own)
         future.update(field=result['field'], queue=own['queue'][1:] + self._ahead_pieces(request, own),
             piece_id=own['piece_id']+1, dropset_index=(own['dropset_index']+1)%16)
-        if own['confirmed']:
+        if delivered is not None:
+            self._set_nuisance(future, *delivered)
+        if future['confirmed']:
             future = self._after_confirmed_drop(future)
             if isinstance(future, str):
-                return future
+                # The drop cannot be told (unknown columns): the builder alone is prepared, as before.
+                return 'enemy_delivery_can_change_next_board' if delivered is not None else future
         if future['moves_since_chain'] is not None:
             future['moves_since_chain'] += 1
         if own['mode'] == 'fever' and own['clock_running']:
@@ -677,6 +683,31 @@ class ModeBattleEngine(BattleEngine):
             split = timing.split_extra_frames[max(result['split_distances'], default=0)]
             future['remaining_frames'] = max(0, own['remaining_frames'] - timing.placement_frames - timing.spawn_frames - split)
         return future
+
+    def _delivered_until(self, request, own, enemy, until):
+        """This side's (confirmed, unconfirmed) nuisance once the opponent's predicted chain has gone on for
+        `until` frames, as advance_enemy (nuisance.h) counts it: each link's points at the opponent's rate,
+        offset against what they hold first, the rest in flight; their chain's end confirms what flies."""
+        fixed, flying = own['confirmed'], own['unconfirmed']
+        trays, remainder = Trays(enemy), enemy['remainder']
+        rates = self.margin.get('enemy_rate_events') or self.margin.get('rate_events') or []
+        for event in self._enemy_events(request, enemy):
+            if event['frame'] > until:
+                break
+            if event['type'] == 'end':
+                fixed, flying = fixed + flying, 0
+                continue
+            amount, remainder = divmod(event['points'] + remainder, rate_at(request['target_point'], rates, event['frame']))
+            if trays.pending() and amount == 0:
+                amount = 1
+            flying += trays.offset(amount)
+        return fixed, flying
+
+    @staticmethod
+    def _set_nuisance(side, fixed, flying):
+        side.update(confirmed=fixed, unconfirmed=flying)
+        side[side['mode'] + '_confirmed'] = fixed
+        side[side['mode'] + '_unconfirmed'] = flying
 
     def _after_confirmed_drop(self, own):
         count = min(30, own['confirmed'])
@@ -807,6 +838,7 @@ class ModeBattleEngine(BattleEngine):
                 # on it (_after_opening), so the board is searched with the options the next piece will have.
                 future['normal_chain_max'] = max(own.get('normal_chain_max', 0), len(links))
                 self._offset_by_chain(future, own, links, rate)
+                self._drop_after_chain(request, own, future, result, links)
         ahead = {key: value for key, value in request.items() if key not in ('op', 'placement', 'ahead_piece')}
         ahead['self'] = future
         started = time.monotonic()
@@ -819,6 +851,26 @@ class ModeBattleEngine(BattleEngine):
         return dict(prepared=True, build_only=True, normal_build_prepared=self.normal_build_used,
             searched_visible=len(future['queue']), search_ms=(time.monotonic() - started) * 1000,
             controller=False, reason='build_prepared_on_the_expected_board')
+
+    def _drop_after_chain(self, request, own, future, result, links):
+        """After this side's chain on the normal board, the nuisance it left confirmed falls before the next
+        piece, on the columns the cursor gives; an opposing chain that ends meanwhile adds what it sent.
+        The board is left as it is where the drop cannot be told (unknown columns)."""
+        timing = ChainTiming.for_mode('normal')
+        points = self.scoring.chain(own['character'], links)
+        start = (timing.placement_frames + timing.split_extra_frames[max(result['split_distances'], default=0)]
+                 + timing.first_link_frames)
+        line = timing.timeline(points, result['fall_distances'], result.get('fall_features'), start_offset=start)
+        check = line['end_frame'] + timing.check_frames
+        if request.get('enemy_chain'):
+            fixed, flying = self._delivered_until(request, {**own, 'confirmed': 0, 'unconfirmed': 0},
+                                                  request['enemy'], check)
+            self._set_nuisance(future, future['confirmed'] + fixed, future['unconfirmed'] + flying)
+        if future['confirmed']:
+            dropped = self._after_confirmed_drop(future)
+            if not isinstance(dropped, str):
+                future.clear()
+                future.update(dropped)
 
     def _offset_by_chain(self, future, own, links, rate):
         """The nuisance this side holds once its chain has been scored: link by link, a pending packet is

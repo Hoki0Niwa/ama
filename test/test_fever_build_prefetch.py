@@ -254,16 +254,20 @@ class BuildPrefetchTests(unittest.TestCase):
             latest['self'].update(remainder=45, prepared_frames=960, prepared_frames_status='observed')
             self.assertTrue(authorize_mode_reply(req, reply, latest))
 
-    def test_prediction_is_refused_if_enemy_end_can_deliver_on_current_placement(self):
+    def test_prediction_counts_an_enemy_end_before_the_check_of_the_current_placement(self):
         req = self.active(); req['self']['queue'].append('L:RRY')
         req['enemy_chain']['elapsed'] = 30
         req.update(op='prepare', placement=dict(x=5, r='U'))
         result = self.engine.answer(req)
-        # No decision is prepared (the delivery may change the board); the builder's search for the board
-        # expected without it is kept, and is used only if that is the board that appears.
-        self.assertTrue(result['build_only'])
-        self.assertNotIn('plan', result)
-        self.assertIsNone(self.engine.prepared)
+        # The opposing chain ends before this placement's check: what it sent (one link of 40 points, no
+        # nuisance at 120 a puyo) is counted and the decision is prepared on the board it leaves.
+        # (test_fever_prepare_delivery: a delivery that drops.)
+        self.assertTrue(result['prepared'] and result['speculative'])
+        self.assertNotIn('build_only', result)
+        placed = self.engine.native.ask(dict(op='transition', field=req['self']['field'], piece='2:RY', x=5, r='U'))
+        self.assertEqual(result['plan']['field'], placed['field'])
+        self.assertEqual(result['plan']['nuisance'], dict(confirmed=0, unconfirmed=0))
+        self.assertIsNotNone(self.engine.prepared)
 
     def test_prediction_can_prepare_build_before_later_enemy_end(self):
         req = self.active(); req['self']['queue'].append('L:RRY')
