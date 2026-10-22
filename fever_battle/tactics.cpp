@@ -66,6 +66,7 @@ struct Node {
     bool offense_timed = false;
     std::string offense_kind = "none";
     int attack_chain = 0, attack_redundancy = 0;
+    int pressure_main_loss = 0, attacks = 0;
     i64 attack_sent = 0, normal_limit = std::numeric_limits<i64>::max();
     nlohmann::json normal_first = nlohmann::json::object();
 };
@@ -153,6 +154,8 @@ public:
     Defense defense;                // what they have against nuisance that lands (transition.h)
     GaugeResponse response;
     std::unique_ptr<NormalPressure> normal_pressure;
+    i64 pressure_own_points = 0;
+    int pressure_own_frame = 0;
     // The opponent is in Fever (or about to enter it). Nuisance confirmed for them there has to be met
     // with the next piece or it falls on the seed: a packet that is waiting when a new seed arrives
     // disrupts for sure, one that arrives while they build on a seed makes them fire early.
@@ -250,6 +253,7 @@ public:
                 fired_here = std::max(0, fire_before - fever::stock::longest(step.cleared));
             fired_here = std::min(fired_here, spent_here);
             n.main_links_spent += spent_here;
+            n.pressure_main_loss += spent_here;
             n.main_links_fired += fired_here;
             // ai/ai.cpp on main: classify by the resources left, not by chain length.
             step.main = step.cleared.get_count() < std::max(24, root_cells / 2);
@@ -305,6 +309,7 @@ public:
                 n.return_frame = n.frame;
             }
             if (step.sent > 0) {
+                ++n.attacks;
                 n.attack_chain = std::max(n.attack_chain, step.chain);
                 n.attack_redundancy = std::max(n.attack_redundancy, step.redundancy);
                 n.attack_sent += step.sent;
@@ -333,8 +338,10 @@ public:
         // and round-44 of 2026-10-14.) `due` is not that time: it is also set while the
         // opponent's chain still runs, for any board that what is on its way would kill
         // whenever it lands, and with that as the test the same placement stayed free.
-        if (!falls_now && main_held >= w->mainline_min)
+        if (!falls_now && main_held >= w->mainline_min) {
+            n.pressure_main_loss += std::max(0, main_held - fever::stock::longest(locked));
             n.main_links_spent += std::max(0, main_held - fever::stock::longest(locked));
+        }
         advance(n, n.frame + check);
         step.dropped = int(std::min<i64>(30, n.fixed));
         n.fixed -= step.dropped; n.dropped += step.dropped;
@@ -419,9 +426,10 @@ public:
         const bool unready_main = enemy_fever && defense_state.fired_links > 0 && !n.builder_fire;
         const bool protected_main = (unready_main || (quiet && n.fired_main && !n.builder_fire)) && root_cells >= 24;
         auto normal_attack = json::object();
-        if (quiet && !enemy_fever && normal_pressure->enabled()) {
+        if (!enemy_fever && normal_pressure->enabled()) {
             normal_attack = normal_pressure->rate(field, n.attack_chain, n.attack_redundancy,
-                n.attack_sent, n.sent_end, invite_fever);
+                n.attack_sent, n.sent_end, invite_fever, n.pressure_main_loss, n.attacks,
+                n.popped, quiet, pressure_own_points, pressure_own_frame);
             const auto score = std::min(n.normal_limit,normal_attack.value("score",i64(0)));
             normal_attack["score"] = score;
             if (score && !n.normal_first.empty()) {
@@ -655,6 +663,26 @@ json tactics(Field field, const json& request) {
         throw std::invalid_argument("split duration table must have 14 entries");
 
     search.normal_pressure = std::make_unique<NormalPressure>(request, rates, search.bonuses);
+    if (search.normal_pressure->preempts()) {
+        const auto main = main_attack::potential(field, search.powers, search.bonuses);
+        search.pressure_own_points = main.first;
+        // Optimistic growth estimate, not unseen colors: four cells per missing
+        // ideal link, at the visible pieces' mean size and this seat's cadence.
+        int cells_per_piece = 0;
+        for (const auto& p : search.pieces) cells_per_piece += piece::cell_count(p.shape);
+        cells_per_piece = std::max(1,cells_per_piece / int(search.pieces.size()));
+        int target_links = main.second;
+        i64 projected = main.first;
+        while (projected < search.normal_pressure->target_points() && target_links < 19) {
+            projected += 40 * std::clamp(search.powers[target_links],search.bonuses.minimum,search.bonuses.maximum);
+            ++target_links;
+        }
+        const int missing = std::max(0,4*(target_links-main.second));
+        search.pressure_own_frame = ((missing+cells_per_piece-1)/cells_per_piece)*search.piece_frames()
+            + search.placement + search.first_link + search.score_offset
+            + std::max(0,target_links-1)*(search.pop+search.settle);
+        if (projected < search.normal_pressure->target_points()) search.pressure_own_frame = 1000000;
+    }
 
     Node root; root.field = field;
     root.fixed = number(request, "confirmed", 0, 1000000000);

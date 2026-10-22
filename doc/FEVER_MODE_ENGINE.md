@@ -77,7 +77,7 @@
 
 ## 通常相手への潰し・催促ととどめ（任意）
 
-`normal_tactics.pressure` は潰し・催促を1つの戦術として扱う。`normal_tactics.finish` はとどめ。双方とも `enabled` の既定はfalseで、省略時の配置選択は従来のまま。いずれかを有効にすると、旧 `harass` の誘い加点と `finish_buried` の加点を置き換える。旧加点が新しいタネ・防御条件を迂回することを防ぐ。新戦術は自分の予告がない通常盤面、相手の通常盤面を対象にする。Fever中・突入直前の相手への既存の攻撃とは分ける。
+`normal_tactics.pressure` は潰し・催促を1つの戦術として扱う。`normal_tactics.finish` はとどめ。双方とも `enabled` の既定はfalseで、省略時の配置選択は従来のまま。いずれかを有効にすると、旧 `harass` の誘い加点と `finish_buried` の加点を置き換える。旧加点が新しいタネ・防御条件を迂回することを防ぐ。既定は自分の予告がない通常盤面、相手の通常盤面を対象にする。`pressure.allow_pending` で自分に予告がある局面も許可できる。相手の連鎖中・操作中・Fever中・突入直前は相手の可視相殺探索の対象外で、既存の防御・Fever妨害の判断を使う。
 
 以下は `normal_tactics.` 以下の追加項目。各オブジェクトは部分指定できる。型・範囲・未知キーを検査する。既定値と範囲の正本は `fever_battle/normal_pressure_options.py`。
 
@@ -92,6 +92,18 @@
 | `pressure.third_column_height` | 整数0〜13 | 8。残余の全段分を加えた相手3列目の高さがこれを超えたら埋める圧力を加点 |
 | `pressure.block_seed_chain` | 整数1〜19 | 8。相手がFever経験済みかつseed_chainがこの値以上なら、残余を確認できない攻撃、またはゲージ逃げできる攻撃は加点しない |
 | `pressure.weight` | 整数0〜1000000 | 400。試作の圧力評価の倍率 |
+| `pressure.allow_pending` | boolean | false。予告がある局面でも、新規送信が残る攻撃を評価 |
+| `pressure.preempt` | boolean | false。自分の本線が間に合わない場合の先制加点を許可 |
+| `pressure.race_margin_frames` | 整数0〜10000 | 0。自分の本線の見積時刻に加える余裕 |
+| `pressure.min_enemy_points` | 整数1〜1000000000 | 2100。先制を検討する相手の可視得点の下限 |
+| `pressure.preempt_bonus` | 整数0〜1000000 | 0。先制条件成立時の評価単位（`preempt=true` と併用） |
+| `pressure.counter_cost_weight` | 整数0〜1000000 | 1。相殺で消す色ぷよ（最大18個）の評価単位 |
+| `pressure.gauge_weight` | 整数0〜1000000 | 6。相殺で突入できる場合の評価単位 |
+| `pressure.gauge_gain_weight` | 整数0〜1000000 | 0。新規送信による相手ゲージ増分1目盛りの評価単位 |
+| `pressure.surplus_weight` | 整数0〜1000000 | 0。完全探索で確認できた相殺後の余剰（最大30個）1個の評価単位 |
+| `pressure.max_main_loss` | 整数0〜84 | 84。可視経路で自分から失う保持本線の累積リンク数の上限。0で本線を保護、84は従来どおり制限しない |
+| `pressure.max_attacks` | 整数0〜100 | 0。催促の送信連鎖回数の上限。0は制限なし |
+| `pressure.attacks_used` | 整数0〜1000000 | 0。同じ催促で既に撃った回数。呼出側が実行済みの送信連鎖だけを数えて渡す |
 | `finish.enabled` | boolean | false |
 | `finish.min_send` | 整数1〜1000000 | 6。とどめに必要な新規送信の下限 |
 | `finish.weight` | 整数0〜1000000 | 30000。条件を満たしたとどめの加点 |
@@ -102,15 +114,23 @@
 
 相殺を強いる圧力は、着弾までに送信分を返せる観測経路の最小色ぷよ消費 `counter_cost_cells` で評価する。本線に使える資源を使わせ、飽和連鎖量を下げる機会の近似であり、実際に何リンク減るかや相手が必ず相殺することの保証ではない。突入を促す加点は既存の `invite_fever` にも従う。撃った後の自分の資源条件は全て要求で調整できる。大きなタネへの再突入を助けるだけの攻撃は、探索不十分で残余が不明な場合も抑える。残余があっても相殺でゲージが満ちるなら、Feverへ逃げられるので同じく抑える。3列目を埋める加点もゲージ逃げがない場合に限る。
 
+先制は、`counter_read` で実際に置けた可視経路の最大累積得点と、それを得る相対フレームを使う。同点は早い経路。自分はFever通常倍率で再得点した本線の見込みに、自キャラの通常倍率で1リンク4個の得点を足して相手の点数に届くまでの不足リンクを求める。不足を可視ツモの平均個数と自分の設置ペースで補う時間、配置・リンク時間を足す。19リンクまで足しても届かなければ見積時刻を1000000Fとする。自分の見積時刻＋余裕が相手より遅く、自分の送信連鎖終了が相手の得点時刻以前なら先制加点する。これは未知色を確定しない楽観的な成長近似で、相手の本線完成時刻や実着弾の保証ではない。探索不足でも見つけた相手の得点は先制の根拠に使うが、未探索の返しを「ない」と扱わず、余剰・とどめの根拠にはしない。
+
+評価は従来の埋没加点に、相殺費用×`counter_cost_weight`、突入可否×`gauge_weight`、新規送信のゲージ増分×`gauge_gain_weight`、確認できた余剰×`surplus_weight`、先制条件×`preempt_bonus` を足し、`weight` を掛ける。ゲージの2加点は `invite_fever` に従う。`max_main_loss` は既存の本線保護の対象（`weights.mainline_min` 以上）から減るリンクを測り、必要相殺による既存の費用減免前の値を使う。非消去で発火口を埋めた損失も含み、おじゃま落下の損失は含めない。`consumed_cells` は本線以外も含む色ぷよ消費で、失ったリンクと区別する。Fever通常倍率とその時刻のレートで送信量を求めるため、同じ少量送信でもTsuより資源を多く要する場合がある。
+
+`max_attacks` は `attacks_used`＋可視経路内の新規送信連鎖数に適用する。非消去の準備手は数えず、一連鎖内の複数リンクは1回。先読み・取消・回復で回数が増えないよう、エンジン内部では実行回数を記憶しない。呼出側は実行を観測して更新し、催促終了や局の変更時に0へ戻す。何手空けたら別の催促とするかは呼出側の方針であり、回数を省略して渡すと判断をまたぐ上限は効かない。相性と強さの選択もPPFAI側の責務で、Amaに相性表はない。
+
 とどめは相手のゲージが既に7、または相殺リンクで7に届く経路があれば無効。着弾後に始める連鎖も相殺に使えるため、最初の非消去・落下までの経路を含めて検査する。相手に有利に、既存予告を払わずに全得点を新規送信の相殺へ使え、連鎖終了後の盤面で受けられるものとする。それでも全経路・全端数列で最大30個の1回の落下を耐えられないときだけ加点する。探索上限、可視不足、連鎖中・配置中の相手などで判定できない場合は、とどめにしない。相殺加算が0なら、相殺してもゲージは増えない。
 
 非消去の準備手には可視後続の評価を使える。現在の発火は、その発火自身が得た加点と種類を上限とし、後続の本線やとどめを理由に現在の小消しを採用しない。必要防御・生存の優先は既存のまま。
 
-返答理由は `tactics_pressure`、`tactics_finish`、`tactics_prepare_finish`。候補の `normal_attack` が初手、`projected_normal_attack` が可視後続の評価。最終返答の `normal_tactics.normal_attack` に選択結果を転記する。`kind` は `invite` / `force_counter` / `bury` / `finish` / `none`、`blocked` は資源条件・大きなタネ・相手情報不足の診断。`counter` に上記の防御量、連鎖終了まで許した `full_counter`、`counter_cost_cells`、`entry_possible`、`complete`、`cutoff`、`expanded`、残余を返す。`complete` は可視と配置上限で必要な反応経路を覆えたかを表し、未知なら防御量は下限の観測値で、とどめの証拠にはしない。
+返答理由は `tactics_pressure`、`tactics_finish`、`tactics_prepare_finish`。候補の `normal_attack` が初手、`projected_normal_attack` が可視後続の評価。最終返答の `normal_tactics.normal_attack` は発火する手では初手、準備手では後続の評価を転記する。`kind` は `preempt` / `surplus` / `invite` / `force_counter` / `bury` / `finish` / `none`。`blocked` は最初の不成立条件、`blocked_conditions` は同時に検査した不成立条件の配列（`no_send`、`enemy_unavailable`、`pending`、`min_remaining`、`min_heights`、`max_redundancy`、`max_chain`、`min_send`、`max_send`、`max_main_loss`、`max_attacks`、`large_seed_gauge_only`、`zero_weight`、`no_pressure_value`）。先に打ち切った場合は後段の検査結果を含めない。`main_loss_links`、`consumed_cells`、`attacks` が自分の費用と送信回数、`race` が両者の得点・時刻と先制条件の診断。`counter` に上記の防御量、連鎖終了まで許した `full_counter`、`counter_cost_cells`、既存予告だけの場合と比べた最大追加ゲージ `gauge_gain`、`entry_possible`、`complete`、`cutoff`、`expanded`、残余を返す。`complete` は可視と配置上限で必要な反応経路を覆えたかを表し、未知なら防御量は下限の観測値で、とどめの証拠にはしない。ブロックされた探索候補も `tactics_forecast.candidates` に残る。
 
 ```json
 {"normal_tactics":{"pressure":{"enabled":true,"min_remaining":28,"block_seed_chain":9},"finish":{"enabled":true},"counter_read":{"depth":3,"max_nodes":8000}}}
 ```
+
+控えめな要求の例は `min_remaining=32, min_heights=[4,4,4,3,3,3], max_chain=2, min_send=6, max_send=30, max_main_loss=0, max_attacks=1, allow_pending=false, preempt=false`。強引な例は `min_remaining=8, min_heights=[0,0,0,0,0,0], max_chain=5, min_send=1, max_send=180, max_redundancy=24, max_main_loss=8, max_attacks=3, allow_pending=true, preempt=true, race_margin_frames=60, min_enemy_points=2100, preempt_bonus=18, counter_cost_weight=2, gauge_weight=12, gauge_gain_weight=2, surplus_weight=2`。どちらも `enabled=true` とし、`attacks_used` は実行済み回数を渡す。例は対戦未調整で、勝率改善を確認した設定ではない。強引な値でも生存・必要防御の優先と `block_seed_chain` は迂回しない。
 
 ## 可視情報と時間の制約
 

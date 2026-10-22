@@ -266,7 +266,9 @@ json answer(const json& request)
         return pressure.rate(field, bounded_integer(request.at("chain"),1,19,"chain"),
             bounded_integer(request.at("redundancy"),0,84,"redundancy"),
             bounded_integer(request.at("sent"),1,1000000,"sent"),
-            bounded_integer(request.at("deadline"),0,1000000,"deadline"),request.value("invite_fever",false));
+            bounded_integer(request.at("deadline"),0,1000000,"deadline"),request.value("invite_fever",false),
+            request.value("main_loss",0),request.value("attacks",1),request.value("consumed",0),
+            request.value("quiet",true),request.value("own_points",i64(0)),request.value("own_frame",0));
     }
     if (op == "tactics") return fever_battle::tactics(field, request);
     if (op == "normal_colors") return fever_battle::normal_colors(field, request);

@@ -13,6 +13,8 @@ from fever_battle.worker import JsonProcess
 from fever_battle.model import Scoring
 from fever_battle.timing import ChainTiming
 from fever_battle.normal_pressure_options import resolve, BOUNDS
+from fever_battle import tactics
+from test_fever_clear_burial import BOARD as HELD_MAIN
 
 EMPTY=['......']*14
 # High garbage board, no ready color clear; normal drops kill both death columns.
@@ -183,13 +185,140 @@ class PressureTests(unittest.TestCase):
         self.assertNotEqual(reply['reason'],'tactics_finish')
 
     def test_omitted_options_match_previous_version(self):
-        data=json.loads((ROOT/'data/fever/golden/normal-pressure-defaults.json').read_text(encoding='utf-8'))
-        for case in data['cases']:
-            engine=ModeBattleEngine(NATIVE,SOLO,ROOT/'config.json')
-            try:
-                reply=engine.answer(case['request'])
-                self.assertEqual({k:reply.get(k) for k in case['expected']},case['expected'])
-            finally:engine.close()
+        for name in ('normal-pressure-defaults.json','normal-pressure-flex-defaults.json'):
+            data=json.loads((ROOT/'data/fever/golden'/name).read_text(encoding='utf-8'))
+            for case in data['cases']:
+                engine=ModeBattleEngine(NATIVE,SOLO,ROOT/'config.json')
+                try:
+                    reply=engine.answer(case['request'])
+                    self.assertEqual({k:reply.get(k) for k in case['expected']},case['expected'])
+                finally:engine.close()
+
+    def test_conservative_and_forceful_main_budget_pending_and_repetition(self):
+        req=self.probe(HIGH);req.update(deadline=0,main_loss=3,attacks=2,consumed=16,quiet=False)
+        cfg=req['normal_pressure']['pressure']
+        cfg.update(max_main_loss=0,max_attacks=1)
+        result=self.native.ask(req)
+        self.assertEqual(result['blocked_conditions'],['pending','max_main_loss','max_attacks'])
+        cfg.update(allow_pending=True,max_main_loss=3,max_attacks=3,attacks_used=1)
+        result=self.native.ask(req)
+        self.assertTrue(result['pressure'])
+        self.assertEqual((result['main_loss_links'],result['consumed_cells'],result['attacks']),(3,16,2))
+        cfg['attacks_used']=2
+        self.assertEqual(self.native.ask(req)['blocked'],'max_attacks')
+        cfg['max_attacks']=0
+        self.assertTrue(self.native.ask(req)['pressure'])
+
+    def test_each_resource_failure_is_reported(self):
+        req=self.probe(HIGH);req.update(deadline=0,chain=3,redundancy=5,sent=6)
+        req['normal_pressure']['pressure'].update(min_remaining=25,min_heights=[5]*6,
+            max_chain=2,max_redundancy=4,min_send=7)
+        self.assertEqual(self.native.ask(req)['blocked_conditions'],
+            ['min_remaining','min_heights','max_redundancy','max_chain','min_send'])
+        req['normal_pressure']['pressure'].update(min_send=1,max_send=5)
+        self.assertIn('max_send',self.native.ask(req)['blocked_conditions'])
+
+    def test_preempt_uses_witnessed_points_and_time_and_never_late_fire(self):
+        req=self.probe(seed3());req.update(deadline=0,own_points=0,own_frame=10000)
+        cfg=req['normal_pressure']['pressure']
+        cfg.update(preempt=True,preempt_bonus=10,min_enemy_points=1,counter_cost_weight=0,gauge_weight=0)
+        result=self.native.ask(req)
+        self.assertEqual(result['kind'],'preempt')
+        race=result['race']
+        self.assertGreater(race['enemy_points'],0)
+        self.assertGreater(race['enemy_frame'],0)
+        req['deadline']=race['enemy_frame']+1
+        self.assertFalse(self.native.ask(req)['pressure'])
+        req['deadline']=0;req['own_frame']=race['enemy_frame']
+        self.assertFalse(self.native.ask(req)['pressure'])
+        cfg['race_margin_frames']=1
+        self.assertTrue(self.native.ask(req)['pressure'])
+        cfg['min_enemy_points']=race['enemy_points']+1
+        self.assertFalse(self.native.ask(req)['pressure'])
+
+    def test_protocol_preempts_a_visible_main_with_own_growth_estimate(self):
+        own=side('normal',EMPTY[:-1]+['RRR...'],['2:RR'])
+        enemy=side('normal',seed3(),['2:RY','2:GB','2:YB'])
+        own['character']=enemy['character']='arle'
+        req=request(own,enemy);req['target_point']=1
+        req['normal_tactics']=dict(pressure=dict(enabled=True,preempt=True,min_enemy_points=1,
+            preempt_bonus=1000000,counter_cost_weight=0,gauge_weight=0,
+            min_remaining=0,min_heights=[0]*6,min_send=1,max_send=1000000),
+            counter_read=dict(depth=1,max_nodes=4000))
+        reply=self.engine.answer(req)
+        self.assertEqual(reply['reason'],'tactics_pressure')
+        attack=reply['normal_tactics']['normal_attack']
+        self.assertEqual(attack['kind'],'preempt')
+        self.assertGreater(attack['race']['enemy_points'],attack['race']['own_points'])
+        self.assertGreater(attack['race']['own_frame'],attack['race']['enemy_frame'])
+
+    def test_independent_resource_gauge_and_surplus_objectives(self):
+        req=self.probe(seed3());req['deadline']=10000
+        cfg=req['normal_pressure']['pressure']
+        cfg.update(counter_cost_weight=0,gauge_weight=0)
+        self.assertFalse(self.native.ask(req)['pressure'])
+        cfg['counter_cost_weight']=2
+        self.assertTrue(self.native.ask(req)['pressure'])
+        cfg.update(counter_cost_weight=0,gauge_gain_weight=10)
+        result=self.native.ask(req)
+        self.assertGreater(result['counter']['gauge_gain'],0)
+        self.assertTrue(result['pressure'])
+        req['invite_fever']=False
+        self.assertFalse(self.native.ask(req)['pressure'])
+        req=self.probe(HIGH);req['deadline']=0
+        cfg=req['normal_pressure']['pressure']
+        cfg.update(third_column_height=13,counter_cost_weight=0,gauge_weight=0,surplus_weight=2)
+        self.assertEqual(self.native.ask(req)['kind'],'surplus')
+
+    def test_forceful_objectives_cannot_bypass_large_seed_guard(self):
+        req=self.probe(seed3(),experienced=True,seed_chain=8)
+        req.update(deadline=0,own_frame=10000)
+        req['normal_pressure']['pressure'].update(allow_pending=True,preempt=True,
+            min_enemy_points=1,preempt_bonus=100,gauge_gain_weight=100,surplus_weight=100,
+            max_main_loss=84,max_attacks=0)
+        self.assertEqual(self.native.ask(req)['blocked'],'large_seed_gauge_only')
+
+    def test_native_tactics_reports_actual_budget_and_pending_switch(self):
+        own=side('normal',EMPTY[:-1]+['RRR...'],['2:RR','2:RY','2:GB'])
+        own['character']='arle'
+        own.update(confirmed=1,normal_confirmed=1)
+        enemy=side('normal',HIGH,['2:RY','2:GB','2:YB'])
+        enemy['character']='arle'
+        req=request(own,enemy);req['target_point']=1
+        req['normal_tactics']=dict(pressure=dict(enabled=True,min_remaining=0,min_heights=[0]*6,
+            min_send=1,max_send=1000000,third_column_height=0,weight=1000000),
+            counter_read=dict(max_nodes=20000))
+        result=self.engine.answer(req)
+        shots=[c for c in result['tactics_forecast']['candidates'] if c['sent']]
+        self.assertTrue(shots)
+        self.assertTrue(all('pending' in c['normal_attack']['blocked_conditions'] for c in shots))
+        req['normal_tactics']['pressure'].update(allow_pending=True,max_main_loss=84,max_attacks=3,preempt=True)
+        result=self.engine.answer(req)
+        self.assertEqual(result['reason'],'tactics_pressure')
+        attack=result['normal_tactics']['normal_attack']
+        self.assertTrue(attack['pressure'])
+        self.assertGreater(attack['consumed_cells'],0)
+        self.assertGreater(attack['attacks'],0)
+        self.assertIn('enemy',result['decision_dependencies'])
+
+    def test_actual_held_main_loss_is_gated_before_offset_discounts(self):
+        own=side('normal',HELD_MAIN.split('/'),['2:BG'])
+        own['character']='ally'
+        enemy=side('normal',HIGH,['2:RY','2:GB','2:YB'])
+        policy={**self.engine.policy['normal_tactics'],**resolve({})}
+        policy['pressure'].update(enabled=True,min_remaining=0,min_heights=[0]*6,
+            min_send=1,max_send=1000000,max_chain=19,max_redundancy=84,
+            max_main_loss=0,third_column_height=0)
+        result=tactics.evaluate(self.native,self.scoring,own,1,1,policy,enemy=enemy,quiet=True).forecast
+        losses=[c for c in result['candidates'] if c['sent'] and c['normal_attack']['main_loss_links']>0]
+        self.assertTrue(losses)
+        for c in losses:
+            self.assertIn('max_main_loss',c['normal_attack']['blocked_conditions'])
+        policy['pressure']['max_main_loss']=84
+        strong=tactics.evaluate(self.native,self.scoring,own,1,1,policy,enemy=enemy,quiet=True).forecast
+        allowed=[c for c in strong['candidates'] if c['sent'] and c['normal_attack']['main_loss_links']>0]
+        self.assertTrue(allowed)
+        self.assertTrue(all('max_main_loss' not in c['normal_attack'].get('blocked_conditions',[]) for c in allowed))
 
     def test_later_attack_does_not_fund_a_current_uncredited_clear(self):
         own=side('normal',EMPTY[:-1]+['RRR...'],['2:RR','2:RY','2:GB']);own['character']='arle'
@@ -225,6 +354,8 @@ class PressureTests(unittest.TestCase):
         bad=[dict(pressure=True),dict(finish={'enabled':1}),dict(counter_read=None),
              dict(pressure={'min_heights':[0]*5}),dict(pressure={'min_heights':[False]*6}),
              dict(pressure={'min_send':31}),dict(pressure={'unknown':0})]
+        for key in ('allow_pending','preempt'):
+            bad += [dict(pressure={key:v}) for v in (0,1,None,'true',[])]
         for section,limits in BOUNDS.items():
             for key,(low,high) in limits.items():
                 bad += [{section:{key:v}} for v in (low-1,high+1,True,1.5,None)]

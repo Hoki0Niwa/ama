@@ -117,13 +117,15 @@ def evaluate(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=
             reason = 'tactics_harass'      # the placement that sets the attack up
         else:
             return Decision('build', forecast=result)
+    elif choice.get('projected_normal_attack', {}).get('pressure', False):
+        reason = 'tactics_pressure'
     points = choice['link_points']
     reply = dict(x=choice['x'], r=choice['r'], shape=own['queue'][0][0], reason=reason,
         decision_kind=kind(choice), fire=bool(points), chain=choice['chain'], next_chain=choice['chain'],
         next_score=sum(points), link_points=points,
         next_field=choice['field'] if choice['post_drop_field_known'] else None,
         next_all_clear=choice['all_clear'], selected_move_loses=not choice.get('current_survives', choice['survives']),
-        decision_dependencies=['self', 'enemy'] if enemy_events or quiet else ['self'],
+        decision_dependencies=['self', 'enemy'] if enemy_events or quiet or new_attack else ['self'],
         searched_visible=result['completed_depth'] or 1, tactics_forecast=result)
     status = 'defense' if choice['survives'] and choice['defense_commitment'] else 'unresolved'
     reply['normal_decision_status'] = status

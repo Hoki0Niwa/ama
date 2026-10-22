@@ -83,4 +83,5 @@ def report(policy, reply, evaluated):
     effective['weights'] = {k: policy['weights'][k] for k in WEIGHTS if k in policy['weights']}
     return dict(selected=reply['reason'], evaluated_switches=evaluated,
                 disruption_kind=choice.get('disruption_kind', 'none'), effective=effective,
-                normal_attack=deepcopy(choice.get('projected_normal_attack')))
+                normal_attack=deepcopy(choice.get('normal_attack') if choice.get('chain')
+                    else choice.get('projected_normal_attack')))

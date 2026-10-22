@@ -16,13 +16,17 @@ python test/test_engine_protocol.py
 
 `normal_tactics` の要求単位の切替・閾値・重み、型と範囲の拒否、共有方針への非漏出、先読みと入力承認の設定照合を自動検証する。`test/test_fever_tactical_options.py` の8テストに、初回・再構築・相手Fever・観測待ち・妨害範囲の境界を含む。
 
-`test/test_fever_normal_pressure.py` の14テストは、キャラ別Fever通常倍率・レート・端数と得点時刻、全特殊形状、相殺に必要な色ぷよ消費、残存資源、タネ履歴の閾値、ゲージ逃げ、とどめの全端数列、探索不足・未知色、protocol 3での選択と入力検査を確認する。残余があっても相殺でゲージが満ちるなら大きなタネへの圧力を付けず、到着後の相殺による突入もとどめから除外する。後続の大発火で現在の小消しを正当化しないことも検査する。
+`test/test_fever_normal_pressure.py` は、キャラ別Fever通常倍率・レート・端数と得点時刻、全特殊形状、相殺に必要な色ぷよ消費、残存資源、タネ履歴の閾値、ゲージ逃げ、とどめの全端数列、探索不足・未知色、protocol 3での選択と入力検査を確認する。残余があっても相殺でゲージが満ちるなら大きなタネへの圧力を付けず、到着後の相殺による突入もとどめから除外する。後続の大発火で現在の小消しを正当化しないことも検査する。追加の強さ指定では、各数値項目の型・上下限とbooleanの拒否、控えめ／強引な本線費用・催促回数・予告の条件、複数の不成立理由、実盤面での本線減少、先制の得点と時刻の境界・protocol 3での自分の成長見積もり、相殺費用／ゲージ増分／余剰の個別加点、大きなタネへの禁止条件を検査する。
 
-省略時の互換性は `data/fever/golden/normal-tactics-defaults.json` と `normal-pressure-defaults.json` の各10局面で確認する。後者は直前版3cdcdceのPython層とnative workerで採取した配置・色・発火・理由・連鎖点・次盤面。現在の返答と比較する。これは代表局面の回帰保証で、全局面・勝率の同値証明ではない。
+省略時の互換性は `data/fever/golden/normal-tactics-defaults.json` と `normal-pressure-defaults.json` の各10局面、および `normal-pressure-flex-defaults.json` の10局面で確認する。`normal-pressure-defaults` は3cdcdce、`normal-pressure-flex-defaults` は82c7e95のPython層とnative workerで採取した配置・色・発火・理由・連鎖点・次盤面。後者2つは同じ代表要求を各版で評価したもので、独立の20局面ではない。返答の診断項目と `effective` の追加は同値比較の対象外。これは代表局面の回帰保証で、全局面・勝率の同値証明ではない。
 
-`build.ps1 -Target fever_battle` で再ビルドした最終バイナリに対し、`python tools/fever_check.py test` は48ファイル476件成功（新戦術の追加14件を含む）、`python test/test_engine_protocol.py` は8件成功。Windows sandboxの一時ディレクトリの権限エラーを避けるため、Fever全件検証では `TMP` と `TEMP` を作業ツリー内の `bin/test-temp`、`PYTHONIOENCODING` を `utf-8` にした。Tsuの `core/`・`ai/`・`pvp/`・`bench/`、共通ビルドと `config.json` は未変更。既存の `bench` で変更前後にseed 42、幅10・深さ3・10手を比較し、時間以外の17列が一致した。
+82c7e95の追跡ソースを `git archive` で作業ツリー内の別フォルダーへ展開し、その `build.ps1 -Target fever_battle` で作ったworkerと同じ版のPython層でも10局面の期待値が一致することを照合した。基準workerのSHA256とビルド方法は `normal-pressure-flex-defaults.json` に保存する。
 
-長い対戦・掃引、PPFAIとの接続、実機確認、戦術の強さの校正は実施していない。通常の潰し・催促の資源消費は飽和連鎖量を下げる機会の近似で、実際の最大連鎖数・相手の応手を保証しない。必要な相殺経路を可視と配置上限で覆えない場合や相手の配置・連鎖途中には、新戦術のとどめを加点しない。`pressure` と `finish` は既定で無効。明示的な有効化では旧誘い・埋没相手への加点を置き換える。`window_build` は現行方針JSONに設定があるため、省略時は従来どおり条件付きで有効になる。
+`build.ps1 -Target fever_battle` で再ビルドした最終バイナリに対し、`python tools/fever_check.py test` は48ファイル484件成功（圧力判定は既存14件＋強さ指定の追加8件＝22件）、`python test/test_engine_protocol.py` は8件成功。Windows sandboxの一時ディレクトリの権限エラーを避けるため、Fever全件検証では `TMP` と `TEMP` を作業ツリー内の `bin/test-temp`、`PYTHONIOENCODING` を `utf-8` にした。Tsuの `core/`・`ai/`・`pvp/`・`bench/`、共通ビルドと `config.json` は未変更。既存の `bench` で変更前後にseed 42、幅10・深さ3・10手を比較し、時間以外の17列が一致した。
+
+短いTsu比較は、`config.json` の `build` オブジェクトだけをJSONに保存し、`BEAM_WIDTH=10`、`BEAM_DEPTH=3` で `bin/bench/bench.exe <重みJSON> 42 43 <新しいTSVのパス> 10` を変更前後に実行する。seedの終端は排他的で、対象は42の1局。TSVは追記なので前後に別の新しい出力パスを使い、19列のうち0始まり7・8列（時間）だけを除く17列を一致比較する。
+
+長い対戦・掃引、PPFAIとの接続、実機確認、戦術の強さの校正は実施していない。通常の潰し・催促の資源消費は飽和連鎖量を下げる機会の近似で、実際の最大連鎖数・相手の応手を保証しない。先制時機は可視の相手得点と自キャラの通常倍率・不足4個／リンクからの成長見積もりで、未知色・本線の完成・実着弾の予測保証はない。ゲージ増分は観測経路での可能性で、相手がその経路を選ぶ保証はない。催促回数は要求の `attacks_used` と可視経路の送信回数を足して検査する。判断をまたぐ実行済み回数の更新と区切りは呼出側の責務で、PPFAI側の実装や接続は今回変更・検証していない。必要な相殺経路を可視と配置上限で覆えない場合や相手の配置・連鎖途中には、新戦術のとどめを加点しない。`pressure` と `finish` は既定で無効。明示的な有効化では旧誘い・埋没相手への加点を置き換える。`window_build` は現行方針JSONに設定があるため、省略時は従来どおり条件付きで有効になる。
 
 ## 証拠の所在
 
