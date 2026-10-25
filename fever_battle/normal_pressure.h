@@ -20,6 +20,8 @@ class NormalPressure {
     std::vector<piece::Piece> pieces;
     std::vector<Reply> replies;
     int expanded = 0, depth = 0, limit = 0;
+    int ready_min = 0, ready_max = 0;
+    bool bounded_ready = false;
     std::vector<int> unread;
     bool available = false, cutoff = false;
     i64 main_points = 0;

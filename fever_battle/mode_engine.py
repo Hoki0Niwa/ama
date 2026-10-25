@@ -577,7 +577,7 @@ class ModeBattleEngine(BattleEngine):
             gauge_gain_on_offset=request['gauge_gain_on_offset'], clock_policy=request['clock_policy'],
             margin={key: [{**e, 'frame': request['frame'] + e['frame']} for e in self.margin.get(key, [])]
                     for key in ('rate_events', 'enemy_rate_events')},
-            options=options, pace=self.pace, normal_tactics=request.get('normal_tactics', {}), second_target_chain=request.get('second_target_chain', 'legacy'), side=side,
+            options=options, pace=self.pace, normal_tactics=tactical_options.behavioral(request), second_target_chain=request.get('second_target_chain', 'legacy'), side=side,
             enemy_prediction=chain, enemy_state=enemy), sort_keys=True)
 
     def _prepared_delivery_stable(self, request, own, enemy, reply):
@@ -971,14 +971,14 @@ class ModeBattleEngine(BattleEngine):
             # Worth a search where there is a main chain to send, an opponent in Fever to disrupt,
             # or a board small enough to clear whole within the visible pieces.
             puyos = sum(c not in '.#' for row in own['field'] for c in row)
-            if not policy.get('quiet', False) or (not request.get('normal_tactics') and not (
+            if not policy.get('quiet', False) or (not tactical_options.behavioral(request) and not (
                     fever is not None or puyos <= policy.get('all_clear_puyos', 24) or puyos >= 24)):
                 return tactics.Decision('build')
         second=self._after_opening(own,{**self.policy['solo_options'],**request.get('solo_options',{})})
         garbage=sum(c=='#' for row in enemy.get('field',[]) for c in row)
         colors=sum(c not in '.#' for row in enemy.get('field',[]) for c in row)
         finish=enemy['mode']=='normal' and garbage>=24 and colors<=8
-        if quiet and second and not finish and not request.get('normal_tactics'):
+        if quiet and second and not finish and not tactical_options.behavioral(request):
             return tactics.Decision('build')
         policy['finish_buried']=bool(second and finish)
         builder = None
@@ -1004,6 +1004,8 @@ class ModeBattleEngine(BattleEngine):
             policy, events, enemy, self.margin, allowed, builder, defense, upcoming, harass, self.pace, quiet,
             fever, self._enemy_hold(enemy, events, rate),
             invite_fever=policy['invite_fever'], avoid_own_fever=policy['avoid_own_fever'], builder_fire=builder_fire)
+        if policy.get('diagnostics', False):
+            self.last_tactical_diagnostic = dict(status=decision.status, forecast=decision.forecast)
         # A position every placement loses belongs to the finish probe below.
         return decision
 
@@ -1640,6 +1642,7 @@ class ModeBattleEngine(BattleEngine):
     def _think(self, request, own, enemy, rate, policy, op, prepared=None):
         started = time.monotonic()
         self.last_tactical_controls = None
+        self.last_tactical_diagnostic = None
         budget = request.get('decision_budget_ms')
         if budget is not None:
             integer(budget, 'decision_budget_ms', 10, 1000)
@@ -1666,6 +1669,11 @@ class ModeBattleEngine(BattleEngine):
             reply.update(decision_identity=identity(request), search_ms=0.0, search_reused=True,
                          searched_visible=seen or 2)
             reply['seed_search_reused' if own['mode'] == 'fever' else 'normal_search_reused'] = True
+            if own['mode'] == 'normal':
+                effective = tactical_options.resolve(self.policy['normal_tactics'], request, own, enemy)
+                if effective.get('diagnostics') or 'diagnostics' in reply.get('normal_tactics', {}):
+                    reply['normal_tactics'] = tactical_options.report(effective, reply, None,
+                        dict(status='reused', forecast=None))
             return reply
         if op == 'recover_placement':
             allowed = request.get('reachable_placements')
@@ -1797,7 +1805,7 @@ class ModeBattleEngine(BattleEngine):
             reply['disruption_timing'] = guard
         if own['mode'] == 'normal':
             effective = tactical_options.resolve(self.policy['normal_tactics'], request, own, enemy)
-            reply['normal_tactics'] = tactical_options.report(effective, reply, self.last_tactical_controls)
+            reply['normal_tactics'] = tactical_options.report(effective, reply, self.last_tactical_controls, self.last_tactical_diagnostic)
         if reply['shape'] == '0':
             reply['color'] = 'RYGB'['URDL'.index(reply['r'])]
         return reply

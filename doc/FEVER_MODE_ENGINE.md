@@ -197,3 +197,17 @@ Feverの相手解析は突入・タネ到着・発火イベントで固定し、
 相手連鎖中の余裕を使う `_window_build` は、既に選ばれた `jab`／`overpower` を構築で上書きしない。`unready_main` は実際に撃った本線で判定し、埋めた分は費用へ残す。押し発火の下限は `press_min_held=30`、`press_min_lands=6`。いずれも実戦効果の校正は未完了。
 
 測定済み3個組の持ち上げは要求の `lift_allow` を使う。条件・キャッシュ世代・実機確認範囲は [操作制限](DISABLED_TRIPLE_OPERATIONS.md) を参照。`arrival` の時間診断と通常確認余裕は [時間モデル](FEVER_TIMING.md)。
+
+### 通常の出現待ちと任意の候補診断
+
+`normal_tactics.counter_read.normal_wait: true` は、潰し・催促／とどめの相手読みで、確定した通常盤面の出現待ちも対象にする。省略・falseでは操作可能な相手だけを読む。`pressure`／`finish` の有効化とは独立で、この項目だけでpressure／finishを有効にしない。共有policyの既定は変えない。
+
+通常待ちは `enemy.normal_wait` で明示する。`kind: "spawn"`、`board_fixed: true`、現在の `observed_frame` と、整数の `ready_in_min`／`ready_in_max`（0〜120F、min≦max）を要求する。相手は通常、`phase: "waiting_seed"`、ゲージ7未満で、現在フレームの `board_status: "observed_fixed"`・`board_observed_frame` と可視ツモが必要。相手連鎖イベントやFeverへの送り先がある場合は除外する。従来adapterの `awaiting_seed` は通常待ちでもtrueなので、明示したspawn観測があるときだけこの混同を解消する。配置途中・連鎖中・おじゃま運動中・タネ交換・突入／復帰はこの契約で確定扱いしない。単なる `observed_fixed` やphase名だけでは対象を広げない。
+
+応手木は最早再開時刻から作り、区間内の全整数開始時刻でロック・得点・レート境界・配送期限を照合する。能力は最大値、相殺費用は実在する応手の最小値、とどめは区間内に生存・突入の可能性が一つでもあれば不成立とする。未知ツモや配置上限による未探索を成功の証拠にしない。`normal_attack.counter.readiness` の `min`／`max`／`evaluated_starts` と `policy: "optimistic_defender_over_interval"` が条件。既存の時間・配送モデルの推定という制約は残る。区間が広いほど評価費用が増えるため、実戦採用には遅延と本線の比較が必要。
+
+`normal_tactics.diagnostics: true` は、返答 `normal_tactics.diagnostics` に構築へ戻った場合を含む診断を追加する。選択用の探索は増やさず、診断だけの指定が通常戦術の有無を変えない。省略時の返答項目と選択は従来どおり。`counts.root_candidates` の分母は安全性の枝刈り後に返した根候補であり、全内部ノードではない。`nonclear`／`counter_only`／`below_rate`／`send` が現在手の排他的内訳。`current_*` と `continuation_*` で評価済み、送信候補の相手除外、潰しの資源条件通過、その両方を通過、正の加点を数える。資源不成立条件は相手の可否・送信の有無とは独立に記録し、複数条件が重なる（`block_counts_overlap: true`）。空の `normal_attack` はその段階が未評価だった候補で、評価済みの分母に入れない。
+
+`selected` は探索が選んだ候補、`executed` は最終返答の配置に一致する根候補、`execution` は最終返答の理由・配置。候補にない実行手はnullで、推定値を補わない。両候補の `current`／`continuation` を分けて返す。`search_status` はbuild／defense／unresolved／unavailable、探索を省いた場合はnot_run、準備済み判断の再利用ではreused。再利用を新しい探索の件数に加えない。既存 `normal_attack`／`blocked`／`no_send` の意味と最初の打切り順は維持し、nativeの追加 `diagnostic.resource_blocks` だけで独立条件を補う。
+
+独立シミュレーターrevision 22が上記spawn観測を供給する。通常の非消去後は既定で0〜12F、通常連鎖終了後の対象待ちは0〜13Fの幅とし、予約済みReadyイベントの時刻や未公開ツモを渡さない。実機ブリッジはこの追加契約をまだ供給しないため、実機での対象拡大は未実装・未確認。
