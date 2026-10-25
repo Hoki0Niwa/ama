@@ -202,7 +202,7 @@ Feverの相手解析は突入・タネ到着・発火イベントで固定し、
 
 `normal_tactics.counter_read.normal_wait: true` は、潰し・催促／とどめの相手読みで、確定した通常盤面の出現待ちも対象にする。省略・falseでは操作可能な相手だけを読む。`pressure`／`finish` の有効化とは独立で、この項目だけでpressure／finishを有効にしない。共有policyの既定は変えない。
 
-通常待ちは `enemy.normal_wait` で明示する。`kind: "spawn"`、`board_fixed: true`、現在の `observed_frame` と、整数の `ready_in_min`／`ready_in_max`（0〜120F、min≦max）を要求する。相手は通常、`phase: "waiting_seed"`、ゲージ7未満で、現在フレームの `board_status: "observed_fixed"`・`board_observed_frame` と可視ツモが必要。相手連鎖イベントやFeverへの送り先がある場合は除外する。従来adapterの `awaiting_seed` は通常待ちでもtrueなので、明示したspawn観測があるときだけこの混同を解消する。配置途中・連鎖中・おじゃま運動中・タネ交換・突入／復帰はこの契約で確定扱いしない。単なる `observed_fixed` やphase名だけでは対象を広げない。
+通常待ちは `enemy.normal_wait` で明示する。`kind: "spawn"`、`board_fixed: true`、現在の `observed_frame` と、整数の `ready_in_min`／`ready_in_max`（0〜120F、min≦max）を要求する。相手は通常、`phase: "waiting_seed"`、ゲージ7未満で、現在フレームの `board_status: "observed_fixed"`・`board_observed_frame` と可視ツモが必要。相手連鎖イベントやFeverへの送り先がある場合は除外する。従来adapterの `awaiting_seed` は通常待ちでもtrueなので、明示したspawn観測があるときだけこの混同を解消する。配置途中・連鎖中・おじゃま運動中・タネ交換・突入／復帰はこの契約で確定扱いしない。通常待ちでは操作可能な現在手を保証しないため、相手queueの先頭2個の可視予告だけを読み、第3の未来ツモを使わない。単なる `observed_fixed` やphase名だけでは対象を広げない。
 
 応手木は最早再開時刻から作り、区間内の全整数開始時刻でロック・得点・レート境界・配送期限を照合する。能力は最大値、相殺費用は実在する応手の最小値、とどめは区間内に生存・突入の可能性が一つでもあれば不成立とする。未知ツモや配置上限による未探索を成功の証拠にしない。`normal_attack.counter.readiness` の `min`／`max`／`evaluated_starts` と `policy: "optimistic_defender_over_interval"` が条件。既存の時間・配送モデルの推定という制約は残る。区間が広いほど評価費用が増えるため、実戦採用には遅延と本線の比較が必要。
 
