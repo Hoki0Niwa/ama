@@ -88,6 +88,6 @@ Fever倍率表も19リンクへ広げ、ブリッジ（`fever_memory.POWER_LINKS
 
 ## 通常出現待ちの読みと候補診断
 
-`test/test_fever_normal_wait.py` の8件は、保存したno_send診断3要求の完全応答SHA256、要求省略／falseの一致、診断の有無で選択・評価値が同じこと、通常待ち候補の応手生成、再開区間内の各整数時刻・レート境界、固定遅延による期限の移動、不確定・古い観測の除外、構築へ戻った候補と実行手の記録を検査する。通常潰し22件・要求項目8件・通常戦術49件・通protocol8件も成功。Fever専用のファイルだけを変更し、Tsu本体・既定policyは変更しない。
+`test/test_fever_normal_wait.py` の10件は、保存したno_send診断3要求の完全応答SHA256、要求省略／falseの一致、診断の有無で選択・評価値が同じこと、通常待ち候補の応手生成、再開区間内の各整数時刻・レート境界、固定遅延による期限の移動、不確定・古い観測の除外、構築へ戻った候補と実行手の記録、診断だけの指定、準備済み判断の再利用と診断出力の入切を検査する。通常潰し22件・要求項目8件・通常戦術49件・通protocol8件も成功。Fever専用のファイルだけを変更し、Tsu本体・既定policyは変更しない。
 
 保存局の全判断照合とCPU向けビルドの照合は、PPFAIの `tools/check_normal_wait.py`、`tools/ama_build_check.py`、`tools/probe_check.py` とその `runs/normal-wait-implementation/` の目録を参照する。保存データがないcheckoutで再確認済みとはしない。改善を有効にした新しい対戦・勝率比較、実機確認は未実施。

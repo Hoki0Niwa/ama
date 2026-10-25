@@ -1671,9 +1671,13 @@ class ModeBattleEngine(BattleEngine):
             reply['seed_search_reused' if own['mode'] == 'fever' else 'normal_search_reused'] = True
             if own['mode'] == 'normal':
                 effective = tactical_options.resolve(self.policy['normal_tactics'], request, own, enemy)
-                if effective.get('diagnostics') or 'diagnostics' in reply.get('normal_tactics', {}):
-                    reply['normal_tactics'] = tactical_options.report(effective, reply, None,
-                        dict(status='reused', forecast=None))
+                cached = reply.get('normal_tactics', {})
+                if effective.get('diagnostics'):
+                    reply['normal_tactics'] = tactical_options.report(effective, reply,
+                        cached.get('evaluated_switches'), dict(status='reused', forecast=None))
+                elif 'diagnostics' in cached:
+                    from .normal_diagnostics import without_diagnostics
+                    reply = without_diagnostics(reply)
             return reply
         if op == 'recover_placement':
             allowed = request.get('reachable_placements')

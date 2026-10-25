@@ -158,5 +158,52 @@ class NormalWaitTests(unittest.TestCase):
         self.assertEqual(diagnostic['executed']['x'], replies[1]['x'])
 
 
+    def test_diagnostic_only_request_keeps_default_behavior(self):
+        req = request(side('normal'))
+        replies = []
+        for enabled in (False, True):
+            engine = ModeBattleEngine(NATIVE, SOLO, ROOT/'config.json')
+            try:
+                asked = copy.deepcopy(req)
+                if enabled:
+                    asked['normal_tactics'] = dict(diagnostics=True)
+                replies.append(engine.answer(asked))
+            finally:
+                engine.close()
+        self.assertEqual(strip_diagnostics(replies[0]), strip_diagnostics(replies[1]))
+
+    def test_diagnostic_switch_preserves_prepared_reuse_and_does_not_leak(self):
+        from unittest.mock import patch
+        for prepared_diagnostic in (False, True):
+            for current_diagnostic in (False, True):
+                engine = ModeBattleEngine(NATIVE, SOLO, ROOT/'config.json')
+                try:
+                    original = request(side('normal', queue=['2:RY','2:BB','L:RRY']))
+                    if prepared_diagnostic:
+                        original['normal_tactics'] = dict(diagnostics=True)
+                    first = engine.answer(original)
+                    preparation = copy.deepcopy(original)
+                    preparation.update(op='prepare_normal', placement=dict(x=first['x'], r=first['r']))
+                    self.assertTrue(engine.answer(preparation)['prepared'])
+                    current = copy.deepcopy(original)
+                    current.pop('normal_tactics', None)
+                    if current_diagnostic:
+                        current['normal_tactics'] = dict(diagnostics=True)
+                    current['self'].update(field=first['next_field'], queue=original['self']['queue'][1:],
+                        piece_id=1, dropset_index=1, moves_since_chain=1)
+                    with patch.object(engine.solo, 'ask', side_effect=AssertionError('unexpected new search')):
+                        reply = engine.answer(current)
+                    self.assertTrue(reply['normal_search_reused'])
+                    if current_diagnostic:
+                        diag = reply['normal_tactics']['diagnostics']
+                        self.assertEqual(diag['search_status'], 'reused')
+                        self.assertEqual(diag['counts']['root_candidates'], 0)
+                    else:
+                        self.assertNotIn('diagnostics', reply['normal_tactics'])
+                        self.assertNotIn('"diagnostic":', json.dumps(reply))
+                finally:
+                    engine.close()
+
+
 if __name__ == '__main__':
     unittest.main()

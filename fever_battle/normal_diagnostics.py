@@ -49,3 +49,13 @@ def summarize(diagnostic, reply):
                        matched_root=executed is not None),
         selected_executed=bool(choice and executed and (choice['x'], choice['r']) == (executed['x'], executed['r'])),
         completed_depth=forecast.get('completed_depth'), cutoff=forecast.get('cutoff'))
+
+
+def without_diagnostics(value):
+    """Remove optional output from a reused reply when the caller switches it off."""
+    if isinstance(value, dict):
+        return {key: without_diagnostics(item) for key, item in value.items()
+                if key not in ('diagnostic', 'diagnostics')}
+    if isinstance(value, list):
+        return [without_diagnostics(item) for item in value]
+    return value
