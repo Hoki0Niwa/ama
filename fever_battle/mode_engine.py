@@ -721,6 +721,32 @@ class ModeBattleEngine(BattleEngine):
                     and choice['survives'] and choice.get('current_survives', True)
                     and not choice['chain'] and choice['dropped'] == old['dropped'])
 
+    def _prepared_miss(self, request, own, enemy, rate, prepared, op, seen):
+        """None when the prepared decision answers this request, else the first reason it does not
+        (reported as `prepared_miss`, so a decision searched again at the spawn can be explained)."""
+        if op != 'think':
+            return 'op'
+        if prepared is None:
+            return 'none_prepared'
+        first = prepared[0] == self._signature(request, own, visible=seen)
+        if not first:
+            if prepared[2].get('fire') and own['mode'] != 'fever':
+                return 'signature_fire'
+            if len(prepared) <= 3 or not request.get('enemy_chain'):
+                return 'signature_no_chain'
+            if not self._attack_rate_stable(request, enemy):
+                return 'attack_rate'
+            if prepared[3] != self._signature(request, own, final_exchange=True, visible=seen):
+                return 'signature_final_exchange'
+        if not self._clock_allows(own, prepared[1]):
+            return 'clock'
+        if not self._stacking_still_fits(own, prepared[2]):
+            return 'stacking'
+        if not (self._prepared_delivery_stable(request, own, enemy, prepared[2])
+                or self._prepared_survives_delivery(request, own, enemy, rate, prepared[2])):
+            return 'delivery'
+        return None
+
     def _attack_rate_stable(self, request, enemy):
         end = max((e['frame'] for e in self._enemy_events(request, enemy)), default=0)
         return not any(e['frame'] <= end for key in ('rate_events', 'enemy_rate_events')
@@ -1910,15 +1936,8 @@ class ModeBattleEngine(BattleEngine):
                 reply['normal_tactics'] = tactical_options.report(effective, reply, None)
             return reply
         seen = prepared[4] if prepared is not None and len(prepared) > 4 else None
-        if (op == 'think' and prepared is not None and (
-                    prepared[0] == self._signature(request, own, visible=seen) or
-                    ((not prepared[2].get('fire') or own['mode'] == 'fever')
-                     and len(prepared) > 3 and request.get('enemy_chain')
-                     and self._attack_rate_stable(request, enemy)
-                     and prepared[3] == self._signature(request, own, final_exchange=True, visible=seen)))
-                and self._clock_allows(own, prepared[1]) and self._stacking_still_fits(own, prepared[2])
-                and (self._prepared_delivery_stable(request, own, enemy, prepared[2])
-                     or self._prepared_survives_delivery(request, own, enemy, rate, prepared[2]))):
+        miss = self._prepared_miss(request, own, enemy, rate, prepared, op, seen)
+        if miss is None:
             # Decided while the piece before fell, on this very side.
             reply = deepcopy(prepared[2])
             reply.update(decision_identity=identity(request), search_ms=0.0, search_reused=True,
@@ -2087,6 +2106,8 @@ class ModeBattleEngine(BattleEngine):
         from . import strategy
         reply['strategy'] = dict(name=strategy.name(request), phase=strategy.phase(request, own, enemy))
         reply['cold_spawn'] = self.cold_spawn
+        if miss is not None:
+            reply['prepared_miss'] = miss
         reply['mode_timing_status'] = ('normal_calibrated_input_estimated' if own['mode'] == 'normal'
                                        else ChainTiming.for_mode('fever').effective_status)
         reply['margin_forecast'] = self.margin
