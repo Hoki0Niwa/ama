@@ -518,6 +518,21 @@ class ModeBattleEngine(BattleEngine):
             return deepcopy(cached[2])
         if getattr(self, 'cold_spawn', False) and (options.get('beam_width', 50) > 50 or options.get('side_frontier_slots',0)):
             options = dict(options, beam_width=min(50,options.get('beam_width',50)), side_frontier_slots=0)
+            # A wider search of this very position, kept from the prepare, is no worse than the quick one:
+            # searching it again at width 50 only keeps the piece falling.
+            if cached and own['queue'][:len(cached[1])] == cached[1]:
+                kept = json.loads(cached[0])
+                kept_options = kept.pop('options', {})
+                asked = json.loads(key)
+                asked_options = {k: v for k, v in asked.pop('options', {}).items()
+                                 if k not in ('beam_width', 'side_frontier_slots')}
+                if (kept == asked and kept_options.get('beam_width', 50) >= options['beam_width'] and
+                        {k: v for k, v in kept_options.items()
+                         if k not in ('beam_width', 'side_frontier_slots')} == asked_options):
+                    self.normal_build_reused = True
+                    self.normal_build_miss = None
+                    self.normal_build_width = kept_options.get('beam_width', 50)
+                    return deepcopy(cached[2])
             self.normal_build_width = options['beam_width']
             key = json.dumps(dict(match=self.build_match, character=own['character'],
                 field=own['field'], piece_id=own['piece_id'], dropset_index=own['dropset_index'],
@@ -684,6 +699,27 @@ class ModeBattleEngine(BattleEngine):
         check = first['fire_at'] + timing.nuisance_check_frames
         return not any(e['type'] == 'end' and e['frame'] <= check
                        for e in events)
+
+    def _prepared_survives_delivery(self, request, own, enemy, rate, reply):
+        """A prepared normal placement that pops nothing, with an attack ending inside its window: the same tactics
+        search, over that one placement only, on the live request. It is kept if it still survives every delivery
+        the search reads, drops what it dropped and pops nothing, so the piece is not left falling while the whole position is
+        searched again (the Tsu engine likewise re-selects over what it prepared). Anything else is searched again."""
+        if (own['mode'] != 'normal' or not self.cold_spawn or reply.get('fire')
+                or reply.get('selected_move_loses')):
+            return False        # off the spawn path a refreshed decision costs the piece nothing
+        old = reply.get('tactics_forecast', {}).get('choice')
+        if not old or (old['x'], old['r']) != (reply['x'], reply['r']):
+            return False
+        try:
+            decision = self._tactical_decision(request, own, enemy, request['target_point'] if rate is None else rate,
+                allowed=[dict(x=reply['x'], r=reply['r'])])
+        except ValueError:
+            return False
+        choice = (decision.forecast or {}).get('choice')
+        return bool(choice and (choice['x'], choice['r']) == (reply['x'], reply['r'])
+                    and choice['survives'] and choice.get('current_survives', True)
+                    and not choice['chain'] and choice['dropped'] == old['dropped'])
 
     def _attack_rate_stable(self, request, enemy):
         end = max((e['frame'] for e in self._enemy_events(request, enemy)), default=0)
@@ -1881,7 +1917,8 @@ class ModeBattleEngine(BattleEngine):
                      and self._attack_rate_stable(request, enemy)
                      and prepared[3] == self._signature(request, own, final_exchange=True, visible=seen)))
                 and self._clock_allows(own, prepared[1]) and self._stacking_still_fits(own, prepared[2])
-                and self._prepared_delivery_stable(request, own, enemy, prepared[2])):
+                and (self._prepared_delivery_stable(request, own, enemy, prepared[2])
+                     or self._prepared_survives_delivery(request, own, enemy, rate, prepared[2]))):
             # Decided while the piece before fell, on this very side.
             reply = deepcopy(prepared[2])
             reply.update(decision_identity=identity(request), search_ms=0.0, search_reused=True,

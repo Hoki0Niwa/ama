@@ -125,6 +125,38 @@ class PreparationQualityTests(unittest.TestCase):
         self.assertEqual(again['searched_visible'], 3)
         self.assertEqual(self.engine.prepared[2]['normal_build_width'], 80)
 
+    def logged_delivery_window(self):
+        """2P's 8th piece (a big puyo, seed 2): the opponent's chain ends 37F after the spawn, inside the window."""
+        req = json.loads((ROOT / 'data/fever/golden/big-puyo-delivery-window.json').read_text(encoding='utf-8'))
+        prepared = self.engine.answer(copy.deepcopy(req))
+        self.assertTrue(prepared['prepared'])
+        spawn = copy.deepcopy(req)
+        spawn.update(op='think', frame=req['frame'] + 14)
+        for side_ in (spawn['self'], spawn['enemy']):
+            side_['observed_frame'] = spawn['frame']
+        spawn['observation'].update(frame_before=spawn['frame'], frame_after=spawn['frame'])
+        spawn['self']['board_observed_frame'] = spawn['frame']
+        spawn['enemy_chain']['elapsed'] += 14
+        return prepared, spawn
+
+    def test_prepared_placement_that_survives_the_delivery_is_kept_at_the_spawn(self):
+        prepared, spawn = self.logged_delivery_window()
+        with patch.object(self.engine.native, 'ask', wraps=self.engine.native.ask) as ask:
+            reply = self.engine.answer(spawn)
+        self.assertTrue(reply['normal_search_reused'])
+        self.assertEqual((reply['x'], reply['r'], reply['color']),
+                         (prepared['plan']['placement']['x'], prepared['plan']['placement']['r'],
+                          prepared['plan']['placement']['color']))
+        # only the one placement is asked again, not the position
+        self.assertEqual([call.args[0]['op'] for call in ask.call_args_list if call.args[0]['op'] == 'tactics'],
+                         ['tactics'])
+
+    def test_prepared_placement_that_no_longer_survives_is_searched_again(self):
+        _, spawn = self.logged_delivery_window()
+        with patch.object(self.engine, '_prepared_survives_delivery', return_value=False):
+            reply = self.engine.answer(spawn)
+        self.assertFalse(reply.get('normal_search_reused'))
+
 
 if __name__ == '__main__':
     unittest.main()

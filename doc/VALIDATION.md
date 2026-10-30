@@ -344,3 +344,5 @@ Fever全体636件が通過（`bin/main-preserving-final-tests.log`）。Tsu prot
 Fever全検査650件が通過。Tsuの結果とともに `bin/pipeline-refactor/engine-tests.log`、`tsu-protocol.log`、`tsu.tsv` に置く。Tsu protocol 8件が通過し、seed 1/2各20手のbenchでCPU時間の2列以外が変更前と一致した。対戦・単独の両バイナリを `build.ps1` でビルドし、通常の起動先へ反映した。
 
 ブリッジの広い検査には変更前から失敗する古いGUI設定・先読み引数・操作許可の期待が残る。変更前551件の10 failure／3 error、比較後564件の10 failure／2 errorを記録した（`baseline-tests.log`、`staged-tests.log`）。fixtureを新しい所有権契約へ更新した関連検査は上記のとおり通過したが、ブリッジの全検査成功とは数えない。`test_fever_big_colors` の同時確定ケースは目標色・配置への到達自体は成功し、旧テストが要求するA＋DOWNの同時入力だけが不一致だった。実機のBIG色変更・確定境界は受入れで確認する。修正後の実機対戦は未実施。
+
+2P（アリィmod周期 `22222220222222J4`）の8手目はでかぷよで、シード2では1Pの5連鎖の終了がその出現の37F後になり、準備済み判断が配送検査で捨てられて、出現後に約80〜130msの再判断（その間は自由落下）になっていた。設置は正常でオフライン測定のみ。ログ（ブリッジ `observations/input-session.log`）の準備要求を `data/fever/golden/big-puyo-delivery-window.json` に固定し、再判断は約130msから約16msになった（構築探索のキャッシュを幅違いで使えなかった点と、配送検査を準備済みの1手の再検証で置き換えた点の2つ）。`test_fever_preparation_quality.py` 9件、build_prefetch 23件、split_delivery 17件、mode 94件、Tsu protocol 8件が通過。実機の自由落下の解消は未確認（再起動したブリッジでの再対戦が必要）。
