@@ -1,0 +1,27 @@
+{
+  "source": "captured ally normal board; same recorded queue as visible-relief comparison; replay only three visible pieces at each step, no enemy actions or live input",
+  "pieces": [
+    "2:GB",
+    "2:YG",
+    "2:RY",
+    "2:BG",
+    "2:BR",
+    "2:RR",
+    "J:BYB",
+    "4:GGBB",
+    "2:BY",
+    "2:YR",
+    "2:YG",
+    "2:GY",
+    "2:BG",
+    "2:RB",
+    "2:BB",
+    "0:R",
+    "2:RY",
+    "2:GR",
+    "2:GY",
+    "2:RR",
+    "2:GB",
+    "2:YG"
+  ]
+}

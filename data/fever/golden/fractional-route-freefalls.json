@@ -1,0 +1,2221 @@
+{
+  "source": "input-session.log ending 2026-10-30 01:03:49; every recorded lost_at snapshot",
+  "cases": [
+    {
+      "line": 228,
+      "field": [
+        "......",
+        "#.....",
+        "B...G.",
+        "GY..B.",
+        "GRRGG.",
+        "RGBBG.",
+        "RGRBR.",
+        "GRRYG.",
+        "GYYGYY",
+        "GRBBRG",
+        "RRYBRG",
+        "GYRRYY",
+        "GBBYGY",
+        "RRBYBG"
+      ],
+      "piece": "2:BG",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 1571,
+        "piece_id": 27,
+        "dropset_index": 11,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          5,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            -0.42
+          ],
+          [
+            3.0,
+            -1.42
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            1,
+            2.0,
+            -0.5,
+            0,
+            0
+          ],
+          [
+            5,
+            2.0,
+            -0.5,
+            0,
+            8
+          ],
+          [
+            8,
+            2.5,
+            -0.46,
+            0,
+            8
+          ],
+          [
+            13,
+            2.5,
+            -0.46,
+            0,
+            0
+          ],
+          [
+            25,
+            3.0,
+            -0.42,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": true
+    },
+    {
+      "line": 231,
+      "field": [
+        "......",
+        "#.....",
+        "B...G.",
+        "GY..B.",
+        "GRRGG.",
+        "RGBBG.",
+        "RGRBR.",
+        "GRRYG.",
+        "GYYGYY",
+        "GRBBRG",
+        "RRYBRG",
+        "GYRRYY",
+        "GBBYGY",
+        "RRBYBG"
+      ],
+      "piece": "2:BG",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 1571,
+        "piece_id": 27,
+        "dropset_index": 11,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          5,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            -0.38
+          ],
+          [
+            3.0,
+            -1.38
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            0,
+            3.0,
+            -0.38,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 235,
+      "field": [
+        "......",
+        "#.....",
+        "B...G.",
+        "GY..B.",
+        "GRRGG.",
+        "RGBBG.",
+        "RGRBR.",
+        "GRRYG.",
+        "GYYGYY",
+        "GRBBRG",
+        "RRYBRG",
+        "GYRRYY",
+        "GBBYGY",
+        "RRBYBG"
+      ],
+      "piece": "2:BG",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 1571,
+        "piece_id": 27,
+        "dropset_index": 11,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          5,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            -0.34
+          ],
+          [
+            3.0,
+            -1.34
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            1,
+            3.0,
+            -0.34,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 238,
+      "field": [
+        "......",
+        "#.....",
+        "B...G.",
+        "GY..B.",
+        "GRRGG.",
+        "RGBBG.",
+        "RGRBR.",
+        "GRRYG.",
+        "GYYGYY",
+        "GRBBRG",
+        "RRYBRG",
+        "GYRRYY",
+        "GBBYGY",
+        "RRBYBG"
+      ],
+      "piece": "2:BG",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 1571,
+        "piece_id": 27,
+        "dropset_index": 11,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          5,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            -0.19
+          ],
+          [
+            3.0,
+            -1.19
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            0,
+            3.0,
+            -0.19,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 242,
+      "field": [
+        "......",
+        "#.....",
+        "B...G.",
+        "GY..B.",
+        "GRRGG.",
+        "RGBBG.",
+        "RGRBR.",
+        "GRRYG.",
+        "GYYGYY",
+        "GRBBRG",
+        "RRYBRG",
+        "GYRRYY",
+        "GBBYGY",
+        "RRBYBG"
+      ],
+      "piece": "2:BG",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 1571,
+        "piece_id": 27,
+        "dropset_index": 11,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          0,
+          1
+        ],
+        "target": [
+          5,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            0.16
+          ],
+          [
+            3.0,
+            -0.84
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            1,
+            3.0,
+            0.16,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 246,
+      "field": [
+        "......",
+        "#.....",
+        "B...G.",
+        "GY..B.",
+        "GRRGG.",
+        "RGBBG.",
+        "RGRBR.",
+        "GRRYG.",
+        "GYYGYY",
+        "GRBBRG",
+        "RRYBRG",
+        "GYRRYY",
+        "GBBYGY",
+        "RRBYBG"
+      ],
+      "piece": "2:BG",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 1571,
+        "piece_id": 27,
+        "dropset_index": 11,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          0,
+          1
+        ],
+        "target": [
+          5,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            0.79
+          ],
+          [
+            3.0,
+            -0.21
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            0,
+            3.0,
+            0.79,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 254,
+      "field": [
+        "......",
+        "#.....",
+        "B...G.",
+        "GY..B.",
+        "GRRGG.",
+        "RGBBG.",
+        "RGRBRB",
+        "GRRYGG",
+        "GYYGYY",
+        "GRBBRG",
+        "RRYBRG",
+        "GYRRYY",
+        "GBBYGY",
+        "RRBYBG"
+      ],
+      "piece": "2:BR",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 1641,
+        "piece_id": 28,
+        "dropset_index": 12,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          1,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          1,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            1.0,
+            -0.42
+          ],
+          [
+            1.0,
+            -1.42
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            0,
+            2.0,
+            -0.5,
+            0,
+            0
+          ],
+          [
+            3,
+            2.0,
+            -0.5,
+            0,
+            4
+          ],
+          [
+            10,
+            1.5,
+            -0.46,
+            0,
+            4
+          ],
+          [
+            13,
+            1.5,
+            -0.46,
+            0,
+            0
+          ],
+          [
+            25,
+            1.0,
+            -0.42,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": true
+    },
+    {
+      "line": 257,
+      "field": [
+        "......",
+        "#.....",
+        "B...G.",
+        "GY..B.",
+        "GRRGG.",
+        "RGBBG.",
+        "RGRBRB",
+        "GRRYGG",
+        "GYYGYY",
+        "GRBBRG",
+        "RRYBRG",
+        "GYRRYY",
+        "GBBYGY",
+        "RRBYBG"
+      ],
+      "piece": "2:BR",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 1641,
+        "piece_id": 28,
+        "dropset_index": 12,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          1,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          1,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            1.0,
+            -0.38
+          ],
+          [
+            1.0,
+            -1.38
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            0,
+            1.0,
+            -0.38,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 260,
+      "field": [
+        "......",
+        "#.....",
+        "B...G.",
+        "GY..B.",
+        "GRRGG.",
+        "RGBBG.",
+        "RGRBRB",
+        "GRRYGG",
+        "GYYGYY",
+        "GRBBRG",
+        "RRYBRG",
+        "GYRRYY",
+        "GBBYGY",
+        "RRBYBG"
+      ],
+      "piece": "2:BR",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 1641,
+        "piece_id": 28,
+        "dropset_index": 12,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          1,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          1,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            1.0,
+            -0.34
+          ],
+          [
+            1.0,
+            -1.34
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            1,
+            1.0,
+            -0.34,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 264,
+      "field": [
+        "......",
+        "#.....",
+        "B...G.",
+        "GY..B.",
+        "GRRGG.",
+        "RGBBG.",
+        "RGRBRB",
+        "GRRYGG",
+        "GYYGYY",
+        "GRBBRG",
+        "RRYBRG",
+        "GYRRYY",
+        "GBBYGY",
+        "RRBYBG"
+      ],
+      "piece": "2:BR",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 1641,
+        "piece_id": 28,
+        "dropset_index": 12,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          1,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          1,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            1.0,
+            -0.19
+          ],
+          [
+            1.0,
+            -1.19
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            0,
+            1.0,
+            -0.19,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 292,
+      "field": [
+        "......",
+        "....Y.",
+        "Y...G.",
+        "#B..B.",
+        "BY..GB",
+        "RG..GB",
+        "RGRGRB",
+        "GRRYGG",
+        "GYYGYY",
+        "GRBBRG",
+        "RRYBRG",
+        "GYRRYY",
+        "GBBYGY",
+        "RRBYBG"
+      ],
+      "piece": "2:YR",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 2190,
+        "piece_id": 33,
+        "dropset_index": 1,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          1,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          0,
+          0
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            1.0,
+            -0.42
+          ],
+          [
+            1.0,
+            -1.42
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            1,
+            2.0,
+            -0.5,
+            0,
+            0
+          ],
+          [
+            6,
+            2.0,
+            -0.5,
+            0,
+            4
+          ],
+          [
+            10,
+            1.5,
+            -0.46,
+            0,
+            4
+          ],
+          [
+            13,
+            1.5,
+            -0.46,
+            0,
+            0
+          ],
+          [
+            27,
+            1.0,
+            -0.42,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": true
+    },
+    {
+      "line": 295,
+      "field": [
+        "......",
+        "....Y.",
+        "Y...G.",
+        "#B..B.",
+        "BY..GB",
+        "RG..GB",
+        "RGRGRB",
+        "GRRYGG",
+        "GYYGYY",
+        "GRBBRG",
+        "RRYBRG",
+        "GYRRYY",
+        "GBBYGY",
+        "RRBYBG"
+      ],
+      "piece": "2:YR",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 2190,
+        "piece_id": 33,
+        "dropset_index": 1,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          1,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          0,
+          0
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            1.0,
+            -0.38
+          ],
+          [
+            1.0,
+            -1.38
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            0,
+            1.0,
+            -0.38,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 298,
+      "field": [
+        "......",
+        "....Y.",
+        "Y...G.",
+        "#B..B.",
+        "BY..GB",
+        "RG..GB",
+        "RGRGRB",
+        "GRRYGG",
+        "GYYGYY",
+        "GRBBRG",
+        "RRYBRG",
+        "GYRRYY",
+        "GBBYGY",
+        "RRBYBG"
+      ],
+      "piece": "2:YR",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 2190,
+        "piece_id": 33,
+        "dropset_index": 1,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          1,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          0,
+          0
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            1.0,
+            -0.34
+          ],
+          [
+            1.0,
+            -1.34
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            0,
+            1.0,
+            -0.34,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 302,
+      "field": [
+        "......",
+        "....Y.",
+        "Y...G.",
+        "#B..B.",
+        "BY..GB",
+        "RG..GB",
+        "RGRGRB",
+        "GRRYGG",
+        "GYYGYY",
+        "GRBBRG",
+        "RRYBRG",
+        "GYRRYY",
+        "GBBYGY",
+        "RRBYBG"
+      ],
+      "piece": "2:YR",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 2190,
+        "piece_id": 33,
+        "dropset_index": 1,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          1,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          0,
+          0
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            1.0,
+            -0.19
+          ],
+          [
+            1.0,
+            -1.19
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            1,
+            1.0,
+            -0.19,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 478,
+      "field": [
+        "......",
+        "......",
+        "B.....",
+        "B.G.R.",
+        "G.R.R.",
+        "B.GRB.",
+        "R.BRB.",
+        "Y.GGY.",
+        "GRGYY.",
+        "BBBGR.",
+        "GGGYRY",
+        "YYYGRY",
+        "RRRBGB",
+        "BBBGGB"
+      ],
+      "piece": "2:RY",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 3566,
+        "piece_id": 54,
+        "dropset_index": 6,
+        "mode_generation": 1,
+        "seed_id": 1
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          5,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            -0.42
+          ],
+          [
+            3.0,
+            -1.42
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            0,
+            2.0,
+            -0.5,
+            0,
+            0
+          ],
+          [
+            5,
+            2.0,
+            -0.5,
+            0,
+            8
+          ],
+          [
+            12,
+            2.5,
+            -0.46,
+            0,
+            8
+          ],
+          [
+            16,
+            2.5,
+            -0.46,
+            0,
+            0
+          ],
+          [
+            27,
+            3.0,
+            -0.42,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": true
+    },
+    {
+      "line": 481,
+      "field": [
+        "......",
+        "......",
+        "B.....",
+        "B.G.R.",
+        "G.R.R.",
+        "B.GRB.",
+        "R.BRB.",
+        "Y.GGY.",
+        "GRGYY.",
+        "BBBGR.",
+        "GGGYRY",
+        "YYYGRY",
+        "RRRBGB",
+        "BBBGGB"
+      ],
+      "piece": "2:RY",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 3566,
+        "piece_id": 54,
+        "dropset_index": 6,
+        "mode_generation": 1,
+        "seed_id": 1
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          5,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            -0.38
+          ],
+          [
+            3.0,
+            -1.38
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            1,
+            3.0,
+            -0.38,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 485,
+      "field": [
+        "......",
+        "......",
+        "B.....",
+        "B.G.R.",
+        "G.R.R.",
+        "B.GRB.",
+        "R.BRB.",
+        "Y.GGY.",
+        "GRGYY.",
+        "BBBGR.",
+        "GGGYRY",
+        "YYYGRY",
+        "RRRBGB",
+        "BBBGGB"
+      ],
+      "piece": "2:RY",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 3566,
+        "piece_id": 54,
+        "dropset_index": 6,
+        "mode_generation": 1,
+        "seed_id": 1
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          5,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            -0.34
+          ],
+          [
+            3.0,
+            -1.34
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            1,
+            3.0,
+            -0.34,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 489,
+      "field": [
+        "......",
+        "......",
+        "B.....",
+        "B.G.R.",
+        "G.R.R.",
+        "B.GRB.",
+        "R.BRB.",
+        "Y.GGY.",
+        "GRGYY.",
+        "BBBGR.",
+        "GGGYRY",
+        "YYYGRY",
+        "RRRBGB",
+        "BBBGGB"
+      ],
+      "piece": "2:RY",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 3566,
+        "piece_id": 54,
+        "dropset_index": 6,
+        "mode_generation": 1,
+        "seed_id": 1
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          5,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            -0.19
+          ],
+          [
+            3.0,
+            -1.19
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            2,
+            3.0,
+            -0.19,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 493,
+      "field": [
+        "......",
+        "......",
+        "B.....",
+        "B.G.R.",
+        "G.R.R.",
+        "B.GRB.",
+        "R.BRB.",
+        "Y.GGY.",
+        "GRGYY.",
+        "BBBGR.",
+        "GGGYRY",
+        "YYYGRY",
+        "RRRBGB",
+        "BBBGGB"
+      ],
+      "piece": "2:RY",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 3566,
+        "piece_id": 54,
+        "dropset_index": 6,
+        "mode_generation": 1,
+        "seed_id": 1
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          0,
+          1
+        ],
+        "target": [
+          5,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            0.16
+          ],
+          [
+            3.0,
+            -0.84
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            0,
+            3.0,
+            0.16,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 497,
+      "field": [
+        "......",
+        "......",
+        "B.....",
+        "B.G.R.",
+        "G.R.R.",
+        "B.GRB.",
+        "R.BRB.",
+        "Y.GGY.",
+        "GRGYY.",
+        "BBBGR.",
+        "GGGYRY",
+        "YYYGRY",
+        "RRRBGB",
+        "BBBGGB"
+      ],
+      "piece": "2:RY",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 3566,
+        "piece_id": 54,
+        "dropset_index": 6,
+        "mode_generation": 1,
+        "seed_id": 1
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          0,
+          1
+        ],
+        "target": [
+          5,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            0.79
+          ],
+          [
+            3.0,
+            -0.21
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            1,
+            3.0,
+            0.79,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 503,
+      "field": [
+        "......",
+        "......",
+        "B.....",
+        "B.G.R.",
+        "G.R.R.",
+        "B.GRB.",
+        "R.BRB.",
+        "Y.GGY.",
+        "GRGYY.",
+        "BBBGR.",
+        "GGGYRY",
+        "YYYGRY",
+        "RRRBGB",
+        "BBBGGB"
+      ],
+      "piece": "2:RY",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 3566,
+        "piece_id": 54,
+        "dropset_index": 6,
+        "mode_generation": 1,
+        "seed_id": 1
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          1,
+          2
+        ],
+        "target": [
+          5,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            1.41
+          ],
+          [
+            3.0,
+            0.41
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            1,
+            3.0,
+            1.41,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 508,
+      "field": [
+        "......",
+        "......",
+        "B.....",
+        "B.G.R.",
+        "G.R.R.",
+        "B.GRB.",
+        "R.BRB.",
+        "Y.GGY.",
+        "GRGYY.",
+        "BBBGR.",
+        "GGGYRY",
+        "YYYGRY",
+        "RRRBGB",
+        "BBBGGB"
+      ],
+      "piece": "2:RY",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-1",
+        "frame": 3566,
+        "piece_id": 54,
+        "dropset_index": 6,
+        "mode_generation": 1,
+        "seed_id": 1
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          2,
+          2
+        ],
+        "target": [
+          5,
+          2
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            2.0
+          ],
+          [
+            3.0,
+            1.0
+          ]
+        ],
+        "grounded": 1,
+        "path": [
+          [
+            1,
+            3.0,
+            2.0,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 978,
+      "field": [
+        "......",
+        "R....R",
+        "RR..RG",
+        "GR..GG",
+        "GGYBRY",
+        "BBYYGY",
+        "YRBBBG",
+        "GYRGYG",
+        "GYRBYG",
+        "GYBRYR",
+        "BBYRGR",
+        "BYYBRY",
+        "YBBRRY",
+        "GGGYBY"
+      ],
+      "piece": "2:BR",
+      "identity": {
+        "match_id": "90d974c468a04bc9a68a348dfe7b39ae-round-2",
+        "frame": 3653,
+        "piece_id": 48,
+        "dropset_index": 0,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          4,
+          0
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            -0.42
+          ],
+          [
+            3.0,
+            -1.42
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            1,
+            2.0,
+            -0.5,
+            0,
+            0
+          ],
+          [
+            4,
+            2.0,
+            -0.5,
+            0,
+            8
+          ],
+          [
+            12,
+            2.5,
+            -0.46,
+            0,
+            8
+          ],
+          [
+            16,
+            2.5,
+            -0.46,
+            0,
+            0
+          ],
+          [
+            27,
+            3.0,
+            -0.42,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": true
+    },
+    {
+      "line": 981,
+      "field": [
+        "......",
+        "R....R",
+        "RR..RG",
+        "GR..GG",
+        "GGYBRY",
+        "BBYYGY",
+        "YRBBBG",
+        "GYRGYG",
+        "GYRBYG",
+        "GYBRYR",
+        "BBYRGR",
+        "BYYBRY",
+        "YBBRRY",
+        "GGGYBY"
+      ],
+      "piece": "2:BR",
+      "identity": {
+        "match_id": "90d974c468a04bc9a68a348dfe7b39ae-round-2",
+        "frame": 3653,
+        "piece_id": 48,
+        "dropset_index": 0,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          4,
+          0
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            -0.38
+          ],
+          [
+            3.0,
+            -1.38
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            1,
+            3.0,
+            -0.38,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 984,
+      "field": [
+        "......",
+        "R....R",
+        "RR..RG",
+        "GR..GG",
+        "GGYBRY",
+        "BBYYGY",
+        "YRBBBG",
+        "GYRGYG",
+        "GYRBYG",
+        "GYBRYR",
+        "BBYRGR",
+        "BYYBRY",
+        "YBBRRY",
+        "GGGYBY"
+      ],
+      "piece": "2:BR",
+      "identity": {
+        "match_id": "90d974c468a04bc9a68a348dfe7b39ae-round-2",
+        "frame": 3653,
+        "piece_id": 48,
+        "dropset_index": 0,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          4,
+          0
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            -0.3
+          ],
+          [
+            3.0,
+            -1.3
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            3,
+            3.0,
+            -0.3,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 987,
+      "field": [
+        "......",
+        "R....R",
+        "RR..RG",
+        "GR..GG",
+        "GGYBRY",
+        "BBYYGY",
+        "YRBBBG",
+        "GYRGYG",
+        "GYRBYG",
+        "GYBRYR",
+        "BBYRGR",
+        "BYYBRY",
+        "YBBRRY",
+        "GGGYBY"
+      ],
+      "piece": "2:BR",
+      "identity": {
+        "match_id": "90d974c468a04bc9a68a348dfe7b39ae-round-2",
+        "frame": 3653,
+        "piece_id": 48,
+        "dropset_index": 0,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          4,
+          0
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            -0.15
+          ],
+          [
+            3.0,
+            -1.15
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            4,
+            3.0,
+            -0.15,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 991,
+      "field": [
+        "......",
+        "R....R",
+        "RR..RG",
+        "GR..GG",
+        "GGYBRY",
+        "BBYYGY",
+        "YRBBBG",
+        "GYRGYG",
+        "GYRBYG",
+        "GYBRYR",
+        "BBYRGR",
+        "BYYBRY",
+        "YBBRRY",
+        "GGGYBY"
+      ],
+      "piece": "2:BR",
+      "identity": {
+        "match_id": "90d974c468a04bc9a68a348dfe7b39ae-round-2",
+        "frame": 3653,
+        "piece_id": 48,
+        "dropset_index": 0,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          0,
+          1
+        ],
+        "target": [
+          4,
+          0
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            0.2
+          ],
+          [
+            3.0,
+            -0.8
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            0,
+            3.0,
+            0.2,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 996,
+      "field": [
+        "......",
+        ".....G",
+        "....RG",
+        "..GGRB",
+        "..BGBB",
+        "..BYGR",
+        "..YYRG",
+        ".GGBBY",
+        ".YRRYY",
+        ".BGRBB",
+        "YYRGYB",
+        "BYRRYY",
+        "YBBGGB",
+        "YBRGYB"
+      ],
+      "piece": "2:RR",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-2",
+        "frame": 3658,
+        "piece_id": 49,
+        "dropset_index": 1,
+        "mode_generation": 1,
+        "seed_id": 1
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          4,
+          0
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            -0.42
+          ],
+          [
+            3.0,
+            -1.42
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            0,
+            2.0,
+            -0.5,
+            0,
+            0
+          ],
+          [
+            4,
+            2.0,
+            -0.5,
+            0,
+            8
+          ],
+          [
+            12,
+            2.5,
+            -0.46,
+            0,
+            8
+          ],
+          [
+            16,
+            2.5,
+            -0.46,
+            0,
+            0
+          ],
+          [
+            25,
+            3.0,
+            -0.42,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": true
+    },
+    {
+      "line": 999,
+      "field": [
+        "......",
+        ".....G",
+        "....RG",
+        "..GGRB",
+        "..BGBB",
+        "..BYGR",
+        "..YYRG",
+        ".GGBBY",
+        ".YRRYY",
+        ".BGRBB",
+        "YYRGYB",
+        "BYRRYY",
+        "YBBGGB",
+        "YBRGYB"
+      ],
+      "piece": "2:RR",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-2",
+        "frame": 3658,
+        "piece_id": 49,
+        "dropset_index": 1,
+        "mode_generation": 1,
+        "seed_id": 1
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          4,
+          0
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            -0.38
+          ],
+          [
+            3.0,
+            -1.38
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            1,
+            3.0,
+            -0.38,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 1003,
+      "field": [
+        "......",
+        ".....G",
+        "....RG",
+        "..GGRB",
+        "..BGBB",
+        "..BYGR",
+        "..YYRG",
+        ".GGBBY",
+        ".YRRYY",
+        ".BGRBB",
+        "YYRGYB",
+        "BYRRYY",
+        "YBBGGB",
+        "YBRGYB"
+      ],
+      "piece": "2:RR",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-2",
+        "frame": 3658,
+        "piece_id": 49,
+        "dropset_index": 1,
+        "mode_generation": 1,
+        "seed_id": 1
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          4,
+          0
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            -0.3
+          ],
+          [
+            3.0,
+            -1.3
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            2,
+            3.0,
+            -0.3,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 1007,
+      "field": [
+        "......",
+        "R....R",
+        "RR..RG",
+        "GR..GG",
+        "GGYBRY",
+        "BBYYGY",
+        "YRBBBG",
+        "GYRGYG",
+        "GYRBYG",
+        "GYBRYR",
+        "BBYRGR",
+        "BYYBRY",
+        "YBBRRY",
+        "GGGYBY"
+      ],
+      "piece": "2:BR",
+      "identity": {
+        "match_id": "90d974c468a04bc9a68a348dfe7b39ae-round-2",
+        "frame": 3653,
+        "piece_id": 48,
+        "dropset_index": 0,
+        "mode_generation": 0,
+        "seed_id": 0
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          0,
+          1
+        ],
+        "target": [
+          4,
+          0
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            0.83
+          ],
+          [
+            3.0,
+            -0.17
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            1,
+            3.0,
+            0.83,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    },
+    {
+      "line": 1011,
+      "field": [
+        "......",
+        ".....G",
+        "....RG",
+        "..GGRB",
+        "..BGBB",
+        "..BYGR",
+        "..YYRG",
+        ".GGBBY",
+        ".YRRYY",
+        ".BGRBB",
+        "YYRGYB",
+        "BYRRYY",
+        "YBBGGB",
+        "YBRGYB"
+      ],
+      "piece": "2:RR",
+      "identity": {
+        "match_id": "3a6536596fdb4eecad1007b626fb832b-round-2",
+        "frame": 3658,
+        "piece_id": 49,
+        "dropset_index": 1,
+        "mode_generation": 1,
+        "seed_id": 1
+      },
+      "lost_at": {
+        "pose": [
+          3,
+          0
+        ],
+        "rows": [
+          -1,
+          0
+        ],
+        "target": [
+          4,
+          0
+        ],
+        "rotation": 0,
+        "cells": [
+          [
+            3.0,
+            -0.15
+          ],
+          [
+            3.0,
+            -1.15
+          ]
+        ],
+        "grounded": 0,
+        "path": [
+          [
+            3,
+            3.0,
+            -0.15,
+            0,
+            0
+          ]
+        ]
+      },
+      "initial_failure": false
+    }
+  ]
+}

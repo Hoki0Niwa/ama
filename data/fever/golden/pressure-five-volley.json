@@ -1,0 +1,25 @@
+{
+  "source": "Synthetic retained-five-chain board with independent visible attacks. Arle with explicit all-pair mod cycle; not Steam match evidence.",
+  "field": [
+    "......",
+    "......",
+    "......",
+    "......",
+    "......",
+    "......",
+    "......",
+    "G.....",
+    "BRGBY.",
+    "BRGBYY",
+    "BRGBYY",
+    "GGRYGG",
+    "GBBRYY",
+    "BRRYGG"
+  ],
+  "queue": [
+    "2:RY",
+    "2:GY",
+    "2:BY",
+    "2:YY"
+  ]
+}

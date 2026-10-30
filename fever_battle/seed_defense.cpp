@@ -16,7 +16,7 @@ json seed_defense(Field field, const json& request) {
     auto rules = rule::FEVER; rules.special_moves = true;
     const int target = number(request, "seed_chain", 3, 15);
     const auto queue = request.at("queue").get<std::vector<std::string>>();
-    if (queue.empty() || queue.size() > 3) throw std::invalid_argument("seed defense requires visible queue");
+    if (queue.empty() || queue.size() > 12) throw std::invalid_argument("queue requires 1..12 pieces");
     std::vector<piece::Piece> pieces;
     for (const auto& text : queue) {
         auto p = fever::text::to_piece(text);

@@ -1,5 +1,7 @@
+#include "cancellation.h"
 #include "search.h"
 #include "normal_space.h"
+#include <set>
 
 namespace fever
 {
@@ -76,6 +78,9 @@ static bool think(
 
     std::vector<i64> reached(configs.aim ? candidates.size() : 0, INT64_MIN);
 
+    const bool split = configs.side_frontier_slots && configs.width>=8 &&
+        std::any_of(candidates.begin(),candidates.end(),[](const auto& c){return c.side_root;});
+    std::vector<std::vector<beam::node::Data>> side(split ? candidates.size() : 0);
     // Expands each parent to the next layer
     for (auto& node : parents.data) {
         fever::expand(piece, node, w, rules, [&] (beam::node::Data& child, const move::Placement& placement, const chain::Score& chain) {
@@ -85,6 +90,10 @@ static bool think(
             candidate.score = std::max(candidate.score, size_t(chain.score));
             candidate.chain = std::max(candidate.chain, chain.count);
             candidate.throughput = std::max(candidate.throughput,cycle_rate(chain,int(depth)+1,configs));
+
+            if (configs.level != 0 && is_leveling(chain, configs)) {
+                child.score.action += configs.level;
+            }
 
             // Prunes children that triggered big chains
             if (chain.count >= fever::PRUNE_CHAIN) {
@@ -116,11 +125,35 @@ static bool think(
                 reached[child.index] = std::max(reached[child.index], i64(child.score.eval) + child.score.action);
             }
 
-            // Adds children to the next layer
+            if (split && candidate.side_root) {
+                auto& lane = side[child.index];
+                auto at = std::find_if(lane.begin(),lane.end(),[&](const auto& n){return n<child;});
+                lane.insert(at,child);
+                if (lane.size()>size_t(configs.side_frontier_slots)) lane.pop_back();
+            }
+            // All continuations share the original width; reserve only changes ranking.
             children.add(child);
         }, configs.normal);
     }
 
+    if (split) {
+        std::vector<beam::node::Data> kept;
+        for (const auto& lane : side)
+            for (size_t i=0;i<std::min(lane.size(),size_t(configs.side_frontier_slots));++i) kept.push_back(lane[i]);
+        std::stable_sort(kept.begin(),kept.end(),[](const auto& a,const auto& b){return b<a;});
+        // At least seven eighths of the existing width remains available to normal construction.
+        if (kept.size()>configs.width/8) kept.resize(configs.width/8);
+        std::set<std::pair<int,u64>> seen;
+        for (const auto& n : kept) seen.insert({n.index,beam::node::get_hash(n)});
+        children.sort();
+        for (const auto& n : children.data) {
+            if (kept.size()>=configs.width) break;
+            if (seen.insert({n.index,beam::node::get_hash(n)}).second) kept.push_back(n);
+        }
+        children.data=std::move(kept);
+        if (children.data.size()==children.width)
+            std::make_heap(children.data.begin(),children.data.end(),[](const auto& a,const auto& b){return b<a;});
+    }
     // Clears the parents layer
     parents.clear();
 
@@ -175,11 +208,17 @@ Result search(
             candidate.placement = placement;
             candidate.score = chain.score;
             candidate.chain = chain.count;
+            candidate.root_chain = chain.count;
             candidate.throughput = cycle_rate(chain,1,configs);
+            candidate.leveling = is_leveling(chain, configs);
+            candidate.side_root = field.get_count()>=48 && chain.count>=2 && chain.count<=4;
+            if (configs.level != 0 && candidate.leveling) {
+                child.score.action += configs.level;
+            }
 
             // Updates child
             child.index = i32(result.candidates.size());
-            fever::evaluate(child, w, configs);
+            fever::evaluate(child, w, configs, &candidate.held_main);
             if (queue.size()>1 && chain.count<3) {
                 candidate.next_room=0;
                 auto next=normal_space::moves(child.field,queue[1],configs.rules);
@@ -207,6 +246,7 @@ Result search(
 
     // Searches
     for (size_t i = 0; i + 1 < queue.size(); ++i) {
+        cancellation::check();
         const auto before = result.candidates;
         const bool complete = fever::think(
             queue[i + 1],
@@ -235,6 +275,13 @@ Result search(
 
         if (enough) {
             break;
+        }
+    }
+
+    for (auto& c : result.candidates) c.projected = {i64(c.score)};
+    if (configs.level_root > 0) {
+        for (auto& c : result.candidates) {
+            if (c.leveling) c.score = c.score > size_t(configs.level_root) ? c.score - size_t(configs.level_root) : 0;
         }
     }
 
@@ -276,16 +323,20 @@ Result search_multi(
     // Searching multiple queues at the same time
     std::vector<Result> results(queues.size());
     std::vector<std::thread> threads;
+    std::vector<std::exception_ptr> errors(queues.size());
 
     for (size_t i = 0; i < queues.size(); ++i) {
         threads.emplace_back([&] (size_t id) {
-            results[id] = fever::search(field, queues[id], w, configs);
+            try { results[id] = fever::search(field, queues[id], w, configs); }
+            catch (...) { errors[id] = std::current_exception(); }
         }, i);
     }
 
     for (auto& t : threads) {
         t.join();
     }
+
+    for (const auto& error : errors) if (error) std::rethrow_exception(error);
 
     // Accumulates the biggest chains of each candidate
     // The first move is the same on every queue, so the candidates line up
@@ -303,6 +354,7 @@ Result search_multi(
             for (auto& c2 : b.candidates) {
                 if (c1.placement == c2.placement) {
                     c1.score += c2.score;
+                    c1.projected.insert(c1.projected.end(), c2.projected.begin(), c2.projected.end());
                     c1.throughput += c2.throughput;
                     c1.aim += c2.aim;
                     c1.chain = std::max(c1.chain, c2.chain);

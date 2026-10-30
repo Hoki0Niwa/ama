@@ -8,7 +8,7 @@ from itertools import combinations
 from .model import convert, dead, integer
 from .timing import ChainTiming
 from .margin import rate_at
-from .nuisance import Trays
+from .nuisance import Trays, link_amount
 
 
 def outcomes(rows, count):
@@ -27,7 +27,7 @@ def outcomes(rows, count):
 
 
 def choose(native, scoring, side, rate, options=None, allowed_placements=None,
-           enemy_events=None, enemy=None, margin=None):
+           enemy_events=None, enemy=None, margin=None, pace=None):
     """Rank real current-piece placements and reobserve after any actual drop."""
     options = options or {}
     timing = ChainTiming.for_mode(side['mode'], placement_frames=integer(options.get('placement_frames', 14), 'placement_frames', 1, 10000))
@@ -37,7 +37,7 @@ def choose(native, scoring, side, rate, options=None, allowed_placements=None,
         if allowed_placements is not None and (candidate['x'], candidate['r']) not in allowed_placements:
             continue
         points = scoring.chain(side['character'], candidate['links'], side['mode'])
-        fire_at = timing.placement_frames + timing.split_extra_frames[max(candidate['split_distances'], default=0)] + (timing.first_link_frames if points else 0)
+        fire_at = timing.lock_frames(timing.split_extra_frames[max(candidate['split_distances'], default=0)], pace) + (timing.first_link_frames if points else 0)
         check_at = fire_at + (0 if points else timing.check_frames)
         fixed, flying, remainder = side['confirmed'], side['unconfirmed'], side['remainder']
         opponent = enemy or {}
@@ -56,7 +56,7 @@ def choose(native, scoring, side, rate, options=None, allowed_placements=None,
                     held_fixed += held_flying; held_flying = 0
                 else:
                     active_rate = rate_at(rate, (margin or {}).get('enemy_rate_events'), event['frame'])
-                    amount, eremainder, _ = convert(event['points'], eremainder, active_rate, trays.pending())
+                    amount, eremainder = link_amount(event, eremainder, active_rate, trays.pending())
                     flying += trays.offset(amount)
         advance(check_at)
         due = min(30, fixed)        # what falls on this placement unless it clears

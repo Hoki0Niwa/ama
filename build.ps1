@@ -3,7 +3,8 @@ param(
     [ValidateSet('pvp', 'bench', 'puyop', 'test', 'tuner', 'speed-bench', 'fever', 'bench_fever', 'fever_battle')]
     [string]$Target = 'pvp',
     [string]$Output = '',
-    [switch]$Pext
+    [switch]$Pext,
+    [switch]$NoPext
 )
 $ErrorActionPreference = 'Stop'
 $compilerPath = (Get-Command $Compiler -ErrorAction Stop).Source
@@ -25,7 +26,8 @@ try {
             Where-Object Name -ne 'main.cpp' | ForEach-Object FullName
     }
     $flags = @('-std=c++20', '-O2', '-msse4.1', '-DNDEBUG', '-static', '-s')
-    if ($Pext) { $flags += @('-mbmi2', '-DPEXT') }
+    # The Fever engines use PEXT (BMI2) unless -NoPext: the same results, about a tenth quicker.
+    if ($Pext -or (($Target -in 'fever', 'bench_fever', 'fever_battle') -and -not $NoPext)) { $flags += @('-mbmi2', '-DPEXT') }
     & $compilerPath @flags @sources '-o' $outputPath
     if ($LASTEXITCODE -ne 0) { throw "Ama $Target build failed: $LASTEXITCODE" }
     Write-Output "Built $outputPath"

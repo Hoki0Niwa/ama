@@ -29,7 +29,7 @@ class SecondFireTimingTests(unittest.TestCase):
         sample = self.sample(); own, enemy = sample['own'], sample['enemy']
         own['garbage_phase'] = phase
         enemy.update(mode_generation=1, seed_id=1)
-        req = dict(second_target_chain=14, enemy=enemy, gauge_gain_on_offset=gain,
+        req = dict(second_target_chain=14, enemy=enemy, gauge_gain_on_offset=gain, target_point=120,
             solo_options=dict(beam_width=150, beam_depth=8),
             enemy_chain=dict(mode_generation=1, seed_id=1) if chain else None)
         with patch.object(self.engine, '_enemy_events', return_value=events or [dict(type='end',frame=0)]), \
@@ -50,7 +50,8 @@ class SecondFireTimingTests(unittest.TestCase):
         replies=[self.dispatch(phase,events=events) for phase in (None,0)]
         for reply in replies:
             self.assertEqual(reply['chain'],0)
-            self.assertEqual(reply['normal_decision_status'],'unresolved')
+            self.assertEqual(reply['normal_decision_status'],'build')
+            self.assertEqual(reply['reason'],'normal_extend_before_entry')
             choice=reply['tactics_forecast']['choice']
             self.assertFalse(choice['defense_commitment'])
             self.assertTrue(choice['current_survives'])

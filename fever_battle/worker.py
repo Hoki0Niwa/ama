@@ -10,8 +10,8 @@ import threading
 
 
 class JsonProcess:
-    def __init__(self, command, cwd=None):
-        self.process = subprocess.Popen([str(p) for p in command], cwd=cwd, stdin=subprocess.PIPE,
+    def __init__(self, command, cwd=None, env=None):
+        self.process = subprocess.Popen([str(p) for p in command], cwd=cwd, env=env, stdin=subprocess.PIPE,
                                         stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                                         text=True, encoding='utf-8',
                                         creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))

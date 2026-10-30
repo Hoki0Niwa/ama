@@ -1,12 +1,23 @@
 #include "normal_pressure.h"
+#include "normal_followup.h"
 #include "physics.h"
 #include "../fever/normal_space.h"
 #include "../fever/text.h"
+#include "../fever/stock.h"
 
 namespace fever_battle {
-NormalPressure::NormalPressure(const json& request, const RateSchedule& schedule, const Bonuses& bonus):
+NormalPressure::NormalPressure(const json& request, const RateSchedule& schedule, const Bonuses& bonus, int held_main):
     options(request.value("normal_pressure", json::object())), rates(schedule), bonuses(bonus) {
     if (!enabled()) return;
+    const int protect=options.value("pressure",json::object()).value("protect_main_chain",0);
+    if (protect>0) {
+        if (held_main<0) {
+            auto field=fever::text::to_field(request.at("field").get<std::vector<std::string>>());
+            if (!field) throw std::invalid_argument("invalid normal pressure own field");
+            held_main=fever::stock::longest(*field);
+        }
+        protected_main=held_main>=protect;
+    }
     enemy = request.at("normal_pressure_enemy");
     timing = request.at("timing");
     available = enemy.value("available", false);
@@ -18,7 +29,7 @@ NormalPressure::NormalPressure(const json& request, const RateSchedule& schedule
         if (!p) throw std::invalid_argument("invalid normal pressure enemy piece");
         pieces.push_back(*p);
     }
-    if (pieces.empty() || pieces.size() > 3) throw std::invalid_argument("normal pressure visible queue only");
+    if (pieces.empty() || pieces.size() > 12) throw std::invalid_argument("normal pressure queue requires 1..12 pieces");
     depth = number(options.at("counter_read"), "depth", 1, 3);
     limit = number(options.at("counter_read"), "max_nodes", 1, 100000);
     auto field = fever::text::to_field(enemy.at("field").get<std::vector<std::string>>());
@@ -149,7 +160,7 @@ NormalPressure::json NormalPressure::counter(int deadline, i64 sent) const {
 }
 NormalPressure::json NormalPressure::rate(Field remaining, int max_chain, int redundancy,
                                         i64 sent, int deadline, bool invite, int main_loss,
-                                        int attacks, int consumed, bool quiet, i64 own_points, int own_frame) const {
+                                         int attacks, int consumed, bool quiet, i64 own_points, int own_frame, int remaining_chain) const {
     json result = {{"kind","none"},{"score",0},{"pressure",false},{"finish",false},
         {"main_loss_links",main_loss},{"consumed_cells",consumed},{"attacks",attacks}};
     const auto block = [&](const std::string& reason) { result["blocked"]=reason; result["blocked_conditions"]=json::array({reason}); };
@@ -157,17 +168,33 @@ NormalPressure::json NormalPressure::rate(Field remaining, int max_chain, int re
     if (sent <= 0 || deadline < 0) { block("no_send"); return result; }
     const auto reply = counter(deadline,sent);
     result["counter"] = reply;
-    if (!available) { block("enemy_unavailable"); return result; }
+    const auto& cfg = options.at("pressure");
+    const bool seed_pressure = enemy.value("mode",std::string("normal")) == "fever"
+        && cfg.value("fever_pressure",false);
+    if (!available && !seed_pressure) { block("enemy_unavailable"); return result; }
     const auto& finish = options.at("finish");
-    if (quiet && finish.at("enabled").get<bool>() && sent >= finish.at("min_send").get<int>() && reply.at("finish").get<bool>()) {
+    if (quiet && finish.at("enabled").get<bool>() && sent >= finish.at("min_send").get<int>()
+            && enemy.value("gauge",7) <= followup_gauge_limit(deadline) && reply.at("finish").get<bool>()) {
         result.update({{"kind","finish"},{"finish",true},{"score",finish.at("weight")}});
         return result;
     }
-    const auto& cfg = options.at("pressure");
     if (!cfg.at("enabled").get<bool>()) return result;
     int colors = remaining.get_count() - remaining.data[static_cast<int>(cell::Type::GARBAGE)].get_count();
     u8 heights[6]; remaining.get_heights(heights);
     auto blocks = json::array();
+    const int keep=cfg.value("min_remaining_chain",0);
+    const int reserve_step=cfg.value("chain_reserve_step",0);
+    if (keep>0) {
+        if (remaining_chain<0) remaining_chain=fever::stock::evaluate(remaining,1).near_longest;
+        result["remaining_main_chain"]=remaining_chain;
+        if (remaining_chain<keep) blocks.push_back("min_remaining_chain");
+    }
+    const int allowed_chain=reserve_step>0
+        ? std::min(cfg.at("max_chain").get<int>(),1+std::max(0,colors-4*keep)/reserve_step)
+        : cfg.at("max_chain").get<int>();
+    result["allowed_chain"]=allowed_chain;
+    if (max_chain>allowed_chain && max_chain<=cfg.at("max_chain").get<int>())
+        blocks.push_back("chain_reserve");
     if (!quiet && !allows_pending()) blocks.push_back("pending");
     if (colors < cfg.at("min_remaining").get<int>()) blocks.push_back("min_remaining");
     bool heights_ok = true;
@@ -177,7 +204,8 @@ NormalPressure::json NormalPressure::rate(Field remaining, int max_chain, int re
     if (max_chain > cfg.at("max_chain").get<int>()) blocks.push_back("max_chain");
     if (sent < cfg.at("min_send").get<int>()) blocks.push_back("min_send");
     if (sent > cfg.at("max_send").get<int>()) blocks.push_back("max_send");
-    if (main_loss > cfg.value("max_main_loss",84)) blocks.push_back("max_main_loss");
+    if (main_loss > (protected_main ? 0 : cfg.value("max_main_loss",84))) blocks.push_back("max_main_loss");
+    result["protected_main"]=protected_main;
     const int cap = cfg.value("max_attacks",0);
     if (cap && attacks + cfg.value("attacks_used",0) > cap) blocks.push_back("max_attacks");
     if (!blocks.empty()) { result["blocked"]=blocks[0]; result["blocked_conditions"]=blocks; return result; }
@@ -199,15 +227,18 @@ NormalPressure::json NormalPressure::rate(Field remaining, int max_chain, int re
         {"cutoff",cutoff},{"visible_only",true}};
     // A witnessed timely counter establishes resource pressure even if the search was truncated.
     // Surplus/entry still require the conservative complete-search evidence above.
-    const i64 units = (entry ? cfg.value("gauge_weight",6) : 0)
+    const i64 units = std::min<i64>(30,sent) * cfg.value("send_weight",0)
+        + (entry ? cfg.value("gauge_weight",6) : 0)
         + i64(std::min(18,cost_cells)) * cfg.value("counter_cost_weight",1)
         + (bury ? std::min<i64>(30,left) : 0)
         + std::min<i64>(30,left) * cfg.value("surplus_weight",0)
         + (invite ? i64(reply.at("gauge_gain").get<int>()) * cfg.value("gauge_gain_weight",0) : 0)
         + (preempt ? cfg.value("preempt_bonus",0) : 0);
+    const i64 scale=cfg.value("time_scale",0);
+    const i64 score=units*cfg.at("weight").get<i64>()*(scale ? scale : 1)/(scale ? std::max(1,deadline) : 1);
     if (units && cfg.at("weight").get<int>() > 0)
-        result.update({{"kind",preempt && cfg.value("preempt_bonus",0) ? "preempt" : entry || gauge_pressure ? "invite" : bury ? "bury" : left && cfg.value("surplus_weight",0) ? "surplus" : "force_counter"},
-            {"pressure",true},{"score",units * cfg.at("weight").get<i64>()}});
+        result.update({{"kind",preempt && cfg.value("preempt_bonus",0) ? "preempt" : entry || gauge_pressure ? "invite" : bury ? "bury" : left && cfg.value("surplus_weight",0) ? "surplus" : cost_cells > 0 ? "force_counter" : "pressure"},
+            {"pressure",true},{"score",score}});
     else block(cfg.at("weight").get<int>() == 0 ? "zero_weight" : "no_pressure_value");
     return result;
 }

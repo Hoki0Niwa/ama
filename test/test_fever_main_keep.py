@@ -59,7 +59,15 @@ class MainKeepTests(unittest.TestCase):
             # the cheapest. Whether to fire it then is the search's next question (doc/OVERNIGHT_LOG_ANALYSIS_2026-10-14.md,
             # section 4.3 (C)); only piece 27 is asked to keep it.
             if piece[0] == 27:
-                self.assertGreaterEqual(left[(choice['x'], choice['r'])], held, piece)
+                if choice['chain']:
+                    # With the full split time charged on top of observed
+                    # cadence, a return can be due earlier in the visible
+                    # continuation. Fire the held main intact in that case.
+                    self.assertGreaterEqual(choice['chain'], held, piece)
+                    self.assertTrue(choice['drop_due'], piece)
+                    self.assertEqual(choice['main_links_lost'], 0, piece)
+                else:
+                    self.assertGreaterEqual(left[(choice['x'], choice['r'])], held, piece)
             ranked = sorted((c for c in forecast['candidates'] if (c['x'], c['r']) in left),
                             key=lambda c: -c['value'])
             # of the placements that pop nothing, none that buries the main is valued above the best

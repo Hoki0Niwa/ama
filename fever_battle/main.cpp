@@ -9,6 +9,8 @@
 #include "physics.h"
 #include "tactics.h"
 #include "normal_pressure.h"
+#include "normal_conversion.h"
+#include "normal_followup.h"
 #include "color_needs.h"
 #include "transition.h"
 #include "main_attack.h"
@@ -233,10 +235,12 @@ json answer(const json& request)
         return reply;
     }
     auto field = read_field(request.at("field"));
+    if (op == "normal_conversion") return fever_battle::normal_conversion(field, request);
+    if (op == "normal_followup") return fever_battle::normal_followup(field, request);
     if (op == "normal_capacity") {
         fever::Queue queue;
         const auto values=request.at("queue").get<std::vector<std::string>>();
-        if (values.empty() || values.size()>3) throw std::invalid_argument("visible queue only");
+        if (values.empty() || values.size()>12) throw std::invalid_argument("queue requires 1..12 pieces");
         for (const auto& value:values) {
             auto piece=fever::text::to_piece(value);
             if (!piece) throw std::invalid_argument("invalid visible piece");

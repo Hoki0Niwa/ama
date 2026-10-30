@@ -56,7 +56,7 @@ class BuildPrefetchTests(unittest.TestCase):
             reply = self.engine.answer(current)
         build.assert_not_called()
         self.assertTrue(reply['normal_build_search_reused'])
-        self.assertEqual(reply['reason'], 'tactics_stack')
+        self.assertEqual(reply['reason'], 'normal_extend_before_entry')
 
     def test_normal_preparation_refreshes_when_enemy_delivery_is_now_due(self):
         current = self.prepared()

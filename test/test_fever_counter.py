@@ -92,7 +92,7 @@ class CounterTests(unittest.TestCase):
     def open_to(self, defense):
         """A small packet far from landing, the seven chain's trigger in hand, against an opponent with this defense."""
         own = self.due_mainline(0)
-        own.update(character='arle', queue=['2:YR', '2:GB', '2:GB'], unconfirmed=18, normal_unconfirmed=18)
+        own.update(character='arle', queue=['2:YR', '2:GB', '2:GB'], unconfirmed=6, normal_unconfirmed=6)
         with patch.object(self.engine, '_enemy_defense', return_value=defense):
             return self.answer(own, [dict(type='end', frame=8 * 42)], builder=(5, 'U'))
 

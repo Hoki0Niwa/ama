@@ -11,9 +11,12 @@ json inspect_capacity(Field field, const Queue& queue, const rule::Rule& rules,
     auto now = fire::best_now(field, queue.front(), rules, normal);
     const int current = now ? now->chain.count : 0;
     const int points = now ? now->chain.score : 0;
-    auto available = fire::best_visible(field, queue, rules, normal);
+    fire::Small small;
+    auto available = fire::best_visible(field, queue, rules, normal, nullptr,
+        !threat && field.get_count()>=48 ? &small : nullptr);
     const int available_chain = available ? available->chain.count : 0;
     const int available_score = available ? available->chain.score : 0;
+    int quiet = 0;
     int safe = 0, survivable = 0, improving = 0, retained = 0, next_chain = 0;
     json extensions = json::array();
     Queue tail(queue.begin()+1, queue.end());
@@ -26,6 +29,7 @@ json inspect_capacity(Field field, const Queue& queue, const rule::Rule& rules,
         // A natural clear that leaves room is a way to go on living, not a
         // lack of space: it must not be mistaken for having no stack at all.
         ++survivable;
+        if (!cleared) ++quiet;
         if (cleared > 2) continue;
         ++safe;
         auto visible=fire::best_visible(board,tail,rules,normal);
@@ -65,7 +69,16 @@ json inspect_capacity(Field field, const Queue& queue, const rule::Rule& rules,
         : pressed ? "no_main_retaining_continuation"
         : improving ? "visible_growth"
         : safe==0 ? "natural_clear_continues" : "space_remains";
-    return {{"release",release},{"crowded",crowded},{"safe_moves",safe},
+    json small_result = nullptr;
+    if (small.found) {
+        json path = json::array();
+        for (int i=0;i<small.decision.moves;++i)
+            path.push_back({{"x",small.path[i].x},{"r",std::string(1,text::from_direction(small.path[i].r))}});
+        small_result = {{"path",path},{"choice",path[0]}, {"conversion_chain",small.decision.chain.count},
+            {"conversion_points",small.decision.chain.score},{"remaining_material",small.material},
+            {"fire_moves",small.decision.moves},{"found",true},{"reused_visible",true}};
+    }
+    return {{"small_immediate",small.immediate},{"quiet_moves",quiet},{"small_chain",small_result},{"release",release},{"crowded",crowded},{"safe_moves",safe},
         {"current_chain",current},{"current_score",points},{"visible_extension_chain",next_chain},
         {"available_chain",available_chain},{"available_score",available_score},
         {"available_x",available ? available->placement.x : 0},

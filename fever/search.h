@@ -16,6 +16,7 @@ constexpr i32 PRUNE_CHAIN = 5;
 
 struct Configs
 {
+    int side_frontier_slots = 0; // Reserve within width, never expand an extra layer.
     bool construction_scoring = true;
     const normal_scoring::Entry* normal = nullptr;
     bool rebuild = false; // Observed opening completed; enables root recovery evaluation.
@@ -60,6 +61,15 @@ struct Configs
     i32 stock = 0;
     i32 stock_color = 0;
     i32 stock_want = 7;
+    // Fever-only cost of leveling (keys "level", "level_root", "level_links" and "level_score" of the fever
+    // weight set): a clear of 1 to level_links links scoring under level_score points sends next to nothing
+    // to the opponent and gives it time. level: action points added to every searched position that pops one
+    // (the beam keeps lines that send their clears or keep building). level_root: score points taken from
+    // each virtual queue's chain of a placement that itself pops one (how the placement is ranked).
+    i32 level = 0;
+    i32 level_root = 0;
+    i32 level_links = 2;
+    i32 level_score = 720;
     // Chooses the placement by the best evaluation its deepest positions reach, not by the biggest
     // chain found below it. A build that aims at offsets has no chain score to be ranked by.
     bool aim = false;
@@ -81,6 +91,19 @@ inline void read_upper_weights(Configs& configs, const json& set)
     configs.upper_12 = 0;
     configs.upper_13 = 0; // User disabled the legacy terms, including launcher snapshots.
 
+}
+
+inline void read_level_weights(Configs& configs, const json& set)
+{
+    configs.level = set.value("level", 0);
+    configs.level_root = std::max(0, set.value("level_root", 0));
+    configs.level_links = std::clamp(set.value("level_links", 2), 1, 4);
+    configs.level_score = std::max(0, set.value("level_score", 720));
+}
+
+inline bool is_leveling(const chain::Score& chain, const Configs& configs)
+{
+    return chain.count >= 1 && chain.count <= configs.level_links && i64(chain.score) < configs.level_score;
 }
 
 // Estimated cycle rate for virtual construction; never a proof that unknown colors fire.
@@ -105,13 +128,13 @@ inline i32 get_hill(const u8 heights[6])
 }
 
 // The board's evaluation: the shared one plus what only this rule has.
-void evaluate_normal(beam::node::Data& node, const beam::eval::Weight& w, const Configs& configs);
+void evaluate_normal(beam::node::Data& node, const beam::eval::Weight& w, const Configs& configs, int* near_chain=nullptr);
 
-inline void evaluate(beam::node::Data& node, const beam::eval::Weight& w, const Configs& configs)
+inline void evaluate(beam::node::Data& node, const beam::eval::Weight& w, const Configs& configs, int* near_chain=nullptr)
 {
     auto shared = w;
     shared.waste_14 = 0;
-    if (configs.normal) evaluate_normal(node, shared, configs);
+    if (configs.normal) evaluate_normal(node, shared, configs, near_chain);
     else beam::eval::evaluate(node, shared);
     if (configs.hill != 0) {
         u8 heights[6];
@@ -133,7 +156,12 @@ struct Candidate
     // placement, summed over the virtual queues
     i64 aim = 0;
     int next_room = 1;
+    int held_main = 0; // First-root potential, reusing its ordinary evaluation
+    int root_chain = 0;
+    bool leveling = false; // The placement itself pops a leveling clear (Configs::level_root)
     i64 throughput = 0;
+    bool side_root = false;
+    std::vector<i64> projected; // Unpenalized points, one per existing virtual search.
     i64 recovery = 0; // Root-only reconstruction adjustment in score units.
 };
 

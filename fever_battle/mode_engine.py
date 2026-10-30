@@ -17,17 +17,23 @@ from .model import ROOT, integer, settled_field
 from .observation import coherent
 from .seed_solver import SeedSolver
 from .timing import ChainTiming, set_normal_check_margin
-from .nuisance import Trays
+from .nuisance import Trays, link_amount, counter_flights
 from .threat import enemy_events
 from .mode_tactics import QUICK_FRAMES, offset_gauge
 from .normal_colors import report as report_colors
 from .uncertainty import choose as uncertain_move
 from .finish import choose as fast_finish
-from . import tactics, tactical_options
+from . import tactics, tactical_options, strategy
 from .uncertainty import outcomes
 from .margin import MarginForecast, rate_at
 from . import disruption
 from .seed_defense import SeedDefenses
+from .normal_conversion import NormalConversion, enemy_context as conversion_enemy_context
+from .normal_followup import NormalFollowup
+from .final_seed_fire import FinalSeedFire
+from .entry_fire import EntryFire
+from .gauge_wait import GaugeWait, retime_cached, chain_identity, hold_permission
+from .chain_to_us import chain_to_us, flights_to_us
 
 
 def identity(request):
@@ -63,6 +69,8 @@ def authorize_mode_reply(request, reply, latest):
         raise ValueError('latest capture predates decision')
     if not disruption.valid(reply, latest):
         raise ValueError('Fever jab deadline or target expired; discard decision')
+    if not reply.get('fire') and counter_flights(request) != counter_flights(latest):
+        raise ValueError('opponent counter flight changed; replan nonclearing placement')
     for key in ('protocol_version', 'rule', 'match_id', 'target_point', 'gauge_gain_on_offset', 'clock_policy'):
         if request[key] != latest[key]:
             raise ValueError(f'{key} changed; discard decision')
@@ -159,19 +167,24 @@ def preview_prepared(state, request):
     reply.update(decision_identity=identity(request), search_ms=0., search_reused=True,
                  execution_prefetched=True, searched_visible=(prepared[4] if len(prepared) > 4 else None) or 2)
     reply['seed_search_reused' if own['mode']=='fever' else 'normal_search_reused'] = True
-    return reply
+    return retime_cached(reply, request)
 
 
 class ModeBattleEngine(BattleEngine):
+    MAX_QUEUE = 12
+
     def __init__(self, native, solo, config):
-        super().__init__(native, solo, config)
+        from .native_queries import NativeQueries
+        super().__init__(native, solo, config, native_factory=NativeQueries)
         self.mode_rules = rules()
         set_normal_check_margin(self.policy.get('timing', {}).get('nuisance_check_margin', 0))
         self.seed_solver = SeedSolver(self.native, self.scoring)
         self.seed_solver.value_model = self.policy.get('fever_seed', {}).get('value_model')
         self.prepared = None
         self.pace, self.pace_states, self.pace_samples = None, {}, {}
+        self.pace_sampled=set()
         self.margin_forecast = MarginForecast()
+        self.prepare_ms = {}        # milliseconds the last full-width prepare of each mode took
         self.margin = {}
         self.normal_build_cache = None
         self.normal_build_reused = False
@@ -181,6 +194,11 @@ class ModeBattleEngine(BattleEngine):
         self.chain_predictions = {}
         self.enemy_seed_predictions = {}
         self.seed_defenses = SeedDefenses(self.native,self.scoring)
+        self.normal_conversion = NormalConversion(self.native, self.solo, self.scoring)
+        self.normal_followup = NormalFollowup(self.native, self.scoring)
+        self.final_seed_fire = FinalSeedFire(self.native, self.scoring)
+        self.entry_fire = EntryFire(self.native, self.scoring)
+        self.gauge_wait = GaugeWait(self.native, self.scoring)
         self.enemy_analysis = None
 
     def mode_side(self, side, max_time_frames=None):
@@ -280,6 +298,47 @@ class ModeBattleEngine(BattleEngine):
         return model
 
     def _enemy_events(self, request, enemy):
+        events = self._predicted_enemy_events(request, enemy)
+        # Scored links disappear from the prediction, but their offset objects
+        # can still relaunch a return. Cross-board flights already live in the
+        # observed tray: only same-player counter objects are added here.
+        chain = request.get('enemy_chain')
+        counters = []
+        for flight in counter_flights(request):
+            if chain and flight.get('link', 0) > chain['scored_links']:
+                continue  # the unscored predicted link already reserves it
+            at = max(0, integer(flight['arrive_frame'], 'counter arrival', 0) - request['frame'])
+            amount = integer(flight['amount'], 'counter amount', 0, 10**9)
+            counters.append(dict(type='link', frame=at, nuisance=amount,
+                                 points=amount, source='observed_counter_flight'))
+        if counters:
+            end = next((e['frame'] for e in events if e['type'] == 'end'), 0)
+            events = events + counters
+            for event in counters:
+                # Conservative delivery: retain the ordinary chain clock. The
+                # relaunch's cross-board flight can make actual arrival later.
+                events.append(dict(type='end', frame=max(end, event['frame'])))
+        return sorted(events, key=lambda e: (e['frame'], e['type'] == 'end'))
+
+    def _chain_returns(self, request, enemy, events, rate):
+        """Whether the opponent's running chain sends nuisance back at us, once their own pending has offset its share.
+
+        Judged from the whole chain when it was first seen and again at every decision on what is left of it, what
+        flies at us and what waits; one yes stands for the rest of the chain (the entry jab is not considered
+        for it). The links scored but not yet launched are in none of the later observations: only an earlier
+        decision's verdict still knows them (2026-10-25: 70 came back after a jab chosen when the remaining links
+        and flights showed none)."""
+        model = self.enemy_analysis
+        if model is None or not model.get('firing'):
+            return False
+        if 'whole' not in model:
+            model['whole'] = chain_to_us(model['events'], model['enemy'], rate) > 0
+        flying = request.get('observation', {}).get('in_flight', {}).get('self', {}).get('incoming_in_flight', 0)
+        now = chain_to_us(events, enemy, rate) > 0 or flying > 0
+        model['returns'] = bool(model.get('returns')) or model['whole'] or now
+        return model['returns']
+
+    def _predicted_enemy_events(self, request, enemy):
         model = self._observe_enemy_fever(request, enemy)
         if model is None:
             return self._live_enemy_events(request, enemy)
@@ -364,7 +423,24 @@ class ModeBattleEngine(BattleEngine):
                 pace_frames=max(55, int(self.pace or 55)),
                 elapsed_build_frames=max(0, own.get('moves_since_chain') or 0) * max(55, int(self.pace or 55)))
         options['preserve_build'] = True
+        conversion = self.policy.get('normal_build', {}).get('conversion', {})
+        foe = request.get('enemy', {})
+        space = getattr(self,'normal_capacity',{})
+        visible_cells = sum(4 if q[0]=='0' else len(q)-2 for q in own['queue'][:3])
+        imminent = sum(c!='.' for row in own['field'] for c in row) + visible_cells >= 4*13+2*(11-options.get('margin',1))
+        rebuilding_side = 2 <= (own.get('normal_chain_max') or 0) < conversion.get('first_main_chain',8)
+        flight = request.get('observation',{}).get('in_flight',{}).get('self',{})
+        if (conversion.get('enabled') and conversion.get('reuse_visible') and (imminent or space.get('quiet_moves',99)<=2 or rebuilding_side)
+                and own.get('normal_chain_max',0) is not None
+                and not threat and not flight.get('incoming_in_flight',0) and not flight.get('counter_in_flight',0)
+                and foe.get('mode') == 'normal'
+                and 'gauge' in foe and conversion_enemy_context(request, foe, conversion['first_main_chain'])
+                and getattr(self,'normal_capacity',{}).get('available_chain',0)
+                    < max(5,min(conversion['main_min_chain'],options.get('build_chain',15))-1)):
+            options['side_frontier_slots'] = conversion.get('side_frontier_slots',4)
         build = self.policy.get('normal_build', {})
+        # All strategies retain the same main/second beam and firing targets.
+        # Small offsets are tactical candidates, not a permanent construction objective.
         if (build.get('objective') == 'fever_aim' and request['enemy']['mode'] == 'fever' and request['gauge_gain_on_offset'] > 0
                 and own['gauge'] < self.mode_rules['gauge_max']):
             # Fever aim: build what offsets link by link, not one long chain.
@@ -440,9 +516,9 @@ class ModeBattleEngine(BattleEngine):
             # search, whose inputs contain no opponent or packet counts.
             self.normal_build_reused = True
             return deepcopy(cached[2])
-        if getattr(self, 'cold_spawn', False) and options.get('beam_width', 50) > 50:
-            options = dict(options, beam_width=50)
-            self.normal_build_width = 50
+        if getattr(self, 'cold_spawn', False) and (options.get('beam_width', 50) > 50 or options.get('side_frontier_slots',0)):
+            options = dict(options, beam_width=min(50,options.get('beam_width',50)), side_frontier_slots=0)
+            self.normal_build_width = options['beam_width']
             key = json.dumps(dict(match=self.build_match, character=own['character'],
                 field=own['field'], piece_id=own['piece_id'], dropset_index=own['dropset_index'],
                 mode_generation=own['mode_generation'], seed_id=own['seed_id'],
@@ -527,7 +603,7 @@ class ModeBattleEngine(BattleEngine):
 
     def _signature(self, request, own, final_exchange=False, visible=None):
         """Everything a decision for this side rests on, for the first two visible pieces, or for the first
-        `visible` when the decision was prepared with the piece read ahead (`ahead_piece`)."""
+        `visible` known pieces when a complete prepared queue is supplied."""
         side = {key: value for key, value in own.items() if key not in self.VOLATILE}
         side['queue'] = own['queue'][:2]
         options = request.get('solo_options', {})
@@ -559,9 +635,7 @@ class ModeBattleEngine(BattleEngine):
                 for event in events:
                     if event['type'] != 'link':
                         continue
-                    amount, remainder = divmod(event['points'] + remainder, request['target_point'])
-                    if trays.pending() and amount == 0:
-                        amount = 1
+                    amount, remainder = link_amount(event, remainder, request['target_point'], trays.pending())
                     flying += trays.offset(amount)
                 side['unconfirmed'] = flying
                 side[own['mode'] + '_unconfirmed'] = flying
@@ -577,8 +651,9 @@ class ModeBattleEngine(BattleEngine):
             gauge_gain_on_offset=request['gauge_gain_on_offset'], clock_policy=request['clock_policy'],
             margin={key: [{**e, 'frame': request['frame'] + e['frame']} for e in self.margin.get(key, [])]
                     for key in ('rate_events', 'enemy_rate_events')},
-            options=options, pace=self.pace, normal_tactics=request.get('normal_tactics', {}), second_target_chain=request.get('second_target_chain', 'legacy'), side=side,
-            enemy_prediction=chain, enemy_state=enemy), sort_keys=True)
+            options=options, normal_tactics=request.get('normal_tactics', {}), second_target_chain=request.get('second_target_chain', 'legacy'), side=side,
+            enemy_prediction=chain, enemy_state=enemy,
+            counter_flights=counter_flights(request)), sort_keys=True)
 
     def _prepared_delivery_stable(self, request, own, enemy, reply):
         """Do not reuse a nonclear across an attack now able to land on it."""
@@ -591,21 +666,24 @@ class ModeBattleEngine(BattleEngine):
             end = target.get('their_end')
             if end is None or not end <= choice['attack_end'] <= end + target.get('disrupt_window', 26):
                 return False
-        if reply.get('fire') or not request.get('enemy_chain'):
+        if reply.get('fire'):
+            return True
+        events = self._enemy_events(request, enemy)
+        if not request.get('enemy_chain') and not any(e.get('source') == 'observed_counter_flight' for e in events):
             return True
         if own['mode'] == 'normal':
             timing = ChainTiming.for_mode('normal')
             transition = self.native.ask(dict(op='transition', field=own['field'], piece=own['queue'][0],
                                              x=reply['x'], r=reply['r']))
-            check = (timing.placement_frames + timing.check_frames +
-                     timing.split_extra_frames[max(transition['split_distances'], default=0)])
+            check = timing.lock_frames(timing.split_extra_frames[
+                max(transition['split_distances'], default=0)], self.pace) + timing.check_frames
             return not any(e['type'] == 'end' and e['frame'] <= check
-                           for e in self._enemy_events(request, enemy))
+                           for e in events)
         first = reply['seed_forecast']['choice']
         timing = ChainTiming.for_mode('fever')
         check = first['fire_at'] + timing.nuisance_check_frames
         return not any(e['type'] == 'end' and e['frame'] <= check
-                       for e in self._enemy_events(request, enemy))
+                       for e in events)
 
     def _attack_rate_stable(self, request, enemy):
         end = max((e['frame'] for e in self._enemy_events(request, enemy)), default=0)
@@ -630,26 +708,13 @@ class ModeBattleEngine(BattleEngine):
                        max(0, timing.spawn_frames-timing.nuisance_check_frames))
         return own['remaining_frames'] > first['end_at'] + ready_delay + safety
 
-    def _ahead_pieces(self, request, own):
-        """The piece the bridge read ahead of the game's display (`ahead_piece`): the one that becomes NEXT2
-        when the current piece is placed. The next decision is then prepared with all three pieces it will
-        see, and it is used only if the piece that really appears is that one."""
-        text = request.get('ahead_piece')
-        if text is None:
-            return []
-        if (not isinstance(text, str) or len(own['queue']) != 3
-                or text[:1] != self.patterns[own['character']][(own['dropset_index'] + 3) % 16]):
-            raise ValueError('ahead_piece does not match the dropset position')
-        self.native.ask({'op': 'placements', 'field': ['......'] * 14, 'piece': text})
-        return [text]
-
     def _after_placement(self, request, own):
         """This side as its next piece will find it, or the reason it cannot be told.
 
         The same in both modes: a board is predicted only across a placement
         that clears nothing, including a confirmed drop with known columns.
         """
-        if own.get('awaiting_seed') or len(own['queue']) != 3:
+        if own.get('awaiting_seed') or len(own['queue']) < 2:
             return 'cannot_predict_next_board'
         if own['mode'] == 'normal' and own['gauge'] == self.mode_rules['gauge_max']:
             return 'cannot_predict_next_board'        # normal exception: the next piece is a Fever seed's
@@ -659,18 +724,22 @@ class ModeBattleEngine(BattleEngine):
         result = self.native.ask(dict(op='transition', field=own['field'], piece=own['queue'][0], **placement))
         if result['dead'] or result['links']:
             return 'clear_or_mode_transition_requires_observation'
+        if any(e.get('source') == 'observed_counter_flight' for e in self._enemy_events(request, request['enemy'])):
+            # A projected counter arrival changes both trays before next spawn.
+            # Keep board-only preparation until a new observation resolves it.
+            return 'enemy_delivery_can_change_next_board'
         delivered = None
         if request.get('enemy_chain'):
             timing = ChainTiming.for_mode(own['mode'])
             extra = timing.split_extra_frames[max(result['split_distances'], default=0)]
-            lock = max(timing.placement_frames, (self.pace or 0) - timing.spawn_frames - extra) + extra
+            lock = timing.lock_frames(extra, self.pace)
             check = lock + timing.check_frames
             if any(e['type'] == 'end' and e['frame'] <= check for e in self._enemy_events(request, request['enemy'])):
                 # The opponent's chain ends before this placement's check: what it sent is confirmed by then
                 # and falls on the board at the check, on the columns the cursor gives.
                 delivered = self._delivered_until(request, own, request['enemy'], check)
         future = deepcopy(own)
-        future.update(field=result['field'], queue=own['queue'][1:] + self._ahead_pieces(request, own),
+        future.update(field=result['field'], queue=own['queue'][1:],
             piece_id=own['piece_id']+1, dropset_index=(own['dropset_index']+1)%16)
         if delivered is not None:
             self._set_nuisance(future, *delivered)
@@ -694,7 +763,7 @@ class ModeBattleEngine(BattleEngine):
         result = self.native.ask(dict(op='transition', field=own['field'], piece=own['queue'][0], **placement))
         timing = ChainTiming.for_mode(own['mode'])
         extra = timing.split_extra_frames[max(result['split_distances'], default=0)]
-        return max(timing.placement_frames + extra + timing.spawn_frames, self.pace or 0)
+        return timing.lock_frames(extra, self.pace) + timing.spawn_frames
 
     @staticmethod
     def _advanced(request, frames):
@@ -731,9 +800,8 @@ class ModeBattleEngine(BattleEngine):
             if event['type'] == 'end':
                 fixed, flying = fixed + flying, 0
                 continue
-            amount, remainder = divmod(event['points'] + remainder, rate_at(request['target_point'], rates, event['frame']))
-            if trays.pending() and amount == 0:
-                amount = 1
+            amount, remainder = link_amount(event, remainder,
+                rate_at(request['target_point'], rates, event['frame']), trays.pending())
             flying += trays.offset(amount)
         return fixed, flying
 
@@ -762,14 +830,23 @@ class ModeBattleEngine(BattleEngine):
         future.pop('pending_drop', None)
         return future
 
+    @staticmethod
+    def _keepable(reply):
+        """A decision worth keeping for the piece that follows: a placement that does not lose, or the fastest
+        closure of a position every placement loses (`no_rescue_fast_finish`). The closure was searched
+        again after the piece had appeared, 72 ms on average in 90 logged pieces (up to 268), the piece
+        falling unsteered meanwhile; it depends on the board and the pieces only, which the signature holds."""
+        return reply.get('action') == 'place' and (
+            not reply.get('selected_move_loses') or reply.get('reason') == 'no_rescue_fast_finish')
+
     def _prepare(self, request, own, enemy, rate, policy, observed):
         """Decide the next piece before it appears, exactly as `think` will.
 
         `prepare`: the side is the one the current piece was decided on, and
         `placement` where that piece goes. `prepare_observed`: the side already
         is the next piece's, read from the board standing between two pieces
-        (after a chain, a delivery, a new seed). Only the two pieces visible by
-        then are used. The decision is kept for one `think` that finds the side
+        (after a chain, a delivery, a new seed). Every explicitly supplied known
+        piece is used. The decision is kept for one `think` that finds the side
         as predicted; that think then costs no search.
 
         An enemy chain or rate change marks the plan as speculative. The bridge
@@ -777,20 +854,19 @@ class ModeBattleEngine(BattleEngine):
         placement locally on spawn; tactics are then refreshed during input.
         Board, mode, seed, clock and delivery guards remain strict.
         """
+        previous = self.prepared
         self.prepared = None
         refresh_margin = bool(self.margin.get('rate_events') or self.margin.get('enemy_rate_events'))
         speculative = bool(request.get('enemy_chain') or refresh_margin)
         if observed:
-            if len(own['queue']) not in (2, 3):
+            if not 1 <= len(own['queue']) <= 12:
                 return dict(prepared=False, reason='cannot_predict_next_board')
             future = self._after_confirmed_drop(own) if own.get('pending_drop') else deepcopy(own)
             if isinstance(future, str):
                 return dict(prepared=False, reason=future)
-            sensitive=own['mode']=='normal' and (sum(c != '.' for r in future['field'] for c in r)>=48 or
-                self._after_opening(own, {**self.policy['solo_options'], **request.get('solo_options', {})}))
-            future['queue'] = own['queue'] if sensitive else own['queue'][:2]
             if own['mode'] == 'fever' and own['clock_running']:
-                future['remaining_frames'] = max(0, own['remaining_frames'] - self.OBSERVED_SPAWN_FRAMES)
+                spawn_in = request.get('spawn_in_frames', self.OBSERVED_SPAWN_FRAMES)
+                future['remaining_frames'] = max(0, own['remaining_frames'] - integer(spawn_in, 'spawn_in_frames', 0, 600))
         else:
             future = self._after_placement(request, own)
             if isinstance(future, str):
@@ -799,9 +875,14 @@ class ModeBattleEngine(BattleEngine):
                 return dict(prepared=False, reason=future)
         ahead = {key: value for key, value in request.items() if key not in ('op', 'placement', 'ahead_piece')}
         ahead['self'] = future
+        ahead['_preparing_strategy'] = True
+        if not observed:
+            ahead.pop('cold_spawn',None)
         started = time.monotonic()
         if observed:
-            reply = self._think(ahead, future, enemy, rate, policy, 'think')
+            # A repeated standing-board observation must not downgrade an answer
+            # already prepared for it. Use think's full identity/delivery/clock guards.
+            reply = self._think(ahead, future, enemy, rate, policy, 'think', previous)
         else:
             # A prepare is sent as the piece in hand starts: the next piece starts one piece later, and
             # its nuisance, the opponent's chain and the rates are timed from then (2026-10-21: prepared
@@ -813,16 +894,23 @@ class ModeBattleEngine(BattleEngine):
             self.margin = {key: [{**e, 'frame': e['frame'] - delay} for e in margin.get(key, [])]
                            for key in ('rate_events', 'enemy_rate_events')}
             try:
-                reply = self._think(ahead, future, enemy, rate, policy, 'think')
+                reply = self._think(ahead, future, enemy, rate, policy, 'think', previous)
             finally:
                 self.margin = margin
-        if reply.get('action') != 'place' or reply.get('selected_move_loses'):
+        if not self._keepable(reply):
             return dict(prepared=False, reason=reply.get('reason'),
                         **({'normal_build_prepared': self.normal_build_used} if speculative else {}))
         kept = True  # Absolute rate schedules are part of the signature.
-        if kept:
+        reused = reply.get('search_reused', False)
+        if reused:
+            self.prepared = previous
+            # New pieces were not searched. Update the observed clock without
+            # claiming them or changing the original decision's clock estimate.
+            future['queue'] = future['queue'][:previous[4] or 2]
             self.execution_request = deepcopy(ahead)
-            seen = len(future['queue']) if request.get('ahead_piece') else None
+        else:
+            self.execution_request = deepcopy(ahead)
+            seen = len(future['queue'])
             self.prepared = (self._signature(ahead, future, visible=seen), future['remaining_frames'], reply,
                              self._signature(ahead, future, final_exchange=True, visible=seen), seen)
         placement = dict(x=reply['x'], r=reply['r'])
@@ -836,6 +924,20 @@ class ModeBattleEngine(BattleEngine):
             nuisance={key: future[key] for key in active}, reason=reply['reason'], placement=placement)
         if not observed:
             plan.update(source_queue=own['queue'], source_index=own['dropset_index'])
+        forecast = reply.get('seed_forecast') or {}
+        if forecast:
+            # What the search behind this plan saw, for the log: a plan that reached less than the seed's level
+            # shows here whether it was out of time or out of search.
+            plan['forecast'] = dict(expanded=forecast.get('expanded'), cutoff=forecast.get('cutoff'),
+                searched_visible=forecast.get('searched_visible'), target_chain=forecast.get('target_chain'),
+                alternatives={name: dict(chain=alt.get('chain'), in_time=alt.get('in_time'),
+                    placements=alt.get('placements')) for name, alt in (forecast.get('alternatives') or {}).items()})
+        if reused:
+            pass  # A cache hit says nothing about the cost of a full-width search.
+        elif not ahead.get('cold_spawn'):
+            self.prepare_ms[own['mode']] = (time.monotonic()-started)*1000
+        elif own['mode'] in self.prepare_ms:
+            self.prepare_ms[own['mode']] *= 0.95      # a quick one says nothing of the full width: let the memory fade
         if speculative:
             plan['speculative'] = True
             return dict(prepared=True, speculative=True, normal_build_prepared=self.normal_build_used,
@@ -860,13 +962,16 @@ class ModeBattleEngine(BattleEngine):
     FEVER_EXIT_HORIZON = 600
 
     def _prepare_build_only(self, request, own, enemy, rate, policy, reason):
+        if len(own['queue']) < 2:
+            return dict(prepared=False, reason='next_piece_not_observed')
         placement = request['placement']
         result = self.native.ask(dict(op='transition', field=own['field'], piece=own['queue'][0], **placement))
         if result['dead']:
             return dict(prepared=False, reason=reason)
         links = result['links']
+        complete = False
         future = deepcopy(own)
-        future.update(queue=own['queue'][1:] + self._ahead_pieces(request, own),
+        future.update(queue=own['queue'][1:],
             piece_id=own['piece_id'] + 1, dropset_index=(own['dropset_index'] + 1) % 16)
         if own['mode'] == 'fever':
             if not links or own['remaining_frames'] > self.FEVER_EXIT_HORIZON or not own.get('stored_field'):
@@ -887,16 +992,32 @@ class ModeBattleEngine(BattleEngine):
                 # on it (_after_opening), so the board is searched with the options the next piece will have.
                 future['normal_chain_max'] = max(own.get('normal_chain_max', 0), len(links))
                 self._offset_by_chain(future, own, links, rate)
-                self._drop_after_chain(request, own, future, result, links)
+                drop_known, delay = self._drop_after_chain(request, own, future, result, links)
+                # Nothing the next piece will find is left open when no opposing chain is running, no rate
+                # change is due, the opponent is not in Fever and the fall of what stays confirmed is known:
+                # the whole decision is kept (its signature rejects it at spawn if the board is another).
+                complete = (drop_known and not request.get('enemy_chain') and enemy['mode'] == 'normal'
+                            and not (self.margin.get('rate_events') or self.margin.get('enemy_rate_events')))
         ahead = {key: value for key, value in request.items() if key not in ('op', 'placement', 'ahead_piece')}
         ahead['self'] = future
+        ahead['_preparing_strategy'] = True
+        ahead.pop('cold_spawn',None)
         started = time.monotonic()
+        if complete:
+            ahead = self._advanced(ahead, delay)
+            enemy = self._advanced(dict(frame=0, self={}, enemy=enemy), delay)['enemy']
         try:
-            self._think(ahead, future, enemy, rate, policy, 'think')
+            reply = self._think(ahead, future, enemy, rate, policy, 'think')
         except ValueError:
             return dict(prepared=False, reason=reason)
-        # Only the builder's search is kept: the board is not certain, so no decision is.
-        self.prepared = self.execution_request = None
+        if complete and self._keepable(reply):
+            self.execution_request = deepcopy(ahead)
+            seen = len(future['queue'])
+            self.prepared = (self._signature(ahead, future, visible=seen), future['remaining_frames'], reply,
+                             self._signature(ahead, future, final_exchange=True, visible=seen), seen)
+        else:
+            # Only the builder's search is kept: the board is not certain, so no decision is.
+            self.prepared = self.execution_request = None
         return dict(prepared=True, build_only=True, normal_build_prepared=self.normal_build_used,
             searched_visible=len(future['queue']), search_ms=(time.monotonic() - started) * 1000,
             controller=False, reason='build_prepared_on_the_expected_board')
@@ -915,11 +1036,15 @@ class ModeBattleEngine(BattleEngine):
             fixed, flying = self._delivered_until(request, {**own, 'confirmed': 0, 'unconfirmed': 0},
                                                   request['enemy'], check)
             self._set_nuisance(future, future['confirmed'] + fixed, future['unconfirmed'] + flying)
+        known = True
         if future['confirmed']:
             dropped = self._after_confirmed_drop(future)
-            if not isinstance(dropped, str):
+            if isinstance(dropped, str):
+                known = False
+            else:
                 future.clear()
                 future.update(dropped)
+        return known, check + timing.spawn_frames
 
     def _offset_by_chain(self, future, own, links, rate):
         """The nuisance this side holds once its chain has been scored: link by link, a pending packet is
@@ -940,10 +1065,7 @@ class ModeBattleEngine(BattleEngine):
         options = request.get('seed_options', {})
         self.seed_solver.validate_options(options)
         options = dict(options)
-        # A cold decision (no prepared answer for the piece) narrows the seed search as it narrows the
-        # normal build: width 50 at most, the same depth.
-        if getattr(self, 'cold_spawn', False) and options.get('width', 64) > 50:
-            options['width'] = 50
+        # The seed search is always as wide as it is configured: no case narrows it.
         # One measure ranks every line (seed_search.cpp); there is no strategy to choose.
         return options, 'expected_points_by_the_end_of_this_fever'
 
@@ -956,8 +1078,19 @@ class ModeBattleEngine(BattleEngine):
         events = self._enemy_events(request, enemy)
         threat = own['confirmed'] + own['unconfirmed'] or any(
             e['type'] == 'link' and e.get('points', 0) > 0 for e in events)
+        if not threat and allowed is None:
+            covered = self.normal_followup.covered(request, own, enemy, self.policy['normal_build']['followup'])
+            if covered:
+                self.lethal_pending = covered
+                return tactics.Decision('build')
         # Offsets earn no gauge: the nuisance search of the gauge-free battle answers.
         # Without a threat only a recovery (allowed) has anything to decide here.
+        # New discretionary attacks run only during preparation. A falling piece
+        # uses the existing defense/builder; never start an opponent reply tree here.
+        from . import strategy
+        if strategy.profile(request)['pressure_style'] and not request.get('_preparing_strategy', False):
+            policy['pressure']['enabled'] = False
+            policy['finish']['enabled'] = False
         new_attack = policy['pressure']['enabled'] or policy['finish']['enabled']
         if request['gauge_gain_on_offset'] <= 0 and not new_attack:
             return tactics.Decision('build' if not threat and allowed is None else 'unavailable')
@@ -970,19 +1103,22 @@ class ModeBattleEngine(BattleEngine):
         if quiet:
             # Worth a search where there is a main chain to send, an opponent in Fever to disrupt,
             # or a board small enough to clear whole within the visible pieces.
-            puyos = sum(c not in '.#' for row in own['field'] for c in row)
-            if not policy.get('quiet', False) or (not request.get('normal_tactics') and not (
-                    fever is not None or puyos <= policy.get('all_clear_puyos', 24) or puyos >= 24)):
+            if not policy.get('quiet', False) or not (
+                    new_attack or tactical_options.common_quiet_objectives(policy,request,own,fever)):
                 return tactics.Decision('build')
         second=self._after_opening(own,{**self.policy['solo_options'],**request.get('solo_options',{})})
         garbage=sum(c=='#' for row in enemy.get('field',[]) for c in row)
         colors=sum(c not in '.#' for row in enemy.get('field',[]) for c in row)
         finish=enemy['mode']=='normal' and garbage>=24 and colors<=8
-        if quiet and second and not finish and not request.get('normal_tactics'):
+        if quiet and second and not finish and fever is None and not tactical_options.has_overrides(request):
             return tactics.Decision('build')
-        policy['finish_buried']=bool(second and finish)
+        policy['finish_buried']=False  # Replaced by the lethal, gauge-gated follow-up search.
         builder = None
         builder_fire = False
+        if policy.get('opening_all_clear') and any(
+                p.get('all_clear') and not p['dead'] for p in (getattr(self,'normal_placements',None) or [])):
+            build=None  # Existing root geometry already proves an immediate clear; no build beam is needed.
+            policy['opening_all_clear_immediate']=True
         if build is not None:
             try:
                 built = build()
@@ -993,9 +1129,10 @@ class ModeBattleEngine(BattleEngine):
                     builder = built
             except ValueError:
                 builder = None      # nothing the builder plays survives; the search decides alone
-        harass = not new_attack and tactical_options.harass_enabled(policy, own, enemy, quiet, second, finish, fever)
+        harass = (not new_attack and not finish
+                  and tactical_options.harass_enabled(policy, own, enemy, quiet, second, False, fever))
         # Shapes of the pieces after the visible ones: the character's cycle is known, the colors are not.
-        after = own['dropset_index'] + len(own['queue'])
+        after = own['dropset_index'] + (1 if policy.get('opening_all_clear_immediate') else len(own['queue']))
         upcoming = ''.join(self.patterns[own['character']][(after + i) % 16] for i in range(16))
         defense = dict(self._enemy_defense(enemy, events, rate), offset_gain=request['gauge_gain_on_offset'])
         self.last_tactical_controls = dict(invite_fever=policy['invite_fever'],
@@ -1043,17 +1180,33 @@ class ModeBattleEngine(BattleEngine):
         """
         if enemy['mode'] != 'fever':
             return 0 if events else self._board_hold(enemy['character'], enemy['field']) // rate
+        _, points, board = self._enemy_fever_hold(enemy, events)
+        return (points + board) // rate
+
+    def _final_seed_config(self, request, name='final_seed_fire'):
+        """Policy normal_build.<name>, its `enabled` replaced by the request's normal_tactics.<name>."""
+        config = dict(self.policy['normal_build'].get(name, {}))
+        if name=='entry_fire' and strategy.profile(request)['pressure_style']:
+            config['jab']=False
+        asked = request.get('normal_tactics', {}).get(name)
+        if asked is not None:
+            config['enabled'] = asked
+        return config
+
+    def _enemy_fever_hold(self, enemy, events):
+        """(seeds still to be fired after the observed chain, their points, points of the board they return to)."""
         timing = ChainTiming.for_mode('fever')
-        level, clock, points = enemy['seed_chain'], enemy['remaining_frames'], 0
+        level, clock, points, seeds = enemy['seed_chain'], enemy['remaining_frames'], 0, 0
         if events:      # the seed in hand is the chain observed; the next one comes after it
             clock -= max(e['frame'] for e in events) + timing.chain_ready_frames
             level = min(15, level + 1)
         while clock > 0:
             seed = self.scoring.chain(enemy['character'], [dict(groups=[4], colors=1)] * level, 'fever')
             points += sum(seed)
+            seeds += 1
             clock -= timing.placement_frames + timing.timeline(seed, [1] * level)['end_frame'] + timing.chain_ready_frames
             level = min(15, level + 1)
-        return (points + self._board_hold(enemy['character'], enemy['stored_field'])) // rate
+        return seeds, points, self._board_hold(enemy['character'], enemy['stored_field'])
 
     def _seed_room(self, level):
         """Nuisance that fills a Fever board holding a fresh seed of this level: whole rows to the top of
@@ -1175,7 +1328,8 @@ class ModeBattleEngine(BattleEngine):
             key = (enemy['character'], enemy['mode_generation'], enemy['seed_id'])
             told.update(their_end=end, enemy_seed_level=self.enemy_seed_predictions.get(key, min(15, enemy['seed_chain'] + 1)))
         elif entering and (end is not None or enemy.get('fever_destination_frame') is not None):
-            # Steam 15209927 measured sample: destination switches 16F after chain end.
+            # Live entries: the destination switches 28 to 49F (mean 38) after the predicted chain end; the single
+            # exact edge of 2026-10-09 measured 16F (doc/FEVER_TIMING.md).
             # Each outgoing link before that still belongs to the normal tray.
             at = (max(0, enemy['fever_destination_frame'] - enemy['observed_frame'])
                   if enemy.get('fever_destination_frame') is not None else end + entry_delay)
@@ -1268,7 +1422,7 @@ class ModeBattleEngine(BattleEngine):
         rows = max(placed.get('split_distances') or [0])
         timing = ChainTiming.for_mode(own['mode'])
         extra = timing.split_extra_frames[min(rows, len(timing.split_extra_frames) - 1)]
-        lock = max(timing.placement_frames, (self.pace or 0) - timing.spawn_frames - extra) + extra
+        lock = timing.lock_frames(extra, self.pace)
         return dict(split_rows=rows, split_extra=extra, model_lock_in=lock, model_check_in=lock + timing.check_frames)
 
     def _arrival(self, request, own, enemy):
@@ -1297,6 +1451,7 @@ class ModeBattleEngine(BattleEngine):
         board_dead = self.native.ask(dict(op='validate', field=own['field']))['dead']
         placements = [] if board_dead else self.native.ask(dict(op='placements',
             field=own['field'], piece=own['queue'][0]))['placements']
+        self.normal_placements = placements
         if not placements:
             pose = request.get('active_placement')
             if not isinstance(pose, dict) or set(pose) != {'x', 'r'}:
@@ -1348,7 +1503,7 @@ class ModeBattleEngine(BattleEngine):
                 if chain['mode_generation'] != enemy['mode_generation'] or chain['seed_id'] != enemy['seed_id']:
                     raise ValueError('enemy prediction belongs to another mode or seed')
             result = uncertain_move(self.native, self.scoring, own, rate,
-                enemy_events=self._enemy_events(request, enemy), enemy=enemy, margin=self.margin)['choice']
+                enemy_events=self._enemy_events(request, enemy), enemy=enemy, margin=self.margin, pace=self.pace)['choice']
             return dict(x=result['x'], r=result['r'], shape=own['queue'][0][0],
                 reason='unknown_nuisance_one_move_then_reobserve', fire=bool(result['chain']),
                 chain=result['chain'], next_chain=result['chain'], next_score=sum(result['link_points']),
@@ -1370,7 +1525,7 @@ class ModeBattleEngine(BattleEngine):
                     raise
                 # A failed rescue is a game state, not an engine/session failure.
                 result = uncertain_move(self.native, self.scoring, own, rate,
-                    enemy_events=scheduled, enemy=enemy, margin=self.margin)
+                    enemy_events=scheduled, enemy=enemy, margin=self.margin, pace=self.pace)
                 first = result['choice']
                 return dict(x=first['x'], r=first['r'], shape=own['queue'][0][0],
                     reason='no_surviving_garbage_reply', fire=bool(first['chain']),
@@ -1399,23 +1554,54 @@ class ModeBattleEngine(BattleEngine):
         return self._normal_builder_reply(own, options, placements)
 
     def _window_build(self, request, own, enemy, options, placements, decision):
-        """While the opponent's chain is still some pieces from landing and a main chain is held, go on
-        building it (the builder's placement) instead of the tactical search's small answers; the search
-        answers again when only `min_pieces` are left. Off unless policy normal_tactics.window_build is set
-        ({hold, min_pieces}): nothing here is tuned in battle."""
+        """Extend an insufficient normal main until the last safe check before enemy chain end.
+
+        Reuse the completed full-width build. The optional held-main window probe
+        only applies after that mandatory entry policy has been considered.
+        """
         cfg = tactical_options.resolve_window(self.policy['normal_tactics'], request)
         reply = decision.reply
-        if not cfg['enabled'] or reply is None or reply.get('decision_kind') not in ('stack', 'offset', 'take'):
+        if reply is None or reply.get('decision_kind') not in ('stack', 'offset', 'take'):
+            return None
+        picked = (reply.get('tactics_forecast') or {}).get('choice') or {}
+        if picked.get('disruption_kind') in ('jab', 'overpower') and (picked.get('projected_disrupt') or 0) > 0:
+            return None
+        events=self._enemy_events(request,enemy)
+        end=next((e['frame'] for e in events if e['type']=='end'),None)
+        if end is None:
+            return None
+        rate=request['target_point']
+        permission=hold_permission(request,own,reply.get('link_points',[]),rate,
+                                   flights_to_us(events,enemy,rate),self.margin)
+        extending=not permission['allowed'] and permission['incoming_total']>0
+        if (extending and own['mode']=='normal' and not own['confirmed']
+                and any(not p['dead'] for p in placements)):
+            if end>0:
+                try:
+                    answer=self._normal_builder_reply(own,options,placements)
+                except ValueError:
+                    return None
+                placed=next((p for p in placements if (p['x'],p['r'])==(answer['x'],answer['r'])),None)
+                if placed is not None and not placed['dead'] and not placed['links']:
+                    timing=ChainTiming.for_mode('normal')
+                    extra=timing.split_extra_frames[max(placed['split_distances'],default=0)]
+                    check=timing.lock_frames(extra,self.pace)+timing.check_frames
+                    if check<end:
+                        forecast=decision.forecast or reply.get('tactics_forecast')
+                        if forecast:
+                            selected=next((c for c in forecast.get('candidates',[])
+                                if (c['x'],c['r'])==(answer['x'],answer['r'])),None)
+                            if selected is not None:
+                                answer['tactics_forecast']=dict(forecast,choice=selected)
+                        answer.update(reason='normal_extend_before_entry',
+                            entry_extension=dict(permission,chain_end_in=end,check_in=check))
+                        return answer
+            return None
+        if not cfg['enabled']:
             return None
         if reply.get('chain', 0) >= cfg.get('hold', 10):
             return None             # the search fires the main chain itself: not a wait to be bettered
-        picked = (reply.get('tactics_forecast') or {}).get('choice') or {}
-        if picked.get('disruption_kind') in ('jab', 'overpower') and (picked.get('projected_disrupt') or 0) > 0:
-            return None             # a timed hit on an opponent in Fever is the answer, not a wait to be bettered
         if own['confirmed'] or own['mode'] != 'normal':
-            return None
-        end = next((e['frame'] for e in self._enemy_events(request, enemy) if e['type'] == 'end'), None)
-        if end is None:
             return None
         pieces = 1 + max(0, end) // max(1, self.pace or 60)
         if pieces < cfg.get('min_pieces', 3):
@@ -1436,6 +1622,12 @@ class ModeBattleEngine(BattleEngine):
                             next_field=choice['field'], link_points=points, next_all_clear=choice['all_clear'],
                             normal_search_reused=False, searched_visible=len(own['queue']),
                             normal_decision_status='build')
+        # The narrow search is a probe for the window gate. Keep the completed
+        # normal search: the final builder reply still needs its original width,
+        # and a rejected probe must not evict it either.
+        saved_build = {name: getattr(self, name, None) for name in (
+            'normal_build_cache', 'normal_build_width', 'normal_build_miss',
+            'normal_build_reused', 'normal_build_used')}
         try:
             # On top of the tactical search that has just run: a narrower beam where the build is not cached
             # (decisions of 125 to 430 ms in the 2026-10-14 16:04 session, all on this path).
@@ -1443,12 +1635,23 @@ class ModeBattleEngine(BattleEngine):
                                                                          cfg.get('beam_width', 30))))
         except ValueError:
             return None
+        finally:
+            if saved_build['normal_build_cache'] is not None:
+                for name, value in saved_build.items():
+                    setattr(self, name, value)
         choice = next((p for p in placements if (p['x'], p['r']) == (result['x'], result['r']) and not p['dead']), None)
         if choice is None or choice['links']:
             return None             # the builder's own fire is the builder's decision, not a way to wait
         if self.native.ask(dict(op='holding', field=choice['field']))['longest'] < held:
             return None
         answer = self._normal_builder_reply(own, options, placements)
+        # The piece-count window ignores this move's terrain. Recheck the
+        # actual builder reply (forced lookahead can change its placement).
+        placed = next(p for p in placements if (p['x'], p['r']) == (answer['x'], answer['r']))
+        timing = ChainTiming.for_mode('normal')
+        extra = timing.split_extra_frames[max(placed['split_distances'], default=0)]
+        if not placed['links'] and timing.lock_frames(extra, self.pace) + timing.check_frames >= end:
+            return None
         answer['reason'] = 'normal_build_in_window'
         return answer
 
@@ -1503,6 +1706,8 @@ class ModeBattleEngine(BattleEngine):
                     fire=bool(points), chain=len(points), next_chain=len(points), next_score=sum(points),
                     next_field=choice['field'], link_points=points, next_all_clear=choice['all_clear'],
                     normal_search_reused=False, searched_visible=len(own['queue']),
+                    normal_root_values=result.get('root_values', []),
+                    normal_root_queue=list(self.normal_build_cache[1]) if self.normal_build_cache else [],
                     normal_decision_status='build')
 
     def apply_lift_allow(self, cases):
@@ -1516,10 +1721,16 @@ class ModeBattleEngine(BattleEngine):
             self.lift_allow_sent = key
 
     def answer(self, request):
+        with self.native.decision():
+            return self._answer(request)
+
+    def _answer(self, request):
         if not isinstance(request, dict):
             raise ValueError('request must be a JSON object')
         if request.get('protocol_version') != 3 or request.get('rule') != 'fever_battle':
             raise ValueError('requires protocol_version=3 and rule=fever_battle')
+        if 'ahead_piece' in request:
+            raise ValueError('ahead_piece removed; pass only the observed queue')
         tactical_options.validate(request)
         if 'lift_allow' in request:
             self.apply_lift_allow(request['lift_allow'])
@@ -1563,6 +1774,7 @@ class ModeBattleEngine(BattleEngine):
         if transferred and transferred['match_id'] == request['match_id']:
             self.prepared = transferred['prepared']
             self.normal_build_cache = transferred['normal_build_cache']
+            self.execution_request = transferred.get('execution_request')
         self.normal_build_reused = False
         self.normal_build_used = False
         self.normal_build_miss = None
@@ -1574,6 +1786,10 @@ class ModeBattleEngine(BattleEngine):
                     execution_request=self.execution_request)
                 state = reply['prepared_state']
                 move = self.prepared[2] if self.prepared is not None else None
+                if move is not None and self.execution_request['self']['mode']=='normal':
+                    ahead=self.execution_request
+                    fixed,flying=self._delivered_until(ahead,ahead['self'],ahead['enemy'],1000000)
+                    state['incoming_projection']=dict(attack=chain_identity(ahead),total=fixed+flying)
                 timing = ChainTiming.for_mode(own['mode'])
                 if move is None:
                     pass                    # the builder's search only: there is no decision to guard
@@ -1582,8 +1798,8 @@ class ModeBattleEngine(BattleEngine):
                         future = self.execution_request['self']
                         transition = self.native.ask(dict(op='transition', field=future['field'],
                             piece=future['queue'][0], x=move['x'], r=move['r']))
-                        check = timing.placement_frames + timing.split_extra_frames[
-                            max(transition['split_distances'], default=0)]
+                        check = timing.lock_frames(timing.split_extra_frames[
+                            max(transition['split_distances'], default=0)], self.pace)
                     else:
                         first = move['seed_forecast']['choice']
                         check = first['fire_at']
@@ -1624,10 +1840,13 @@ class ModeBattleEngine(BattleEngine):
         if any(state.get('key', (None,))[0] != request['match_id'] for state in self.pace_states.values()):
             self.pace_samples = {}
             self.pace_states = {}
-        elif last.get('key') == key and own['piece_id'] == last['piece'] + 1 and not last['popped']:
+            self.pace_sampled=set()
+        elif op in ('think','prepare') and last.get('key') == key and own['piece_id'] == last['piece'] + 1 and not last['popped']:
             taken = request['frame'] - last['frame']
-            if 0 < taken <= 300:
+            sample=(own['mode'],own['piece_id'])
+            if 0 < taken <= 300 and sample not in self.pace_sampled:
                 self.pace_samples[own['mode']] = (self.pace_samples.get(own['mode'], []) + [taken])[-12:]
+                self.pace_sampled.add(sample)
         popped = False
         placement = request.get('placement')
         if op == 'prepare' and isinstance(placement, dict) and set(placement) == {'x', 'r'} and own.get('queue'):
@@ -1640,10 +1859,12 @@ class ModeBattleEngine(BattleEngine):
     def _think(self, request, own, enemy, rate, policy, op, prepared=None):
         started = time.monotonic()
         self.last_tactical_controls = None
+        self.normal_placements = None
         budget = request.get('decision_budget_ms')
         if budget is not None:
             integer(budget, 'decision_budget_ms', 10, 1000)
-        self.cold_spawn = bool(request.get('cold_spawn')) and op == 'think'
+        # A recovery answers a piece already falling on a board its prepared answer did not fit: as quick as a cold spawn.
+        self.cold_spawn = op == 'recover_placement' or (bool(request.get('cold_spawn')) and op == 'think')
         self.planning_deadline = None  # CPU budgets are compatibility input only; never truncate search
         if own.get('awaiting_seed') or (
             own['mode'] == 'normal' and own['gauge'] == self.mode_rules['gauge_max']):
@@ -1666,7 +1887,7 @@ class ModeBattleEngine(BattleEngine):
             reply.update(decision_identity=identity(request), search_ms=0.0, search_reused=True,
                          searched_visible=seen or 2)
             reply['seed_search_reused' if own['mode'] == 'fever' else 'normal_search_reused'] = True
-            return reply
+            return retime_cached(reply, request)
         if op == 'recover_placement':
             allowed = request.get('reachable_placements')
             if not isinstance(allowed, list) or not 1 <= len(allowed) <= 24:
@@ -1737,7 +1958,48 @@ class ModeBattleEngine(BattleEngine):
             # or a speculative one-piece attack estimate.
             reply['decision_dependencies'] = ['self', 'enemy'] if request.get('enemy_chain') else ['self']
         else:
+            self.lethal_pending = None
             reply = self._normal(request, own, enemy, rate)
+            followup = self.normal_followup.choose(request, own, enemy, reply,
+                self.policy['normal_build']['followup'], self.margin, self.pace)
+            if followup is not None:
+                reply = followup
+            converted = None if self.lethal_pending else self.normal_conversion.choose(request, own, enemy, reply,
+                self.last_normal_options, getattr(self, 'normal_capacity', {}),
+                self.policy.get('normal_build', {}).get('conversion', {}), self.margin,
+                fever=self._enemy_fever(enemy, self._enemy_events(request,enemy),rate),
+                enemy_events=self._enemy_events(request,enemy), pace=self.pace)
+            if converted is not None:
+                reply = converted
+            events = self._enemy_events(request, enemy)
+            final = None if self.lethal_pending or enemy['mode'] != 'fever' else self.final_seed_fire.choose(
+                request, own, enemy, reply, self._final_seed_config(request), self.margin,
+                events=events, hold=self._enemy_fever_hold(enemy, events) if events else None,
+                fever=self._enemy_fever(enemy, events, rate), rate=rate, pace=self.pace,
+                after_opening=self._after_opening(own, {**self.policy['solo_options'], **request.get('solo_options', {})}))
+            if final is not None:
+                reply = final
+            if self.final_seed_fire.status is not None and not self.lethal_pending and enemy['mode'] == 'fever':
+                reply['final_seed_fire_status'] = self.final_seed_fire.status
+            entry = None if self.lethal_pending or op != 'think' or enemy['mode'] != 'normal' else self.entry_fire.choose(
+                request, own, enemy, reply, self._final_seed_config(request, 'entry_fire'), self.margin,
+                events=events, fever=self._enemy_fever(enemy, events, rate), rate=rate, pace=self.pace,
+                chain_returns=self._chain_returns(request, enemy, events, rate))
+            if entry is not None:
+                reply = entry
+            if self.entry_fire.status is not None and not self.lethal_pending and enemy['mode'] == 'normal':
+                reply['entry_fire_status'] = self.entry_fire.status
+            waited = None if self.lethal_pending or op != 'think' or entry is not None else self.gauge_wait.choose(
+                request, own, enemy, reply, self._final_seed_config(request, 'gauge_wait'), rate,
+                flights_to_us(events, enemy, rate), pace=self.pace, placements=getattr(self, 'normal_placements', None),
+                margin_forecast=self.margin)
+            if waited is not None:
+                reply = waited
+            if self.gauge_wait.status is not None and not self.lethal_pending:
+                reply['gauge_wait_status'] = self.gauge_wait.status
+            if self.lethal_pending:
+                reply['followup_forecast'] = self.lethal_pending
+                reply['decision_dependencies'] = ['self', 'enemy']
             target_options = {**self.policy['solo_options'], **request.get('solo_options', {})}
             reply['normal_fire_policy'] = (('fill_then_fire' if 'second_target_chain' in request and request['second_target_chain'] is None else 'second_target_or_full')
                                           if self._after_opening(own, target_options) else 'initial_target')
@@ -1755,7 +2017,9 @@ class ModeBattleEngine(BattleEngine):
                 reply.update(normal_build_search_reused=True, normal_build_searched_visible=len(self.normal_build_cache[1]))
             reply = report_colors(self.native, own, reply)
             choice = reply.get('tactics_forecast', {}).get('choice', {})
-            if 'offset_links' in choice:
+            if reply.get('gauge_wait'):
+                gauge = reply['gauge_forecast']
+            elif 'offset_links' in choice:
                 # Use the same causal link timeline that selected this fire;
                 # current pending alone omits packets scored during our chain.
                 gauge = dict(gauge_after=choice['gauge_after'], offset_links=choice['offset_links'],
@@ -1769,6 +2033,11 @@ class ModeBattleEngine(BattleEngine):
             # chain was given; the nuisance search (garbage_search) reads the opponent's packets.
             if not request.get('enemy_chain') and 'nuisance_forecast' not in reply:
                 reply.setdefault('decision_dependencies', ['self'])
+        if own['mode'] == 'fever':
+            followup = self.normal_followup.choose(request, own, enemy, reply,
+                self.policy['normal_build']['followup'], self.margin, self.pace)
+            if followup is not None:
+                reply.update(followup)
         if reply['shape'] == '0':
             # Every policy branch, including unknown nuisance and seed search,
             # uses the native absolute big-puyo color encoded as U/R/D/L.
@@ -1778,6 +2047,8 @@ class ModeBattleEngine(BattleEngine):
                      provenance=self.scoring.provenance, search_ms=(time.monotonic() - started) * 1000)
         if self.normal_build_used:
             reply['normal_build_width'] = self.normal_build_width
+        from . import strategy
+        reply['strategy'] = dict(name=strategy.name(request), phase=strategy.phase(request, own, enemy))
         reply['cold_spawn'] = self.cold_spawn
         reply['mode_timing_status'] = ('normal_calibrated_input_estimated' if own['mode'] == 'normal'
                                        else ChainTiming.for_mode('fever').effective_status)

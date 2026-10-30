@@ -4,6 +4,7 @@ namespace fever {
 Potential potential(Field field, const beam::eval::Weight& w, const Configs& configs) {
     Potential best;
     i32 highest = INT32_MIN;
+    int near_chain = 0;
     u8 heights[6]; field.get_heights(heights);
     // Fever reachability is checked with actual Pieces at the root. Do not
     // inherit the Tsu pair-only wall bound in this cheap geometric estimate.
@@ -17,6 +18,7 @@ Potential potential(Field field, const beam::eval::Weight& w, const Configs& con
                 auto masks = remain.pop();
                 if (masks.get_size() > 1) {
                     auto scored = configs.normal ? normal_scoring::score(masks, *configs.normal) : chain::get_score(masks);
+                    if (key<=2) near_chain=std::max(near_chain,scored.count);
                     auto [link2, link3] = beam::eval::get_link_23(remain);
                     i64 value = i64(scored.count)*w.chain + int(heights[x])*w.y + key*w.key
                         + beam::eval::get_chi(heights, x)*w.chi + link2*w.link_2 + link3*w.link_3;
@@ -46,10 +48,11 @@ Potential potential(Field field, const beam::eval::Weight& w, const Configs& con
             }
         }
     }
+    best.near_chain=near_chain;
     return best;
 }
 
-void evaluate_normal(beam::node::Data& node, const beam::eval::Weight& w, const Configs& configs) {
+void evaluate_normal(beam::node::Data& node, const beam::eval::Weight& w, const Configs& configs, int* near_chain) {
     // Reuse shared terrain helpers, not its Tsu quiet search (which would
     // traverse the same board again even with every quiet weight set to zero).
     u8 heights[6]; node.field.get_heights(heights);
@@ -70,6 +73,8 @@ void evaluate_normal(beam::node::Data& node, const beam::eval::Weight& w, const 
     }
     auto [link2, link3] = beam::eval::get_link_23(node.field);
     node.score.eval += link2*w.link_2 + link3*w.link_3;
-    node.score.eval += potential(node.field, w, configs).value;
+    const auto held=potential(node.field, w, configs);
+    node.score.eval += held.value;
+    if (near_chain) *near_chain=held.near_chain;
 }
 }

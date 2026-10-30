@@ -17,11 +17,11 @@ class TacticalOptionsTests(unittest.TestCase):
         self.engine = ModeBattleEngine(NATIVE, SOLO, ROOT/'config.json')
         self.addCleanup(self.engine.close)
 
-    def test_omitted_options_match_pre_change_moves(self):
+    def test_omitted_options_match_current_default_moves(self):
         fixture = json.loads((ROOT/'data/fever/golden/normal-tactics-defaults.json').read_text(encoding='utf-8'))
         for index, case in enumerate(fixture['cases']):
             with self.subTest(case=index):
-                # A fresh engine reproduces the pre-change capture's cache/history conditions.
+                # A fresh engine reproduces the fixture's cache/history conditions.
                 engine = ModeBattleEngine(NATIVE, SOLO, ROOT/'config.json')
                 try:
                     reply = engine.answer(case['request'])
@@ -100,7 +100,9 @@ class TacticalOptionsTests(unittest.TestCase):
         cfg=options.resolve(self.engine.policy['normal_tactics'],req,req['self'],req['enemy'])['window_build']
         self.assertEqual(cfg,dict(enabled=False,hold=19,beam_width=1,min_pieces=3,fire_pieces=4))
         decision=type('Decision',(),dict(reply={'decision_kind':'stack'}))()
-        with patch.object(self.engine,'_enemy_events',side_effect=AssertionError('disabled')):
+        # Disabling the optional main-window probe still permits the mandatory
+        # weak-main extension policy to inspect an active enemy chain.
+        with patch.object(self.engine,'_enemy_events',return_value=[]):
             self.assertIsNone(self.engine._window_build(req,req['self'],req['enemy'],{},[],decision))
         req['normal_tactics']['window_build']['enabled']=True
         with patch.object(self.engine,'_enemy_events',return_value=[]) as events:

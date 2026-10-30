@@ -8,6 +8,7 @@ data/fever/battle_policy.json, not tuned in battle.
 from dataclasses import dataclass
 from .timing import ChainTiming
 from .nuisance import Trays
+from .strategy import opening_all_clear_possible, profile as strategy_profile
 
 # Replies of the search when nothing threatens (quiet): 'tactics_all_clear' clears the board within the
 # visible pieces, 'tactics_disrupt' sends a small packet at an opponent in Fever, 'tactics_fire' and
@@ -18,6 +19,41 @@ KINDS = {
     'offset': 'tactics_offset',          # pops and offsets pending nuisance
     'clear': 'tactics_clear',            # pops without offsetting anything
 }
+
+
+def popped(choice):
+    return sum(sum(link['groups']) for link in choice['links'])
+
+
+def least_entry(result):
+    """The choice, or when it enters Fever the entering candidate that pops the fewest puyos.
+
+    The board goes into storage with the entry and is what the next entry is built on: of the moves that surely
+    enter and survive, the one that spends the least of it is played, however the values of the search rank the
+    rest (a 2-chain of 10 puyos was played where one four-puyo link entered, 2026-10-25). It costs no search:
+    the candidates are already evaluated. A choice that does not enter Fever is left alone."""
+    choice = result['choice']
+    if not choice.get('enters_fever') or choice.get('all_clear'):
+        return choice               # clearing the board whole earns a seed of its own (2026-10-08): not a waste
+    entering = [c for c in result.get('candidates', []) if c.get('enters_fever') and c['survives']
+                and c.get('current_survives', c['survives'])]
+    best = min(entering, key=lambda c: (popped(c), -c['value']), default=choice)
+    return best if popped(best) < popped(choice) else choice
+
+
+def ready_main(result, builder, builder_fire):
+    """Keep the builder's ready main when it safely covers the known exchange.
+
+    Resource-saving Fever entry is for an unfavorable exchange, not a reason to
+    discard the main/second that construction has already chosen to fire.
+    """
+    if builder is None or not builder_fire:
+        return None
+    return next((c for c in result.get('candidates', [])
+        if (c['x'],c['r']) == tuple(builder) and c.get('attack_kind') == 'main'
+        and c.get('survives') and c.get('current_survives')
+        and c.get('projected_sufficient_return') and c.get('current_defense_commitment')
+        and c.get('current_exchange_pending') == 0), None)
 
 
 def kind(choice):
@@ -41,12 +77,13 @@ def evaluate(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=
     # Generic normal harassment must not bypass the Fever turnover window.
     if fever and fever.get('enemy_fever'):
         harass = False
-    request = dict(op='tactics', field=own['field'], queue=own['queue'],
+    request = dict(op='tactics', field=own['field'],
+        queue=own['queue'][:1] if policy.get('opening_all_clear_immediate') else own['queue'],
         confirmed=own['confirmed'], unconfirmed=own['unconfirmed'], remainder=own['remainder'],
         garbage_phase=own['garbage_phase'] or 0, unknown_garbage_phase=own['garbage_phase'] is None,
         gauge=own['gauge'], gain=gain, target_point=rate,
         opening_piece=own['piece_id'],
-        opening_all_clear=own.get('mode_generation', 0) == 0 and own.get('normal_chain_max', 0) < 4,
+        opening_all_clear=policy.get('opening_all_clear',True) and opening_all_clear_possible(own),
         rate_events=margin.get('rate_events', []), enemy_rate_events=margin.get('enemy_rate_events', []),
         enemy_events=enemy_events or [],
         **Trays(opponent).native(),
@@ -68,9 +105,9 @@ def evaluate(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=
         request['normal_pressure'] = {k: policy[k] for k in ('pressure', 'finish', 'counter_read')}
         rows = opponent['field']
         request['normal_pressure_enemy'] = dict(
-            available=opponent.get('mode') == 'normal' and opponent.get('phase') == 'controllable'
+            available=opponent.get('mode') == 'normal' and opponent.get('phase') in (('controllable', 'placing') if policy.get('pressure',{}).get('send_weight',0)>0 else ('controllable',))
                 and not enemy_events and not (fever and fever.get('enemy_fever')),
-            field=rows, queue=opponent['queue'],
+            mode=opponent['mode'], field=rows, queue=opponent['queue'],
             powers=scoring.data['characters'][opponent['character']]['normal'],
             gauge=opponent['gauge'], gain=gain, remainder=opponent['remainder'],
             pending=opponent['confirmed'] + opponent['unconfirmed'],
@@ -87,7 +124,9 @@ def evaluate(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=
         if str(error) not in ('no conservative legal placement', 'already dead field'):
             raise
         return Decision('unavailable')
-    choice = result['choice']
+    pressure_style=strategy_profile({'normal_tactics':{'strategy':policy.get('strategy','mainline')}})['pressure_style']
+    main = ready_main(result,builder,builder_fire) if pressure_style else None
+    result['choice'] = choice = main or least_entry(result)
     reason = KINDS[kind(choice)]
     if quiet:
         # Nothing threatens: the builder places this piece unless the search sends something
@@ -99,7 +138,8 @@ def evaluate(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=
         attack = choice.get('projected_normal_attack', {})
         pressure = attack.get('pressure', False)
         finish = attack.get('finish', False)
-        if builder is not None and (choice['x'], choice['r']) == tuple(builder) and not (disrupt or pressure or finish):
+        if builder is not None and (choice['x'], choice['r']) == tuple(builder) and not (
+                disrupt or pressure or finish or choice['projected_all_clear']):
             return Decision('build', forecast=result)
         if result.get('held_main_for_counter'):
             reason = 'tactics_hold_for_fever_counter'

@@ -36,6 +36,15 @@ REFERENCE_CHANGES = changes(DEFAULT_INITIAL)
 REFERENCE_RATES = tuple(rate for _, rate in REFERENCE_CHANGES)
 
 
+def active(request, forecast=None):
+    """A stated or observed margin start, never a guess from a low rate alone."""
+    explicit=request.get('margin_policy')
+    if explicit is not None:
+        return request['frame']>=explicit['start_frame']
+    bounds=(forecast or {}).get('margin_start_frame_bounds')
+    return bool(bounds and request['frame']>=bounds[1])
+
+
 def rate_at(initial, events, frame):
     for event in events or []:
         if event['frame'] > frame:

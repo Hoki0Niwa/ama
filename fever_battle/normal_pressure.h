@@ -21,13 +21,13 @@ class NormalPressure {
     std::vector<Reply> replies;
     int expanded = 0, depth = 0, limit = 0;
     std::vector<int> unread;
-    bool available = false, cutoff = false;
+    bool available = false, cutoff = false, protected_main = false;
     i64 main_points = 0;
     int main_frame = 0;
     void build(int index);
     mutable std::map<std::pair<int,i64>, json> cache;
 public:
-    NormalPressure(const json& request, const RateSchedule& rates, const Bonuses& bonuses);
+    NormalPressure(const json& request, const RateSchedule& rates, const Bonuses& bonuses, int held_main=-1);
     bool enabled() const;
     bool allows_pending() const;
     bool preempts() const;
@@ -35,6 +35,6 @@ public:
     json counter(int deadline, i64 sent) const;
     json rate(Field remaining, int max_chain, int redundancy, i64 sent, int deadline, bool invite,
         int main_loss=0, int attacks=1, int consumed=0, bool quiet=true,
-        i64 own_points=0, int own_frame=0) const;
+        i64 own_points=0, int own_frame=0, int remaining_chain=-1) const;
 };
 }

@@ -1,0 +1,1610 @@
+{
+  "source": "ama-memory-bridge observations/input-session.log ending 2026-10-29 20:35:08. Prepared target and live request for existing attacks progressing; one-based original line numbers.",
+  "cases": [
+    {
+      "line": 224,
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "7a9dd244db874d2fa45fcf47d96f1040-round-1",
+        "frame": 1685,
+        "observation": {
+          "frame_before": 1685,
+          "frame_after": 1685,
+          "match_status": "running",
+          "in_flight": {
+            "self": {
+              "attacks_in_flight": [],
+              "outgoing_in_flight": 0,
+              "counter_in_flight": 0,
+              "incoming_in_flight": 7,
+              "next_incoming_arrival_frame": 1697
+            },
+            "enemy": {
+              "attacks_in_flight": [
+                {
+                  "amount": 7,
+                  "counter": false,
+                  "link": 4,
+                  "launch_frame": 1673,
+                  "arrive_frame": 1697
+                }
+              ],
+              "outgoing_in_flight": 7,
+              "counter_in_flight": 0,
+              "incoming_in_flight": 0,
+              "next_incoming_arrival_frame": -1
+            }
+          }
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true,
+          "frame_domain": "pc_15209927_internal"
+        },
+        "self": {
+          "character": "hartmann",
+          "field": [
+            "......",
+            "....BB",
+            "....BB",
+            "R...RB",
+            "RY..RR",
+            "GR..BB",
+            "GY.RGB",
+            "RBBGRR",
+            "RBYGYR",
+            "GRYRYG",
+            "RRYBRG",
+            "GGRBRG",
+            "GRYYGY",
+            "RBBYGG"
+          ],
+          "mode": "normal",
+          "board_status": "observed_fixed",
+          "board_observed_frame": 1685,
+          "gauge": 0,
+          "observed_frame": 1685,
+          "phase": "controllable",
+          "moves_since_chain": 1,
+          "moves_since_chain_status": "observed",
+          "normal_chain_max": 2,
+          "fever_entry_frame": null,
+          "fever_destination_frame": null,
+          "dropset_index": 10,
+          "piece_id": 26,
+          "queue": [
+            "2:GB",
+            "0:Y",
+            "L:GGR"
+          ],
+          "nuisance_destination": "normal",
+          "confirmed": 0,
+          "unconfirmed": 11,
+          "remainder": 77,
+          "garbage_phase": 0,
+          "garbage_phase_status": "observed",
+          "observed_drop_count_cursor": 0,
+          "mode_generation": 0,
+          "seed_id": 0,
+          "prepared_frames": 1140,
+          "prepared_frames_status": "observed",
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 5,
+          "seed_chain": 5,
+          "stored_field": null,
+          "fever_chain_end_frame": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 11,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0,
+          "awaiting_seed": false,
+          "pattern": "222J044LJ020L420"
+        },
+        "enemy": {
+          "character": "serilly",
+          "field": [
+            "......",
+            "B.....",
+            "Y.....",
+            "B.....",
+            "YYR...",
+            "YBB..G",
+            "GGBG.Y",
+            "BRRR.G",
+            "BGBB.R",
+            "GGBY.R",
+            "BRYGRG",
+            "BGYBRB",
+            "GGYBYY",
+            "RRRYGY"
+          ],
+          "mode": "normal",
+          "board_status": "last_observed_fixed",
+          "board_observed_frame": 1413,
+          "gauge": 3,
+          "observed_frame": 1685,
+          "phase": "chain",
+          "moves_since_chain": 25,
+          "moves_since_chain_status": "observed",
+          "normal_chain_max": 4,
+          "fever_entry_frame": null,
+          "fever_destination_frame": null,
+          "dropset_index": 8,
+          "piece_id": 25,
+          "queue": [
+            "2:BY",
+            "J:GRG",
+            "0:Y"
+          ],
+          "nuisance_destination": "normal",
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 97,
+          "garbage_phase": 0,
+          "garbage_phase_status": "observed",
+          "observed_drop_count_cursor": 0,
+          "mode_generation": 0,
+          "seed_id": 0,
+          "prepared_frames": 960,
+          "prepared_frames_status": "observed",
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 5,
+          "seed_chain": 5,
+          "stored_field": null,
+          "fever_chain_end_frame": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0,
+          "awaiting_seed": false,
+          "pattern": "2222L2222J022224"
+        },
+        "enemy_chain": {
+          "trigger_field": [
+            "......",
+            "B.....",
+            "YB....",
+            "BY....",
+            "YYR...",
+            "YBB..G",
+            "GGBG.Y",
+            "BRRR.G",
+            "BGBB.R",
+            "GGBY.R",
+            "BRYGRG",
+            "BGYBRB",
+            "GGYBYY",
+            "RRRYGY"
+          ],
+          "start_frame": 1429,
+          "observed_link_frame": 1649,
+          "observed_link": 4,
+          "scored_links": 4,
+          "onset_frame_status": "exact_edge",
+          "mode_generation": 0,
+          "seed_id": 0,
+          "first_link_points": 40,
+          "elapsed": 256
+        },
+        "active_placement": {
+          "x": 1,
+          "r": "L"
+        },
+        "decision_budget_ms": 20,
+        "second_target_chain": 14,
+        "solo_options": {
+          "beam_width": 250,
+          "beam_depth": 16,
+          "margin": 1,
+          "trigger": 15,
+          "panic_chain": 13,
+          "panic_count": 70,
+          "panic_step": 2,
+          "patience": 46
+        },
+        "seed_options": {
+          "width": 250,
+          "depth": 16,
+          "max_nodes": 0
+        },
+        "normal_tactics": {
+          "strategy": "brawl"
+        },
+        "op": "recover_placement",
+        "reachable_placements": [
+          {
+            "x": 0,
+            "r": "U"
+          },
+          {
+            "x": 0,
+            "r": "R"
+          },
+          {
+            "x": 0,
+            "r": "D"
+          },
+          {
+            "x": 1,
+            "r": "U"
+          },
+          {
+            "x": 1,
+            "r": "R"
+          },
+          {
+            "x": 1,
+            "r": "D"
+          },
+          {
+            "x": 1,
+            "r": "L"
+          },
+          {
+            "x": 2,
+            "r": "U"
+          },
+          {
+            "x": 2,
+            "r": "R"
+          },
+          {
+            "x": 2,
+            "r": "D"
+          },
+          {
+            "x": 2,
+            "r": "L"
+          },
+          {
+            "x": 3,
+            "r": "U"
+          },
+          {
+            "x": 3,
+            "r": "D"
+          },
+          {
+            "x": 3,
+            "r": "L"
+          }
+        ]
+      },
+      "prepare_request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "7a9dd244db874d2fa45fcf47d96f1040-round-1",
+        "frame": 1648,
+        "observation": {
+          "frame_before": 1648,
+          "frame_after": 1648,
+          "match_status": "running",
+          "in_flight": {
+            "self": {
+              "attacks_in_flight": [],
+              "outgoing_in_flight": 0,
+              "counter_in_flight": 0,
+              "incoming_in_flight": 4,
+              "next_incoming_arrival_frame": 1651
+            },
+            "enemy": {
+              "attacks_in_flight": [
+                {
+                  "amount": 4,
+                  "counter": false,
+                  "link": 3,
+                  "launch_frame": 1627,
+                  "arrive_frame": 1651
+                }
+              ],
+              "outgoing_in_flight": 4,
+              "counter_in_flight": 0,
+              "incoming_in_flight": 0,
+              "next_incoming_arrival_frame": -1
+            }
+          }
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true,
+          "frame_domain": "pc_15209927_internal"
+        },
+        "self": {
+          "character": "hartmann",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "R...RB",
+            "RY..RR",
+            "GR..BB",
+            "GY.RGB",
+            "RBBGRR",
+            "RBYGYR",
+            "GRYRYG",
+            "RRYBRG",
+            "GGRBRG",
+            "GRYYGY",
+            "RBBYGG"
+          ],
+          "mode": "normal",
+          "board_status": "observed_fixed",
+          "board_observed_frame": 1648,
+          "gauge": 0,
+          "observed_frame": 1648,
+          "phase": "controllable",
+          "moves_since_chain": 0,
+          "moves_since_chain_status": "observed",
+          "normal_chain_max": 2,
+          "fever_entry_frame": null,
+          "fever_destination_frame": null,
+          "dropset_index": 9,
+          "piece_id": 25,
+          "queue": [
+            "0:R",
+            "2:GB",
+            "0:Y",
+            "L:GGR"
+          ],
+          "nuisance_destination": "normal",
+          "confirmed": 0,
+          "unconfirmed": 4,
+          "remainder": 76,
+          "garbage_phase": 0,
+          "garbage_phase_status": "observed",
+          "observed_drop_count_cursor": 0,
+          "mode_generation": 0,
+          "seed_id": 0,
+          "prepared_frames": 1080,
+          "prepared_frames_status": "observed",
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 5,
+          "seed_chain": 5,
+          "stored_field": null,
+          "fever_chain_end_frame": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 4,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0,
+          "awaiting_seed": false,
+          "pattern": "222J044LJ020L420"
+        },
+        "enemy": {
+          "character": "serilly",
+          "field": [
+            "......",
+            "B.....",
+            "Y.....",
+            "B.....",
+            "YYR...",
+            "YBB..G",
+            "GGBG.Y",
+            "BRRR.G",
+            "BGBB.R",
+            "GGBY.R",
+            "BRYGRG",
+            "BGYBRB",
+            "GGYBYY",
+            "RRRYGY"
+          ],
+          "mode": "normal",
+          "board_status": "last_observed_fixed",
+          "board_observed_frame": 1413,
+          "gauge": 2,
+          "observed_frame": 1648,
+          "phase": "chain",
+          "moves_since_chain": 25,
+          "moves_since_chain_status": "observed",
+          "normal_chain_max": 3,
+          "fever_entry_frame": null,
+          "fever_destination_frame": null,
+          "dropset_index": 8,
+          "piece_id": 25,
+          "queue": [
+            "2:BY",
+            "J:GRG",
+            "0:Y"
+          ],
+          "nuisance_destination": "normal",
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 17,
+          "garbage_phase": 0,
+          "garbage_phase_status": "observed",
+          "observed_drop_count_cursor": 0,
+          "mode_generation": 0,
+          "seed_id": 0,
+          "prepared_frames": 960,
+          "prepared_frames_status": "observed",
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 5,
+          "seed_chain": 5,
+          "stored_field": null,
+          "fever_chain_end_frame": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0,
+          "awaiting_seed": false,
+          "pattern": "2222L2222J022224"
+        },
+        "enemy_chain": {
+          "trigger_field": [
+            "......",
+            "B.....",
+            "YB....",
+            "BY....",
+            "YYR...",
+            "YBB..G",
+            "GGBG.Y",
+            "BRRR.G",
+            "BGBB.R",
+            "GGBY.R",
+            "BRYGRG",
+            "BGYBRB",
+            "GGYBYY",
+            "RRRYGY"
+          ],
+          "start_frame": 1429,
+          "observed_link_frame": 1579,
+          "observed_link": 3,
+          "scored_links": 3,
+          "onset_frame_status": "exact_edge",
+          "mode_generation": 0,
+          "seed_id": 0,
+          "first_link_points": 40,
+          "elapsed": 219
+        },
+        "decision_budget_ms": 100,
+        "second_target_chain": 14,
+        "solo_options": {
+          "beam_width": 250,
+          "beam_depth": 16,
+          "margin": 1,
+          "trigger": 15,
+          "panic_chain": 13,
+          "panic_count": 70,
+          "panic_step": 2,
+          "patience": 46
+        },
+        "seed_options": {
+          "width": 250,
+          "depth": 16,
+          "max_nodes": 0
+        },
+        "normal_tactics": {
+          "strategy": "brawl"
+        },
+        "op": "prepare",
+        "placement": {
+          "x": 4,
+          "r": "L"
+        }
+      },
+      "plan": {
+        "piece_id": 26,
+        "placement": {
+          "x": 1,
+          "r": "L"
+        },
+        "reason": "tactics_stack",
+        "nuisance": {
+          "confirmed": 0,
+          "unconfirmed": 4
+        },
+        "field": [
+          "......",
+          "....BB",
+          "....BB",
+          "R...RB",
+          "RY..RR",
+          "GR..BB",
+          "GY.RGB",
+          "RBBGRR",
+          "RBYGYR",
+          "GRYRYG",
+          "RRYBRG",
+          "GGRBRG",
+          "GRYYGY",
+          "RBBYGG"
+        ],
+        "queue": [
+          "2:GB",
+          "0:Y",
+          "L:GGR"
+        ],
+        "forecast": null
+      },
+      "prepare_line": 223
+    },
+    {
+      "line": 616,
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "ba98cc33ba16457a943bae2d11c069e6-round-2",
+        "frame": 708,
+        "observation": {
+          "frame_before": 708,
+          "frame_after": 708,
+          "match_status": "running",
+          "in_flight": {
+            "self": {
+              "attacks_in_flight": [],
+              "outgoing_in_flight": 0,
+              "counter_in_flight": 0,
+              "incoming_in_flight": 0,
+              "next_incoming_arrival_frame": -1
+            },
+            "enemy": {
+              "attacks_in_flight": [],
+              "outgoing_in_flight": 0,
+              "counter_in_flight": 0,
+              "incoming_in_flight": 0,
+              "next_incoming_arrival_frame": -1
+            }
+          }
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true,
+          "frame_domain": "pc_15209927_internal"
+        },
+        "self": {
+          "character": "serilly",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....G",
+            ".....R",
+            "....BR",
+            "...RBG",
+            "...RRG",
+            "...YBG",
+            "..RBBR",
+            "..RYRR",
+            "..YYBG"
+          ],
+          "mode": "normal",
+          "board_status": "observed_fixed",
+          "board_observed_frame": 708,
+          "gauge": 0,
+          "observed_frame": 708,
+          "phase": "controllable",
+          "moves_since_chain": 11,
+          "moves_since_chain_status": "observed",
+          "normal_chain_max": 0,
+          "fever_entry_frame": null,
+          "fever_destination_frame": null,
+          "dropset_index": 11,
+          "piece_id": 11,
+          "queue": [
+            "2:RY",
+            "2:YG",
+            "2:RY"
+          ],
+          "nuisance_destination": "normal",
+          "confirmed": 0,
+          "unconfirmed": 1,
+          "remainder": 83,
+          "garbage_phase": 0,
+          "garbage_phase_status": "observed",
+          "observed_drop_count_cursor": 0,
+          "mode_generation": 0,
+          "seed_id": 0,
+          "prepared_frames": 960,
+          "prepared_frames_status": "observed",
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 5,
+          "seed_chain": 5,
+          "stored_field": null,
+          "fever_chain_end_frame": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 1,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0,
+          "awaiting_seed": false,
+          "pattern": "2222L2222J022224"
+        },
+        "enemy": {
+          "character": "hartmann",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "....GB",
+            "...BGB",
+            "...BRG",
+            ".B.GBG",
+            ".B.RBB",
+            "BY.GGG",
+            "BYYRRR"
+          ],
+          "mode": "normal",
+          "board_status": "last_observed_fixed",
+          "board_observed_frame": 595,
+          "gauge": 0,
+          "observed_frame": 708,
+          "phase": "chain",
+          "moves_since_chain": 10,
+          "moves_since_chain_status": "observed",
+          "normal_chain_max": 1,
+          "fever_entry_frame": null,
+          "fever_destination_frame": null,
+          "dropset_index": 9,
+          "piece_id": 10,
+          "queue": [
+            "0:R",
+            "2:BR",
+            "0:B"
+          ],
+          "nuisance_destination": "normal",
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 22,
+          "garbage_phase": 0,
+          "garbage_phase_status": "observed",
+          "observed_drop_count_cursor": 0,
+          "mode_generation": 0,
+          "seed_id": 0,
+          "prepared_frames": 960,
+          "prepared_frames_status": "observed",
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 5,
+          "seed_chain": 5,
+          "stored_field": null,
+          "fever_chain_end_frame": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0,
+          "awaiting_seed": false,
+          "pattern": "222J044LJ020L420"
+        },
+        "enemy_chain": {
+          "trigger_field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "....GB",
+            ".G.BGB",
+            ".G.BRG",
+            ".B.GBG",
+            ".BGRBB",
+            "BYGGGG",
+            "BYYRRR"
+          ],
+          "start_frame": 633,
+          "observed_link_frame": 633,
+          "observed_link": 1,
+          "scored_links": 1,
+          "onset_frame_status": "exact_edge",
+          "mode_generation": 0,
+          "seed_id": 0,
+          "first_link_points": 50,
+          "elapsed": 75
+        },
+        "active_placement": {
+          "x": 3,
+          "r": "L"
+        },
+        "decision_budget_ms": 20,
+        "second_target_chain": 14,
+        "solo_options": {
+          "beam_width": 250,
+          "beam_depth": 16,
+          "margin": 1,
+          "trigger": 15,
+          "panic_chain": 13,
+          "panic_count": 70,
+          "panic_step": 2,
+          "patience": 46
+        },
+        "seed_options": {
+          "width": 250,
+          "depth": 16,
+          "max_nodes": 0
+        },
+        "normal_tactics": {
+          "strategy": "hybrid"
+        },
+        "op": "recover_placement",
+        "reachable_placements": [
+          {
+            "x": 0,
+            "r": "U"
+          },
+          {
+            "x": 0,
+            "r": "R"
+          },
+          {
+            "x": 0,
+            "r": "D"
+          },
+          {
+            "x": 1,
+            "r": "U"
+          },
+          {
+            "x": 1,
+            "r": "R"
+          },
+          {
+            "x": 1,
+            "r": "D"
+          },
+          {
+            "x": 1,
+            "r": "L"
+          },
+          {
+            "x": 2,
+            "r": "U"
+          },
+          {
+            "x": 2,
+            "r": "R"
+          },
+          {
+            "x": 2,
+            "r": "D"
+          },
+          {
+            "x": 2,
+            "r": "L"
+          },
+          {
+            "x": 3,
+            "r": "U"
+          },
+          {
+            "x": 3,
+            "r": "R"
+          },
+          {
+            "x": 3,
+            "r": "D"
+          },
+          {
+            "x": 3,
+            "r": "L"
+          },
+          {
+            "x": 4,
+            "r": "U"
+          },
+          {
+            "x": 4,
+            "r": "R"
+          },
+          {
+            "x": 4,
+            "r": "D"
+          },
+          {
+            "x": 4,
+            "r": "L"
+          },
+          {
+            "x": 5,
+            "r": "U"
+          },
+          {
+            "x": 5,
+            "r": "D"
+          },
+          {
+            "x": 5,
+            "r": "L"
+          }
+        ]
+      },
+      "prepare_request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "ba98cc33ba16457a943bae2d11c069e6-round-2",
+        "frame": 640,
+        "observation": {
+          "frame_before": 640,
+          "frame_after": 640,
+          "match_status": "running",
+          "in_flight": {
+            "self": {
+              "attacks_in_flight": [],
+              "outgoing_in_flight": 0,
+              "counter_in_flight": 0,
+              "incoming_in_flight": 0,
+              "next_incoming_arrival_frame": -1
+            },
+            "enemy": {
+              "attacks_in_flight": [],
+              "outgoing_in_flight": 0,
+              "counter_in_flight": 0,
+              "incoming_in_flight": 0,
+              "next_incoming_arrival_frame": -1
+            }
+          }
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true,
+          "frame_domain": "pc_15209927_internal"
+        },
+        "self": {
+          "character": "serilly",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            ".....R",
+            ".....G",
+            ".....R",
+            "....BR",
+            "....BG",
+            "....RG",
+            "...YBG",
+            "...BBR",
+            "...YRR",
+            "..YYBG"
+          ],
+          "mode": "normal",
+          "board_status": "observed_fixed",
+          "board_observed_frame": 640,
+          "gauge": 0,
+          "observed_frame": 640,
+          "phase": "controllable",
+          "moves_since_chain": 10,
+          "moves_since_chain_status": "observed",
+          "normal_chain_max": 0,
+          "fever_entry_frame": null,
+          "fever_destination_frame": null,
+          "dropset_index": 10,
+          "piece_id": 10,
+          "queue": [
+            "0:B",
+            "2:RY",
+            "2:YG",
+            "2:RY"
+          ],
+          "nuisance_destination": "normal",
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 75,
+          "garbage_phase": 0,
+          "garbage_phase_status": "observed",
+          "observed_drop_count_cursor": 0,
+          "mode_generation": 0,
+          "seed_id": 0,
+          "prepared_frames": 960,
+          "prepared_frames_status": "observed",
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 5,
+          "seed_chain": 5,
+          "stored_field": null,
+          "fever_chain_end_frame": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0,
+          "awaiting_seed": false,
+          "pattern": "2222L2222J022224"
+        },
+        "enemy": {
+          "character": "hartmann",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "....GB",
+            "...BGB",
+            "...BRG",
+            ".B.GBG",
+            ".B.RBB",
+            "BY.GGG",
+            "BYYRRR"
+          ],
+          "mode": "normal",
+          "board_status": "last_observed_fixed",
+          "board_observed_frame": 595,
+          "gauge": 0,
+          "observed_frame": 640,
+          "phase": "chain",
+          "moves_since_chain": 10,
+          "moves_since_chain_status": "observed",
+          "normal_chain_max": 1,
+          "fever_entry_frame": null,
+          "fever_destination_frame": null,
+          "dropset_index": 9,
+          "piece_id": 10,
+          "queue": [
+            "0:R",
+            "2:BR",
+            "0:B"
+          ],
+          "nuisance_destination": "normal",
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 22,
+          "garbage_phase": 0,
+          "garbage_phase_status": "observed",
+          "observed_drop_count_cursor": 0,
+          "mode_generation": 0,
+          "seed_id": 0,
+          "prepared_frames": 960,
+          "prepared_frames_status": "observed",
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 5,
+          "seed_chain": 5,
+          "stored_field": null,
+          "fever_chain_end_frame": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0,
+          "awaiting_seed": false,
+          "pattern": "222J044LJ020L420"
+        },
+        "enemy_chain": {
+          "trigger_field": [
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "......",
+            "....GB",
+            ".G.BGB",
+            ".G.BRG",
+            ".B.GBG",
+            ".BGRBB",
+            "BYGGGG",
+            "BYYRRR"
+          ],
+          "start_frame": 633,
+          "observed_link_frame": 633,
+          "observed_link": 1,
+          "scored_links": 1,
+          "onset_frame_status": "exact_edge",
+          "mode_generation": 0,
+          "seed_id": 0,
+          "first_link_points": 50,
+          "elapsed": 7
+        },
+        "decision_budget_ms": 100,
+        "second_target_chain": 14,
+        "solo_options": {
+          "beam_width": 250,
+          "beam_depth": 16,
+          "margin": 1,
+          "trigger": 15,
+          "panic_chain": 13,
+          "panic_count": 70,
+          "panic_step": 2,
+          "patience": 46
+        },
+        "seed_options": {
+          "width": 250,
+          "depth": 16,
+          "max_nodes": 0
+        },
+        "normal_tactics": {
+          "strategy": "hybrid"
+        },
+        "op": "prepare",
+        "placement": {
+          "x": 2,
+          "r": "U"
+        }
+      },
+      "plan": {
+        "piece_id": 11,
+        "placement": {
+          "x": 4,
+          "r": "L"
+        },
+        "reason": "tactics_stack",
+        "nuisance": {
+          "confirmed": 0,
+          "unconfirmed": 0
+        },
+        "field": [
+          "......",
+          "......",
+          "......",
+          "......",
+          ".....R",
+          ".....G",
+          ".....R",
+          "....BR",
+          "...RBG",
+          "...RRG",
+          "...YBG",
+          "..RBBR",
+          "..RYRR",
+          "..YYBG"
+        ],
+        "queue": [
+          "2:RY",
+          "2:YG",
+          "2:RY"
+        ],
+        "forecast": null
+      },
+      "prepare_line": 615
+    },
+    {
+      "line": 1353,
+      "request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "7a9dd244db874d2fa45fcf47d96f1040-round-4",
+        "frame": 1304,
+        "observation": {
+          "frame_before": 1304,
+          "frame_after": 1304,
+          "match_status": "running",
+          "in_flight": {
+            "self": {
+              "attacks_in_flight": [],
+              "outgoing_in_flight": 0,
+              "counter_in_flight": 0,
+              "incoming_in_flight": 20,
+              "next_incoming_arrival_frame": 1315
+            },
+            "enemy": {
+              "attacks_in_flight": [
+                {
+                  "amount": 20,
+                  "counter": false,
+                  "link": 6,
+                  "launch_frame": 1291,
+                  "arrive_frame": 1315
+                }
+              ],
+              "outgoing_in_flight": 20,
+              "counter_in_flight": 0,
+              "incoming_in_flight": 0,
+              "next_incoming_arrival_frame": -1
+            }
+          }
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true,
+          "frame_domain": "pc_15209927_internal"
+        },
+        "self": {
+          "character": "ciel",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "....R.",
+            "....G.",
+            "....GB",
+            "....RG",
+            "....YG",
+            "....BB",
+            "...GBY",
+            "...RYY",
+            "Y..RGG",
+            "Y.GYGY",
+            "R.GGYY"
+          ],
+          "mode": "normal",
+          "board_status": "observed_fixed",
+          "board_observed_frame": 1304,
+          "gauge": 0,
+          "observed_frame": 1304,
+          "phase": "controllable",
+          "moves_since_chain": 6,
+          "moves_since_chain_status": "observed",
+          "normal_chain_max": 3,
+          "fever_entry_frame": null,
+          "fever_destination_frame": null,
+          "dropset_index": 2,
+          "piece_id": 18,
+          "queue": [
+            "2:YY",
+            "2:YB",
+            "4:YYBB"
+          ],
+          "nuisance_destination": "normal",
+          "confirmed": 0,
+          "unconfirmed": 27,
+          "remainder": 111,
+          "garbage_phase": 0,
+          "garbage_phase_status": "observed",
+          "observed_drop_count_cursor": 0,
+          "mode_generation": 0,
+          "seed_id": 0,
+          "prepared_frames": 1260,
+          "prepared_frames_status": "observed",
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 5,
+          "seed_chain": 5,
+          "stored_field": null,
+          "fever_chain_end_frame": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 27,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0,
+          "awaiting_seed": false,
+          "pattern": "2L2242J22L0242J2"
+        },
+        "enemy": {
+          "character": "harpy",
+          "field": [
+            "......",
+            "......",
+            "......",
+            ".....Y",
+            ".....G",
+            "....BG",
+            "....GR",
+            "....GB",
+            "....YB",
+            "..YRYB",
+            "RBGGGR",
+            "BYRYBR",
+            "RRGYBR",
+            "YYBBGG"
+          ],
+          "mode": "normal",
+          "board_status": "last_observed_fixed",
+          "board_observed_frame": 867,
+          "gauge": 5,
+          "observed_frame": 1304,
+          "phase": "chain",
+          "moves_since_chain": 16,
+          "moves_since_chain_status": "observed",
+          "normal_chain_max": 6,
+          "fever_entry_frame": null,
+          "fever_destination_frame": null,
+          "dropset_index": 15,
+          "piece_id": 16,
+          "queue": [
+            "0:B",
+            "2:RR",
+            "2:GG"
+          ],
+          "nuisance_destination": "normal",
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 50,
+          "garbage_phase": 0,
+          "garbage_phase_status": "observed",
+          "observed_drop_count_cursor": 0,
+          "mode_generation": 0,
+          "seed_id": 0,
+          "prepared_frames": 960,
+          "prepared_frames_status": "observed",
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 5,
+          "seed_chain": 5,
+          "stored_field": null,
+          "fever_chain_end_frame": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0,
+          "awaiting_seed": false,
+          "pattern": "22L02J2422242220"
+        },
+        "enemy_chain": {
+          "trigger_field": [
+            "......",
+            "......",
+            "......",
+            ".....Y",
+            ".....G",
+            "....BG",
+            "....GR",
+            "..GGGB",
+            "..GGYB",
+            "..YRYB",
+            "RBGGGR",
+            "BYRYBR",
+            "RRGYBR",
+            "YYBBGG"
+          ],
+          "start_frame": 883,
+          "observed_link_frame": 1267,
+          "observed_link": 6,
+          "scored_links": 6,
+          "onset_frame_status": "exact_edge",
+          "mode_generation": 0,
+          "seed_id": 0,
+          "first_link_points": 120,
+          "elapsed": 421
+        },
+        "active_placement": {
+          "x": 3,
+          "r": "R"
+        },
+        "decision_budget_ms": 20,
+        "second_target_chain": 14,
+        "solo_options": {
+          "beam_width": 250,
+          "beam_depth": 16,
+          "margin": 1,
+          "trigger": 15,
+          "panic_chain": 13,
+          "panic_count": 70,
+          "panic_step": 2,
+          "patience": 46
+        },
+        "seed_options": {
+          "width": 250,
+          "depth": 16,
+          "max_nodes": 0
+        },
+        "normal_tactics": {
+          "strategy": "brawl"
+        },
+        "op": "recover_placement",
+        "reachable_placements": [
+          {
+            "x": 0,
+            "r": "U"
+          },
+          {
+            "x": 0,
+            "r": "R"
+          },
+          {
+            "x": 0,
+            "r": "D"
+          },
+          {
+            "x": 1,
+            "r": "U"
+          },
+          {
+            "x": 1,
+            "r": "R"
+          },
+          {
+            "x": 1,
+            "r": "D"
+          },
+          {
+            "x": 1,
+            "r": "L"
+          },
+          {
+            "x": 2,
+            "r": "U"
+          },
+          {
+            "x": 2,
+            "r": "R"
+          },
+          {
+            "x": 2,
+            "r": "D"
+          },
+          {
+            "x": 2,
+            "r": "L"
+          },
+          {
+            "x": 3,
+            "r": "U"
+          },
+          {
+            "x": 3,
+            "r": "R"
+          },
+          {
+            "x": 3,
+            "r": "D"
+          },
+          {
+            "x": 3,
+            "r": "L"
+          },
+          {
+            "x": 4,
+            "r": "U"
+          },
+          {
+            "x": 4,
+            "r": "R"
+          },
+          {
+            "x": 4,
+            "r": "D"
+          },
+          {
+            "x": 4,
+            "r": "L"
+          },
+          {
+            "x": 5,
+            "r": "U"
+          },
+          {
+            "x": 5,
+            "r": "D"
+          },
+          {
+            "x": 5,
+            "r": "L"
+          }
+        ]
+      },
+      "prepare_request": {
+        "protocol_version": 3,
+        "rule": "fever_battle",
+        "match_id": "7a9dd244db874d2fa45fcf47d96f1040-round-4",
+        "frame": 1272,
+        "observation": {
+          "frame_before": 1272,
+          "frame_after": 1272,
+          "match_status": "running",
+          "in_flight": {
+            "self": {
+              "attacks_in_flight": [],
+              "outgoing_in_flight": 0,
+              "counter_in_flight": 0,
+              "incoming_in_flight": 0,
+              "next_incoming_arrival_frame": -1
+            },
+            "enemy": {
+              "attacks_in_flight": [],
+              "outgoing_in_flight": 0,
+              "counter_in_flight": 0,
+              "incoming_in_flight": 0,
+              "next_incoming_arrival_frame": -1
+            }
+          }
+        },
+        "target_point": 120,
+        "gauge_gain_on_offset": 1,
+        "clock_policy": {
+          "count_chain_frames": true,
+          "frame_domain": "pc_15209927_internal"
+        },
+        "self": {
+          "character": "ciel",
+          "field": [
+            "......",
+            "......",
+            "......",
+            "....R.",
+            "....G.",
+            "....GB",
+            "....RG",
+            "....YG",
+            "....BB",
+            "...GBY",
+            "...RYY",
+            "Y..RGG",
+            "Y.GYGY",
+            "R.GGYY"
+          ],
+          "mode": "normal",
+          "board_status": "observed_fixed",
+          "board_observed_frame": 1272,
+          "gauge": 0,
+          "observed_frame": 1272,
+          "phase": "controllable",
+          "moves_since_chain": 6,
+          "moves_since_chain_status": "observed",
+          "normal_chain_max": 3,
+          "fever_entry_frame": null,
+          "fever_destination_frame": null,
+          "dropset_index": 2,
+          "piece_id": 18,
+          "queue": [
+            "2:YY",
+            "2:YB",
+            "4:YYBB"
+          ],
+          "nuisance_destination": "normal",
+          "confirmed": 0,
+          "unconfirmed": 7,
+          "remainder": 111,
+          "garbage_phase": 0,
+          "garbage_phase_status": "observed",
+          "observed_drop_count_cursor": 0,
+          "mode_generation": 0,
+          "seed_id": 0,
+          "prepared_frames": 1260,
+          "prepared_frames_status": "observed",
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 5,
+          "seed_chain": 5,
+          "stored_field": null,
+          "fever_chain_end_frame": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 7,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0,
+          "awaiting_seed": false,
+          "pattern": "2L2242J22L0242J2"
+        },
+        "enemy": {
+          "character": "harpy",
+          "field": [
+            "......",
+            "......",
+            "......",
+            ".....Y",
+            ".....G",
+            "....BG",
+            "....GR",
+            "....GB",
+            "....YB",
+            "..YRYB",
+            "RBGGGR",
+            "BYRYBR",
+            "RRGYBR",
+            "YYBBGG"
+          ],
+          "mode": "normal",
+          "board_status": "last_observed_fixed",
+          "board_observed_frame": 867,
+          "gauge": 5,
+          "observed_frame": 1272,
+          "phase": "chain",
+          "moves_since_chain": 16,
+          "moves_since_chain_status": "observed",
+          "normal_chain_max": 6,
+          "fever_entry_frame": null,
+          "fever_destination_frame": null,
+          "dropset_index": 15,
+          "piece_id": 16,
+          "queue": [
+            "0:B",
+            "2:RR",
+            "2:GG"
+          ],
+          "nuisance_destination": "normal",
+          "confirmed": 0,
+          "unconfirmed": 0,
+          "remainder": 50,
+          "garbage_phase": 0,
+          "garbage_phase_status": "observed",
+          "observed_drop_count_cursor": 0,
+          "mode_generation": 0,
+          "seed_id": 0,
+          "prepared_frames": 960,
+          "prepared_frames_status": "observed",
+          "remaining_frames": 0,
+          "clock_running": false,
+          "seed_base": 5,
+          "seed_chain": 5,
+          "stored_field": null,
+          "fever_chain_end_frame": null,
+          "normal_confirmed": 0,
+          "normal_unconfirmed": 0,
+          "fever_confirmed": 0,
+          "fever_unconfirmed": 0,
+          "awaiting_seed": false,
+          "pattern": "22L02J2422242220"
+        },
+        "enemy_chain": {
+          "trigger_field": [
+            "......",
+            "......",
+            "......",
+            ".....Y",
+            ".....G",
+            "....BG",
+            "....GR",
+            "..GGGB",
+            "..GGYB",
+            "..YRYB",
+            "RBGGGR",
+            "BYRYBR",
+            "RRGYBR",
+            "YYBBGG"
+          ],
+          "start_frame": 883,
+          "observed_link_frame": 1267,
+          "observed_link": 6,
+          "scored_links": 6,
+          "onset_frame_status": "exact_edge",
+          "mode_generation": 0,
+          "seed_id": 0,
+          "first_link_points": 120,
+          "elapsed": 389
+        },
+        "decision_budget_ms": 100,
+        "second_target_chain": 14,
+        "solo_options": {
+          "beam_width": 250,
+          "beam_depth": 16,
+          "margin": 1,
+          "trigger": 15,
+          "panic_chain": 13,
+          "panic_count": 70,
+          "panic_step": 2,
+          "patience": 46
+        },
+        "seed_options": {
+          "width": 250,
+          "depth": 16,
+          "max_nodes": 0
+        },
+        "normal_tactics": {
+          "strategy": "brawl"
+        },
+        "op": "prepare_observed",
+        "cold_spawn": true
+      },
+      "plan": {
+        "piece_id": 18,
+        "placement": {
+          "x": 4,
+          "r": "R"
+        },
+        "reason": "tactics_stack",
+        "nuisance": {
+          "confirmed": 0,
+          "unconfirmed": 7
+        },
+        "field": [
+          "......",
+          "......",
+          "......",
+          "....R.",
+          "....G.",
+          "....GB",
+          "....RG",
+          "....YG",
+          "....BB",
+          "...GBY",
+          "...RYY",
+          "Y..RGG",
+          "Y.GYGY",
+          "R.GGYY"
+        ],
+        "queue": [
+          "2:YY",
+          "2:YB",
+          "4:YYBB"
+        ],
+        "forecast": null
+      },
+      "prepare_line": 1352
+    }
+  ]
+}

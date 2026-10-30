@@ -17,6 +17,68 @@
     "status": "prototype_heuristic_from_2026_10_15_overnight_log_not_battle_tuned"
   },
   "normal_build": {
+    "conversion": {
+      "enabled": true,
+      "reuse_visible": true,
+      "first_main_chain": 8,
+      "main_min_chain": 13,
+      "max_chain": 5,
+      "min_cells": 48,
+      "critical_safe_moves": 6,
+      "min_sent": 6,
+      "min_material": 20,
+      "min_safe": 2,
+      "min_recovery": 9,
+      "depth": 3,
+      "width": 24,
+      "max_nodes": 2000,
+      "shortlist": 6,
+      "repair_width": 32,
+      "repair_depth": 16
+    },
+    "followup": {
+      "enabled": true,
+      "gauge_step_frames": 120,
+      "min_garbage": 12,
+      "max_usable": 6,
+      "depth": 3,
+      "width": 32,
+      "max_nodes": 4000
+    },
+    "gauge_wait": {
+      "enabled": true,
+      "min_gauge_gain": 2,
+      "max_returned": 6,
+      "max_remaining": 6,
+      "margin_frames": 12,
+      "launch_frames": 24,
+      "fast_lock_frames": 6,
+      "spawn_height": 12,
+      "fall_frames_per_row": 25.6,
+      "lock_limit_frames": 32,
+      "safety_frames": 30
+    },
+    "entry_fire": {
+      "enabled": true,
+      "jab": true,
+      "min_jab_sent": 6,
+      "max_jab_chain": 3,
+      "max_jab_hold_frames": 60,
+      "max_late_frames": 600,
+      "main_min": 8,
+      "margin_frames": 24,
+      "fast_lock_frames": 6,
+      "spawn_height": 12,
+      "fall_frames_per_row": 25.6,
+      "lock_limit_frames": 32,
+      "safety_frames": 30
+    },
+    "final_seed_fire": {
+      "enabled": true,
+      "min_chain": 8,
+      "max_seeds_after": 1,
+      "min_remaining": 70
+    },
     "forced_lookahead": true,
     "retain_floor": 10,
     "retain_when": "quiet",
@@ -41,6 +103,7 @@
     "status": "prototype_heuristic_not_battle_tuned",
     "quiet": true,
     "all_clear_puyos": 16,
+    "opening_all_clear_scale": {"mainline": 100, "hybrid": 150, "brawl": 200},
     "max_nodes": 3000,
     "budget_ms": 100,
     "width": 12,
@@ -65,7 +128,8 @@
       "harass": 400,
       "kill": 30000,
       "all_clear": 5000,
-      "disrupt": 3000
+      "disrupt": 3000,
+      "entry_consume": 400
     },
     "attack_policy": "main_resource_and_score"
   },
@@ -88,10 +152,10 @@
   },
   "note": "One shared policy for all characters. Immediate offset can override solo construction. Actual battle timing and threat tactics remain uncalibrated.",
   "fever_entry_timing": {
-    "normal_chain_end_to_destination_frames": 16,
+    "normal_chain_end_to_destination_frames": 38,
     "destination_to_first_control_frames": 96,
     "disrupt_after_first_control_frames": 26,
-    "status": "steam_15209927_one_exact_entry_edge_2026_10_09",
+    "status": "chain_end_to_destination_mean_of_6_live_entries_2026_10_25_spread_28_to_49",
     "source": "data/fever/baselines/2026-10-09-nuisance-destinations-live.json"
   }
 }

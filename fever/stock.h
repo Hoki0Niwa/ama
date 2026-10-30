@@ -17,6 +17,7 @@ struct Result
     i32 links = 0;  // The same links, unweighted
     i32 colors = 0; // Colors that fire something with a single puyo
     i32 longest = 0; // The longest chain any one trigger of the board fires
+    i32 near_longest = 0; // Longest with at most two added puyos, from the same first-round probes
 };
 
 // A link fired by 1, 2 or 3 puyos of its color counts 4, 2 or 1 units: one puyo comes with any piece
@@ -62,6 +63,7 @@ inline Result evaluate(Field field, i32 want)
 
                         if (round == 0) {
                             result.longest = std::max(result.longest, links);
+                            if (need <= 2) result.near_longest = std::max(result.near_longest, links);
                         }
 
                         if (need < best_need || (need == best_need && links > best_links)) {

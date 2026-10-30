@@ -53,6 +53,14 @@ class ChainTiming:
         margin = _NORMAL_CHECK_MARGIN if self.mode == 'normal' and self.geometry_enabled else 0
         return self.nuisance_check_frames + margin
 
+    def lock_frames(self, split_extra=0, pace=None):
+        """Cadence estimates input time; this move's split is always additional.
+
+        The observed cadence belongs to previous pieces. Subtracting the
+        current split from it hides a newly longer split near a delivery.
+        """
+        return max(self.placement_frames, (pace or 0) - self.spawn_frames) + split_extra
+
     @property
     def geometry_enabled(self):
         # Explicit test/simulation constants retain their linear clock.

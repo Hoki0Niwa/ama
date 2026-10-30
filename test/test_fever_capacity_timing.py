@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import sys
 import unittest
+from unittest.mock import patch
 ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT),str(ROOT/'test')]
 from fever_fixtures import NATIVE, SOLO, side, request
@@ -61,12 +62,19 @@ class CapacityTimingTests(unittest.TestCase):
         self.assertTrue(c['release'] == (c['safe_moves']==0 or
             (c['crowded'] and c['available_chain']>2 and c['improving_moves']==0)))
 
-    def test_changed_cadence_invalidates_prepared_defense_identity(self):
+    def test_changed_cadence_rechecks_delivery_without_invalidating_geometry(self):
         req=request(side('normal',queue=['2:RY','2:BG']))
         self.engine.pace=42
         before=self.engine._signature(req,req['self'])
         self.engine.pace=120
-        self.assertNotEqual(before,self.engine._signature(req,req['self']))
+        self.assertEqual(before,self.engine._signature(req,req['self']))
+        req['enemy_chain']=dict(elapsed=0)
+        reply=dict(x=0,r='U',fire=False)
+        with patch.object(self.engine,'_enemy_events',return_value=[dict(type='end',frame=100)]):
+            self.engine.pace=42
+            self.assertTrue(self.engine._prepared_delivery_stable(req,req['self'],req['enemy'],reply))
+            self.engine.pace=120
+            self.assertFalse(self.engine._prepared_delivery_stable(req,req['self'],req['enemy'],reply))
         self.engine.pace=None
 
     def test_cadence_delays_real_preparation_not_only_piece_count_guess(self):

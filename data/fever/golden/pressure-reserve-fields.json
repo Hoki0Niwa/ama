@@ -1,0 +1,125 @@
+{
+  "source": "Stable non-clearing fields based on the public flat five-chain reference; deterministic offline filler, verified main >=5. Not Steam observations.",
+  "cases": [
+    {
+      "cells": 27,
+      "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "G.....",
+        "B.....",
+        "B.R..Y",
+        "B.YB.Y",
+        "GGRYGG",
+        "GBBRYY",
+        "BRRYGG"
+      ],
+      "remaining_main_chain": 5
+    },
+    {
+      "cells": 28,
+      "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "G.....",
+        "B....Y",
+        "B..B.Y",
+        "B.RY.Y",
+        "GGRYGG",
+        "GBBRYY",
+        "BRRYGG"
+      ],
+      "remaining_main_chain": 5
+    },
+    {
+      "cells": 35,
+      "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        ".....G",
+        ".....G",
+        "G....R",
+        "BG...G",
+        "BR..YY",
+        "BRGYGY",
+        "GGRYGG",
+        "GBBRYY",
+        "BRRYGG"
+      ],
+      "remaining_main_chain": 6
+    },
+    {
+      "cells": 36,
+      "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        ".....B",
+        "G...YR",
+        "B..GBG",
+        "B.YRGY",
+        "B.GRRY",
+        "GGRYGG",
+        "GBBRYY",
+        "BRRYGG"
+      ],
+      "remaining_main_chain": 5
+    },
+    {
+      "cells": 43,
+      "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        ".....R",
+        "....GB",
+        "....BR",
+        "G...GY",
+        "B.GRGG",
+        "BRBBBY",
+        "BYRRGY",
+        "GGRYGG",
+        "GBBRYY",
+        "BRRYGG"
+      ],
+      "remaining_main_chain": 5
+    },
+    {
+      "cells": 44,
+      "field": [
+        "......",
+        "......",
+        "......",
+        "......",
+        ".....Y",
+        ".....G",
+        "..GR.B",
+        "G.RB.B",
+        "B.BGRB",
+        "BYRBYY",
+        "BRYYGY",
+        "GGRYGG",
+        "GBBRYY",
+        "BRRYGG"
+      ],
+      "remaining_main_chain": 5
+    }
+  ]
+}

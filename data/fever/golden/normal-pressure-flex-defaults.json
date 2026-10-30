@@ -262,29 +262,31 @@
       },
       "expected": {
         "action": "place",
-        "x": 5,
+        "x": 0,
         "r": "U",
         "color": null,
-        "reason": "tactics_take_drop",
-        "fire": false,
-        "chain": 0,
+        "reason": "tactics_offset",
+        "fire": true,
+        "chain": 1,
         "next_field": [
           "......",
           "......",
-          ".....#",
-          ".....#",
-          ".....#",
-          ".....Y",
-          ".....G",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
           ".....R",
-          "#..##R",
-          "#.###B",
-          "#.###B",
-          "G##BRR",
-          "G#YYBB",
-          "G#YBRR"
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "Y.YBRR"
         ],
-        "link_points": []
+        "link_points": [
+          40
+        ]
       }
     },
     {
@@ -693,29 +695,31 @@
       },
       "expected": {
         "action": "place",
-        "x": 5,
+        "x": 0,
         "r": "U",
         "color": null,
-        "reason": "tactics_take_drop",
-        "fire": false,
-        "chain": 0,
+        "reason": "tactics_offset",
+        "fire": true,
+        "chain": 1,
         "next_field": [
           "......",
           "......",
-          ".....#",
-          ".....#",
-          ".....#",
-          ".....Y",
-          ".....G",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
           ".....R",
-          "#..##R",
-          "#.###B",
-          "#.###B",
-          "G##BRR",
-          "G#YYBB",
-          "G#YBRR"
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "Y.YBRR"
         ],
-        "link_points": []
+        "link_points": [
+          40
+        ]
       }
     },
     {
@@ -1456,5 +1460,6 @@
     }
   ],
   "native_sha256": "00b572228e26e2e4da627b979b073db639148bf472d219b6cc4ba0548247a67f",
-  "native_build": "build.ps1 -Target fever_battle from git archive of source_commit"
+  "native_build": "build.ps1 -Target fever_battle from git archive of source_commit",
+  "receiving_policy": "Large due packets use available offsets instead of accepting more than twelve nuisance. Only the two affected 18-puyo expectations were refreshed; requests and other moves are unchanged."
 }

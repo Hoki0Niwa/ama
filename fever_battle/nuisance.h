@@ -35,7 +35,10 @@ struct EnemyTrays {
         take(normal_fixed); take(normal_flying);
         return amount;
     }
-    void send(i64 amount, int at) { advance(at); (fever ? fever_flying : normal_flying) += amount; }
+    // Steam copies the receiver's tray when the sender's chain starts its first link: every link of that chain
+    // enters the Fever tray only if the receiver was already in Fever then (and still is when it launches).
+    bool copy_at(int at) { advance(at); return fever; }
+    void send(i64 amount, int at, bool copy) { advance(at); (fever && copy ? fever_flying : normal_flying) += amount; }
     void confirm() { normal_fixed += normal_flying; normal_flying = 0; fever_fixed += fever_flying; fever_flying = 0; }
     nlohmann::json json() const {
         return {{"normal_confirmed", normal_fixed}, {"normal_unconfirmed", normal_flying},
@@ -52,10 +55,8 @@ void advance_enemy(const nlohmann::json& events, const RateSchedule& rates, int 
         const int at = event["frame"].template get<int>();
         trays.advance(at);
         if (event["type"] == "end") { fixed += flying; flying = 0; continue; }
-        const i64 total = event["points"].template get<i64>() + remainder;
         const int rate = rates.at(at, true);
-        i64 amount = total / rate; remainder = total % rate;
-        if (trays.pending() && amount == 0) amount = 1;
+        i64 amount = enemy_link_amount(event, rate, remainder, trays.pending());
         flying += Own(trays.offset(amount));
     }
     trays.advance(until);

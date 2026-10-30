@@ -117,16 +117,21 @@ inline Link score_link(Field mask, int power, const Bonuses& bonuses) {
 // Takes in the opponent's observed chain up to frame `until`. A link's points
 // first offset what we have sent them; the rest flies to us, and is confirmed
 // when their chain ends. Offsetting now cannot erase a link not yet scored.
+inline i64 enemy_link_amount(const nlohmann::json& event, int rate, i64& remainder, i64 pending) {
+    if (event.contains("nuisance")) return number(event, "nuisance", 0, 1000000000);
+    const i64 total = event.at("points").get<i64>() + remainder;
+    i64 amount = total / rate; remainder = total % rate;
+    return pending && amount == 0 ? 1 : amount;
+}
+
 template <class Index, class Own>
 void advance_enemy(const nlohmann::json& events, const RateSchedule& rates, int until, Index& index,
                    Own& fixed, Own& flying, i64& enemy_fixed, i64& enemy_flying, i64& enemy_remainder) {
     while (index < Index(events.size()) && events[index]["frame"].template get<int>() <= until) {
         const auto& event = events[index++];
         if (event["type"] == "end") { fixed += flying; flying = 0; continue; }
-        i64 total = event["points"].template get<i64>() + enemy_remainder;
         const int rate = rates.at(event["frame"].template get<int>(), true);
-        i64 amount = total / rate; enemy_remainder = total % rate;
-        if (enemy_fixed + enemy_flying && amount == 0) amount = 1;
+        i64 amount = enemy_link_amount(event, rate, enemy_remainder, enemy_fixed + enemy_flying);
         auto n = std::min(enemy_fixed, amount); enemy_fixed -= n; amount -= n;
         n = std::min(enemy_flying, amount); enemy_flying -= n; amount -= n;
         flying += Own(amount);

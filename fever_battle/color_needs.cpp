@@ -21,7 +21,7 @@ std::array<int,4> available(const std::vector<piece::Piece>& queue, size_t start
 }
 std::vector<piece::Piece> pieces(const json& request) {
     const auto queue = request.at("queue").get<std::vector<std::string>>();
-    if (queue.empty() || queue.size() > 3) throw std::invalid_argument("visible queue only");
+    if (queue.empty() || queue.size() > 12) throw std::invalid_argument("queue requires 1..12 pieces");
     std::vector<piece::Piece> result;
     for (const auto& text : queue) {
         auto p = fever::text::to_piece(text);

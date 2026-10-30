@@ -26,6 +26,17 @@ struct Decision
     i32 moves = 0; // Pieces needed to trigger it, 1 when the piece in hand does
 };
 
+// Bounded summary collected during the existing visible traversal (no new nodes).
+struct Small {
+    bool found = false;
+    Decision decision;
+    Field after;
+    std::array<move::Placement, 3> path;
+    i64 rank = INT64_MIN;
+    int material = 0;
+    json immediate = json::array();
+};
+
 // Longest chain the piece triggers right away, ties broken by score
 std::optional<Decision> best_now(
     Field field,
@@ -41,7 +52,7 @@ std::optional<Decision> best_visible(
     const Queue& queue,
     const rule::Rule& rules = rule::FEVER,
     const normal_scoring::Entry* normal = nullptr,
-    const Configs* sustained = nullptr
+    const Configs* sustained = nullptr, Small* small = nullptr
 );
 
 // Chain length worth firing on a field with that many cells
@@ -71,6 +82,7 @@ struct Choice
     i32 fire_moves = 0; // Pieces until the chain being fired pops, 1 when this placement pops it
     std::vector<i32> search_depths = {};
     json reconstruction = nullptr;
+    json root_values = json::array();
 };
 
 // `queue` holds the visible pieces only; queue[0] is move `index` of the character's cycle

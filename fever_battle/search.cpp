@@ -1,3 +1,4 @@
+#include "../fever/cancellation.h"
 #include "search.h"
 #include "rate_schedule.h"
 #include "../fever/search.h"
@@ -46,7 +47,7 @@ json search(Field field, const json& request) {
     fever::read_upper_weights(configs, weights);
     auto rules = rule::FEVER; rules.plain_pairs = true; rules.special_moves = true;
     const auto queue = request.at("queue").get<std::vector<std::string>>();
-    if (queue.empty() || queue.size() > 3) throw std::invalid_argument("search uses current plus NEXT2 only");
+    if (queue.empty() || queue.size() > 12) throw std::invalid_argument("queue requires 1..12 pieces");
     std::vector<piece::Piece> pieces;
     for (const auto& text : queue) {
         auto p = fever::text::to_piece(text);
@@ -108,6 +109,7 @@ json search(Field field, const json& request) {
     size_t best_depth = 0, expanded = 0, deaths = 0;
     bool cutoff = false;
     for (size_t depth = 0; depth < pieces.size() && !layer.empty(); ++depth) {
+        fever::cancellation::check();
         const auto saved_best = best;
         const auto saved_depth = best_depth;
         std::vector<State> next;
@@ -135,6 +137,7 @@ json search(Field field, const json& request) {
                 int dropped = 0, discarded = 0; i64 cancelled = 0, sent = 0;
                 if (popped.get_size()) {
                     advance(child,child.frame+first_link_frames);
+                    const bool fever_copy = child.enemy.copy_at(child.frame);
                     int link_index = 0;
                     for (const auto& point : detail["points"]) {
                         advance(child, child.frame + score_offset);
@@ -145,7 +148,7 @@ json search(Field field, const json& request) {
                         auto n = std::min(child.fixed, amount); child.fixed -= n; amount -= n; cancelled += n;
                         n = std::min(child.flying, amount); child.flying -= n; amount -= n; cancelled += n;
                         child.sent += amount; sent += amount;
-                        child.enemy.send(amount, child.frame);
+                        child.enemy.send(amount, child.frame, fever_copy);
                         const int duration=geometry_timing ? link_frames(features[link_index],link_index==popped.get_size()-1)
                             : pop_frames+settle_frames+falls[link_index]*fall_frames;
                         ++link_index;

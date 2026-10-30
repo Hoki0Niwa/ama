@@ -1,3 +1,4 @@
+#include "../fever/cancellation.h"
 #include "search.h"
 #include "../fever/text.h"
 #include "physics.h"
@@ -124,35 +125,54 @@ u8 upright_columns(Field& field, const rule::Rule& rules) {
         if (moves[i].r == direction::Type::UP) columns |= u8(1 << moves[i].x);
     return columns;
 }
-Potential potential(Field field, const rule::Rule& rules, PotentialFire* fire = nullptr, int columns = -1) {
+Potential potential(Field field, const rule::Rule& rules, PotentialFire* fire = nullptr, int columns = -1,
+                    const u8* known_heights = nullptr) {
     Potential result;
     if (columns < 0) columns = upright_columns(field, rules);
+    u8 heights[6];
+    if (known_heights) std::copy(known_heights, known_heights + 6, heights);
+    else field.get_heights(heights);
     for (int c = 0; c < cell::COUNT - 1; ++c) {
         if (field.data[c].is_empty()) continue;
         auto color = static_cast<cell::Type>(c);
+        // One colour's puyos, by column: a group of four can only form where the puyos added meet one.
+        alignas(16) u16 plane[8];
+        _mm_store_si128(reinterpret_cast<__m128i*>(plane), field.data[c].data);
         for (int x = 0; x < 6; ++x) {
             if (!(columns & (1 << x))) continue;
-            int height = field.get_height(x);
+            int height = heights[x];
+            // Added at height .. height + 2 of column x: the one below, or one beside, is of this colour,
+            // or no group of four forms from any number of them (3 at most).
+            const u16 rows = u16(7u << height);
+            const bool meets = (height > 0 && (plane[x] >> (height - 1) & 1)) ||
+                (x > 0 && (plane[x - 1] & rows)) || (x < 5 && (plane[x + 1] & rows));
+            if (!meets) continue;
             auto probe = field;
             for (int n = 1; n <= 3 && height + n <= 11; ++n) {
                 probe.set_cell(x, height + n - 1, color);
                 // The settled board pops nothing: only the group of the added puyos can, and only from four.
                 if (probe.data[c].get_mask_group_4(i8(x), i8(height)).get_count() < 4) continue;
+                // Only the chain and what it leaves are compared; the links are recorded once, for the one kept.
                 auto resolved = probe;
-                auto masks = resolved.pop();
-                int chain = masks.get_size();
+                int chain = resolved.pop_count();
                 if (!chain) continue;
                 int residue = resolved.get_count();
                 if (std::make_tuple(chain, -residue, -n) >
                     std::make_tuple(result.chain, -result.residue, -result.needed)) {
                     result = {chain, n, residue, x, color};
-                    if (fire) *fire = {probe, masks};
                 }
                 // Additional same-color cells after ignition just inflate a
                 // group; they do not describe a nonclearing build sequence.
                 break;
             }
         }
+    }
+    if (fire && result.chain) {
+        auto probe = field;
+        const int height = heights[result.x];
+        for (int n = 0; n < result.needed; ++n) probe.set_cell(i8(result.x), i8(height + n), result.color);
+        auto again = probe;
+        *fire = {probe, again.pop()};
     }
     return result;
 }
@@ -210,7 +230,7 @@ json seed_search(Field field, const json& request) {
     if (request.contains("strategy") && request.at("strategy") != "value")
         throw std::invalid_argument("unknown seed strategy");
     const auto queue = request.at("queue").get<std::vector<std::string>>();
-    if (queue.empty() || queue.size() > 3) throw std::invalid_argument("visible queue only");
+    if (queue.empty() || queue.size() > 12) throw std::invalid_argument("queue requires 1..12 pieces");
     std::vector<piece::Piece> pieces;
     for (const auto& text : queue) {
         auto p = fever::text::to_piece(text);
@@ -416,6 +436,7 @@ json seed_search(Field field, const json& request) {
             return size_t(h);
         }
     };
+    constexpr size_t WAIT_CACHE_LIMIT = 20000;
     struct WaitCache {
         std::unordered_map<BoardKey, Waiting, BoardHash> boards;
         // A pair's placements depend on the column heights (and whether the board is dead) alone
@@ -432,7 +453,7 @@ json seed_search(Field field, const json& request) {
         for (int x = 0; x < 6; ++x) shape = shape << 8 | heights[x];
         auto known = cache.columns.find(shape);
         if (known == cache.columns.end()) known = cache.columns.emplace(shape, upright_columns(board, rules)).first;
-        w.p = potential(board, rules, &fire, known->second);
+        w.p = potential(board, rules, &fire, known->second, heights);
         if (w.p.chain) {
             // The board with the puyos it waits for, and its links: as potential() resolved them.
             auto& masks = fire.masks;
@@ -494,14 +515,22 @@ json seed_search(Field field, const json& request) {
             BoardKey key{};
             std::memcpy(key.data(), &node.field.data, sizeof(node.field.data));
             key.back() = node.field.row14;
+            // Boards seldom come twice (5% in a 250x16 search): the first ones are kept, the rest are not,
+            // so that the table stays small and its inserts do not cost more than they save.
+            Waiting fresh;
+            const Waiting* cached = nullptr;
             auto found = cache.boards.find(key);
-            if (found == cache.boards.end()) {
+            if (found != cache.boards.end()) { ++cache.hits; cached = &found->second; }
+            else {
                 ++cache.misses;
-                found = cache.boards.emplace(std::move(key), waiting(node.field, cache)).first;
-            } else ++cache.hits;
-            const Potential p = found->second.p;
-            const i64 built = found->second.built;
-            const int running = found->second.running;
+                if (cache.boards.size() < WAIT_CACHE_LIMIT) {
+                    found = cache.boards.emplace(std::move(key), waiting(node.field, cache)).first;
+                    cached = &found->second;
+                } else { fresh = waiting(node.field, cache); cached = &fresh; }
+            }
+            const Potential p = cached->p;
+            const i64 built = cached->built;
+            const int running = cached->running;
             last.has_extension = true; last.extension = p;
             last.target_preserved = p.chain >= target && last.all_cases_preserve();
             // The puyos come with the first piece, the second, ...: each is a
@@ -651,6 +680,7 @@ json seed_search(Field field, const json& request) {
         else if (node.rank > found->second.first) found->second = {node.rank, line_once()};
     };
     for (size_t depth = 0; depth < pieces.size() && !layer.empty() && !cutoff; ++depth) {
+        fever::cancellation::check();
         // The children that go on, each with the record of its placement until the layer is chosen.
         struct Child { SeedNode node; Step step; };
         std::vector<Child> next;
@@ -687,8 +717,10 @@ json seed_search(Field field, const json& request) {
                 int fire_at = child.frame + (chain ? first_link : 0);
                 int end_at = fire_at;
                 i64 sent = 0, cancelled = 0, timely_points = 0;
+                bool fever_copy = false;
                 for (int k = 0; k < chain; ++k) {
                     advance(child, end_at);
+                    if (k == 0) fever_copy = child.enemy.copy_at(end_at);
                     if ((!count_chain ? fire_at : end_at) + safety < remaining)
                         timely_points += points[k];
                     i64 total = points[k] + child.remainder;
@@ -700,7 +732,7 @@ json seed_search(Field field, const json& request) {
                         *pending -= n; amount -= n; cancelled += n;
                     }
                     sent += amount;
-                    child.enemy.send(amount, end_at);
+                    child.enemy.send(amount, end_at, fever_copy);
                     end_at += link_frames(falls[k], k == chain - 1, pop_frames, settle_frames);
                 }
                 if (chain) child.enemy.confirm();

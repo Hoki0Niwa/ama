@@ -66,6 +66,23 @@ class DestinationTests(unittest.TestCase):
             self.assertGreater(c['enemy_trays']['normal_confirmed'], 0)
             self.assertEqual(c['projected_disrupt'], 0)
 
+    def test_chain_started_before_the_entry_edge_stays_in_the_normal_tray_to_its_last_link(self):
+        # Steam copies the receiver's tray at the chain's first link: a later link does not reroute.
+        own = side('normal', seed3(), ['2:RY'])
+        own['character'] = 'arle'
+        enemy = side()
+        enemy.update(gauge=7, nuisance_destination='normal')
+        for edge, expected in ((60, 'normal'), (10, 'fever')):
+            result = tactics.choose(self.engine.native, self.engine.scoring, own, 30, 1,
+                self.engine.policy['normal_tactics'], enemy=enemy,
+                fever=dict(enemy_fever=True, enemy_fever_at=edge, their_end=edge))
+            chains = [c for c in result['tactics_forecast']['candidates'] if c['chain'] >= 2 and c['sent']]
+            self.assertTrue(chains, edge)
+            for c in chains:
+                trays = c['enemy_trays']
+                self.assertEqual(trays['fever_confirmed'] > 0, expected == 'fever', (edge, c['chain'], trays))
+                self.assertEqual(trays['normal_confirmed'] > 0, expected == 'normal', (edge, c['chain'], trays))
+
     def test_prepared_settings_reuse_the_second_decision_without_search(self):
         own = side('normal', queue=['2:BG', '2:RY', '2:GB'])
         own.update(character='arle', mode_generation=2)

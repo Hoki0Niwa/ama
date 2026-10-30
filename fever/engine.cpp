@@ -72,11 +72,13 @@ json answer(const json& input, const beam::eval::Weight& w, const json& set)
     }
 
     auto configs = fever::Configs();
+    configs.side_frontier_slots = std::clamp(input.value("side_frontier_slots",0),0,4);
     configs.construction_scoring = input.value("construction_scoring", true);
     if (configs.construction_scoring) configs.normal = normal_scoring::find(character->id);
     configs.rebuild = input.value("rebuild", false);
     configs.hill = set.value("hill", 0);
     read_upper_weights(configs, set);
+    read_level_weights(configs, set);
     configs.stock = set.value("stock", 0);
     configs.stock_color = set.value("stock_color", 0);
     configs.stock_want = std::clamp(input.value("stock_want", configs.stock_want), 1, 7);
@@ -147,6 +149,7 @@ json answer(const json& input, const beam::eval::Weight& w, const json& set)
     if (choice->fire) {
         output["fire_moves"] = choice->fire_moves;
     }
+    output["root_values"] = choice->root_values;
     output["solo"] = true;
     output["construction_objective"] = configs.sustained ? "sustained_large_chain_rate" : "mainline";
     output["construction_scoring"] = configs.normal ? "fever_normal" : "legacy_tsu";

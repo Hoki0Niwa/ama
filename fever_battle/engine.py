@@ -37,9 +37,10 @@ class SoloBuilder:
 
 
 class BattleEngine:
-    def __init__(self, native, solo, config):
+    MAX_QUEUE = 3
+    def __init__(self, native, solo, config, native_factory=JsonProcess):
         """`solo` (the path of fever.exe) is no longer started; callers still pass it."""
-        self.native = JsonProcess([native], cwd=ROOT)
+        self.native = native_factory([native], cwd=ROOT)
         self.solo = SoloBuilder(self.native, config)
         self.scoring = Scoring()
         self.garbage_search = GarbageSearch(self.native, config)
@@ -100,8 +101,8 @@ class BattleEngine:
             raise ValueError('unknown character; a character ID cannot be inferred solely from its cycle')
         index = integer(side['dropset_index'], 'dropset_index')
         queue = side['queue']
-        if not isinstance(queue, list) or not 1 <= len(queue) <= 3:
-            raise ValueError('only current piece plus NEXT2 may be passed')
+        if not isinstance(queue, list) or not 1 <= len(queue) <= self.MAX_QUEUE:
+            raise ValueError(f'queue must contain 1..{self.MAX_QUEUE} pieces including current')
         for k, text in enumerate(queue):
             if not isinstance(text, str) or text[:1] != self.patterns[character][(index + k) % 16]:
                 raise ValueError('visible piece does not match dropset position')

@@ -1,4 +1,18 @@
 """Keep the two destinations through observation, prediction and native requests."""
+from .model import integer
+
+
+def counter_flights(request):
+    flights = request.get('observation', {}).get('in_flight', {}).get('enemy', {})
+    return [f for f in flights.get('attacks_in_flight', []) if f.get('counter') and f.get('amount')]
+
+
+def link_amount(event, remainder, rate, pending):
+    """A flight is already converted to nuisance; do not score it twice."""
+    if 'nuisance' in event:
+        return integer(event['nuisance'], 'observed nuisance', 0, 10**9), remainder
+    amount, remainder = divmod(event['points'] + remainder, rate)
+    return max(1, amount) if pending else amount, remainder
 
 
 class Trays:

@@ -44,7 +44,9 @@ class DecisionBudgetTests(unittest.TestCase):
         self.assertEqual(reply['reason'], 'normal_build_or_fire')
 
     def test_legacy_live_budget_does_not_truncate_solo_or_tactics(self):
-        own = side('normal', seed3(), ['2:BB', '2:RY', '2:GB']); own['character'] = 'arle'
+        # A visible NEXT2 all-clear needs both the common builder and tactics;
+        # boards with no shared objective now correctly skip the quiet search.
+        own = side('normal', ['......']*13+['RRBBYY'], ['2:RR', '2:BB', '2:YY']); own['character'] = 'arle'
         req = request(own); req.update(decision_budget_ms=100)
         req['solo_options'] = dict(beam_width=20, beam_depth=4)
         with patch.object(self.engine.native, 'ask', wraps=self.engine.native.ask) as ask:
@@ -53,6 +55,8 @@ class DecisionBudgetTests(unittest.TestCase):
         solo = next(c['request'] for c in calls if c['op'] == 'solo')
         self.assertNotIn('budget_ms', solo)
         tactical = next(c for c in calls if c['op'] == 'tactics')
+        self.assertEqual(tactical['max_nodes'], self.engine.policy['normal_tactics']['max_nodes'])
+        self.assertEqual(tactical['width'], self.engine.policy['normal_tactics']['width'])
         self.assertFalse(self.engine.planning_deadline)
         placements = self.engine.native.ask(dict(op='placements', field=own['field'], piece=own['queue'][0]))
         self.assertIn((reply['x'], reply['r']), [(p['x'], p['r']) for p in placements['placements'] if not p['dead']])

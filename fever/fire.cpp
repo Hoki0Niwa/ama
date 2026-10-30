@@ -31,7 +31,8 @@ static void walk(
     const rule::Rule& rules,
     const normal_scoring::Entry* normal,
     std::optional<Decision>& best,
-    const Configs* sustained = nullptr, int elapsed = 0
+    const Configs* sustained = nullptr, int elapsed = 0,
+    Small* small = nullptr, std::array<move::Placement, 3>* path = nullptr, bool clean = true
 )
 {
     auto locks = normal_space::moves(field, queue[depth], rules, depth == 0);   // the root: the piece about to be placed
@@ -45,7 +46,8 @@ static void walk(
             frames+=std::max(sustained->pace_frames,55+split*2);
         }
 
-        if (!f.drop_piece(locks[i].x, locks[i].r, queue[depth], rules)) {
+        const auto dropped = f.drop_piece(locks[i].x, locks[i].r, queue[depth], rules);
+        if (!dropped) {
             continue;
         }
 
@@ -76,6 +78,28 @@ static void walk(
             .moves = i32(depth) + 1
         };
 
+        if (small && depth < 3) {
+            (*path)[depth] = locks[i];
+            if (clean && !dropped->discarded && decision.chain.count >= 2 && decision.chain.count <= 4
+                    && normal_space::room(f, 1)) {
+                const int material = f.get_count() - f.data[int(cell::Type::GARBAGE)].get_count();
+                if (material >= 24) {
+                    u8 h[6]; f.get_heights(h);
+                    const auto [two, three] = beam::eval::get_link_23(f);
+                    const i64 rank = material*100 + two*20 + three*40
+                        - get_hill(h)*50 - int(depth)*400 + decision.chain.score/10;
+                    if (depth == 0) small->immediate.push_back({
+                        {"choice",{{"x",locks[i].x},{"r",std::string(1,"URDL"[int(locks[i].r)])}}},
+                        {"conversion_chain",decision.chain.count},{"conversion_points",decision.chain.score},
+                        {"remaining_material",material},{"rank",rank}});
+                    if (rank > small->rank) {
+                        small->found = true; small->rank = rank; small->decision = decision;
+                        small->after = f; small->path = *path; small->material = material;
+                    }
+                }
+            }
+        }
+
         const auto rate=[&](const Decision& d) {
             return i64(d.chain.score)*60000/std::max(1,d.frames+sustained->elapsed_build_frames);
         };
@@ -85,7 +109,7 @@ static void walk(
         }
 
         if (depth + 1 < queue.size()) {
-            walk(f, queue, depth + 1, &decision.placement, rules, normal, best, sustained, frames);
+            walk(f, queue, depth + 1, &decision.placement, rules, normal, best, sustained, frames, small, path, clean && pop.get_size()==0 && !dropped->discarded);
         }
     }
 };
@@ -94,13 +118,14 @@ std::optional<Decision> best_visible(
     Field field,
     const Queue& queue,
     const rule::Rule& rules,
-    const normal_scoring::Entry* normal, const Configs* sustained
+    const normal_scoring::Entry* normal, const Configs* sustained, Small* small
 )
 {
     std::optional<Decision> result = {};
 
     if (!queue.empty()) {
-        walk(field, queue, 0, nullptr, rules, normal, result, sustained);
+        std::array<move::Placement, 3> path{};
+        walk(field, queue, 0, nullptr, rules, normal, result, sustained, 0, small, &path);
     }
 
     return result;
@@ -239,22 +264,30 @@ std::optional<Choice> think(
         });
     auto chosen = search.candidates.begin();
     if (configs.preserve_build) {
+        int held=0;
+        for (const auto& c:search.candidates) if(c.next_room>0) held=std::max(held,c.held_main);
         const auto quiet = std::find_if(search.candidates.begin(), search.candidates.end(), [&](const Candidate& candidate) {
             auto next = field;
             const auto& move = candidate.placement;
-            return candidate.next_room>0 && next.drop_piece(move.x, move.r, queue[0], configs.rules) && next.pop().get_size() <= 2;
+            return candidate.next_room>0 && (!candidate.root_chain || held<5 || candidate.held_main>=held-1)
+                && next.drop_piece(move.x, move.r, queue[0], configs.rules) && next.pop().get_size() <= 2;
         });
         if (quiet != search.candidates.end()) chosen = quiet;
     }
     auto& best = *chosen;
 
+    json root_values = json::array();
+    for (const auto& c : search.candidates) root_values.push_back({
+        {"x",c.placement.x},{"r",std::string(1,"URDL"[int(c.placement.r)])},
+        {"points",c.projected},{"next_room",c.next_room},{"held_main",c.held_main}});
     return Choice {
         .placement = best.placement,
         .chain = best.chain,
         .score = best.score / VIRTUAL_COUNT,
         .fire = false,
         .search_depths = search.virtual_depths,
-        .reconstruction = reconstruction
+        .reconstruction = reconstruction,
+        .root_values = root_values
     };
 };
 

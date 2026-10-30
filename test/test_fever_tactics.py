@@ -70,7 +70,8 @@ class TacticsTests(unittest.TestCase):
 
     def test_entry_target_uses_the_end_of_the_observed_normal_chain(self):
         enemy=side();enemy['gauge']=7
-        self.assertEqual(self.engine._calculate_enemy_fever(enemy,[dict(type='end',frame=180)])['their_end'],196)
+        delay=self.engine.policy['fever_entry_timing']['normal_chain_end_to_destination_frames']
+        self.assertEqual(self.engine._calculate_enemy_fever(enemy,[dict(type='end',frame=180)])['their_end'],180+delay)
 
     def test_disruption_alone_does_not_spend_the_whole_second_mainline(self):
         refs=json.loads((ROOT/'data/fever/seeds/namoko-reference.json').read_text(encoding='utf-8'))
@@ -119,9 +120,9 @@ class TacticsTests(unittest.TestCase):
             mode_generation=enemy['mode_generation'], seed_id=enemy['seed_id'], ended=True)
         reply = self.engine.answer(req)
         self.assertTrue(reply['tactics_forecast']['choice']['drop_due'])
-        self.assertEqual(reply['reason'], 'tactics_take_drop')
-        self.assertTrue(reply['tactics_forecast']['can_receive_attack'])
-        self.assertEqual(reply['tactics_forecast']['choice']['dropped'],30)
+        self.assertEqual(reply['reason'], 'tactics_offset')
+        self.assertFalse(reply['tactics_forecast']['can_receive_attack'])
+        self.assertEqual(reply['tactics_forecast']['choice']['dropped'],0)
 
     def test_pace_is_the_upper_quartile_of_this_modes_own_pieces(self):
         engine = ModeBattleEngine(NATIVE, SOLO, ROOT/'config.json')
@@ -140,7 +141,7 @@ class TacticsTests(unittest.TestCase):
             engine.close()
 
     def test_acceptable_due_drop_keeps_the_main_chain(self):
-        reply = self.engine.answer(request(self.waiting(confirmed=18, normal_confirmed=18)))
+        reply = self.engine.answer(request(self.waiting(confirmed=6, normal_confirmed=6)))
         self.assertEqual(reply['reason'], 'tactics_take_drop')
         self.assertEqual(reply['chain'], 0)
         self.assertEqual(reply['gauge_forecast']['gauge_after'], 0)

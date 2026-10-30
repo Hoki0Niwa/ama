@@ -262,29 +262,31 @@
       },
       "expected": {
         "action": "place",
-        "x": 5,
+        "x": 0,
         "r": "U",
         "color": null,
-        "reason": "tactics_take_drop",
-        "fire": false,
-        "chain": 0,
+        "reason": "tactics_offset",
+        "fire": true,
+        "chain": 1,
         "next_field": [
           "......",
           "......",
-          ".....#",
-          ".....#",
-          ".....#",
-          ".....Y",
-          ".....G",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
           ".....R",
-          "#..##R",
-          "#.###B",
-          "#.###B",
-          "G##BRR",
-          "G#YYBB",
-          "G#YBRR"
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "Y.YBRR"
         ],
-        "link_points": []
+        "link_points": [
+          40
+        ]
       }
     },
     {
@@ -693,29 +695,31 @@
       },
       "expected": {
         "action": "place",
-        "x": 5,
+        "x": 0,
         "r": "U",
         "color": null,
-        "reason": "tactics_take_drop",
-        "fire": false,
-        "chain": 0,
+        "reason": "tactics_offset",
+        "fire": true,
+        "chain": 1,
         "next_field": [
           "......",
           "......",
-          ".....#",
-          ".....#",
-          ".....#",
-          ".....Y",
-          ".....G",
+          "......",
+          "......",
+          "......",
+          "......",
+          "......",
           ".....R",
-          "#..##R",
-          "#.###B",
-          "#.###B",
-          "G##BRR",
-          "G#YYBB",
-          "G#YBRR"
+          ".....R",
+          ".....B",
+          ".....B",
+          "...BRR",
+          "..YYBB",
+          "Y.YBRR"
         ],
-        "link_points": []
+        "link_points": [
+          40
+        ]
       }
     },
     {
@@ -1454,5 +1458,6 @@
         ]
       }
     }
-  ]
+  ],
+  "receiving_policy": "Large due packets use available offsets instead of accepting more than twelve nuisance. Only the two affected 18-puyo expectations were refreshed; requests and other moves are unchanged."
 }

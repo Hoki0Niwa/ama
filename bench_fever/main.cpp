@@ -53,6 +53,7 @@ int main(int argc, char** argv)
         w = fever::read_weights(js);
         configs.hill = js.value("hill", 0);
         fever::read_upper_weights(configs, js);
+        fever::read_level_weights(configs, js);
     }
 
     const auto* character = dropset::find(argv[2]);

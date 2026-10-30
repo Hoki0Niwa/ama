@@ -285,6 +285,26 @@ class NativeModeTests(unittest.TestCase):
         self.assertEqual(answer['reason'],'no_rescue_fast_finish')
         self.assertTrue(answer['selected_move_loses'])
 
+    def test_the_fast_closure_of_a_lost_position_is_prepared_before_the_piece_appears(self):
+        rows=['......']*12+['######']*2
+        own=side('normal',rows,['2:RY','2:GB']); own.update(confirmed=120,normal_confirmed=120,
+            garbage_phase=None,garbage_phase_status='unknown')
+        req=request(own)
+        prep=copy.deepcopy(req); prep['op']='prepare_observed'
+        result=self.engine.answer(prep)
+        self.assertTrue(result['prepared'])
+        self.assertIsNotNone(self.engine.prepared)
+        now=copy.deepcopy(req); now['frame']=20
+        now['observation'].update(frame_before=20,frame_after=20)
+        for side_ in (now['self'],now['enemy']): side_['observed_frame']=20
+        with patch.object(self.engine.native,'ask',wraps=self.engine.native.ask) as native:
+            answer=self.engine.answer(now)
+        self.assertEqual(answer['reason'],'no_rescue_fast_finish')
+        self.assertTrue(answer['selected_move_loses'])
+        self.assertTrue(answer['search_reused'])
+        self.assertEqual(answer['search_ms'],0.0)
+        self.assertNotIn('finish_probe',[call.args[0].get('op') for call in native.call_args_list])
+
     def test_possible_offset_and_inconclusive_budget_keep_ordinary_play(self):
         own=side('normal',['......']*13+['RRR...'],['2:RY','2:GB'])
         own.update(confirmed=120,normal_confirmed=120,gauge=6,remainder=100)
@@ -407,11 +427,12 @@ class NativeModeTests(unittest.TestCase):
             self.assertFalse(reply['normal_search_reused'])
             build.assert_called_once()
 
-    def prepared_with_ahead_piece(self, ahead='2:GY'):
+    def prepared_with_explicit_four_piece_queue(self, ahead='2:GY'):
         original=request(side('normal',queue=['2:RY','2:BB','L:RRY']))
         first=self.engine.answer(original)
         preparation=copy.deepcopy(original)
-        preparation.update(op='prepare_normal',placement=dict(x=first['x'],r=first['r']),ahead_piece=ahead)
+        preparation['self']['queue'].append(ahead)
+        preparation.update(op='prepare_normal',placement=dict(x=first['x'],r=first['r']))
         prepared=self.engine.answer(preparation)
         self.assertTrue(prepared['prepared'],prepared)
         current=copy.deepcopy(original)
@@ -419,8 +440,8 @@ class NativeModeTests(unittest.TestCase):
             piece_id=1,dropset_index=1,moves_since_chain=1)
         return prepared,current
 
-    def test_ahead_piece_prepares_with_all_three_pieces_and_is_reused_when_it_appears(self):
-        prepared,current=self.prepared_with_ahead_piece()
+    def test_explicit_four_piece_queue_prepares_with_three_known_pieces_and_is_reused_when_it_appears(self):
+        prepared,current=self.prepared_with_explicit_four_piece_queue()
         self.assertEqual(prepared['searched_visible'],3)
         self.assertEqual(prepared['plan']['queue'],['2:BB','L:RRY','2:GY'])
         current['frame']=20
@@ -433,15 +454,15 @@ class NativeModeTests(unittest.TestCase):
         self.assertEqual(reply['searched_visible'],3)
         self.assertTrue(authorize_mode_reply(current,reply,current))
 
-    def test_ahead_piece_decision_is_discarded_when_another_piece_appears(self):
-        _,current=self.prepared_with_ahead_piece()
+    def test_known_queue_decision_is_discarded_when_another_piece_appears(self):
+        _,current=self.prepared_with_explicit_four_piece_queue()
         current['self']['queue'][2]='2:YY'
         with patch.object(self.engine.solo,'ask',wraps=self.engine.solo.ask) as build:
             reply=self.engine.answer(current)
         self.assertFalse(reply['normal_search_reused'])
         build.assert_called_once()
 
-    def test_ahead_piece_must_fit_the_dropset_position(self):
+    def test_implicit_ahead_piece_is_rejected(self):
         original=request(side('normal',queue=['2:RY','2:BB','L:RRY']))
         first=self.engine.answer(original)
         original.update(op='prepare_normal',placement=dict(x=first['x'],r=first['r']),ahead_piece='L:RRY')
@@ -455,17 +476,73 @@ class NativeModeTests(unittest.TestCase):
         self.assertNotIn('normal_search_reused',reply)
         self.assertIn('tactics_forecast',reply)
 
-    def test_normal_prefetch_never_predicts_after_a_clear(self):
+    def fired_request(self, enemy_chain=False):
         own=side('normal',queue=['2:RR','2:BB','L:RRY'])
         own['field'][-1]='RRR...'
         req=request(own)
         placements=self.engine.native.ask(dict(op='placements',field=own['field'],piece='2:RR'))['placements']
         fired=next(p for p in placements if p['links'])
         req.update(op='prepare_normal',placement=dict(x=fired['x'],r=fired['r']))
-        result=self.engine.answer(req)
-        # No decision is prepared across a clear, only the builder's search for the board expected after it.
+        return req
+
+    def test_normal_prefetch_predicts_the_board_after_a_clear_with_nothing_open(self):
+        # What a chain leaves, the offset and the fall of what stays confirmed follow from the rules: the
+        # whole decision for the next piece is kept, with a signature that rejects it if the board is another.
+        result=self.engine.answer(self.fired_request())
         self.assertTrue(result['build_only'])
         self.assertNotIn('plan',result)
+        self.assertIsNotNone(result['prepared_state']['prepared'])
+        self.assertIsNotNone(self.engine.prepared)
+        self.assertEqual(result['prepared_state']['prepared'][4],len(self.engine.execution_request['self']['queue']))
+
+    def test_the_decision_prepared_across_a_clear_serves_the_piece_that_finds_the_expected_board(self):
+        req=self.fired_request()
+        self.engine.answer(req)
+        expected=copy.deepcopy(self.engine.execution_request)
+        now=copy.deepcopy(expected)
+        for other in (False,True):
+            current=copy.deepcopy(now)
+            if other:
+                current['self']['field'][-1]=current['self']['field'][-1][:5]+'G'
+            self.engine.answer(dict(req))        # prepares again: the prepared decision is kept for one think only
+            with patch.object(self.engine.solo,'ask',wraps=self.engine.solo.ask) as build:
+                reply=self.engine.answer(current)
+            self.assertEqual(reply.get('search_reused',False),not other)
+            if not other:
+                build.assert_not_called()
+
+    def test_predicted_preparation_keeps_its_quality_after_a_slow_search(self):
+        original=request(side('normal',queue=['2:RY','2:BB','L:RRY']))
+        first=self.engine.answer(original)
+        prep=copy.deepcopy(original); prep.update(op='prepare_normal',placement=dict(x=first['x'],r=first['r']))
+        cold=[]
+        think=self.engine._think
+        def spy(req,*args,**kwargs):
+            cold.append(bool(req.get('cold_spawn')))
+            return think(req,*args,**kwargs)
+        with patch.object(self.engine,'_think',side_effect=spy):
+            for taken in (1,5000,1):
+                self.engine.prepare_ms['normal']=taken
+                self.engine.answer(copy.deepcopy(prep))
+        self.assertEqual(cold,[False,False,False])
+
+    def test_a_preparation_made_while_the_seed_drops_counts_the_clock_to_the_piece(self):
+        own=side('fever',seed3(),['2:RY','2:GB']); own['remaining_frames']=900
+        req=request(own,side('normal')); req['op']='prepare_observed'
+        self.engine.answer(copy.deepcopy(req))
+        usual=self.engine.execution_request['self']['remaining_frames']
+        early=copy.deepcopy(req); early['spawn_in_frames']=40
+        self.engine.answer(early)
+        self.assertEqual(usual-self.engine.execution_request['self']['remaining_frames'],40-self.engine.OBSERVED_SPAWN_FRAMES)
+        for bad in (-1,601,'x'):
+            with self.assertRaises(ValueError):
+                self.engine.answer(dict(copy.deepcopy(req),spawn_in_frames=bad))
+
+    def test_normal_prefetch_keeps_only_the_builder_after_a_clear_while_an_opposing_chain_runs(self):
+        req=self.fired_request()
+        req['enemy_chain']=dict(mode_generation=0,seed_id=1,trigger_field=seed3(),elapsed=0,scored_links=0)
+        result=self.engine.answer(req)
+        self.assertTrue(result['build_only'])
         self.assertIsNone(result['prepared_state']['prepared'])
         self.assertIsNone(self.engine.prepared)
 
@@ -476,7 +553,8 @@ class NativeModeTests(unittest.TestCase):
         placements=self.engine.native.ask(dict(op='placements',field=own['field'],piece='2:RR'))['placements']
         fired=next(p for p in placements if p['links'])
         prep=copy.deepcopy(req)
-        prep.update(op='prepare',placement=dict(x=fired['x'],r=fired['r']),ahead_piece=ahead)
+        prep['self']['queue'].append(ahead)
+        prep.update(op='prepare',placement=dict(x=fired['x'],r=fired['r']))
         result=self.engine.answer(prep)
         self.assertTrue(result['build_only'],result)
         self.assertEqual(result['searched_visible'],3)
@@ -526,7 +604,8 @@ class NativeModeTests(unittest.TestCase):
         fired=next((p for p in placements if p['links']),None)
         if fired is None:self.skipTest('no placement of the fixture seed fires')
         prep=copy.deepcopy(req)
-        prep.update(op='prepare',placement=dict(x=fired['x'],r=fired['r']),ahead_piece='2:GY')
+        prep['self']['queue'].append('2:GY')
+        prep.update(op='prepare',placement=dict(x=fired['x'],r=fired['r']))
         result=self.engine.answer(prep)
         self.assertTrue(result['build_only'],result)
         # a seed with a long clock left continues in Fever: nothing is prepared for a normal board
@@ -889,7 +968,7 @@ class NativeModeTests(unittest.TestCase):
             reply = self.engine.answer(req)
         self.assertTrue(reply['normal_search_reused'])
         self.assertEqual(reply['reason'], 'normal_build_or_fire')
-        self.assertEqual(reply['searched_visible'], 2)
+        self.assertEqual(reply['searched_visible'], 3)
         self.assertTrue(authorize_mode_reply(req, reply, req))
 
     def test_gauge_free_battle_stops_a_due_drop_with_the_clear_it_has(self):
@@ -1110,12 +1189,11 @@ class NativeModeTests(unittest.TestCase):
         own = side()
         own['gauge'] = 6
         own['field'][-1] = 'RRR.BB'
-        own['confirmed'] = own['normal_confirmed'] = 31
+        own['confirmed'] = own['normal_confirmed'] = 6
         safe_reply=self.engine.answer(request(own,side('fever',seed3())))
         self.assertTrue(safe_reply['tactics_forecast']['can_receive_attack'])
         self.assertFalse(safe_reply['entry_pending_after_chain'])
-        # A packet that the actual receiving board cannot hold, rather than
-        # merely exceeding Tsu's former 30-puyo acceptance classification.
+        # Large packets require a response even if a single drop would fit.
         own['confirmed'] = own['normal_confirmed'] = 72
         reply = self.engine.answer(request(own, side('fever', seed3())))
         self.assertFalse(reply['tactics_forecast']['can_receive_attack'])
@@ -1139,7 +1217,7 @@ class NativeModeTests(unittest.TestCase):
         self.assertEqual(self.popped(choice),8)
         self.assertTrue(choice['all_clear'])
 
-    def test_search_reads_next2_and_never_a_fourth_piece(self):
+    def test_search_reads_the_explicit_fourth_piece(self):
         own=side('normal',list(EMPTY[:-2])+['RRRBBB','GGGYYY'],['2:RB','2:GG','2:RR'])
         own.update(character='arle',gauge=4,unconfirmed=200,normal_unconfirmed=200)
         with patch.dict(self.engine.policy['normal_tactics'],max_nodes=1000000,budget_ms=1000):
@@ -1147,8 +1225,8 @@ class NativeModeTests(unittest.TestCase):
         self.assertEqual(reply['tactics_forecast']['visible'],3)
         self.assertEqual(reply['searched_visible'],3)
         own['queue'].append('2:RY')
-        with self.assertRaisesRegex(ValueError,'NEXT2'):
-            self.engine.answer(request(own))
+        reply=self.engine.answer(request(own))
+        self.assertEqual(reply['tactics_forecast']['visible'],4)
 
     def test_due_packet_enters_at_once_and_nothing_is_searched_past_entry(self):
         own=side('normal',list(EMPTY[:-1])+['RRRBBB'],['2:RB','2:RY','2:GY'])

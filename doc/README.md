@@ -15,9 +15,9 @@
 | キャラの形状周期 | [ドロップセット](DROPSETS.md) |
 | 配置・回転・上端・敗北条件 | [物理モデル](FEVER_PHYSICS.md)、[操作API](../docs/OPERATIONS.md) |
 | 単独構築・protocol 1・ベンチ | [単独エンジン](FEVER_ENGINE.md) |
-| 対戦判断・protocol 3 | [対戦エンジン](FEVER_MODE_ENGINE.md)、[Feverへの攻撃](FEVER_DISRUPTION.md) |
+| 対戦判断・protocol 3 | [対戦エンジン](FEVER_MODE_ENGINE.md)、[Feverへの攻撃](FEVER_DISRUPTION.md)、[満杯付近の変換探索](FEVER_CAPACITY_CONVERSION.md) |
 | 通常のみのprotocol 2と再生 | [通常対戦API](FEVER_BATTLE_ENGINE.md) |
-| 起動と先読み・入力 | [実機接続](FEVER_MODE_LIVE.md) |
+| 起動と判断・入力 | [実機接続](FEVER_MODE_LIVE.md) |
 | 観測値とメモリの制約 | [実機観測](FEVER_MODE_OBSERVATION.md) |
 | 連鎖・ちぎり・予告判定の時間 | [時間モデル](FEVER_TIMING.md) |
 | テスト・証拠・未確認事項 | [検証](VALIDATION.md) |

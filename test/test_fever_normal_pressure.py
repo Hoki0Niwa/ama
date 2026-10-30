@@ -42,6 +42,86 @@ class PressureTests(unittest.TestCase):
             normal_pressure_enemy=enemy,target_point=120,bonuses=self.scoring.data['bonuses'],
             timing=ChainTiming().native(),chain=1,redundancy=0,sent=6,deadline=84,invite_fever=True)
 
+    def test_profile_send_and_remaining_thresholds_are_enforced_natively(self):
+        from fever_battle.strategy import controls
+        for selected,reserve in (('brawl',12),('hybrid',16)):
+            req=request(side(),side())
+            req['normal_tactics']=dict(strategy=selected)
+            cfg=controls(req,req['self'],req['enemy'])
+            probe=self.probe()
+            cfg['pressure'].update(min_remaining_chain=0,chain_reserve_step=0)  # Isolate the unchanged material/send gates.
+            probe['normal_pressure']=resolve(cfg)
+            probe['sent']=11
+            self.assertIn('min_send',self.native.ask(probe)['blocked_conditions'])
+            probe['sent']=12
+            for cells,accepted in ((reserve-1,False),(reserve,True)):
+                rows=['......']*14
+                # Stable, non-clearing isolated colors; the probe evaluates the already-cleared field.
+                for i in range(cells):
+                    y=13-i//6;x=i%6
+                    row=list(rows[y]);row[x]='RGBY'[(x+i//6)%4];rows[y]=''.join(row)
+                probe['field']=rows
+                result=self.native.ask(probe)
+                self.assertEqual('min_remaining' not in result.get('blocked_conditions',[]),accepted)
+                self.assertEqual(result['pressure'],accepted)
+
+    def retained_five(self):
+        refs=json.loads((ROOT/'data/fever/seeds/namoko-reference.json').read_text(encoding='utf-8'))
+        return list(next(s['field'] for s in refs['seeds'] if s['id']=='hirazumi-5'))
+
+    def test_profiles_require_a_five_chain_after_the_shot(self):
+        from fever_battle.strategy import controls
+        req=request(side(),side());req['normal_tactics']=dict(strategy='hybrid')
+        probe=self.probe();probe['normal_pressure']=resolve(controls(req,req['self'],req['enemy']))
+        probe.update(sent=12,main_loss=0)
+        rejected=self.native.ask(probe)
+        self.assertFalse(rejected['pressure'])
+        self.assertIn('min_remaining_chain',rejected['blocked_conditions'])
+        probe['field']=self.retained_five()
+        accepted=self.native.ask(probe)
+        self.assertTrue(accepted['pressure'])
+        self.assertGreaterEqual(accepted['remaining_main_chain'],5)
+
+    def test_strategy_pressure_keeps_the_existing_main_within_one_link(self):
+        from fever_battle.strategy import controls
+        for selected in ('brawl','hybrid'):
+            req=request(side(),side());req['normal_tactics']=dict(strategy=selected)
+            probe=self.probe();probe['normal_pressure']=resolve(controls(req,req['self'],req['enemy']))
+            probe.update(field=self.retained_five(),sent=12,main_loss=1)
+            self.assertTrue(self.native.ask(probe)['pressure'])
+            probe['main_loss']=2
+            self.assertIn('max_main_loss',self.native.ask(probe)['blocked_conditions'])
+
+    def test_remaining_material_monotonically_limits_attack_length(self):
+        from fever_battle.strategy import controls
+        req=request(side(),side());req['normal_tactics']=dict(strategy='hybrid')
+        probe=self.probe();probe['normal_pressure']=resolve(controls(req,req['self'],req['enemy']))
+        probe.update(sent=12,chain=1)
+        for cells,limit in ((27,1),(28,2),(35,2),(36,3),(43,3),(44,4)):
+            fields=json.loads((ROOT/'data/fever/golden/pressure-reserve-fields.json').read_text(encoding='utf-8'))['cases']
+            probe['field']=next(c['field'] for c in fields if c['cells']==cells)
+            probe['chain']=limit
+            result=self.native.ask(probe)
+            self.assertEqual(result['allowed_chain'],limit)
+            self.assertTrue(result['pressure'],(cells,result))
+            if limit<4:
+                probe['chain']=limit+1
+                denied=self.native.ask(probe)
+                self.assertFalse(denied['pressure'])
+                self.assertIn('chain_reserve',denied['blocked_conditions'])
+
+    def test_profile_values_pressure_per_delivery_time(self):
+        from fever_battle.strategy import controls
+        req=request(side(),side());req['normal_tactics']=dict(strategy='hybrid')
+        probe=self.probe()
+        probe['normal_pressure']=resolve(controls(req,req['self'],req['enemy']))
+        probe.update(sent=12,deadline=100,field=self.retained_five())
+        early=self.native.ask(probe)
+        probe['deadline']=200
+        late=self.native.ask(probe)
+        self.assertTrue(early['pressure'] and late['pressure'])
+        self.assertGreater(early['score'],late['score'])
+
     def test_scores_match_fever_character_powers_rate_and_remainder(self):
         rows=seed3()
         for character in ('raffina','arle'):
@@ -136,8 +216,8 @@ class PressureTests(unittest.TestCase):
         req['normal_pressure_enemy']['gauge']=7
         self.assertFalse(self.native.ask(req)['finish'])
         req['normal_pressure_enemy']['gauge']=6
-        # No legal counter exists: gauge 6 by itself is not an escape.
-        self.assertTrue(self.native.ask(req)['finish'])
+        # Follow-up eligibility now requires gauge below four, even without a counter.
+        self.assertFalse(self.native.ask(req)['finish'])
         req['normal_pressure_enemy'].update(field=EMPTY,third_height=0)
         self.assertFalse(self.native.ask(req)['finish'])
 
@@ -184,7 +264,7 @@ class PressureTests(unittest.TestCase):
         reply=self.engine.answer(req)
         self.assertNotEqual(reply['reason'],'tactics_finish')
 
-    def test_omitted_options_match_previous_version(self):
+    def test_omitted_pressure_options_preserve_nondefensive_defaults(self):
         for name in ('normal-pressure-defaults.json','normal-pressure-flex-defaults.json'):
             data=json.loads((ROOT/'data/fever/golden'/name).read_text(encoding='utf-8'))
             for case in data['cases']:

@@ -45,13 +45,18 @@ class Tests(unittest.TestCase):
   with patch('fever_battle.mode_engine.tactics.evaluate',return_value=Decision('build')) as search:
    result=self.engine._tactical_decision(req,own,req['enemy'],120)
   self.assertEqual(result.status,'build');search.assert_not_called()
- def test_buried_normal_opponent_allows_a_finishing_search(self):
+ def test_buried_normal_opponent_cannot_use_old_single_shot_bonuses(self):
   own=side('normal',queue=['2:RY','2:BG']);own['normal_chain_max']=14
   enemy=side('normal',['......']*9+['######']*5)
   req=request(own,enemy);self.engine._normal_options(req,own)
   with patch('fever_battle.mode_engine.tactics.evaluate',return_value=Decision('build')) as search:
+   self.assertEqual(self.engine._tactical_decision(req,own,enemy,120).status,'build')
+  search.assert_not_called()  # No shared objective: the empty board need not search.
+  req['normal_tactics']=dict(harass=False)  # Also check the explicitly requested tactical path.
+  with patch('fever_battle.mode_engine.tactics.evaluate',return_value=Decision('build')) as search:
    self.engine._tactical_decision(req,own,enemy,120)
-  self.assertTrue(search.call_args.args[5]['finish_buried'])
+  self.assertFalse(search.call_args.args[5]['finish_buried'])
+  self.assertFalse(search.call_args.args[13])  # harass; lethal follow-up has its own search
  def test_fatal_search_does_not_override_a_surviving_exchange(self):
   data=json.loads((ROOT/'data/fever/baselines/2026-10-11-normal-defense-investigation.json').read_text())
   req=next(p['request'] for p in data['probes'] if p['name']=='packet' and not p['fever'] and p['pending']==90)
