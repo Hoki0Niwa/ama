@@ -14,12 +14,24 @@ def coming(request):
             + side['confirmed'] + side['unconfirmed'])
 
 
+def score_rebuild_safe(request, own):
+    enemy = request.get('enemy', {})
+    flights = request.get('observation', {}).get('in_flight', {}).get('self', {})
+    return ((own.get('moves_since_chain') or 0) >= 12 and enemy.get('mode') == 'normal'
+            and enemy.get('phase') in ('controllable', 'placing') and not request.get('enemy_chain')
+            and not own.get('confirmed') and not own.get('unconfirmed')
+            and not flights.get('incoming_in_flight') and not flights.get('counter_in_flight')
+            and sum(cell in 'RYGB' for row in enemy.get('field', ()) for cell in row) < 52)
+
+
 def contract(request, reply, target):
     enemy = request['enemy']
     if reply.get('reason') == 'normal_lethal_followup':
         return dict(kind='buried_followup', enemy_generation=enemy['mode_generation'],
             enemy_field=enemy['field'], gauge_limit=reply['followup_forecast']['gauge_limit'],
             need=reply['followup_forecast']['need'])
+    if reply.get('score_rebuild'):
+        return dict(kind='score_rebuild')
     if reply.get('reason') == 'normal_capacity_conversion':
         forecast = reply['capacity_conversion']
         context = forecast['enemy_context']
@@ -78,6 +90,8 @@ def valid(reply, latest):
     if not guard:
         return True
     enemy = latest['enemy']
+    if guard['kind'] == 'score_rebuild':
+        return score_rebuild_safe(latest, latest['self'])
     if guard['kind'] == 'entry':
         # Still entering from the same normal board, and the entry no later than the first link planned for it.
         known = enemy.get('fever_destination_frame')

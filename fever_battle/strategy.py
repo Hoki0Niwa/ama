@@ -3,18 +3,47 @@ from copy import deepcopy
 from collections import Counter
 
 BASE_PROFILE = dict(pressure_style=False, min_remaining=16,
-                    tactical_nodes=None, tactical_width=None, window_build=True)
+                    tactical_nodes=None, tactical_width=None, window_build=True,
+                    pressure_chain=4, pressure_keep=5, pressure_step=8, pressure_loss=1, pressure_redundancy=4)
 PROFILES = {
     'mainline': {},
-    'brawl': dict(pressure_style=True,min_remaining=12,tactical_nodes=512,tactical_width=6,window_build=False),
-    'hybrid': dict(pressure_style=True,tactical_nodes=512,tactical_width=6,window_build=False),
+    'brawl': dict(pressure_style=True,min_remaining=24,tactical_nodes=512,tactical_width=6,window_build=False,
+                  pressure_chain=4,pressure_keep=0,pressure_step=12,pressure_loss=84,pressure_redundancy=84),
+    'hybrid': dict(pressure_style=True,min_remaining=12,tactical_nodes=512,tactical_width=6,window_build=False,
+                   pressure_chain=4,pressure_keep=3,pressure_step=8,pressure_loss=3,pressure_redundancy=84),
 }
 NAMES = tuple(PROFILES)
+OWN_MAIN_CHAIN = 8      # longer than any pressure shot: this side has fired its main
+ENEMY_MAIN_CHAIN = 5    # the opponent answered with a real chain: stop trading and build
+
+
+def main_fired(request):
+    """A main is out or a side has been to Fever: from here on main building is what wins."""
+    own,enemy=request.get('self',{}),request.get('enemy',{})
+    return (own.get('mode_generation',0)>0 or enemy.get('mode_generation',0)>0
+            or (own.get('normal_chain_max') or 0)>=OWN_MAIN_CHAIN
+            or (enemy.get('normal_chain_max') or 0)>=ENEMY_MAIN_CHAIN)
+
+
+def facing_attack(request):
+    """The opponent's chain is running or nuisance is on its way: the answer is the full, baseline search.
+
+    A pressure shot is searched narrowly for a quiet board. Once the opponent fires back, a main that returns
+    the nuisance is found only by the width and depth the baseline gives it (window build included)."""
+    own=request.get('self',{})
+    return bool(request.get('enemy_chain')) or any(own.get(k,0) for k in (
+        'confirmed','unconfirmed','normal_confirmed','normal_unconfirmed','fever_confirmed','fever_unconfirmed'))
 
 
 def profile(request):
-    """New strategies inherit the complete common baseline; only differences belong here."""
-    return {**BASE_PROFILE, **PROFILES[name(request)]}
+    """New strategies inherit the complete common baseline; only differences belong here.
+
+    Pressure strategies differ only until a main is fired, and while an attack is on its way: then they
+    play as the baseline."""
+    selected = PROFILES[name(request)]
+    if selected.get('pressure_style') and (main_fired(request) or facing_attack(request)):
+        return dict(BASE_PROFILE)
+    return {**BASE_PROFILE, **selected}
 
 
 def opening_all_clear_possible(own):
@@ -96,12 +125,13 @@ def controls(request, own, enemy):
     # One bounded reply tree in the existing tactical search, never a second search.
     defaults = dict(harass=False, invite_fever=True,
         avoid_own_fever=False, counter_read=dict(depth=1, max_nodes=96),
-        pressure=dict(enabled=pressure_context(request,own,enemy), max_chain=4 if pressure_style else 1,
+        pressure=dict(enabled=pressure_context(request,own,enemy), max_chain=selected['pressure_chain'] if pressure_style else 1,
             min_send=6 if margin_pressure(request) else 12, max_send=1000000,
             min_remaining=selected['min_remaining'],
-            min_heights=[0]*6, max_main_loss=1 if pressure_style else 0,
-            protect_main_chain=0, min_remaining_chain=5 if pressure_style else 0,
-            chain_reserve_step=8 if pressure_style else 0,
+            min_heights=[0]*6, max_main_loss=selected['pressure_loss'] if pressure_style else 0,
+            max_redundancy=selected['pressure_redundancy'] if pressure_style else 4,
+            protect_main_chain=0, min_remaining_chain=selected['pressure_keep'] if pressure_style else 0,
+            chain_reserve_step=selected['pressure_step'] if pressure_style else 0,
             weight=800, gauge_weight=6, gauge_gain_weight=4, send_weight=1,
             time_scale=1000 if pressure_style else 0,
             block_seed_chain=19, max_attacks=0, fever_pressure=False),

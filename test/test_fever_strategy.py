@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 from fever_fixtures import ROOT, NATIVE, SOLO, request, side
 from fever_battle.mode_engine import ModeBattleEngine, authorize_mode_reply
-from fever_battle import tactical_options
+from fever_battle import strategy, tactical_options
 
 
 class StrategyTests(unittest.TestCase):
@@ -90,11 +90,36 @@ class StrategyTests(unittest.TestCase):
     def test_hybrid_preserves_main_and_limits_catalyst_tree(self):
         req = self.req('hybrid')
         policy = tactical_options.resolve(self.engine.policy['normal_tactics'], req, req['self'], req['enemy'])
-        self.assertEqual(policy['pressure']['min_remaining_chain'], 5)
+        self.assertEqual(policy['pressure']['min_remaining_chain'], 3)
         self.assertEqual(policy['pressure']['chain_reserve_step'], 8)
         self.assertTrue(policy['invite_fever'])
         self.assertLessEqual(policy['counter_read']['max_nodes'], 96)
         self.assertLessEqual(policy['max_nodes'], self.engine.policy['normal_tactics']['max_nodes'])
+
+    def test_a_main_ends_the_pressure_phase(self):
+        for name in ('brawl', 'hybrid'):
+            for side, key, value, ended in (('enemy', 'normal_chain_max', 4, False), ('enemy', 'normal_chain_max', 5, True),
+                                            ('self', 'normal_chain_max', 7, False), ('self', 'normal_chain_max', 8, True),
+                                            ('enemy', 'mode_generation', 1, True), ('self', 'mode_generation', 1, True)):
+                req = self.req(name)
+                req[side][key] = value
+                self.assertEqual(strategy.main_fired(req), ended, (side, key, value))
+                self.assertEqual(strategy.profile(req)['pressure_style'], not ended)
+                self.assertEqual(strategy.controls(req, req['self'], req['enemy']).get('pressure') is None, ended)
+
+    def test_after_a_main_the_decision_is_the_mainline_decision(self):
+        decisions = []
+        for name in ('mainline', 'brawl', 'hybrid'):
+            req = self.req(name)
+            req['enemy']['normal_chain_max'] = 10
+            engine = ModeBattleEngine(NATIVE, SOLO, ROOT/'config.json')
+            try:
+                engine.answer(dict(req, op='prepare_observed'))
+                reply = engine.answer(req)
+            finally:
+                engine.close()
+            decisions.append((reply['x'], reply['r'], reply['reason']))
+        self.assertEqual(len(set(decisions)), 1, decisions)
 
 
 if __name__ == '__main__':

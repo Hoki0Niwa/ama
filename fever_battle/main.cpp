@@ -237,7 +237,7 @@ json answer(const json& request)
     auto field = read_field(request.at("field"));
     if (op == "normal_conversion") return fever_battle::normal_conversion(field, request);
     if (op == "normal_followup") return fever_battle::normal_followup(field, request);
-    if (op == "normal_capacity") {
+    if (op == "normal_capacity" || op == "normal_recovery") {
         fever::Queue queue;
         const auto values=request.at("queue").get<std::vector<std::string>>();
         if (values.empty() || values.size()>12) throw std::invalid_argument("queue requires 1..12 pieces");
@@ -247,6 +247,15 @@ json answer(const json& request)
             queue.push_back(*piece);
         }
         auto rules=rule::FEVER; rules.plain_pairs=true; rules.special_moves=true;
+        if (op == "normal_recovery") {
+            const std::string_view rotations = "URDL";
+            const auto r = request.at("r").get<std::string>();
+            if (r.size() != 1 || rotations.find(r[0]) == rotations.npos) throw std::invalid_argument("r must be U/R/D/L");
+            const auto x = bounded_integer(request.at("x"), 0, 5, "x");
+            queue.resize(std::min(queue.size(), fever::fire::VISIBLE));
+            return {{"recovery", fever::recover_garbage(field, queue, rules,
+                {i8(x), direction::Type(rotations.find(r[0]))})}};
+        }
         rules.margin=u8(bounded_integer(request.value("margin",1),0,6,"margin"));
         const auto* normal=fever::normal_scoring::find(request.at("character").get<std::string>());
         if (!normal) throw std::invalid_argument("unknown character");

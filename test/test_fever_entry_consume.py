@@ -88,6 +88,15 @@ class LeastEntryTests(unittest.TestCase):
         only = self.candidate([4], 100)
         self.assertIs(tactics.least_entry(self.result(only, self.candidate([4, 4], 9999))), only)
 
+    def test_puyos_are_weighed_against_what_they_take_off_the_attack(self):
+        short = self.candidate([4]*10, 100, cancelled=293)
+        long = self.candidate([4]*13, 50, cancelled=739)
+        self.assertIs(tactics.least_entry(self.result(short, long), 400, 20), long)
+        self.assertIs(tactics.least_entry(self.result(long, short), 400, 20), long)
+        self.assertIs(tactics.least_entry(self.result(long, short)), short)     # puyos alone
+        little = self.candidate([4]*3, 50, cancelled=30)
+        self.assertIs(tactics.least_entry(self.result(little, self.candidate([4], 10, cancelled=5)), 400, 20).get('cancelled'), 5)
+
     def test_the_engine_reply_follows_it(self):
         own = EntryConsumeTests.own(self, 6)
         reply = tactics.choose(self.engine.native, self.engine.scoring, own, 30, 1,
@@ -96,6 +105,22 @@ class LeastEntryTests(unittest.TestCase):
         choice = reply['tactics_forecast']['choice']
         self.assertTrue(choice['enters_fever'])
         self.assertEqual(tactics.popped(choice), 4)
+
+
+class RecordedUnreturnableAttackTests(unittest.TestCase):
+    def play(self, request):
+        engine = ModeBattleEngine(NATIVE, SOLO, ROOT/'config.json')
+        try:
+            engine.answer(dict(deepcopy(request), op='prepare_observed'))
+            return engine.answer(deepcopy(request))
+        finally:
+            engine.close()
+
+    def test_recorded_positions(self):
+        cases = json.loads((ROOT/'data/fever/golden/unreturnable-entry-chain.json').read_text(encoding='utf-8'))['cases']
+        for case, expected in zip(cases, (13, 13, 1)):
+            with self.subTest(case['source']):
+                self.assertEqual(self.play(case['request'])['chain'], expected)
 
 
 if __name__ == '__main__': unittest.main()

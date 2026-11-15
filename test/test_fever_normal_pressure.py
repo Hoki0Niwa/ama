@@ -44,7 +44,7 @@ class PressureTests(unittest.TestCase):
 
     def test_profile_send_and_remaining_thresholds_are_enforced_natively(self):
         from fever_battle.strategy import controls
-        for selected,reserve in (('brawl',12),('hybrid',16)):
+        for selected,reserve in (('hybrid',12),):
             req=request(side(),side())
             req['normal_tactics']=dict(strategy=selected)
             cfg=controls(req,req['self'],req['enemy'])
@@ -82,22 +82,25 @@ class PressureTests(unittest.TestCase):
         self.assertTrue(accepted['pressure'])
         self.assertGreaterEqual(accepted['remaining_main_chain'],5)
 
-    def test_strategy_pressure_keeps_the_existing_main_within_one_link(self):
+    def test_hybrid_limits_main_loss_and_brawl_spends_it(self):
         from fever_battle.strategy import controls
-        for selected in ('brawl','hybrid'):
-            req=request(side(),side());req['normal_tactics']=dict(strategy=selected)
-            probe=self.probe();probe['normal_pressure']=resolve(controls(req,req['self'],req['enemy']))
-            probe.update(field=self.retained_five(),sent=12,main_loss=1)
-            self.assertTrue(self.native.ask(probe)['pressure'])
-            probe['main_loss']=2
-            self.assertIn('max_main_loss',self.native.ask(probe)['blocked_conditions'])
+        req=request(side(),side());req['normal_tactics']=dict(strategy='hybrid')
+        probe=self.probe();probe['normal_pressure']=resolve(controls(req,req['self'],req['enemy']))
+        probe.update(field=self.retained_five(),sent=12,main_loss=3)
+        self.assertTrue(self.native.ask(probe)['pressure'])
+        probe['main_loss']=4
+        self.assertIn('max_main_loss',self.native.ask(probe)['blocked_conditions'])
+        req['normal_tactics']=dict(strategy='brawl')
+        probe['normal_pressure']=resolve(controls(req,req['self'],req['enemy']))
+        probe['main_loss']=12
+        self.assertTrue(self.native.ask(probe)['pressure'])
 
     def test_remaining_material_monotonically_limits_attack_length(self):
         from fever_battle.strategy import controls
         req=request(side(),side());req['normal_tactics']=dict(strategy='hybrid')
         probe=self.probe();probe['normal_pressure']=resolve(controls(req,req['self'],req['enemy']))
         probe.update(sent=12,chain=1)
-        for cells,limit in ((27,1),(28,2),(35,2),(36,3),(43,3),(44,4)):
+        for cells,limit in ((27,2),(28,3),(35,3),(36,4),(43,4),(44,4)):
             fields=json.loads((ROOT/'data/fever/golden/pressure-reserve-fields.json').read_text(encoding='utf-8'))['cases']
             probe['field']=next(c['field'] for c in fields if c['cells']==cells)
             probe['chain']=limit

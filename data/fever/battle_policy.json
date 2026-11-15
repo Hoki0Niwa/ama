@@ -17,8 +17,13 @@
     "status": "prototype_heuristic_from_2026_10_15_overnight_log_not_battle_tuned"
   },
   "normal_build": {
+    "score_opening_min_chain": 15,
+    "score_fire_chain": 15,
+    "score_reserve_chain": 12,
+    "score_keep_fallback_chain": 0,
+    "score_rank": 2,
     "conversion": {
-      "enabled": true,
+      "enabled": false,
       "reuse_visible": true,
       "first_main_chain": 8,
       "main_min_chain": 13,
@@ -59,7 +64,6 @@
       "safety_frames": 30
     },
     "entry_fire": {
-      "enabled": true,
       "jab": true,
       "min_jab_sent": 6,
       "max_jab_chain": 3,
@@ -73,13 +77,20 @@
       "lock_limit_frames": 32,
       "safety_frames": 30
     },
-    "final_seed_fire": {
+    "second_time_pressure": {
       "enabled": true,
+      "fire_tolerance": 25,
+      "waste_scale": 150
+    },
+    "final_seed_fire": {
       "min_chain": 8,
       "max_seeds_after": 1,
       "min_remaining": 70
     },
     "forced_lookahead": true,
+    "score_keep_main_clear": true,
+    "score_retain_main": true,
+    "score_retain_override_percent": 150,
     "retain_floor": 10,
     "retain_when": "quiet",
     "retain_cells": 58,
@@ -129,21 +140,30 @@
       "kill": 30000,
       "all_clear": 5000,
       "disrupt": 3000,
-      "entry_consume": 400
+      "entry_consume": 400,
+      "entry_cancel": 20
     },
     "attack_policy": "main_resource_and_score"
   },
   "fever_seed": {
     "status": "prototype_heuristic_not_battle_tuned",
+    "spawn_deadline_ms": 250,
+    "cold_deadline_ms": 80,
     "press_min_held": 30,
     "press_min_lands": 6,
+    "return_fire": {
+      "enabled": true,
+      "min_rows": 2
+    },
     "value_model": {
       "seed_odds": 0.85,
       "carried_level": 0.5,
       "piece_odds": 0.5,
       "wait_cells": 3,
-      "crowded_cells": 6,
-      "harmful_carry": 10
+      "crowded_cells": 3,
+      "harmful_carry": 10,
+      "overflow_credit": 1.0,
+      "overflow_links": 14
     }
   },
   "fever_end": {

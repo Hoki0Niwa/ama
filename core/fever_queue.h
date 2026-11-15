@@ -62,6 +62,8 @@ std::optional<Queue> create_queue(std::string_view id, u64 seed, usize count, u6
 
 // Virtual future for the search: shapes from the cycle, colors dealt in order
 // from one of the VIRTUAL_COUNT fixed bags. Uses no random state.
-std::optional<Queue> create_queue_virtual(const dropset::Character& character, i32 id, usize count, u64 start);
+// colors: 0 the fixed bags above; 1 colors drawn from a Rng seeded by the bag and start (same-color pieces occur);
+// 2 the fixed bags with every fourth piece one color, as Tsu's zoro option.
+std::optional<Queue> create_queue_virtual(const dropset::Character& character, i32 id, usize count, u64 start, i32 colors = 0);
 
 }

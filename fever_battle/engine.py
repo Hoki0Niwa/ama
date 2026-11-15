@@ -18,7 +18,7 @@ from .forecast import GarbageSearch
 from .timing import predict_chain
 from .threat import enemy_events
 
-SOLO_OPTIONS = {'trigger', 'stretch', 'panic_count', 'panic_chain', 'panic_step', 'shave_chain',
+SOLO_OPTIONS = {'maximize_score', 'score_rebuild', 'trigger', 'stretch', 'panic_count', 'panic_chain', 'panic_step', 'shave_chain',
                 'margin', 'patience', 'patience_step', 'beam_width', 'beam_depth'}
 
 
@@ -101,8 +101,10 @@ class BattleEngine:
             raise ValueError('unknown character; a character ID cannot be inferred solely from its cycle')
         index = integer(side['dropset_index'], 'dropset_index')
         queue = side['queue']
-        if not isinstance(queue, list) or not 1 <= len(queue) <= self.MAX_QUEUE:
-            raise ValueError(f'queue must contain 1..{self.MAX_QUEUE} pieces including current')
+        # A preparation names the piece it places besides the pieces the next one will see.
+        limit = self.MAX_QUEUE + (1 if getattr(self, 'queue_slack', False) else 0)
+        if not isinstance(queue, list) or not 1 <= len(queue) <= limit:
+            raise ValueError(f'queue must contain 1..{limit} pieces including current')
         for k, text in enumerate(queue):
             if not isinstance(text, str) or text[:1] != self.patterns[character][(index + k) % 16]:
                 raise ValueError('visible piece does not match dropset position')

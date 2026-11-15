@@ -1,5 +1,6 @@
 """The engine's one measure under held packets; the explicit strategies kept for comparison."""
 from copy import deepcopy
+import json
 from pathlib import Path
 import sys
 import unittest
@@ -36,6 +37,29 @@ class LongExtensionTests(unittest.TestCase):
         own['normal_confirmed']=10;before=self.engine._signature(req,own)
         own.update(unconfirmed=1000,fever_unconfirmed=1000)
         self.assertNotEqual(before,self.engine._signature(req,own))
+
+    def test_large_seed_fires_early_to_keep_time_for_the_third_seed(self):
+        seeds = json.loads((ROOT/'data/fever/seeds/namoko-reference.json').read_text())['seeds']
+        boards = {seed['id']: seed['field'] for seed in seeds}
+        for level, clock in ((14, 1750), (15, 1860)):
+            with self.subTest(level=level):
+                own = side('fever', boards[f'hirazumi-{level}'], ['2:RB', '2:BY'])
+                own.update(seed_chain=level, seed_base=level, remaining_frames=clock)
+                result = self.engine.seed_solver.solve(own, 120, True)
+                self.assertEqual([step['chain'] for step in result['path']], [level])
+                self.assertTrue(result['choice']['completed_before_timeout'])
+                verify(self.engine.native, self.engine.scoring, own, result)
+
+    def test_large_seed_can_still_extend_when_the_third_seed_reserve_does_not_apply(self):
+        seeds = json.loads((ROOT/'data/fever/seeds/namoko-reference.json').read_text())['seeds']
+        seed = next(seed for seed in seeds if seed['id'] == 'hirazumi-15')
+        own = side('fever', seed['field'], ['2:RB', '2:BY'])
+        own.update(seed_chain=15, seed_base=15, remaining_frames=1860)
+        paused = self.engine.seed_solver.solve(own, 120, False)
+        self.assertEqual([step['chain'] for step in paused['path']], [0, 15])
+        short = self.engine.seed_solver.solve(dict(own, remaining_frames=900), 120, True)
+        self.assertEqual([step['chain'] for step in short['path']], [0, 15])
+        self.assertFalse(short['path'][-1]['completed_before_timeout'])
 
 
 if __name__=='__main__':unittest.main()

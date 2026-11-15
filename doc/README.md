@@ -22,7 +22,8 @@
 | 連鎖・ちぎり・予告判定の時間 | [時間モデル](FEVER_TIMING.md) |
 | テスト・証拠・未確認事項 | [検証](VALIDATION.md) |
 | 症状の局所再現 | [調査・再現手順](DEBUGGING.md) |
-| 3個組の操作制限 | [停止中の操作と測定済み許可](DISABLED_TRIPLE_OPERATIONS.md) |
+| 小消し後の修復・セカンド・満杯時の原因 | [通常本線の品質調査](FEVER_NORMAL_QUALITY.md) |
+| 特殊操作の制限と復活 | [経路モデルの制限と操作処理のプログラム](DISABLED_TRIPLE_OPERATIONS.md) |
 | 2個組の高段経路例 | [空中横移動](PAIR_AIRBORNE_ROUTE.md) |
 | 自己対戦・学習環境 | [独立シミュレーター](FEVER_SIMULATOR_REPOSITORY.md) |
 

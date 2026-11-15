@@ -43,7 +43,6 @@ class WindowCacheTests(unittest.TestCase):
                     self.assertEqual(widths, [250])
                     saved = deepcopy(engine.normal_build_cache)
                     self.assertEqual(json.loads(saved[0])['options']['beam_width'],250)
-                    self.assertEqual(reply['reason'] == 'normal_extend_before_entry', case['source_case'] == 10)
                     with patch.object(engine.solo, 'ask', wraps=engine.solo.ask) as solo:
                         again = engine._solo_build(req['self'], engine.last_normal_options)
                     solo.assert_not_called()

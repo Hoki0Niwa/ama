@@ -126,7 +126,6 @@ json normal_conversion(Field field, const json& request) {
     cfg.depth = number(options, "repair_depth", 1, 32);
     cfg.trigger = cfg.build_chain = 19;
     cfg.rebuild = true;
-    cfg.hill = request.at("weights").value("hill", 0);
     const auto weights = fever::read_weights(request.at("weights"));
     auto rules = cfg.rules;
     std::vector<Node> layer{{field}}, candidates;

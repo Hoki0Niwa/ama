@@ -43,7 +43,7 @@ json search(Field field, const json& request) {
     const RateSchedule rates(request, int(rate));
     const auto weights = request.at("weights");
     const auto w = fever::read_weights(weights);
-    fever::Configs configs; configs.hill = weights.value("hill", 0);
+    fever::Configs configs;
     fever::read_upper_weights(configs, weights);
     auto rules = rule::FEVER; rules.plain_pairs = true; rules.special_moves = true;
     const auto queue = request.at("queue").get<std::vector<std::string>>();

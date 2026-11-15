@@ -23,7 +23,7 @@ class SeedSolver:
 
     def validate_options(options):
 
-        allowed = {'width', 'depth', 'max_nodes', 'budget_ms', 'safety_frames', 'placement_frames'}
+        allowed = {'width', 'depth', 'max_nodes', 'budget_ms', 'safety_frames', 'placement_frames', 'deadline_ms'}
 
         if not isinstance(options, dict) or set(options) - allowed:
 
@@ -32,7 +32,7 @@ class SeedSolver:
         # max_nodes 0: no node limit (the width and depth bound the search, as the normal builder's beam)
         bounds = dict(width=(1,1000), depth=(1,64), max_nodes=(0,100000000), budget_ms=(1,1000),
 
-                      safety_frames=(0,600), placement_frames=(1,10000))
+                      safety_frames=(0,600), placement_frames=(1,10000), deadline_ms=(0,10000))
 
         for key, value in options.items():
 
@@ -46,7 +46,7 @@ class SeedSolver:
 
               enemy_events=None, enemy=None, maximum_frames=1860, margin=None,
 
-              quiet_carry_limit=None, press=False, pace=None, fever=None):
+              quiet_carry_limit=None, press=False, pace=None, fever=None, return_fire=None):
 
         options = options or {}
 
@@ -91,13 +91,17 @@ class SeedSolver:
 
             count_chain_frames=count_chain_frames,
             press=bool(press), **({} if pace is None else dict(pace_frames=pace)), **(fever or {}),
+            **({} if not return_fire else dict(return_send=return_fire['min_send'])),
 
             width=integer(options.get('width', 64), 'seed width', 1, 1000),
 
             max_nodes=integer(options.get('max_nodes', 8000), 'seed max_nodes', 0, 100000000),
+            deadline_ms=integer(options.get('deadline_ms', 0), 'seed deadline_ms', 0, 10000),
             # Deeper than the visible pieces: the virtual queues of the character's cycle (seed_search.cpp)
-            **({} if deep is None else dict(beam_depth=deep, character=side['character'],
-                                             dropset_index=side['dropset_index'])),
+            **({} if deep is None else dict(beam_depth=deep)),
+            # The shapes of the pieces after the visible ones weigh a line that waits for puyos.
+            **({} if side.get('dropset_index') is None else dict(character=side['character'],
+                                                                  dropset_index=side['dropset_index'])),
 
             budget_ms=budget, safety_frames=integer(options.get('safety_frames', 8), 'safety_frames', 0, 600),
 
@@ -114,6 +118,7 @@ class SeedSolver:
             timeout=max(2, budget / 1000 + 1) if deep is None and options.get('max_nodes', 8000) else 120)
 
         result['press_reason'] = press or None
+        result['return_fire'] = return_fire or None
         result['timing_status'] = timing.effective_status
 
         result['timing_constants'] = timing.native()

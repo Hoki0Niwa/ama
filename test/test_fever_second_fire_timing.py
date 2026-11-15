@@ -115,4 +115,39 @@ class SecondFireTimingTests(unittest.TestCase):
             self.assertEqual((options['build_chain'],options['trigger']),(expected,expected))
 
 
+class RecordedSecondBuildTests(unittest.TestCase):
+    def test_mainline_keeps_building_instead_of_firing_a_side_attack(self):
+        fixture = json.loads((ROOT/'data/fever/golden/second-build-while-fever.json').read_text(encoding='utf-8'))
+        case = fixture['construction_over_side_attack']
+        engine = ModeBattleEngine(NATIVE, SOLO, ROOT/'config.json')
+        try:
+            with patch.dict(engine.solo.sets, fever=case['weights']):
+                field = None
+                for req, chain in zip(case['requests'], (0, 0, 0, 0, 0, 12), strict=True):
+                    own = req['self']
+                    if field is not None:
+                        own.update(field=field, moves_since_chain=age)
+                    self.assertTrue(engine.answer(dict(req, op='prepare_observed'))['prepared'])
+                    reply = engine.answer(req)
+                    self.assertEqual(reply['next_chain'], chain, reply['reason'])
+                    field = reply['next_field']
+                    age = 0 if chain else own['moves_since_chain'] + 1
+                self.assertEqual(reply['next_score'], 108580)
+        finally:
+            engine.close()
+
+    def test_preserve_second_against_an_absorbed_attack_or_a_costly_jab(self):
+        cases = json.loads((ROOT/'data/fever/golden/second-build-while-fever.json').read_text(encoding='utf-8'))['cases']
+        for case in cases:
+            with self.subTest(case['name']):
+                engine = ModeBattleEngine(NATIVE, SOLO, ROOT/'config.json')
+                try:
+                    request = case['request']
+                    self.assertTrue(engine.answer(dict(request, op='prepare_observed'))['prepared'])
+                    reply = engine.answer(request)
+                    self.assertEqual([reply['x'], reply['r'], reply['next_chain'], reply['reason']], case['expected'])
+                finally:
+                    engine.close()
+
+
 if __name__=='__main__': unittest.main()

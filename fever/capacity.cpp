@@ -2,6 +2,7 @@
 #include "normal_space.h"
 #include "text.h"
 #include <stdexcept>
+#include <tuple>
 
 namespace fever {
 json inspect_capacity(Field field, const Queue& queue, const rule::Rule& rules,
@@ -86,5 +87,63 @@ json inspect_capacity(Field field, const Queue& queue, const rule::Rule& rules,
         {"available_moves",available ? available->moves : 0},
         {"retaining_moves",retained},{"improving_moves",improving},{"extensions",extensions},
         {"survivable_moves",survivable},{"threat",threat},{"main_floor",floor_chain},{"reason",reason}};
+}
+
+namespace {
+int garbage_count(Field& field) {
+    return field.data[int(cell::Type::GARBAGE)].get_count();
+}
+
+struct Recovery {
+    int depth = 0;
+    int garbage = 0;
+    int cells = 0;
+    int center_height = 0;
+    int center_sum = 0;
+    int first_clear = fire::VISIBLE + 1;
+
+    auto rank() const {
+        return std::tuple{depth, -garbage, -cells, -center_height, -center_sum, -first_clear};
+    }
+};
+
+Recovery recovery_after(Field field, const Queue& queue, const rule::Rule& rules,
+                        size_t depth, move::Placement move, int first_clear) {
+    if (!field.drop_piece(move.x, move.r, queue[depth], rules)) return {};
+    auto pop = field.pop();
+    if (field.is_dead(rules)) return {};
+    if (pop.get_size()) first_clear = std::min(first_clear, int(depth + 1));
+    const int left = field.get_height(2), right = field.get_height(3);
+    Recovery best{int(depth + 1), garbage_count(field), int(field.get_count()),
+                  std::max(left, right), left + right, first_clear};
+    if (depth + 1 >= queue.size()) return best;
+    auto moves = normal_space::moves(field, queue[depth + 1], rules);
+    for (int i = 0; i < moves.get_size(); ++i) {
+        const auto after = recovery_after(field, queue, rules, depth + 1, moves[i], first_clear);
+        if (after.rank() > best.rank()) best = after;
+    }
+    return best;
+}
+}
+
+json recover_garbage(Field field, const Queue& queue, const rule::Rule& rules, move::Placement builder) {
+    auto moves = normal_space::moves(field, queue.front(), rules, true);
+    const auto baseline = recovery_after(field, queue, rules, 0, builder, fire::VISIBLE + 1);
+    auto best = baseline;
+    auto placement = builder;
+    for (int i = 0; i < moves.get_size(); ++i) {
+        if (moves[i] == builder) continue;
+        const auto candidate = recovery_after(field, queue, rules, 0, moves[i], fire::VISIBLE + 1);
+        if (candidate.rank() > best.rank()) {
+            best = candidate;
+            placement = moves[i];
+        }
+    }
+    // A fully discarded piece can leave the same board for a few turns. It
+    // does not demonstrate recovery. Require extra survival or a real clear.
+    if (placement == builder || (best.depth <= baseline.depth && best.garbage >= garbage_count(field))) return nullptr;
+    return {{"x", placement.x}, {"r", std::string(1, text::from_direction(placement.r))},
+        {"garbage_removed", garbage_count(field) - best.garbage}, {"remaining_cells", best.cells},
+        {"visible_survival", best.depth}, {"builder_visible_survival", baseline.depth}};
 }
 }

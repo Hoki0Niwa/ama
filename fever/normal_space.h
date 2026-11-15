@@ -3,26 +3,22 @@
 #include "../core/operation.h"
 #include "control_moves.h"
 #include <array>
+#include <cstdlib>
+#include <string_view>
 
 namespace fever::normal_space {
-// Spawn-row lifts: goals the route model reaches only with the suspended lift (fever/operation_suspensions.h).
-// The game's own controller locks most of them by another order of presses, with a program the bridge runs
-// (fever/control_moves.h; 2026-10-18: 91 of the 100 logged failures).
-inline u32 lifted_goals(const int heights[6], const piece::Piece& piece, u32 routed, bool same) {
-    u32 lifted=0;
-    operation::SpawnRowLifts enable;
-    for (int x=0;x<5;++x) for (int r=0;r<4;++r) {
-        if (routed>>(4*x+r)&1) continue;
-        auto geometry=piece::geometry(piece,direction::Type(r));
-        if (operation::route(heights,3,{2,0,0},x+geometry->pivot_x,r,same,true,true)) lifted|=u32(1)<<(4*x+r);
-    }
-    return lifted;
+// Goals the route model cannot take: its turns next to tall columns are not the game's (2026-10-14: every stopped
+// `hook` and high sideways kick turned out a push the port reproduces to the frame). The game's own controller locks
+// them with a program the bridge runs (fever/control_moves.h). AMA_NO_CONTROLLER_PROGRAMS=1 offers none.
+inline bool controller_goals_off() {
+    static const bool off = [] { const char* v = std::getenv("AMA_NO_CONTROLLER_PROGRAMS"); return v && *v && std::string_view(v) != "0"; }();
+    return off;
 }
 // Match generated pair/triple locks to the executable spawn route.
-// current: the piece about to be placed (a decision's root, the `placements` answer). Only for it are spawn-row
-// lifts the game's controller locks added (below): they are a way to execute this move, and exploring costs a
-// millisecond or more, which deep in a search on high boards slowed decisions enough for pieces to fall
-// unsteered (2026-10-18 live run: right after nuisance landed).
+// current: the piece about to be placed (a decision's root, the `placements` answer). Only for it are the goals
+// the game's controller locks added (below): they are a way to execute this move, and exploring costs a few
+// milliseconds, which deep in a search on high boards slowed decisions enough for pieces to fall unsteered
+// (2026-10-18 live run: right after nuisance landed).
 inline auto moves(Field field, const piece::Piece& piece, const rule::Rule& rules, bool current = false) {
     auto result = move::generate(field, piece, rules);
     if (!rules.special_moves || (piece.shape != piece::Shape::PAIR && piece.shape != piece::Shape::TRIPLE)) return result;
@@ -30,13 +26,13 @@ inline auto moves(Field field, const piece::Piece& piece, const rule::Rule& rule
     // the live route, including timed clearance. Repeating a shortest-path
     // search for all 24 goals adds no pair candidates or validation. Triples
     // still need the filter for the measured, generator-only extensions.
-    if (piece.shape == piece::Shape::PAIR) return result;
+    const bool pair=piece.shape==piece::Shape::PAIR;
+    if (pair && !current) return result;
     u8 h[6]; field.get_heights(h); int heights[6];
     for (int x=0;x<6;++x) heights[x]=h[x];
-    const bool pair=piece.shape==piece::Shape::PAIR;
     const bool same=pair && piece.colors[0]==piece.colors[1];
     // Which cells share a colour decides which labels lock the same board (control_moves maps outcomes to labels).
-    const u64 pattern=(u64(piece.colors[0]==piece.colors[1])<<26)|(u64(piece.colors[0]==piece.colors[2])<<27)|(u64(piece.colors[1]==piece.colors[2])<<28);
+    const u64 pattern=pair ? 0 : (u64(piece.colors[0]==piece.colors[1])<<26)|(u64(piece.colors[0]==piece.colors[2])<<27)|(u64(piece.colors[1]==piece.colors[2])<<28);
     u64 key=(u64(pair)<<24)|(u64(same)<<25)|pattern|(u64(operation::measured_lift_generation()&0xffffu)<<32);
     for (int x=0;x<6;++x) key|=u64(heights[x])<<(4*x);
     // POD storage avoids MinGW's thread-local dynamic destructor registration
@@ -48,11 +44,18 @@ inline auto moves(Field field, const piece::Piece& piece, const rule::Rule& rule
     if (cached.used && cached.key==key) { mask=cached.mask; controlled=cached.controlled; }
     else {
         cached={key,0,0,true,false};
-        for (int x=0;x<(pair ? 6 : 5);++x) for (int r=0;r<4;++r) {
+        if (pair) for (int i=0;i<result.get_size();++i) {
+            const int x=result[i].x, r=int(result[i].r);
+            mask|=u32(1)<<(4*x+r);
+            // A pair of one color lies the same either way round (move::generate lists one of the two).
+            if (same && r==0) mask|=u32(1)<<(4*x+2);
+            if (same && r==1) mask|=u32(1)<<(4*(x+1)+3);
+        }
+        else for (int x=0;x<5;++x) for (int r=0;r<4;++r) {
             auto geometry=piece::geometry(piece,direction::Type(r));
             const int pivot=x+geometry->pivot_x;
-            bool executable=operation::route(heights,pair ? 2 : 3,{2,0,0},pivot,r,same,true,true).has_value();
-            if (!executable && !pair && operation::has_measured_lifts() && operation::measured_lift_allowed(heights,pivot,r)) {
+            bool executable=operation::route(heights,3,{2,0,0},pivot,r,same,true,true).has_value();
+            if (!executable && operation::has_measured_lifts() && operation::measured_lift_allowed(heights,pivot,r)) {
                 operation::SpawnRowLifts enable;
                 executable=operation::route(heights,3,{2,0,0},pivot,r,same,true,true).has_value();
             }
@@ -61,16 +64,23 @@ inline auto moves(Field field, const piece::Piece& piece, const rule::Rule& rule
         cached.mask=mask;
     }
     if (current && !cached.explored) {
-        const u32 lifted=lifted_goals(heights,piece,mask,same);
-        if (lifted) controlled=control_moves::triple_mask(field,piece,rules)&lifted;
+        // Every label a piece can have: x 0-4 for a triple's box; a pair's axis 0-5, its child inside the board.
+        const u32 goals=pair ? 0xffffffu&~(u32(1)<<3)&~(u32(1)<<21) : 0xfffffu;
+        if ((goals&~mask) && !field.is_dead(rules) && !controller_goals_off())
+            controlled=control_moves::triple_mask(field,piece,rules)&goals&~mask;
         cached.controlled=controlled; cached.explored=true;
     }
     if (!current) controlled=0;
     decltype(result) executable;
-    for (int i=0;i<result.get_size();++i)
+    if (pair) executable=result;
+    else for (int i=0;i<result.get_size();++i)
         if (mask&(u32(1)<<(4*result[i].x+int(result[i].r)))) executable.add(result[i]);
-    for (int bit=0;bit<20;++bit) if (controlled>>bit&1)
+    for (int bit=0;bit<(pair ? 24 : 20);++bit) if (controlled>>bit&1) {
+        // One label for a pair of one color: up and right stand for down and left, as in move::generate.
+        if (same && bit%4==2 && (controlled>>(bit-2)&1)) continue;
+        if (same && bit%4==3 && bit>=6 && (controlled>>(bit-6)&1)) continue;
         executable.add({i8(bit/4),direction::Type(bit%4)});
+    }
     return executable;
 }
 // Apply to settled boards after clearing, never to an intermediate lock pose.

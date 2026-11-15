@@ -45,6 +45,7 @@ struct Step {
     int time_reward = 0, remaining_after_rewards = 0;
     i64 carry = 0;      // nuisance left for the normal board if Fever ended after this step
     i64 landed = 0;     // nuisance on the opponent once their observed chain has run out
+    bool return_fire = false; // a fire that offsets this side's pending and sends at least `return_send`
     EnemyTrays enemy_trays;
     Potential extension;
     i64 extension_points = 0; int extension_frames = 0; double extension_odds = 0;
@@ -63,7 +64,8 @@ struct Step {
             {"points_before_timeout", timely_points}, {"total_points", total_points},
             {"completed_before_timeout", completed}, {"next_seed_input_fits", next_fits},
             {"time_reward_frames", time_reward}, {"remaining_after_rewards", remaining_after_rewards},
-            {"carried_nuisance", carry}, {"enemy_trays", enemy_trays.json()}, {"enemy_fever_landed", landed}};
+            {"carried_nuisance", carry}, {"enemy_trays", enemy_trays.json()}, {"enemy_fever_landed", landed},
+            {"return_fire", return_fire}};
         if (has_all_cases) {
             j["all_drop_cases_preserve_target"] = all_cases;
             j["all_drop_cases_keep_ignition"] = keeps_ignition;
@@ -190,6 +192,10 @@ json seed_search(Field field, const json& request) {
     const int width = number(request, "width", 1, 1000);
     // 0: no node limit, as the normal builder's beam (its width and depth bound the search).
     const int max_nodes = number(request, "max_nodes", 0, 100000000);
+    // Wall-clock limit (0: none), checked where a layer of the beam is complete so that every root placement
+    // keeps its line. The first seed of a Fever is searched in the ~370 ms before its piece appears.
+    const int deadline_ms = request.contains("deadline_ms") ? number(request, "deadline_ms", 0, 10000) : 0;
+    const auto started = std::chrono::steady_clock::now();
     // Steam build 15209927's internal Fever timer caps at 1860 frames.
     // The Python protocol validates the caller's explicit clock domain.
     const int remaining = number(request, "remaining_frames", 0, 1860);
@@ -322,6 +328,12 @@ json seed_search(Field field, const json& request) {
     const double SEED_ODDS = model_number("seed_odds", 0.85);          // a later seed is fired at its level
     const double CARRIED_LEVEL = model_number("carried_level", 0.5);   // the level kept for the next Fever, in its first seed's points
     const double PIECE_ODDS = model_number("piece_odds", 0.5);         // one piece brings a colour that is waited for
+    // The next seed's level is 15 after a 14-chain (next_level) and cannot rise further, so a link past the
+    // 14th earns nothing but its own points, and the clock it takes. It still sends that much more at the
+    // opponent: each such link counts (1 + OVERFLOW) times, so that a seed that can be taken one link
+    // further is not fired at 14 or 15 for the piece it would wait.
+    const double OVERFLOW = model_number("overflow_credit", 1.0);
+    const int SATURATED_LINKS = int(model_number("overflow_links", 14));
     if (PIECE_ODDS <= 0 || PIECE_ODDS > 1) throw std::invalid_argument("piece_odds out of range");
     // A piece takes the model's time or, when the caller has measured its own pieces, that.
     const int piece_frames = std::max(placement + spawn,
@@ -349,6 +361,11 @@ json seed_search(Field field, const json& request) {
     // ranks above every other line, the earlier the higher, and one that
     // clears the board above those: the all clear is taken wherever it shows.
     const bool press = request.value("press", false);
+    // With nuisance pending on this side against a normal opponent, building the seed on to return it
+    // leads into a race of extensions that the normal board's multipliers win. The caller then names
+    // `return_send`: the first fire that offsets the pending nuisance and still sends this much ranks
+    // above the lines that build on, as `press` does, whether or not the opponent can return it.
+    const i64 return_send = request.contains("return_send") ? number(request, "return_send", 1, 1000000000) : 0;
     const bool enemy_fever = request.value("enemy_fever", false);
     const int their_end = request.contains("their_end") ? number(request, "their_end", 0, 1000000) : -1;
     const int window = request.contains("disrupt_window") ? number(request, "disrupt_window", 0, 100000) : disruption::WINDOW;
@@ -366,17 +383,54 @@ json seed_search(Field field, const json& request) {
         return 1 - std::min(0.9, share * share * share);
     };
     const auto holds = [&](Field& board) { return holds_count(int(board.get_count())); };
-    // std::pow(held, k), std::pow(one, needed) and std::pow(1 - one, k) of the waiting lines below, read
-    // from tables of the same values: held is 1 or holds() of the board's count, one is PIECE_ODDS / needed.
+    // std::pow(held, k) of the waiting lines below, read from a table of the same values: held is 1 or
+    // holds() of the board's count.
     constexpr int POWERS = 64;
-    std::vector<double> held_power(80 * POWERS), one_power(5 * POWERS), miss_power(5 * POWERS);
+    std::vector<double> held_power(80 * POWERS);
     for (int count = 0; count < 80; ++count)
         for (int k = 0; k < POWERS; ++k) held_power[count * POWERS + k] = std::pow(holds_count(count), k);
-    for (int needed = 1; needed <= 4; ++needed) {
+    // The colours of the pieces to come are not known, their shapes are: the cycle of the character the
+    // request names (all pairs when it names none). arrival[needed][cycle position][j] is the odds that the
+    // puyos waited for are all there with the j-th piece from that position. A pair brings one of them at
+    // PIECE_ODDS / needed; a triple's two colours bring two or one at half of that each; a quad's bring two at
+    // that; a big puyo takes the colour that is waited for and stands two high in the column.
+    constexpr int MOST_NEEDED = 4, MOST_WAITED = 60;
+    std::array<piece::Shape, dropset::PERIOD> cycle;
+    cycle.fill(piece::Shape::PAIR);
+    u64 cycle_index = 0;
+    if (request.contains("character")) {
+        const auto* character = dropset::find(request.at("character").get<std::string>());
+        if (!character) throw std::invalid_argument("unknown character");
+        for (usize i = 0; i < cycle.size(); ++i)
+            if (const auto drop = dropset::drop_at(*character, i)) cycle[i] = dropset::shape_of(*drop);
+        cycle_index = u64(number(request, "dropset_index", 0, 1000000000));
+    }
+    std::vector<double> arrival((MOST_NEEDED + 1) * cycle.size() * (MOST_WAITED + 1));
+    const auto arrival_row = [&](int needed, usize position) {
+        return arrival.data() + (needed * cycle.size() + position) * (MOST_WAITED + 1);
+    };
+    for (int needed = 1; needed <= MOST_NEEDED; ++needed) {
         const double one = PIECE_ODDS / needed;
-        for (int k = 0; k < POWERS; ++k) {
-            one_power[needed * POWERS + k] = std::pow(one, k);
-            miss_power[needed * POWERS + k] = std::pow(1 - one, k);
+        for (usize start = 0; start < cycle.size(); ++start) {
+            auto* row = arrival_row(needed, start);
+            std::array<double, MOST_NEEDED> brought{1};
+            for (int j = 1; j <= MOST_WAITED; ++j) {
+                std::array<double, MOST_NEEDED> next{};
+                const auto shape = cycle[(start + usize(j) - 1) % cycle.size()];
+                const double two = shape == piece::Shape::TRIPLE ? one / 2 : shape == piece::Shape::QUAD ? one
+                    : shape == piece::Shape::BIG ? std::min(1.0, 2 * PIECE_ODDS) : 0;
+                const double single = shape == piece::Shape::PAIR ? one : shape == piece::Shape::TRIPLE ? one / 2 : 0;
+                for (int have = 0; have < needed; ++have) {
+                    const auto bring = [&](int gained, double odds) {
+                        if (have + gained >= needed) row[j] += brought[have] * odds;
+                        else next[have + gained] += brought[have] * odds;
+                    };
+                    bring(0, 1 - two - single);
+                    bring(1, single);
+                    bring(2, two);
+                }
+                brought = next;
+            }
         }
     }
     // A seed is not fired for sure because one piece still fits: by the odds
@@ -386,14 +440,24 @@ json seed_search(Field field, const json& request) {
     for (int i = 1; i <= 60; ++i) none_brings[i] = none_brings[i - 1] * (1 - PIECE_ODDS);
     // What the seeds after this one bring: the points they score on the clock,
     // and the level that is left for the next Fever. Only the points offset.
-    struct Later { double points, level; };
+    const bool protect_third_seed = count_chain && target >= 14;
+    struct Later { double points = 0, level = 0, third_credit = 0; };
     const auto later_raw = [&](int level, int clock) {
-        double total = 0, kept = 0, odds = 1;
+        double total = 0, kept = 0, odds = 1, third_credit = 0;
+        const int second_slack = clock - setup_frames - chain_frames(level) - safety;
         for (int k = 0; k < 24; ++k) {
             const int pieces = pieces_left(clock);
             if (!pieces) break;
             const double fired = 1 - none_brings[pieces];       // unfired, it stays with its level
             total += odds * fired * template_points(level);
+            if (protect_third_seed && k == 1) {
+                // Leave room for a late second ignition as well as the third:
+                // only the third seed can finish after timeout.
+                const int third_slack = clock - first_link - safety - setup_frames;
+                const double reserve = std::clamp(double(std::min(second_slack, third_slack)) /
+                    setup_frames, 0.0, 1.0);
+                third_credit = odds * fired * template_points(level) * reserve;
+            }
             kept += odds * (1 - fired) * CARRIED_LEVEL * template_points(level);
             odds *= fired * SEED_ODDS;
             clock -= setup_frames + chain_frames(level);
@@ -402,7 +466,7 @@ json seed_search(Field field, const json& request) {
             if (clock <= 0) break;          // that chain outlasts the clock: it scores, nothing follows
             clock = std::min(maximum, clock + reward) - chain_ready;
         }
-        return Later{total, kept + odds * CARRIED_LEVEL * template_points(level)};
+        return Later{total, kept + odds * CARRIED_LEVEL * template_points(level), third_credit};
     };
     // future() is asked for every line that pops nothing, once for each piece the colour could come with:
     // read from a table of every level and clock instead (the same values).
@@ -425,7 +489,7 @@ json seed_search(Field field, const json& request) {
     // A board that pops nothing is weighed by the chain it holds: where it is fired from, what it scores
     // and how long it runs. That depends on the board alone, and lines that place the same pieces in
     // another order reach the same board: worked out once per board in a search (WaitCache).
-    struct Waiting { Potential p; i64 built = 0; int running = 0; };
+    struct Waiting { Potential p; i64 built = 0, overflow = 0; int running = 0; };
     // A board as a key: its colour planes and row 14.
     using BoardKey = std::array<u64, 2 * cell::COUNT + 1>;
     static_assert(sizeof(Field::data) == 16 * cell::COUNT);
@@ -461,7 +525,9 @@ json seed_search(Field field, const json& request) {
             contact_frames_by_link(fire.unpopped, masks, falls);
             for (int k = 0; k < masks.get_size(); ++k) {
                 if (k >= int(power_table.size())) throw std::invalid_argument("missing Fever chain power; no normal fallback");
-                w.built += link_points(masks[k], power_table[k], bonuses);
+                const i64 link = link_points(masks[k], power_table[k], bonuses);
+                w.built += link;
+                if (k >= SATURATED_LINKS) w.overflow += link;
             }
             w.running = first_link;
             for (int k = 0; k < masks.get_size(); ++k)
@@ -481,6 +547,8 @@ json seed_search(Field field, const json& request) {
             const int clock = last.completed ? last.remaining_after_rewards - chain_ready : 0;
             const auto later = future(next_level(chain, last.all_clear), clock);
             worth = double(last.total_points) + later.points + later.level - danger(last.carry, later.points);
+            if (chain >= target) worth += later.third_credit;
+            for (size_t k = size_t(SATURATED_LINKS); k < last.points.size(); ++k) worth += OVERFLOW * double(last.points[k]);
             // A fire at the seed's level that leaves a packet on a Fever opponent once their chain has
             // run out: waiting for them when their next seed comes it disrupts for sure, otherwise
             // it makes them fire early. Worth half their seed at the first, a quarter at the second.
@@ -509,6 +577,9 @@ json seed_search(Field field, const json& request) {
             }
             if (press && chain >= target && in_time)
                 worth += PRESSED * (last.all_clear ? 2 : 1) - double(fire_at) * PRESSED / (2.0 * maximum);
+            last.return_fire = return_send && in_time && sent >= return_send;
+            if (last.return_fire)
+                worth += PRESSED * (last.all_clear ? 2 : 1) - double(fire_at) * PRESSED / (2.0 * maximum);
         } else {
             // What the chain on the board scores and how long it runs, as a
             // fire is weighed: the chain is known, only its last puyos are not.
@@ -530,6 +601,7 @@ json seed_search(Field field, const json& request) {
             }
             const Potential p = cached->p;
             const i64 built = cached->built;
+            const double overflow = OVERFLOW * double(cached->overflow);
             const int running = cached->running;
             last.has_extension = true; last.extension = p;
             last.target_preserved = p.chain >= target && last.all_cases_preserve();
@@ -548,7 +620,6 @@ json seed_search(Field field, const json& request) {
             };
             const int count = p.chain ? std::min(pieces_left(remaining - end_at), room) : 0;
             const int level = next_level(p.chain, false);
-            const double one = PIECE_ODDS / p.needed;
             double odds = 0;
             // Fired with the j-th piece from here, at the odds `now`.
             const auto fires = [&](int j, double now) {
@@ -556,13 +627,14 @@ json seed_search(Field field, const json& request) {
                 if (clock > 0) clock = std::min(maximum, clock + std::max(0, p.chain - 2) * 30) - chain_ready;
                 const auto later = future(level, clock);
                 const double points = double(built) + later.points;
-                worth += now * (points + later.level - danger(last.carry, points));
+                worth += now * (points + overflow + later.level - danger(last.carry, points));
+                if (p.chain >= target) worth += now * later.third_credit;
                 odds += now;
             };
             // The pieces still visible are known: one that has the puyos fires,
             // one that has not cannot. (A line reaches here with visible pieces
-            // left only where a drop ended it.) After them the colours are not
-            // known, and a piece brings one puyo at PIECE_ODDS / needed.
+            // left only where a drop ended it.) After them only the shapes are
+            // known: the table of the cycle above.
             int seen = 0; bool known = false;
             for (size_t k = size_t(node.length); k < pieces.size() && seen < count && !known; ++k) {
                 ++seen;
@@ -571,16 +643,11 @@ json seed_search(Field field, const json& request) {
                 else for (const auto color : pieces[k].colors) have += color == p.color;
                 if (have >= p.needed) { fires(seen, held_to(seen - 1)); known = true; }
             }
-            if (!known) {
-                double ways = 1;
-                for (int j = p.needed; j <= count - seen; ++j) {
-                    const bool tabled = p.needed >= 1 && p.needed <= 4 && j - p.needed < POWERS;
-                    const double now = ways * (tabled ? one_power[p.needed * POWERS + p.needed] : std::pow(one, p.needed)) *
-                        (tabled ? miss_power[p.needed * POWERS + j - p.needed] : std::pow(1 - one, j - p.needed)) *
-                        held_to(seen + j - 1);
-                    ways = ways * j / (j - p.needed + 1);
-                    fires(seen + j, now);
-                }
+            if (!known && p.chain) {
+                const auto* row = arrival_row(std::clamp(p.needed, 1, MOST_NEEDED),
+                    usize((cycle_index + u64(node.length) + u64(seen)) % cycle.size()));
+                for (int j = 1; j <= std::min(count - seen, MOST_WAITED); ++j)
+                    if (row[j] > 0) fires(seen + j, row[j] * held_to(seen + j - 1));
             }
             // The puyos never come: the seed is kept unfired with its level, or
             // given up on the next piece for the seed two levels down, whichever
@@ -681,6 +748,9 @@ json seed_search(Field field, const json& request) {
     };
     for (size_t depth = 0; depth < pieces.size() && !layer.empty() && !cutoff; ++depth) {
         fever::cancellation::check();
+        if (deadline_ms && depth > 0 && std::chrono::steady_clock::now() - started >= std::chrono::milliseconds(deadline_ms)) {
+            cutoff = true; break;
+        }
         // The children that go on, each with the record of its placement until the layer is chosen.
         struct Child { SeedNode node; Step step; };
         std::vector<Child> next;
@@ -959,7 +1029,7 @@ json seed_search(Field field, const json& request) {
         {"requires_reobservation_after_drop", best_path.back().dropped > 0},
         {"searched_visible", queue.size()}, {"beam_depth", depth_limit},
         {"virtual_count", deep ? lines.size() : 0}, {"virtual_values", virtual_values},
-        {"virtual_line_truncated", truncated}, {"press", press}, {"pending_arrival_status", events.empty() ? "unconfirmed_not_scheduled" : "observed_enemy_chain_timeline"},
+        {"virtual_line_truncated", truncated}, {"press", press}, {"return_send", return_send}, {"pending_arrival_status", events.empty() ? "unconfirmed_not_scheduled" : "observed_enemy_chain_timeline"},
         {"strategy", "value"},
         {"seed_color_needs", color_needs(field).describe(pieces, 0)},
         {"intentional_seed_failure", intentional_failure},

@@ -221,8 +221,6 @@ class EntryFireTests(unittest.TestCase):
     def test_only_an_entering_opponent_with_a_chain_is_a_target(self):
         self.assertIsNone(self.choose([self.placement(10)], baseline=dict(fire=True, x=2, r='U'), enemy_gauge=3)[0])
         self.assertIsNone(self.engine.entry_fire.status)
-        self.assertIsNone(self.choose([self.placement(10)], baseline=dict(fire=True, x=2, r='U'),
-                                      config=dict(enabled=False))[0])
 
     def test_protocol_reply_carries_the_hold_and_its_guard(self):
         probes = json.loads((ROOT/'data/fever/baselines/2026-10-11-second-fire-timing-investigation.json').read_text(encoding='utf-8'))['probes']
@@ -277,16 +275,13 @@ class EntryFireTests(unittest.TestCase):
         latest['enemy']['fever_destination_frame'] = guard['first_link_frame']
         self.assertTrue(disruption.valid(reply, latest))
 
-    def test_request_switch_overrides_the_policy(self):
-        policy = self.engine.policy['normal_build']['entry_fire']
-        for default, asked, expected in ((True, None, True), (True, False, False), (False, True, True)):
-            policy['enabled'] = default
-            req = request(); req['normal_tactics'] = {} if asked is None else dict(entry_fire=asked)
-            self.assertEqual(self.engine._final_seed_config(req, 'entry_fire')['enabled'], expected)
-        policy['enabled'] = True
-        with self.assertRaises(ValueError):
-            tactical_options.validate(dict(normal_tactics=dict(entry_fire='yes')))
-        tactical_options.validate(dict(normal_tactics=dict(entry_fire=False)))
+    def test_it_is_always_on_and_has_no_request_switch(self):
+        self.assertNotIn('enabled', self.engine.policy['normal_build']['entry_fire'])
+        req = request()
+        self.assertNotIn('enabled', self.engine._final_seed_config(req, 'entry_fire'))
+        for asked in (True, False):
+            with self.assertRaises(ValueError):
+                tactical_options.validate(dict(normal_tactics=dict(entry_fire=asked)))
 
 
 if __name__ == '__main__': unittest.main()

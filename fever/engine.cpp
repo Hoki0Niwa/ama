@@ -72,13 +72,34 @@ json answer(const json& input, const beam::eval::Weight& w, const json& set)
     }
 
     auto configs = fever::Configs();
+    configs.root_placements = input.value("root_placements", configs.root_placements);
     configs.side_frontier_slots = std::clamp(input.value("side_frontier_slots",0),0,4);
+    configs.maximize_score = input.value("maximize_score", false);
+    configs.score_rebuild = input.value("score_rebuild", configs.score_rebuild);
+    configs.score_repair = input.value("score_repair", false);
+    configs.score_repair_damaged = input.value("score_repair_damaged", false);
+    configs.score_preserve_main = input.value("score_preserve_main", false);
+    configs.score_keep_main_clear = input.value("score_keep_main_clear", false);
+    configs.score_retain_main = input.value("score_retain_main", false);
+    configs.score_retain_override_percent = std::clamp(input.value("score_retain_override_percent", 150), 0, 1000);
+    configs.preserve_visible_fire = input.value("preserve_visible_fire", false);
+    configs.score_opening_min_chain = std::clamp(input.value("score_opening_min_chain", 0), 0, 19);
+    configs.score_fire_chain = std::clamp(input.value("score_fire_chain", 14), 4, 19);
+    configs.score_reserve_chain = std::clamp(input.value("score_reserve_chain", 12), 4, 19);
+    configs.score_keep_fallback_chain = std::clamp(input.value("score_keep_fallback_chain", 0), 0, 19);
+    configs.virtual_colors = std::clamp(input.value("virtual_colors", 0), 0, 2);
+    configs.virtual_rounds = std::clamp(input.value("virtual_rounds", 1), 1, 8);
+    configs.isolated_penalty = std::clamp(input.value("isolated_penalty", 0), 0, 100000);
+    configs.score_rank = std::clamp(input.value("score_rank", 0), 0, 2);
+    configs.isolated_eval = std::clamp(input.value("isolated_eval", 0), 0, 100000);
     configs.construction_scoring = input.value("construction_scoring", true);
-    if (configs.construction_scoring) configs.normal = normal_scoring::find(character->id);
+    if (configs.construction_scoring || configs.maximize_score) configs.normal = normal_scoring::find(character->id);
     configs.rebuild = input.value("rebuild", false);
-    configs.hill = set.value("hill", 0);
+    configs.stack_balance = std::clamp(set.value("stack_balance", 0), 0, 1000);
+    configs.stack_balance_end_cells = std::clamp(
+        set.value("stack_balance_end_cells", configs.stack_balance_end_cells),
+        Configs::stack_balance_full_cells + 1, 78);
     read_upper_weights(configs, set);
-    read_level_weights(configs, set);
     configs.stock = set.value("stock", 0);
     configs.stock_color = set.value("stock_color", 0);
     configs.stock_want = std::clamp(input.value("stock_want", configs.stock_want), 1, 7);
@@ -87,6 +108,10 @@ json answer(const json& input, const beam::eval::Weight& w, const json& set)
     configs.pace_frames=std::clamp(input.value("pace_frames",55),28,600);
     configs.elapsed_build_frames=std::clamp(input.value("elapsed_build_frames",0),0,360000);
     configs.sustained_min_chain=std::clamp(input.value("sustained_min_chain",13),4,19);
+    configs.fire_tolerance=std::clamp(input.value("fire_tolerance",0),0,90);
+    // Clearing puyos that no chain needs takes the clock the opponent is using: its cost scales up (percent).
+    auto weights = w;
+    weights.waste = weights.waste * std::clamp(input.value("waste_scale",100),100,400) / 100;
 
     configs.trigger = input.value("trigger", configs.trigger);
     configs.build_chain = input.value("build_chain", 0);
@@ -111,7 +136,8 @@ json answer(const json& input, const beam::eval::Weight& w, const json& set)
     std::optional<fever::Choice> choice = {};
 
     if (input.value("fire", false)) {
-        auto now = fever::fire::best_now(*field, queue[0], configs.rules, configs.normal);
+        auto now = fever::fire::best_visible(*field, {queue[0]}, configs.rules, configs.normal,
+            nullptr, nullptr, configs.maximize_score, configs.root_placements);
 
         if (now) {
             choice = fever::Choice {
@@ -119,17 +145,19 @@ json answer(const json& input, const beam::eval::Weight& w, const json& set)
                 .chain = now->chain.count,
                 .score = size_t(now->chain.score),
                 .fire = true,
-                .fire_moves = 1
+                .fire_moves = 1,
+                .fire_line_points = configs.maximize_score ?
+                    fever::normal_scoring::pure(configs.score_fire_chain, *configs.normal) : 0
             };
         }
     }
     else {
-        choice = fever::think(*field, queue, *character, u64(index), w, configs);
+        choice = fever::think(*field, queue, *character, u64(index), weights, configs);
 
         if (!choice && configs.rules.margin) {
             // Nothing stays within the margin (the board is already above it): play on by the rule alone
             configs.rules.margin = 0;
-            choice = fever::think(*field, queue, *character, u64(index), w, configs);
+            choice = fever::think(*field, queue, *character, u64(index), weights, configs);
         }
     }
 
@@ -150,8 +178,18 @@ json answer(const json& input, const beam::eval::Weight& w, const json& set)
         output["fire_moves"] = choice->fire_moves;
     }
     output["root_values"] = choice->root_values;
+    if (configs.maximize_score) {
+        output["fire_line_points"] = choice->fire_line_points;
+        if (choice->repair_line_points) output["repair_line_points"] = choice->repair_line_points;
+        output["build_potential_points"] = choice->build_potential_points;
+        if (choice->visible_fire_protected) output["visible_fire_protected"] = true;
+        if (choice->score_repair) output["score_repair"] = true;
+        if (choice->keep_main_clear) output["keep_main_clear"] = true;
+        if (!choice->score_rebuild.is_null()) output["score_rebuild"] = choice->score_rebuild;
+    }
     output["solo"] = true;
-    output["construction_objective"] = configs.sustained ? "sustained_large_chain_rate" : "mainline";
+    output["construction_objective"] = configs.maximize_score ? "maximize_score" :
+        (configs.sustained ? "sustained_large_chain_rate" : "mainline");
     output["construction_scoring"] = configs.normal ? "fever_normal" : "legacy_tsu";
     if (!choice->reconstruction.is_null()) output["reconstruction"] = choice->reconstruction;
     if (!choice->search_depths.empty()) {
@@ -192,7 +230,7 @@ bool load_weights(const std::string& path, beam::eval::Weight& w, json& set)
     json js;
     file >> js;
 
-    // The fever set where the file has one (it may carry the fever-only weight "hill"), else the Tsu long-chain set
+    // The Fever set where the file has one, else the long-chain set.
     set = js.contains("fever") ? js.at("fever") : js.at("build");
     w = read_weights(set);
 

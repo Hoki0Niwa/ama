@@ -24,7 +24,7 @@ class FinalSeedFire:
                after_opening=False):
         """The reply to fire now, or None. `status` says why not (None while the opponent is not in Fever)."""
         self.status = None
-        if enemy['mode'] != 'fever' or not config.get('enabled', False):
+        if enemy['mode'] != 'fever':
             return None
         why = ('not_after_opening' if not after_opening else 'builder_or_tactics_fires' if baseline.get('fire')
                else 'own_side_not_normal' if own['mode'] != 'normal' or own['gauge'] >= 7

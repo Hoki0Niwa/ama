@@ -1,6 +1,7 @@
 """Capacity conversion: known small attacks, residual safety and virtual rebuilds."""
 import copy
 import json
+import os
 from pathlib import Path
 import sys
 import unittest
@@ -35,6 +36,8 @@ class ConversionTests(unittest.TestCase):
     def setUp(self):
         self.engine = ModeBattleEngine(NATIVE, SOLO, ROOT / 'config.json')
         self.cfg = self.engine.policy['normal_build']['conversion']
+        self.default_enabled = self.cfg['enabled']
+        self.cfg['enabled'] = True
         self.cfg['reuse_visible'] = True
 
     def tearDown(self):
@@ -154,6 +157,12 @@ class ConversionTests(unittest.TestCase):
         self.assertTrue(all(a>=b for a,b in zip(answer['capacity_conversion']['retained_points'],
                                                answer['capacity_conversion']['required_points'])))
 
+    def test_default_policy_keeps_normal_building_at_the_same_position(self):
+        self.cfg['enabled'] = self.default_enabled
+        reply = self.engine.answer(case())
+        self.assertEqual(reply['reason'], 'normal_build_or_fire')
+        self.assertNotIn('capacity_conversion', reply)
+
     def test_reused_visible_path_is_exact_and_never_includes_a_single_clear(self):
         req = case()
         self.engine.mode_side(req['self'])
@@ -189,21 +198,6 @@ class ConversionTests(unittest.TestCase):
             result = self.engine.native.ask(dict(op='normal_capacity', field=BOARD,
                 queue=req['self']['queue'], character='ally', margin=1, target=15, threat=threat))
             self.assertEqual(result['small_chain'] is None, threat)
-
-    def test_root_projections_are_preserved_before_leveling_penalties(self):
-        req = case()
-        self.engine.mode_side(req['self'])
-        native_req = dict(rule='fever',solo=True, character='ally', dropset_index=8,
-            self=dict(field=['......']*13+['RRR...'],queue=['2:RG','2:BY','2:RY']),
-            plain_pairs=True,special_moves=True,trigger=19,beam_width=10,beam_depth=4)
-        profiles = []
-        for penalty in (0,40000):
-            weights = dict(self.engine.solo.sets['fever'],level_root=penalty)
-            answer = self.engine.native.ask(dict(op='solo',request=native_req,weights=weights))
-            profiles.append({(r['x'],r['r']):r['points'] for r in answer['root_values']})
-        self.assertTrue(profiles[0])
-        self.assertEqual(profiles[0],profiles[1])
-        self.assertTrue(all(len(v)==6 for v in profiles[0].values()))
 
     def test_residual_comparison_requires_every_virtual_bag_to_hold(self):
         req = case()
@@ -285,6 +279,31 @@ class ConversionTests(unittest.TestCase):
             if chain>=13:break
         self.assertGreaterEqual(max(c for _,c,_ in fires),13)
         self.assertGreaterEqual(max(score for _,c,score in fires if c>=13),94200)
+
+    def test_equivalent_discard_placement_preserves_other_root_forecasts(self):
+        own = case()['self']
+        forecasts = []
+        for disable_programs in ('1', '0'):
+            with patch.dict(os.environ, {'AMA_NO_CONTROLLER_PROGRAMS': disable_programs}):
+                engine = ModeBattleEngine(NATIVE, SOLO, ROOT / 'config.json')
+            try:
+                engine.mode_side(own)
+                if disable_programs == '0':
+                    for rotation in ('U', 'D'):
+                        placement = engine.native.ask(dict(op='transition', field=BOARD,
+                            piece=own['queue'][0], x=0, r=rotation))
+                        self.assertEqual((placement['field'], placement['discarded']), (BOARD, 2))
+                build = engine.solo.ask(dict(rule='fever', solo=True, character='ally',
+                    dropset_index=own['dropset_index'], self=dict(field=BOARD, queue=own['queue']),
+                    plain_pairs=True, special_moves=True, beam_width=250, beam_depth=16,
+                    margin=1, side_frontier_slots=4))
+                forecasts.append({(r['x'], r['r']): r['points'] for r in build['root_values']})
+            finally:
+                engine.close()
+        without_programs, with_programs = forecasts
+        self.assertNotIn((0, 'D'), without_programs)
+        self.assertEqual(with_programs.pop((0, 'D')), with_programs[(0, 'U')])
+        self.assertEqual(with_programs, without_programs)
 
     def test_frontier_reuses_same_six_searches_to_read_the_residual_main(self):
         req=case()

@@ -286,6 +286,41 @@ class TacticsTests(unittest.TestCase):
     def test_seed_is_built_on_while_nuisance_is_held_for_this_side(self):
         self.assertEqual(self.first_seed(normal_confirmed=60)['chain'], 0)
 
+    def with_return_rows(self, rows, enabled=True):
+        config = self.engine.policy['fever_seed']['return_fire']
+        saved = dict(config)
+        config.update(enabled=enabled, min_rows=rows)
+        self.addCleanup(lambda: (config.clear(), config.update(saved)))
+
+    def test_seed_with_pending_is_fired_once_it_offsets_and_sends_the_rows(self):
+        # The five-chain offsets the 12 pending and sends 7: one row is enough, two are not.
+        self.with_return_rows(1)
+        reply = self.first_seed(confirmed=12, fever_confirmed=12)
+        forecast = reply['seed_forecast']
+        self.assertIsNone(forecast['press_reason'])
+        self.assertEqual(forecast['return_fire'], dict(pending=12, min_send=6))
+        self.assertEqual(reply['chain'], 5)
+        self.assertTrue(forecast['choice']['return_fire'])
+        self.assertGreaterEqual(forecast['choice']['sent'], 6)
+        self.with_return_rows(2)
+        self.assertEqual(self.first_seed(confirmed=12, fever_confirmed=12)['chain'], 0)
+
+    def test_seed_with_pending_is_built_on_without_the_return_fire(self):
+        self.with_return_rows(1, enabled=False)
+        reply = self.first_seed(confirmed=12, fever_confirmed=12)
+        self.assertIsNone(reply['seed_forecast']['return_fire'])
+        self.assertEqual(reply['chain'], 0)
+
+    def test_return_fire_needs_pending_on_this_side_and_a_normal_opponent(self):
+        self.with_return_rows(2)
+        own = side('fever', seed3())
+        req = request(own)
+        self.assertIsNone(self.engine._return_fire(req, own, side('normal'), req['target_point']))
+        own.update(confirmed=30, fever_confirmed=30)
+        self.assertEqual(self.engine._return_fire(req, own, side('normal'), req['target_point']),
+                         dict(pending=30, min_send=12))
+        self.assertIsNone(self.engine._return_fire(req, own, self.their_fever(0), req['target_point']))
+
     def test_seed_is_built_on_when_their_board_already_has_all_it_can_take(self):
         # A little more on top of what already fills the board changes nothing.
         reply = self.first_seed(self.their_board(confirmed=200, normal_confirmed=200))

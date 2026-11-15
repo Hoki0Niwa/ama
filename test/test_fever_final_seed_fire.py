@@ -91,17 +91,13 @@ class FinalSeedFireTests(unittest.TestCase):
     def test_two_seeds_after_the_running_chain_is_not_the_last(self):
         self.assertIsNone(self.choose(hold=(2, 0, 0))[0])
 
-    def test_request_switch_overrides_the_policy(self):
-        policy = self.engine.policy['normal_build']['final_seed_fire']
-        for default, asked, expected in ((True, None, True), (True, False, False), (False, True, True), (False, None, False)):
-            policy['enabled'] = default
-            req = request(); req['normal_tactics'] = {} if asked is None else dict(final_seed_fire=asked)
-            self.assertEqual(self.engine._final_seed_config(req)['enabled'], expected)
-        policy['enabled'] = True
-        for bad in (1, 'off', None):
+    def test_it_is_always_on_and_has_no_request_switch(self):
+        self.assertNotIn('enabled', self.engine.policy['normal_build']['final_seed_fire'])
+        req = request()
+        self.assertNotIn('enabled', self.engine._final_seed_config(req))
+        for asked in (True, False):
             with self.assertRaises(ValueError):
-                tactical_options.validate(dict(normal_tactics=dict(final_seed_fire=bad)))
-        tactical_options.validate(dict(normal_tactics=dict(final_seed_fire=False)))
+                tactical_options.validate(dict(normal_tactics=dict(final_seed_fire=asked)))
 
     def test_their_remaining_attack_is_offset_before_anything_counts_as_sent(self):
         # While something is pending, every link offsets at least one.
@@ -125,7 +121,6 @@ class FinalSeedFireTests(unittest.TestCase):
     def test_a_chain_below_the_minimum_or_an_existing_fire_is_left_alone(self):
         self.assertIsNone(self.choose(links=self.cfg['min_chain'] - 1)[0])
         self.assertIsNone(self.choose(baseline=dict(fire=True))[0])
-        self.assertIsNone(self.choose(config=dict(enabled=False))[0])
 
     def test_protocol_reply_fires_and_reports_why_not(self):
         probes = json.loads((ROOT/'data/fever/baselines/2026-10-11-second-fire-timing-investigation.json').read_text(encoding='utf-8'))['probes']

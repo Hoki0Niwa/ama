@@ -37,22 +37,24 @@ struct Small {
     json immediate = json::array();
 };
 
-// Longest chain the piece triggers right away, ties broken by score
+// Best immediate chain by length (or by score in maximize_score mode).
 std::optional<Decision> best_now(
     Field field,
     const piece::Piece& piece,
     const rule::Rule& rules = rule::FEVER,
-    const normal_scoring::Entry* normal = nullptr
+    const normal_scoring::Entry* normal = nullptr,
+    bool maximize_score = false
 );
 
-// Longest chain the visible pieces trigger, ties broken by fewer moves then by score
+// Longest chain, or highest score in maximize_score mode, within the visible pieces.
 // Nothing if no placement survives
 std::optional<Decision> best_visible(
     Field field,
     const Queue& queue,
     const rule::Rule& rules = rule::FEVER,
     const normal_scoring::Entry* normal = nullptr,
-    const Configs* sustained = nullptr, Small* small = nullptr
+    const Configs* sustained = nullptr, Small* small = nullptr, bool maximize_score = false,
+    u32 root_placements = 0xffffffu
 );
 
 // Chain length worth firing on a field with that many cells
@@ -83,6 +85,13 @@ struct Choice
     std::vector<i32> search_depths = {};
     json reconstruction = nullptr;
     json root_values = json::array();
+    int fire_line_points = 0;
+    int repair_line_points = 0; // fire::REPAIR_REFERENCE_CHAIN points: the target of build-value comparisons
+    int build_potential_points = 0;
+    json score_rebuild = nullptr;
+    bool visible_fire_protected = false;
+    bool score_repair = false;
+    bool keep_main_clear = false; // The build pops a short chain that keeps the main
 };
 
 // `queue` holds the visible pieces only; queue[0] is move `index` of the character's cycle

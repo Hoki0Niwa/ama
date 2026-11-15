@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT))
 from fever_battle.mode import ModeReferee, next_seed
 from fever_battle.model import EMPTY, Scoring
 from fever_battle.mode_engine import ModeBattleEngine, authorize_mode_reply
+from fever_battle.disruption import score_rebuild_safe, valid as disruption_valid
 from fever_battle.replay import replay
 from fever_battle.reference_seeds import decode
 from fever_battle.worker import JsonProcess
@@ -263,6 +264,360 @@ class ModeTests(unittest.TestCase):
 
 
 class NativeModeTests(unittest.TestCase):
+    def test_maximize_score_prefers_higher_scoring_shorter_chain(self):
+        field = ['......'] * 7 + ['.B....', '.Y....', '.BB.Y.', '.GB.R.', 'BBR.R.', 'GGBYBG', 'BYGYYB']
+        solo = dict(rule='fever', solo=True, character='arle', dropset_index=0,
+                    self=dict(field=field, queue=['2:RY']), beam_width=10, beam_depth=1)
+        legacy = self.engine.solo.ask(dict(solo, fire=True))
+        self.assertEqual((legacy['chain'], legacy['eval']), (3, 1170))
+        result = self.engine.solo.ask(dict(solo, fire=True, maximize_score=True))
+        self.assertEqual((result['chain'], result['eval']), (2, 1240))
+        self.assertEqual(result['fire_line_points'], 118720)
+        build = self.engine.solo.ask(dict(solo, maximize_score=True, include_next=True))
+        self.assertFalse(build['fire'])
+        self.assertEqual(build['next_chain'], 0)
+        self.assertEqual(build['fire_line_points'], 118720)
+
+    def test_maximize_score_keeps_building_toward_recorded_sixteen_chain(self):
+        field = ['......', 'B....Y', 'G...GB', 'GY..YB', 'BGBRBG', 'RBBGGR', 'GGRRGB',
+                 'GBBGYY', 'RYBYRR', 'RRGYBY', 'BYGGRY', 'BBYRBY', 'RRYRYR', 'GGYBYR']
+        pieces = ['2:RG', '2:RG', '2:GY', '2:BR', '2:BG', '2:GB', '2:YR']
+        for turn in range(5):
+            result = self.engine.solo.ask(dict(
+                rule='fever', solo=True, character='arle', dropset_index=turn + 5,
+                self=dict(field=field, queue=pieces[turn:turn + 3]), beam_width=250, beam_depth=16,
+                maximize_score=True, include_next=True, margin=1, plain_pairs=True, special_moves=True,
+                moves=37 + turn))
+            self.assertNotIn('score_rebuild', result)
+            field = result['next_field']
+            if turn < 4:
+                self.assertEqual(result['next_chain'], 0, (turn, result))
+            if turn == 1:
+                self.assertFalse(result['fire'])
+        self.assertEqual((result['next_chain'], result['next_score']), (16, 189010))
+
+    def test_score_rebuild_requires_majority_when_safe_build_is_available(self):
+        field = ['......', '.....B', '....RB', '....BR', '..YGBB', '..YGRY', '.YBYRR',
+                 'YYBRBY', 'BBYBRY', 'YGYBRY', 'RRGRBB', 'YRGRYB', 'YBGBGG', 'YBRRGR']
+        solo = dict(rule='fever', solo=True, character='satan', dropset_index=10,
+                    self=dict(field=field, queue=['2:YB', '4:GGRR', '2:BB']),
+                    beam_width=250, beam_depth=16, maximize_score=True, include_next=True,
+                    margin=1, plain_pairs=True, special_moves=True, moves=26)
+        result = self.engine.solo.ask(dict(solo, score_rebuild=True))
+        self.assertEqual((result['x'], result['r']), (1, 'U'))
+        reset = result['score_rebuild']
+        self.assertEqual((reset['baseline_target_bags'], reset['rebuild_target_bags']), (2, 5))
+        disabled = self.engine.solo.ask(solo)
+        cooldown = self.engine.solo.ask(dict(solo, moves=11, score_rebuild=True))
+        for answer in (disabled, cooldown):
+            self.assertNotIn('score_rebuild', answer)
+            self.assertEqual((answer['x'], answer['r'], answer['next_chain']), (0, 'D', 0))
+            quiet = next(root for root in answer['root_values'] if (root['x'], root['r']) == (0, 'D'))
+            self.assertGreater(quiet['next_room'], 0)
+
+    def test_score_rebuild_uses_light_relief_on_recorded_boards(self):
+        cases = (
+            (['......', '......', '......', 'RR..Y.', 'BRGYY.', 'RGGBB.', 'RYYRG.',
+              'RYBRGY', 'BGGYBY', 'BYYBBR', 'BYBGYR', 'RGBGYG', 'RRGBRY', 'GGYBRY'],
+             ['2:YY', '2:RB', '4:RRBB'], 9, 25, 60, 'light', 1),
+            (['......', 'YY...G', 'RR..YR', 'BB..BB', 'RB..BR', 'BRRGYB', 'BRGYGB',
+              'RYBBGB', 'RGBGRY', 'RYRBRG', 'BBRYBB', 'BYYGGG', 'RRYRYR', 'GGGRYR'],
+             ['0:Y', '2:BG', '2:BY'], 15, 31, 69, None, 12),
+        )
+        for field, queue, index, moves, before, relief, cleared in cases:
+            with self.subTest(relief=relief):
+                result = self.engine.solo.ask(dict(
+                    rule='fever', solo=True, character='satan', dropset_index=index,
+                    self=dict(field=field, queue=queue), beam_width=250, beam_depth=16,
+                    maximize_score=True, include_next=True, margin=1, plain_pairs=True, special_moves=True,
+                    moves=moves, score_rebuild=True))
+                self.assertEqual(result['next_chain'], cleared)
+                if relief:
+                    report = result['score_rebuild']
+                    self.assertEqual((report['relief'], report['before_cells'], report['after_cells']),
+                                     (relief, before, 57))
+                else:
+                    self.assertNotIn('score_rebuild', result)
+                    self.assertEqual(result['next_score'], 109870)
+
+    def test_score_rebuild_waits_when_opponent_can_have_a_main(self):
+        own = dict(side(), moves_since_chain=26)
+        enemy = side(rows=['......'] * 5 + ['RGB...'] + ['RYGBRY'] * 8)
+        req = request(own, enemy)
+        reply = dict(disruption_timing=dict(kind='score_rebuild'))
+        self.assertTrue(score_rebuild_safe(req, own))
+        self.assertTrue(disruption_valid(reply, req))
+        enemy['field'][5] = 'RGBY..'
+        self.assertFalse(score_rebuild_safe(req, own))
+        self.assertFalse(disruption_valid(reply, req))
+
+    def test_score_lookahead_preserves_build_over_short_fires(self):
+        cases = (
+            ('schezo', 9, ['2:GY', '0:R', '2:BR'],
+             ['......', '....YY', '....RY', '....RR', '..YYGY', '..YBGG', 'RRRYBY',
+              'YYYGYY', 'RGRBGR', 'RGRGRR', 'BBGGYB', 'GYRRYB', 'BGGBGR', 'BGBBGR'],
+             (0, 'D'), 69590, 0),
+            ('satan', 2, ['2:RY', 'L:RRR', '2:YB'],
+             ['......', '.....B', '.....R', '.....R', '.....G', '....RR', 'R...BR',
+              'Y...YG', 'R...RG', 'R.Y.RG', 'YRBRBB', 'GRBRYB', 'BBGYYG', 'GGRRRG'],
+             (3, 'U'), 29920, 370),
+        )
+        for character, index, queue, field, expected, old_points, new_points in cases:
+            with self.subTest(character=character):
+                own = dict(side(rows=field, queue=queue), character=character)
+                result = self.engine.solo.ask(dict(
+                    rule='fever', solo=True, character=character, dropset_index=index,
+                    self=dict(field=field, queue=queue), beam_width=250, beam_depth=16,
+                    maximize_score=True, include_next=True, margin=1, plain_pairs=True, special_moves=True))
+                placements = self.engine.native.ask(dict(op='placements', field=field, piece=queue[0]))['placements']
+                choice = next(p for p in placements if (p['x'], p['r']) == (result['x'], result['r']))
+                old = self.engine._forced_lookahead(own, placements, choice)
+                self.assertEqual(sum(self.engine.scoring.chain(character, old['links'])), old_points)
+                selected = self.engine._forced_lookahead(own, placements, choice, result)
+                self.assertEqual((selected['x'], selected['r']), expected)
+                self.assertEqual(sum(self.engine.scoring.chain(character, selected['links'])), new_points)
+                if character == 'satan':
+                    self.assertEqual(len(selected['links']), 2)
+                    self.assertEqual(sum(c != '.' for row in selected['field'] for c in row), 36)
+
+    def test_score_plan_fire_is_not_replaced_by_a_small_clear(self):
+        # Recorded 2026-11-09 (alex, 17:07 round 6, 2P): the score plan fires 2U and an 11 chain follows two
+        # pieces on, with no quiet placement left. A 1-5 link "relief" clear in its place left a 3 chain.
+        field = ['......', '.R....', 'BG..BY', 'YG..BB', 'GY.BRG', 'GY.GYB', 'RRBYRR',
+                 'BRBGGG', 'BBYRRY', 'RGYBGY', 'BBBGGY', 'RRGYRG', 'GRGGBY', 'RBYYBY']
+        queue = ['2:BB', '4:RRGG', '0:R']
+        own = dict(side(rows=field, queue=queue), character='alex', pattern='2LJL22LJL24022L2', dropset_index=9)
+        self.engine.sync_pattern(own)
+        self.addCleanup(self.engine.sync_pattern, dict(character='alex'))
+        result = self.engine.solo.ask(dict(
+            rule='fever', solo=True, character='alex', dropset_index=9, self=dict(field=field, queue=queue),
+            beam_width=250, beam_depth=16, maximize_score=True, include_next=True, margin=1,
+            plain_pairs=True, special_moves=True, moves=25))
+        self.assertTrue(result['fire'])
+        placements = self.engine.native.ask(dict(op='placements', field=field, piece=queue[0]))['placements']
+        choice = next(p for p in placements if (p['x'], p['r']) == (result['x'], result['r']))
+        selected = self.engine._forced_lookahead(own, placements, choice, result)
+        self.assertEqual((selected['x'], selected['r']), (result['x'], result['r']))
+
+    def test_score_main_fires_after_a_small_clear(self):
+        # Recorded Ciel and Rulue starts, with their original queue lengths.
+        cases = (
+            ('ciel', '2202422024220224', 7, 23,
+             ['0:Y', '2:GY', '4:GGRR', '2:BB', '2:GB', '0:B', '2:RY', '2:BR'],
+             ['......', '......', 'B....Y', 'BG...Y', 'GR..GG', 'GR.BRR', 'BGGGRG',
+              'GRRYBG', 'BGGBGR', 'BYBRGY', 'BRBRBY', 'GRBRBY', 'GBRBRB', 'RBYBRY'],
+             # A one-link clear keeps the 13-link main (score_keep_main_clear) and it grows to 16.
+             ((1, 0, 0, 0, 0, 16), 232190)),
+            ('rulue', None, 13, 29, ['2:RR', '2:BG', '0:Y'],
+             ['......', 'G....B', 'GR..YY', 'BR..RR', 'GBYBYY', 'GYYGRY', 'BBGYYB',
+              'GBGBYR', 'GGYRBY', 'BYYGGR', 'BGBBRR', 'BGBRGG', 'GYYYBR', 'GRRRBR'],
+             # The visible 14 is below the opening's 15-chain minimum, but one link short of the fire line:
+             # no build keeps its route, so it is fired (Configs::score_keep_fallback_chain).
+             ((2, 0, 14), 153120)),
+        )
+        for character, pattern, index, piece_id, queue, field, expected in cases:
+            with self.subTest(character=character):
+                own = dict(side(rows=field, queue=queue), character=character, dropset_index=index,
+                           piece_id=piece_id, moves_since_chain=piece_id, normal_chain_max=0)
+                if pattern:
+                    own['pattern'] = pattern
+                    self.addCleanup(self.engine.sync_pattern, dict(character=character))
+                req = request(own)
+                req.update(match_id=f'post-clear-main-{character}', second_target_chain=0,
+                           solo_options=dict(maximize_score=True, beam_width=250, beam_depth=16))
+                chains, score = expected
+                for step, chain in enumerate(chains):
+                    prepared = self.engine.answer(dict(req, op='prepare_observed'))
+                    self.assertTrue(prepared['prepared'], prepared)
+                    reply = self.engine.answer(req)
+                    self.assertTrue(reply['search_reused'], reply['reason'])
+                    self.assertEqual(reply['next_chain'], chain)
+                    own.update(field=reply['next_field'], queue=own['queue'][1:],
+                               piece_id=piece_id + step + 1, dropset_index=(index + step + 1) % 16,
+                               moves_since_chain=0 if chain else own['moves_since_chain'] + 1,
+                               normal_chain_max=max(own['normal_chain_max'], chain))
+                self.assertEqual(reply['next_score'], score)
+
+    def test_forced_clear_on_next_piece_can_preserve_a_score_build(self):
+        # Recorded Alex start. All survivable second placements under the build's root clear, but the search
+        # still reaches the standard 14 on most virtual queues: the build goes on rather than the 3-chain relief `1L`.
+        field = ['......', '......', 'G....R', 'RR...R', 'RGG.YR', 'BBGYRG', 'GYBBRY',
+                 'GGBYGR', 'BYYGBR', 'BRBGBR', 'BYYBGB', 'RRYBRB', 'RBGYGG', 'GGYYGR']
+        own = dict(side(rows=field, queue=['L:RRB', '0:B', '2:RG']), character='alex',
+                   pattern='2222222202L02J04', dropset_index=10, piece_id=26, moves_since_chain=26)
+        self.addCleanup(self.engine.sync_pattern, dict(character='alex'))
+        req = request(own)
+        req.update(match_id='forced-clear-score-build',
+                   solo_options=dict(maximize_score=True, beam_width=250, beam_depth=16))
+        reply = self.engine.answer(req)
+        self.assertEqual((reply['x'], reply['r'], reply['next_chain']), (0, 'U', 0))
+
+    def test_score_build_keeps_the_visible_main_when_next_pieces_fill_the_board(self):
+        # Ciel, round 2, pair 26. The previous clear was two pieces earlier.
+        field = ['......', 'B.....', 'YY..Y.', 'BY..YB', 'BB..GB', 'GYYGBR', 'GBGGBY',
+                 'RBYRYG', 'BYYGGY', 'BRRRGY', 'BGBGBB', 'RRBRRB', 'RBYRGG', 'GBYYGB']
+        pieces = ['2:RG', '2:GY', '0:R', '2:RR', '2:RY', '4:BBGG', '2:BY', '2:BB', '0:G', '2:YB']
+        own = dict(side(rows=field, queue=pieces[:8]), character='ciel', pattern='2202422024220224',
+                   normal_chain_max=1)
+        self.addCleanup(self.engine.sync_pattern, dict(character='ciel'))
+        req = request(own)
+        req.update(match_id='score-visible-capacity-fire',
+                   solo_options=dict(maximize_score=True, beam_width=250, beam_depth=16))
+        for turn, expected_chain in enumerate((0, 0, 14)):
+            own.update(queue=pieces[turn:turn+8], dropset_index=10+turn, piece_id=26+turn,
+                       moves_since_chain=2+turn)
+            reply = self.engine.answer(req)
+            self.assertFalse(reply.get('selected_move_loses'), reply['reason'])
+            self.assertEqual(reply['next_chain'], expected_chain)
+            own['field'] = reply['next_field']
+        self.assertEqual(reply['next_score'], 187580)
+
+    def test_score_build_keeps_a_visible_main_in_recorded_opening_and_second(self):
+        fixture = json.loads((ROOT/'data/fever/golden/visible-normal-main.json').read_text(encoding='utf-8'))
+        self.addCleanup(self.engine.sync_pattern, dict(character='ciel'))
+        with patch.dict(self.engine.solo.sets, fever=fixture['weights']):
+            for case in fixture['cases']:
+                with self.subTest(seed=case['seed']):
+                    reply = None
+                    for req, expected in zip(case['requests'], case['chains'], strict=True):
+                        own = req['self']
+                        if reply is not None:
+                            own.update(field=reply['next_field'], moves_since_chain=own_age)
+                        self.assertTrue(self.engine.answer(dict(req, op='prepare_observed'))['prepared'])
+                        reply = self.engine.answer(req)
+                        self.assertTrue(reply['search_reused'], reply['reason'])
+                        self.assertEqual(reply['next_chain'], expected, reply['reason'])
+                        self.assertFalse(reply.get('selected_move_loses'), reply['reason'])
+                        own_age = 0 if expected else own['moves_since_chain'] + 1
+                    self.assertEqual(reply['next_score'], case['score'])
+
+    def test_score_opening_waits_on_twelve_or_thirteen_chains_with_room(self):
+        fixture = json.loads((ROOT/'data/fever/golden/opening-and-post-drop.json').read_text(encoding='utf-8'))
+        with patch.dict(self.engine.solo.sets, fever=fixture['weights']):
+            for req in fixture['openings']:
+                with self.subTest(character=req['self']['character']):
+                    self.assertTrue(self.engine.answer(dict(req, op='prepare_observed'))['prepared'])
+                    reply = self.engine.answer(req)
+                    self.assertTrue(reply['search_reused'])
+                    self.assertEqual(reply['next_chain'], 0)
+
+    def test_score_opening_fires_below_fourteen_for_capacity_or_offset(self):
+        fixture = json.loads((ROOT/'data/fever/golden/opening-and-post-drop.json').read_text(encoding='utf-8'))
+        for case in fixture['opening_fires']:
+            with self.subTest(chain=case['chain'], reason=case['reason']), \
+                    patch.dict(self.engine.solo.sets, fever=case['weights']):
+                req = case['request']
+                self.assertTrue(self.engine.answer(dict(req, op='prepare_observed'))['prepared'])
+                reply = self.engine.answer(req)
+                self.assertEqual((reply['next_chain'], reply['reason']), (case['chain'], case['reason']))
+
+    def test_recorded_post_drop_recovery_survives_the_former_death_piece(self):
+        fixture = json.loads((ROOT/'data/fever/golden/opening-and-post-drop.json').read_text(encoding='utf-8'))
+        with patch.dict(self.engine.solo.sets, fever=fixture['weights']):
+            for case in fixture['after_drop']:
+                with self.subTest(seed=case['seed']):
+                    reply = None
+                    for req in case['requests']:
+                        own = req['self']
+                        if reply is not None:
+                            own.update(field=reply['next_field'], moves_since_chain=age)
+                        self.assertTrue(self.engine.answer(dict(req, op='prepare_observed'))['prepared'])
+                        reply = self.engine.answer(req)
+                        self.assertFalse(reply.get('selected_move_loses'), reply['reason'])
+                        age = 0 if reply['fire'] else own['moves_since_chain'] + 1
+                    self.assertEqual(sum(row.count('#') for row in reply['next_field']), case['remaining_garbage'])
+
+    def test_reachable_recovery_keeps_the_larger_main_in_recorded_positions(self):
+        cases = json.loads((ROOT/'data/fever/golden/reachable-main-recovery.json').read_text(encoding='utf-8'))['cases']
+        for case, expected in zip(cases, ((2, 'L', 1), (2, 'R', 12)), strict=True):
+            req = case['request']
+            with self.subTest(piece=req['self']['piece_id']), patch.dict(self.engine.solo.sets, fever=case['weights']):
+                reply = self.engine.answer(req)
+                self.assertTrue(reply['recovery'])
+                self.assertEqual((reply['x'], reply['r'], reply['next_chain']), expected)
+                self.assertIn(dict(x=reply['x'], r=reply['r']), req['reachable_placements'])
+                for age, following in enumerate(case.get('following', [])):
+                    following['self'].update(field=reply['next_field'], moves_since_chain=age)
+                    self.assertTrue(self.engine.answer(dict(following, op='prepare_observed'))['prepared'])
+                    reply = self.engine.answer(following)
+                    self.assertEqual(reply['next_chain'], (0, 12)[age])
+
+    def test_recovery_during_an_absorbed_chain_yields_to_incoming_garbage(self):
+        fixture = json.loads((ROOT/'data/fever/golden/opening-and-post-drop.json').read_text(encoding='utf-8'))
+        req = fixture['absorbed']
+        with patch.dict(self.engine.solo.sets, fever=fixture['weights']):
+            reply = self.engine.answer(req)
+            self.assertEqual(reply['normal_decision_status'], 'garbage_recovery')
+            self.assertEqual(reply['next_chain'], 1)
+            req['observation']['in_flight']['self']['incoming_in_flight'] = 1
+            self.assertNotIn('normal_recovery', self.engine.answer(req))
+
+    def test_forced_lookahead_preserves_a_subtarget_capacity_fire(self):
+        # Ciel, round 2, pair 44. Stacking 0D led to a forced loss on pair 46.
+        field = ['......', '....GY', '....YB', '.B..YB', '.RGGGB', '.YRBBR', '.RYRBY',
+                 '.YBRYG', 'RYBGGY', 'BYRRGY', 'RRBGBB', 'YRBRRB', 'YBYRGG', 'YRYYGB']
+        pieces = ['0:R', '2:RB', '2:BR', '4:GGYY', '2:RB', '2:YB', '0:G', '2:GY', '4:GGYY', '2:RB']
+        own = dict(side(rows=field, queue=pieces[:8]), character='ciel', pattern='2202422024220224',
+                   normal_chain_max=5, moves_since_chain=None, moves_since_chain_status='unknown')
+        self.addCleanup(self.engine.sync_pattern, dict(character='ciel'))
+        req = request(own)
+        req.update(match_id='score-subtarget-capacity-fire',
+                   solo_options=dict(maximize_score=True, beam_width=250, beam_depth=16))
+        for turn in range(3):
+            own.update(queue=pieces[turn:turn+8], dropset_index=12+turn, piece_id=44+turn)
+            reply = self.engine.answer(req)
+            self.assertFalse(reply.get('selected_move_loses'), reply['reason'])
+            if turn == 0:
+                self.assertEqual((reply['x'], reply['r'], reply['next_chain']), (1, 'D', 1))
+                own.update(moves_since_chain=0, moves_since_chain_status='observed')
+            else:
+                own['moves_since_chain'] = 0 if reply['next_chain'] else own['moves_since_chain'] + 1
+            own['field'] = reply['next_field']
+
+    def test_prepare_accepts_the_placed_piece_before_a_full_queue(self):
+        # queue_depth 12 sends the piece being placed plus the 12 its successor sees; a decision still takes 12.
+        fill = {'2': '2:RY', '0': '0:R', '4': '4:RRGG', 'L': 'L:RRG', 'J': 'J:RGR', '3': '3:RRR'}
+        cycle = self.engine.patterns['raffina']
+        thirteen = dict(side(), queue=[fill[cycle[k % 16]] for k in range(13)])
+        self.engine.queue_slack = True
+        try:
+            self.engine.observed_side(thirteen)
+        finally:
+            self.engine.queue_slack = False
+        with self.assertRaises(ValueError):
+            self.engine.observed_side(thirteen)
+
+    def test_maximize_score_can_fire_seventeen_chain(self):
+        # A one-cell variant of a recorded Satan 16-chain board.
+        field = ['......', 'R...YR', 'BB..RG', 'BY.GRB', 'YY.RYB', 'BGYRYY', 'BYBYBB',
+                 'GRRYGB', 'GBYRBG', 'BBGRBG', 'GYBYBG', 'RGYBRR', 'RGBYYR', 'RGBBRG']
+        result = self.engine.solo.ask(dict(
+            rule='fever', solo=True, character='satan', dropset_index=15,
+            self=dict(field=field, queue=['0:Y', '2:RG', '2:GY']), beam_width=250, beam_depth=16,
+            maximize_score=True, include_next=True, margin=1, plain_pairs=True, special_moves=True, moves=30))
+        self.assertTrue(result['fire'])
+        self.assertNotIn('score_rebuild', result)
+        self.assertEqual(result['fire_line_points'], 129920)
+        self.assertEqual((result['next_chain'], result['next_score']), (17, 228570))
+
+    def test_maximize_score_can_be_selected_for_each_normal_build(self):
+        for generation, target, maximize_score, expected in (
+            (0, 14, True, 'maximize_score'),
+            (0, 0, False, 'initial_target'),
+            (1, 0, False, 'maximize_score'),
+            (1, None, True, 'fill_then_fire'),
+        ):
+            with self.subTest(generation=generation, target=target, maximize_score=maximize_score):
+                own = dict(side(), mode_generation=generation)
+                req = dict(request(own), second_target_chain=target)
+                req['solo_options']['maximize_score'] = maximize_score
+                result = self.engine.answer(req)
+                self.assertEqual(result['normal_fire_policy'], expected)
+                if expected == 'maximize_score':
+                    self.assertIsNone(result['normal_build_target_chain'])
+                    self.assertIsNone(result['normal_fire_required_chain'])
+                    self.assertGreater(result['normal_fire_line_points'], 0)
+
     def test_lethal_nuisance_chooses_fast_contact_and_keeps_all_split_time(self):
         rows=['......']*3 + ['.....#']*5 + ['######']*6
         own=side('normal',rows,['2:RY','2:GB']); own.update(confirmed=120,normal_confirmed=120)
@@ -910,6 +1265,7 @@ class NativeModeTests(unittest.TestCase):
 
     def test_two_move_solution_and_stop_at_first_clear(self):
         req = request(side('fever', seed3(), ['2:GG', '2:RY']))
+        req['self']['character'] = 'arle'    # Only pairs to come: nothing but the visible fire is near.
         reply = self.engine.answer(req)
         forecast = reply['seed_forecast']
         self.assertTrue(forecast['solved'])
@@ -1071,7 +1427,7 @@ class NativeModeTests(unittest.TestCase):
         # 26 on the tray and 325 still to come, less what each line offsets.
         self.assertEqual(fired['carried_nuisance'], 26 + 325 - fired['cancelled'])
 
-    def test_a_large_seed_is_fired_at_its_level_rather_than_built_on(self):
+    def test_a_large_seed_is_built_on_by_a_link_when_the_risk_is_small(self):
         rows = list(EMPTY)
         rows[-11:] = ['...YRG', 'RBRGYB', 'GBBYRR', 'BGRRYY', 'BGRYRR', 'YYGRYY', 'GGRBBY',
                       'YYGRRB', 'BBRYGG', 'BGGRYY', 'GRRYGG']
@@ -1079,15 +1435,16 @@ class NativeModeTests(unittest.TestCase):
         own.update(seed_base=14, seed_chain=14, remaining_frames=214)
         solver = self.engine.seed_solver
         result = solver.solve(own, 120, True, dict(budget_ms=500))
-        self.assertEqual([step['chain'] for step in result['path']], [14])
-        # Without the risk of placing on a nearly full board, two more pieces are stacked for a 15-chain.
+        # A 15 is reached with two more pieces: the links past the 14th earn credit and the risk is small.
+        self.assertEqual([step['chain'] for step in result['path']], [0, 0, 15])
+        # With the earlier risk (6) and no credit for them, the seed is fired at its level.
         model = solver.value_model
         try:
-            solver.value_model = dict(model, crowded_cells=0)
-            free = solver.solve(own, 120, True, dict(budget_ms=500))
+            solver.value_model = dict(model, crowded_cells=6, overflow_credit=0)
+            fired = solver.solve(own, 120, True, dict(budget_ms=500))
         finally:
             solver.value_model = model
-        self.assertEqual([step['chain'] for step in free['path']], [0, 0, 15])
+        self.assertEqual([step['chain'] for step in fired['path']], [14])
 
     def test_uncertain_seed_drop_checks_all_subsets_before_reobservation(self):
         own = side('fever', seed3(), ['2:GG'])

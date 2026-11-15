@@ -28,7 +28,7 @@ class EntryFire:
         self.status = None
         entering = (enemy['mode'] == 'normal' and fever is not None and fever.get('enemy_fever_at', -1) > 0
                     and enemy['gauge'] >= 7)
-        if not entering or not config.get('enabled', False):
+        if not entering:
             return None
         if chain_returns:
             # Known when their chain started: it comes back at us, so there is no jab to weigh, early or late.

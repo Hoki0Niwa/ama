@@ -1,6 +1,7 @@
 #include "cancellation.h"
 #include "search.h"
 #include "normal_space.h"
+#include "evaluation.h"
 #include <set>
 
 namespace fever
@@ -90,10 +91,6 @@ static bool think(
             candidate.score = std::max(candidate.score, size_t(chain.score));
             candidate.chain = std::max(candidate.chain, chain.count);
             candidate.throughput = std::max(candidate.throughput,cycle_rate(chain,int(depth)+1,configs));
-
-            if (configs.level != 0 && is_leveling(chain, configs)) {
-                child.score.action += configs.level;
-            }
 
             // Prunes children that triggered big chains
             if (chain.count >= fever::PRUNE_CHAIN) {
@@ -194,6 +191,10 @@ Result search(
         beam::Layer(configs.width),
         beam::Layer(configs.width)
     };
+    std::vector<std::pair<size_t, size_t>> equivalent_roots;
+    // The main the board holds before the root, for Configs::score_keep_main_clear
+    const int held_before = configs.maximize_score && configs.score_keep_main_clear
+        ? potential(field, w, configs).near_chain : 0;
 
     // Initializes candidates
     fever::expand(
@@ -202,6 +203,24 @@ Result search(
         w,
         configs.rules,
         [&] (beam::node::Data& child, const move::Placement& placement, const chain::Score& chain) {
+            if (!(configs.root_placements & (1u << (4 * placement.x + int(placement.r))))) return;
+            // At the top of a full column, distinct locks can discard the
+            // whole piece. Keep their labels, but expand the unchanged board
+            // only once for each action cost.
+            if (chain.count == 0 && child.field == field) {
+                const auto& roots = layers[0].data;
+                const auto same = std::find_if(roots.begin(), roots.end(), [&](const auto& node) {
+                    return child.field == node.field && node.score.action == child.score.action
+                        && result.candidates[node.index].root_chain == 0;
+                });
+                if (same != roots.end()) {
+                    equivalent_roots.emplace_back(result.candidates.size(), same->index);
+                    auto candidate = result.candidates[same->index];
+                    candidate.placement = placement;
+                    result.candidates.push_back(std::move(candidate));
+                    return;
+                }
+            }
             // Creates candidate
             auto candidate = Candidate();
 
@@ -210,11 +229,7 @@ Result search(
             candidate.chain = chain.count;
             candidate.root_chain = chain.count;
             candidate.throughput = cycle_rate(chain,1,configs);
-            candidate.leveling = is_leveling(chain, configs);
             candidate.side_root = field.get_count()>=48 && chain.count>=2 && chain.count<=4;
-            if (configs.level != 0 && candidate.leveling) {
-                child.score.action += configs.level;
-            }
 
             // Updates child
             child.index = i32(result.candidates.size());
@@ -230,6 +245,24 @@ Result search(
                     if (normal_space::room(after,configs.rules.margin)) ++candidate.next_room;
                 }
             }
+            if (configs.isolated_penalty > 0 && chain.count == 0) {
+                // Puyos of this piece that touch no puyo of their color (Configs::isolated_penalty)
+                auto before = field;
+                auto after = child.field;
+                for (i8 x = 0; x < 6; ++x) for (i8 y = 0; y < 14; ++y) {
+                    const auto c = after.get_cell(x, y);
+                    if (!piece::is_color(c) || before.get_cell(x, y) != cell::Type::NONE) continue;
+                    bool joined = false;
+                    for (auto [dx, dy] : { std::pair{1, 0}, std::pair{-1, 0}, std::pair{0, 1}, std::pair{0, -1} }) {
+                        const int nx = x + dx, ny = y + dy;
+                        if (nx < 0 || nx > 5 || ny < 0 || ny > 13) continue;
+                        if (after.get_cell(i8(nx), i8(ny)) == c) joined = true;
+                    }
+                    candidate.isolated += !joined;
+                }
+            }
+            candidate.keeps_main = held_before >= 8 && chain.count >= 1 && chain.count <= 2
+                && candidate.held_main >= held_before - 1;
             candidate.aim = i64(child.score.eval) + child.score.action;
 
             // Pushes
@@ -264,27 +297,19 @@ Result search(
         }
         result.completed_depth = i32(i + 2);
 
-        bool enough = false;
-
-        for (auto& c : result.candidates) {
-            if (c.chain >= (configs.build_chain > 0 ? configs.build_chain : configs.trigger)) {
-                enough = true;
-                break;
-            }
-        }
-
-        if (enough) {
+        const int target = configs.build_chain > 0 ? configs.build_chain : configs.trigger;
+        if (!configs.maximize_score && std::any_of(result.candidates.begin(), result.candidates.end(),
+                [target](const Candidate& candidate) { return candidate.chain >= target; })) {
             break;
         }
     }
 
-    for (auto& c : result.candidates) c.projected = {i64(c.score)};
-    if (configs.level_root > 0) {
-        for (auto& c : result.candidates) {
-            if (c.leveling) c.score = c.score > size_t(configs.level_root) ? c.score - size_t(configs.level_root) : 0;
-        }
+    for (const auto& [index, source] : equivalent_roots) {
+        const auto placement = result.candidates[index].placement;
+        result.candidates[index] = result.candidates[source];
+        result.candidates[index].placement = placement;
     }
-
+    for (auto& c : result.candidates) c.projected = {i64(c.score)};
     return result;
 };
 
@@ -303,11 +328,14 @@ Result search_multi(
     // Creates future queues
     std::vector<Queue> queues;
 
-    for (i32 i = 0; i < VIRTUAL_COUNT; ++i) {
+    // Configs::virtual_rounds > 1 searches that many random-color queues per slot and averages them, so the
+    // VIRTUAL_COUNT slots every caller counts on stay (the fixed bags have only VIRTUAL_COUNT colorings).
+    const i32 rounds = configs.virtual_colors == 1 ? std::max(1, configs.virtual_rounds) : 1;
+    for (i32 i = 0; i < VIRTUAL_COUNT * rounds; ++i) {
         auto q = queue;
 
         if (configs.depth > queue.size()) {
-            auto future = create_queue_virtual(character, i, configs.depth - queue.size(), index + queue.size());
+            auto future = create_queue_virtual(character, i, configs.depth - queue.size(), index + queue.size(), configs.virtual_colors);
 
             // Unknown cycle: no shape is guessed
             if (!future) {
@@ -364,6 +392,39 @@ Result search_multi(
         }
     }
 
+    if (rounds > 1) {
+        for (auto& c : result.candidates) {
+            if (c.projected.size() == size_t(VIRTUAL_COUNT * rounds)) {
+                std::vector<i64> slots(VIRTUAL_COUNT, 0);
+                for (size_t k = 0; k < c.projected.size(); ++k) slots[k % VIRTUAL_COUNT] += c.projected[k];
+                for (auto& s : slots) s /= rounds;
+                c.projected = slots;
+            }
+            c.score /= size_t(rounds);
+            c.throughput /= rounds;
+            c.aim /= rounds;
+        }
+    }
+
+    if (configs.isolated_penalty > 0) {
+        for (auto& c : result.candidates) {
+            const size_t cost = size_t(c.isolated) * size_t(configs.isolated_penalty) * VIRTUAL_COUNT;
+            c.score = c.score > cost ? c.score - cost : 0;
+        }
+    }
+
+    // Configs::score_rank: robust alternatives to the summed best scores
+    const i64 standard = configs.normal ? normal_scoring::pure(configs.score_fire_chain, *configs.normal) : 0;
+    const auto median = [](const Candidate& c) {
+        if (c.projected.empty()) return i64(0);
+        auto v = c.projected;
+        std::sort(v.begin(), v.end());
+        return v.size() % 2 ? v[v.size() / 2] : (v[v.size() / 2 - 1] + v[v.size() / 2]) / 2;
+    };
+    const auto reaching = [](const Candidate& c, i64 line) {
+        return std::count_if(c.projected.begin(), c.projected.end(), [line](i64 p) { return p >= line; });
+    };
+
     // Sorts candidates by their total accumulated scores
     result.virtual_depths.clear();
     for (const auto& b : results) result.virtual_depths.push_back(b.completed_depth);
@@ -372,6 +433,13 @@ Result search_multi(
         result.candidates.begin(),
         result.candidates.end(),
         [&] (const Candidate& a, const Candidate& b) {
+            if (configs.maximize_score) {
+                if (builds_main(a) != builds_main(b)) return builds_main(a);
+                if (configs.score_rank == 1 && median(a) != median(b)) return median(a) > median(b);
+                if (configs.score_rank == 2 && reaching(a, standard) != reaching(b, standard))
+                    return reaching(a, standard) > reaching(b, standard);
+                return a.score > b.score;
+            }
             if ((a.next_room>0)!=(b.next_room>0)) return a.next_room>0;
             if (configs.sustained && a.throughput != b.throughput) return a.throughput > b.throughput;
             if (configs.aim) {

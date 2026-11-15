@@ -7,7 +7,7 @@ WEIGHTS = {
     name: (0, 1000000) for name in (
         'entry', 'gauge', 'stock', 'color', 'drop', 'consume', 'mainline',
         'height', 'early', 'builder', 'step', 'exposed', 'pending',
-        'uncountered', 'fever_reach', 'harass', 'all_clear', 'disrupt', 'entry_consume')
+        'uncountered', 'fever_reach', 'harass', 'all_clear', 'disrupt', 'entry_consume', 'entry_cancel')
 }
 WEIGHTS.update(mainline_min=(1, 19), arrival_pieces=(0, 100))
 LIMITS = dict(harass_min_count=(0, 84), harass_max_count=(0, 85),
@@ -25,9 +25,9 @@ def validate(request):
     if not isinstance(value, dict):
         raise ValueError('normal_tactics must be an object')
     strategy.name(request)
-    object_keys(value, {'strategy', 'invite_fever', 'avoid_own_fever', 'harass', 'weights', 'window_build', 'final_seed_fire', 'entry_fire', 'gauge_wait', *normal_pressure_options.DEFAULTS} | LIMITS.keys(), 'normal_tactics')
+    object_keys(value, {'strategy', 'invite_fever', 'avoid_own_fever', 'harass', 'weights', 'window_build', 'gauge_wait', *normal_pressure_options.DEFAULTS} | LIMITS.keys(), 'normal_tactics')
     normal_pressure_options.validate(value)
-    for key in ('invite_fever', 'avoid_own_fever', 'harass', 'final_seed_fire', 'entry_fire', 'gauge_wait'):
+    for key in ('invite_fever', 'avoid_own_fever', 'harass', 'gauge_wait'):
         if key in value and type(value[key]) is not bool:
             raise ValueError(f'normal_tactics.{key} must be a boolean')
     for key, bounds in LIMITS.items():
@@ -55,7 +55,7 @@ def resolve(policy, request, own, enemy):
     first = own['mode'] == enemy['mode'] == 'normal' and own['mode_generation'] == enemy['mode_generation'] == 0
     effective.update(invite_fever=first, avoid_own_fever=first, harass=True,
                      harass_min_count=24, harass_max_count=52, harass_min_height=4, harass_columns=3)
-    effective.update({k: v for k, v in overrides.items() if k not in ('weights', 'window_build', 'final_seed_fire', 'entry_fire', 'gauge_wait', *normal_pressure_options.DEFAULTS)})
+    effective.update({k: v for k, v in overrides.items() if k not in ('weights', 'window_build', 'gauge_wait', *normal_pressure_options.DEFAULTS)})
     scale=policy.get('opening_all_clear_scale',{}).get(strategy.name(request),100)
     effective['weights']['all_clear']=min(1000000,effective['weights'].get('all_clear',5000)*scale//100)
     effective['weights'].update(overrides.get('weights', {}))

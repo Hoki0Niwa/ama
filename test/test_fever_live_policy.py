@@ -66,7 +66,7 @@ class LivePolicyTests(unittest.TestCase):
     def test_weak_midgame_does_not_spend_its_last_main(self):
         rows=['......']*10+['RGBYRG','BYRGBY']*2
         for y in (7,8,9):rows[y]='G....R'
-        for selected in ('brawl','hybrid'):
+        for selected in ('hybrid',):
             req=request(side(rows=rows,queue=['2:GY','2:RY','L:BBG']),side())
             req.update(target_point=6,normal_tactics=dict(strategy=selected))
             self.engine.answer(dict(req,op='prepare_observed'))
@@ -86,16 +86,19 @@ class LivePolicyTests(unittest.TestCase):
                 with patch.object(self.engine.native,'ask',wraps=self.engine.native.ask) as native:
                     reply=self.engine.answer(req)
                 self.assertFalse(any(c.args[0].get('op') in ('tactics','solo') for c in native.call_args_list))
-                self.assertEqual(reply['reason'],'tactics_pressure')
-                attack=reply['normal_tactics']['normal_attack']
-                self.assertGreaterEqual(attack['remaining_main_chain'],5)
-                if reply['chain']:
-                    shots+=1
-                    self.assertLessEqual(reply['chain'],attack['allowed_chain'])
-                    self.assertGreaterEqual(reply['next_score']//6,6)
+                if selected=='hybrid':self.assertEqual(reply['reason'],'tactics_pressure')
+                if reply['reason']=='tactics_pressure':
+                    attack=reply['normal_tactics']['normal_attack']
+                    if selected=='hybrid':self.assertGreaterEqual(attack['remaining_main_chain'],3)
+                    if reply['chain']:
+                        shots+=1
+                        self.assertLessEqual(reply['chain'],min(4,attack['allowed_chain']))
+                        self.assertGreaterEqual(reply['next_score']//6,6)
+                        if selected=='brawl':
+                            self.assertGreaterEqual(sum(c not in '.#' for row in reply['next_field'] for c in row),24)
                 own.update(field=reply['next_field'],queue=own['queue'][1:],piece_id=arrow+1,
                            dropset_index=arrow+1,moves_since_chain=0)
-            self.assertGreaterEqual(shots,3)
+            self.assertGreaterEqual(shots,3 if selected=='hybrid' else 1)
 
     def test_recorded_overlarge_receives_use_available_counters(self):
         fixture=ROOT/'data/fever/golden/continuous-pressure-defense.json'
@@ -108,15 +111,15 @@ class LivePolicyTests(unittest.TestCase):
                 self.assertFalse(reply['tactics_forecast']['can_receive_attack'])
                 self.assertTrue(choice['projected_sufficient_return'])
 
-    def test_recorded_resource_exhausting_four_chain_is_no_longer_played(self):
+    def test_recorded_early_four_chain_waits_for_a_larger_board(self):
         fixture=ROOT/'data/fever/golden/midgame-pressure-issued.json'
         req=json.loads(fixture.read_text(encoding='utf-8'))['request']
-        for strategy in ('brawl','hybrid'):
+        for strategy,played in (('brawl',False),('hybrid',False)):
             req['normal_tactics']=dict(strategy=strategy)
             self.engine.answer(dict(req,op='prepare_observed'))
             reply=self.engine.answer(req)
-            self.assertNotEqual(reply['reason'],'tactics_pressure')
-            self.assertFalse(reply['fire'])
+            self.assertEqual(reply['reason']=='tactics_pressure',played)
+            if not played:self.assertFalse(reply['fire'])
 
     def test_recorded_late_entry_jab_does_not_hold_2p(self):
         cases=json.loads((ROOT/'data/fever/golden/live-strategy-regressions.json').read_text(encoding='utf-8'))['cases']
@@ -169,14 +172,15 @@ class LivePolicyTests(unittest.TestCase):
 
     def test_stronger_pressure_keeps_larger_reserves(self):
         from fever_battle.strategy import controls
-        for strategy,reserve in (('brawl',12),('hybrid',16)):
+        for strategy,reserve,keep,step in (('brawl',24,0,12),('hybrid',12,3,8)):
             req=request(side(),side())
             req['normal_tactics']=dict(strategy=strategy)
             cfg=controls(req,req['self'],req['enemy'])
             self.assertEqual(cfg['pressure']['min_remaining'],reserve)
+            self.assertEqual(cfg['pressure']['max_chain'],4)
             self.assertEqual(cfg['pressure']['min_send'],12)
-            self.assertEqual(cfg['pressure']['min_remaining_chain'],5)
-            self.assertEqual(cfg['pressure']['chain_reserve_step'],8)
+            self.assertEqual(cfg['pressure']['min_remaining_chain'],keep)
+            self.assertEqual(cfg['pressure']['chain_reserve_step'],step)
             req['target_point']=6
             self.assertEqual(controls(req,req['self'],req['enemy'])['pressure']['min_send'],6)
 

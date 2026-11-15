@@ -18,6 +18,39 @@ struct Configs
 {
     int side_frontier_slots = 0; // Reserve within width, never expand an extra layer.
     bool construction_scoring = true;
+    bool maximize_score = false;
+    bool score_rebuild = false;
+    bool score_repair = false;
+    bool score_repair_damaged = false;
+    bool score_preserve_main = false;
+    // Rank a one- or two-link root clear that keeps an 8+ link main (held_main within one link) with the
+    // non-clearing builds, by score. Without it every clearing root ranks below every quiet root.
+    bool score_keep_main_clear = false;
+    // The opening also keeps an 8+ link main as Configs::score_preserve_main keeps the second: a build that
+    // loses three links or more is replaced by the best root that keeps it, unless that build beats the keeper
+    // on every virtual queue and by this percentage of the summed score (0: never).
+    bool score_retain_main = false;
+    int score_retain_override_percent = 150;
+    bool preserve_visible_fire = false; // Follow through on a reachable main after a clear.
+    u32 root_placements = 0xffffffu;
+    int score_opening_min_chain = 0; // Below this length, keep building while space permits.
+    // Under Configs::maximize_score: the character's standard chain whose points are the fire line, and
+    // the shortest visible chain whose route is kept once it reaches its own standard points.
+    int score_fire_chain = 14;
+    int score_reserve_chain = 12;
+    // Below score_opening_min_chain, a visible chain this long keeps its route while the opening builds on,
+    // and is fired where no build keeps it (0: one link short of score_fire_chain).
+    int score_keep_fallback_chain = 0;
+    int virtual_colors = 0; // create_queue_virtual's color model for the construction search (experimental)
+    int virtual_rounds = 1;
+    // Points per virtual queue taken from a quiet root for each of its puyos that touches no puyo of its color:
+    // the virtual queues connect such a puyo later more often than unknown pieces do (experimental)
+    int isolated_penalty = 0;
+    // Under maximize_score, how the virtual queues rank the roots: 0 the summed best scores; 1 their median;
+    // 2 the number of queues reaching the fire line (the standard score_fire_chain points), then the sum
+    int score_rank = 0;
+    // Evaluation points taken per colored puyo touching no puyo of its color, at every searched board (experimental)
+    i32 isolated_eval = 0; // With virtual_colors 1: random queues averaged into each of the VIRTUAL_COUNT slots
     const normal_scoring::Entry* normal = nullptr;
     bool rebuild = false; // Observed opening completed; enables root recovery evaluation.
     size_t width = 250;
@@ -43,13 +76,10 @@ struct Configs
     i32 patience = 0;
     i32 patience_step = 3;
     rule::Rule rules = rule::FEVER;
-    // Fever-only shape weight (key "hill" of the fever weight set). The shared terms only see single
-    // columns lower (well) or higher (bump) than both their neighbours.
-    // hill: eval points per row by which a column stands above the lowest column on its left and the
-    //       lowest on its right, whichever of the two is higher. Zero for a field that only goes down
-    //       toward one place: a valley (both ends high) or a wedge (one end high). Such a field keeps a way
-    //       open from where the pieces appear to every column.
-    i32 hill = 0;
+    // Experimental normal-board penalty per unit of imbalance or excess height.
+    i32 stack_balance = 0;
+    static constexpr int stack_balance_full_cells = 12;
+    int stack_balance_end_cells = 40;
     // Per occupied cell in columns 2/5, counted on the board after clearing.
     i32 upper_12 = 0;
     i32 upper_13 = 0;
@@ -61,15 +91,6 @@ struct Configs
     i32 stock = 0;
     i32 stock_color = 0;
     i32 stock_want = 7;
-    // Fever-only cost of leveling (keys "level", "level_root", "level_links" and "level_score" of the fever
-    // weight set): a clear of 1 to level_links links scoring under level_score points sends next to nothing
-    // to the opponent and gives it time. level: action points added to every searched position that pops one
-    // (the beam keeps lines that send their clears or keep building). level_root: score points taken from
-    // each virtual queue's chain of a placement that itself pops one (how the placement is ranked).
-    i32 level = 0;
-    i32 level_root = 0;
-    i32 level_links = 2;
-    i32 level_score = 720;
     // Chooses the placement by the best evaluation its deepest positions reach, not by the biggest
     // chain found below it. A build that aims at offsets has no chain score to be ranked by.
     bool aim = false;
@@ -77,6 +98,9 @@ struct Configs
     int pace_frames = 55;
     int elapsed_build_frames = 0;
     int sustained_min_chain = 13;
+    // Percent by which a sustained build may fall short of the rate it expects to reach by building
+    // on and still fire the large chain it has: waiting is not free while the opponent's clock runs.
+    i32 fire_tolerance = 0;
 };
 
 // Parse shared weights without requiring or accepting Tsu's retained row-14 term.
@@ -91,19 +115,6 @@ inline void read_upper_weights(Configs& configs, const json& set)
     configs.upper_12 = 0;
     configs.upper_13 = 0; // User disabled the legacy terms, including launcher snapshots.
 
-}
-
-inline void read_level_weights(Configs& configs, const json& set)
-{
-    configs.level = set.value("level", 0);
-    configs.level_root = std::max(0, set.value("level_root", 0));
-    configs.level_links = std::clamp(set.value("level_links", 2), 1, 4);
-    configs.level_score = std::max(0, set.value("level_score", 720));
-}
-
-inline bool is_leveling(const chain::Score& chain, const Configs& configs)
-{
-    return chain.count >= 1 && chain.count <= configs.level_links && i64(chain.score) < configs.level_score;
 }
 
 // Estimated cycle rate for virtual construction; never a proof that unknown colors fire.
@@ -127,6 +138,21 @@ inline i32 get_hill(const u8 heights[6])
     return result;
 }
 
+// Colored puyos with no orthogonal neighbor of their color
+inline i32 isolated_count(const Field& field)
+{
+    i32 count = 0;
+    for (int c = 0; c < 4; ++c) {
+        const __m128i bits = field.data[c].data;
+        const __m128i near = _mm_srli_si128(bits, 2) | _mm_slli_si128(bits, 2)
+            | _mm_srli_epi16(bits, 1) | _mm_slli_epi16(bits, 1);
+        FieldBit alone;
+        alone.data = _mm_andnot_si128(near, bits);
+        count += i32(alone.get_count());
+    }
+    return count;
+}
+
 // The board's evaluation: the shared one plus what only this rule has.
 void evaluate_normal(beam::node::Data& node, const beam::eval::Weight& w, const Configs& configs, int* near_chain=nullptr);
 
@@ -136,11 +162,7 @@ inline void evaluate(beam::node::Data& node, const beam::eval::Weight& w, const 
     shared.waste_14 = 0;
     if (configs.normal) evaluate_normal(node, shared, configs, near_chain);
     else beam::eval::evaluate(node, shared);
-    if (configs.hill != 0) {
-        u8 heights[6];
-        node.field.get_heights(heights);
-        node.score.eval += get_hill(heights) * configs.hill;
-    }
+    if (configs.isolated_eval) node.score.eval -= isolated_count(node.field) * configs.isolated_eval;
     if (configs.stock != 0 || configs.stock_color != 0) {
         auto stock = stock::evaluate(node.field, configs.stock_want);
         node.score.eval += stock.units * configs.stock + stock.colors * configs.stock_color;
@@ -158,12 +180,24 @@ struct Candidate
     int next_room = 1;
     int held_main = 0; // First-root potential, reusing its ordinary evaluation
     int root_chain = 0;
-    bool leveling = false; // The placement itself pops a leveling clear (Configs::level_root)
+    bool keeps_main = false; // Configs::score_keep_main_clear: a short root clear that leaves the main
+    int isolated = 0; // Configs::isolated_penalty: puyos of the root piece touching no puyo of their color
     i64 throughput = 0;
     bool side_root = false;
     std::vector<i64> projected; // Unpenalized points, one per existing virtual search.
     i64 recovery = 0; // Root-only reconstruction adjustment in score units.
 };
+
+inline bool can_keep_building(const Candidate& candidate)
+{
+    return candidate.root_chain == 0 && candidate.next_room > 0;
+}
+
+// A construction root under Configs::maximize_score: non-clearing, or a short clear that keeps the main
+inline bool builds_main(const Candidate& candidate)
+{
+    return can_keep_building(candidate) || (candidate.keeps_main && candidate.next_room > 0);
+}
 
 // What a placement is worth under Configs::aim once the beam has dropped every position below it:
 // less than any evaluation, and less the sooner it happened

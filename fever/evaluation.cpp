@@ -60,6 +60,21 @@ void evaluate_normal(beam::node::Data& node, const beam::eval::Weight& w, const 
         + beam::eval::get_well(heights)*w.well + beam::eval::get_bump(heights)*w.bump
         + node.field.data[int(cell::Type::GARBAGE)].get_count()*w.nuisance
         + (std::max(int(heights[0]+heights[1]), int(heights[3]+heights[4]+heights[5]))-int(heights[2]))*w.side;
+    if (configs.stack_balance > 0) {
+        const int left = heights[0] + heights[1] + heights[2];
+        const int right = heights[3] + heights[4] + heights[5];
+        const int cells = left + right;
+        const int fade_end = configs.stack_balance_end_cells;
+        if (cells < fade_end) {
+            const int highest = *std::max_element(heights, heights + 6);
+            const int imbalance = std::max(0, std::abs(left - right) - 6);
+            // Allow a column three rows above the mean before charging excess height.
+            const int excess = std::max(0, 6 * highest - cells - 18) / 2;
+            const int fade_cells = fade_end - std::max(cells, Configs::stack_balance_full_cells);
+            node.score.eval -= (imbalance + excess) * configs.stack_balance * fade_cells
+                / (fade_end - Configs::stack_balance_full_cells);
+        }
+    }
     if (w.form > 0) {
         auto garbage = node.field.data[int(cell::Type::GARBAGE)];
         garbage.data &= _mm_set_epi16(0,0,0,0,0xF,0xF,0xF,0xF);

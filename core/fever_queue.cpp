@@ -33,7 +33,7 @@ std::optional<Queue> create_queue(std::string_view id, u64 seed, usize count, u6
     return character ? create_queue(*character, seed, count, start) : std::nullopt;
 }
 
-std::optional<Queue> create_queue_virtual(const dropset::Character& character, i32 id, usize count, u64 start)
+std::optional<Queue> create_queue_virtual(const dropset::Character& character, i32 id, usize count, u64 start, i32 colors)
 {
     // Same bags as beam::get_queue_random
     constexpr u8 bag[VIRTUAL_COUNT][4] = {
@@ -45,13 +45,14 @@ std::optional<Queue> create_queue_virtual(const dropset::Character& character, i
         { 2, 3, 0, 1 }
     };
 
-    if (id < 0 || id >= VIRTUAL_COUNT) return std::nullopt;
+    if (id < 0 || (colors != 1 && id >= VIRTUAL_COUNT)) return std::nullopt;
 
     Queue result;
     result.reserve(count);
 
     usize dealt = 0;
-    auto deal = [&] () { return cell::Type(bag[id][dealt++ % 4]); };
+    auto deal = [&] () { return cell::Type(bag[id % VIRTUAL_COUNT][dealt++ % 4]); };
+    Rng rng{ (u64(id) + 1) * 0xD1B54A32D192ED03ull ^ (start * 0x9E3779B97F4A7C15ull) };
 
     for (usize i = 0; i < count; ++i) {
         const auto drop = dropset::drop_at(character, start + i);
@@ -59,8 +60,13 @@ std::optional<Queue> create_queue_virtual(const dropset::Character& character, i
 
         // BIG's color is chosen on placement, so it takes nothing from the bag.
         // Consecutive bag colors differ, which satisfies QUAD's constraint.
-        const auto a = *drop == dropset::Drop::BIG ? cell::Type::RED : deal();
-        const auto b = *drop == dropset::Drop::BIG ? cell::Type::NONE : deal();
+        auto a = *drop == dropset::Drop::BIG ? cell::Type::RED : deal();
+        auto b = *drop == dropset::Drop::BIG ? cell::Type::NONE : deal();
+        if (colors == 1 && *drop != dropset::Drop::BIG) {
+            a = rng.color();
+            b = *drop == dropset::Drop::QUAD ? rng.color_except(a) : rng.color();
+        }
+        if (colors == 2 && i % 4 == 3 && *drop != dropset::Drop::BIG && *drop != dropset::Drop::QUAD) b = a;
 
         const auto value = make_piece(*drop, a, b);
         if (!value) return std::nullopt;

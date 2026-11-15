@@ -48,14 +48,14 @@ class OperationTests(unittest.TestCase):
         return n >= 0
 
     def program(self, h, piece, x, r):
-        """The game controller's program for a triple placement (fever/control_moves.cpp), or None."""
+        """The game controller's program for a pair or triple placement (fever/control_moves.cpp), or None."""
         out = (C.c_ubyte * 1024)()
         n = self.dll.ama_operation_triple_program((C.c_int * 6)(*h), piece.encode(), x, r, 1, out, len(out))
         return bytes(out[:n]) if n >= 0 else None
 
     def test_random_pair_and_triple_candidates_have_executable_native_routes(self):
-        # Everything the route model takes is offered; a triple it cannot take is offered only with the game
-        # controller's program (spawn-row lifts, fever/normal_space.h), which the bridge then runs.
+        # Everything the route model takes is offered; a goal it cannot take is offered only with the game
+        # controller's program (fever/normal_space.h), which the bridge then runs.
         rng = random.Random(1009)
         for trial in range(64):
             h = [rng.randrange(14 if x not in (2, 3) else 12) for x in range(6)]
@@ -65,7 +65,7 @@ class OperationTests(unittest.TestCase):
                 routed = {(x, r) for x in range(6 if shape == 2 else 5) for r in range(4) if self.route(h, shape, x, r)}
                 self.assertLessEqual(routed, offered, (trial, h, text))
                 for x, r in offered - routed:
-                    self.assertTrue(shape == 3 and self.program(h, text, x, r) is not None, (trial, h, text, x, r))
+                    self.assertIsNotNone(self.program(h, text, x, r), (trial, h, text, x, r))
 
     def test_trial_triple_kick_that_lifts_from_the_spawn_row_is_suspended(self):
         # Offered until 2026-10-14: the turn lifted the axis from the spawn row to the 13th row, the climb
@@ -191,8 +191,9 @@ class OperationTests(unittest.TestCase):
         for h in ((13, 11, 9, 10, 12, 11), (13, 11, 9, 10, 12, 13)):
             answer = self.engine.ask(dict(op='placements', field=self.field(h), piece='2:GY'))
             offered = {(p['x'], p['r']) for p in answer['placements']}
-            self.assertNotIn((0, 'U'), offered)
             self.assertFalse(self.route(h, 2, 0, 0))
+            # The step-by-step route is out; the goal stays only with the game controller's program.
+            self.assertEqual((0, 'U') in offered, self.program(h, '2:GY', 0, 0) is not None)
             if h[5] == 13:
                 self.assertIn((5, 'U'), offered)
                 right = next(p for p in answer['placements'] if (p['x'], p['r']) == (5, 'U'))
@@ -218,7 +219,8 @@ class OperationTests(unittest.TestCase):
         self.assertIsNone(self.path_from(h, (5, -2, 2), (2, 3)))
         self.assertFalse(self.route(h, 2, 2, 3))
         offered = self.engine.ask(dict(op='placements', field=self.field(h), piece='2:YB'))
-        self.assertNotIn((2, 'L'), {(p['x'], p['r']) for p in offered['placements']})
+        self.assertEqual((2, 'L') in {(p['x'], p['r']) for p in offered['placements']},
+                         self.program(h, '2:YB', 2, 3) is not None)
         # Mirror the observed lifted start, independently of the spawn column.
         self.assertIsNone(self.path_from(h[::-1], (0, -2, 2), (3, 1)))
 
@@ -251,6 +253,25 @@ class OperationTests(unittest.TestCase):
                     self.assertIsNotNone(self.program(case['heights'], case['piece'], *case['target']))
             self.assertEqual(self.dll.ama_operation_rotate((C.c_int * 6)(*case['heights'][::-1]),
                 3, 5-x, 0, (3-r)%4, 0, -step, C.byref(out)), -1)
+
+    def test_stopped_triple_goals_return_with_the_program_the_game_ran(self):
+        # The 2026-10-14 cases: the step executor gave up mid push, and the next board showed where the game put
+        # the piece. Each such goal is offered now, and from the spawn pose the program begins with that push.
+        cases = {(11, 13, 8, 10, 12, 13): 'J:BGB', (13, 12, 6, 8, 13, 12): 'J:BYB', (10, 12, 8, 8, 13, 13): 'L:GGR'}
+        for h, text in cases.items():
+            with self.subTest(heights=h):
+                self.assertFalse(self.route(h, 3, 2, 3))
+                answer = self.engine.ask(dict(op='placements', field=self.field(h), piece=text))
+                self.assertIn((2, 'L'), {(p['x'], p['r']) for p in answer['placements']})
+                self.assertIsNotNone(self.program(h, text, 2, 3))
+
+    def test_a_same_color_pair_is_offered_one_label_per_board(self):
+        h = (7, 13, 2, 8, 12, 13)
+        answer = self.engine.ask(dict(op='placements', field=self.field(h), piece='2:BB'))
+        offered = {(p['x'], p['r']) for p in answer['placements']}
+        for x in range(6):
+            self.assertFalse((x, 'U') in offered and (x, 'D') in offered, x)
+            self.assertFalse((x, 'R') in offered and (x + 1, 'L') in offered, x)
 
     def test_triple_ordinary_wall_turn_and_lower_floor_kick_remain(self):
         out = Press()

@@ -28,7 +28,7 @@ using json = nlohmann::json;
 namespace {
 struct Weights {
     i64 entry, gauge, stock, color, drop, consume, mainline, height, early, builder, step, exposed, pending, uncountered, mainline_min;
-    i64 arrival_pieces, fever_reach, harass, all_clear, disrupt, entry_consume;
+    i64 arrival_pieces, fever_reach, harass, all_clear, disrupt, entry_consume, entry_cancel;
     int receive_max=12, receive_high_max=6, receive_height=7;
     explicit Weights(const json& j):
         entry(number(j, "entry", 0, 1000000)), gauge(number(j, "gauge", 0, 1000000)),
@@ -43,7 +43,8 @@ struct Weights {
         harass(j.contains("harass") ? number(j, "harass", 0, 1000000) : 400),
         all_clear(j.contains("all_clear") ? number(j, "all_clear", 0, 1000000) : 5000),
         disrupt(j.contains("disrupt") ? number(j, "disrupt", 0, 1000000) : 3000),
-        entry_consume(j.contains("entry_consume") ? number(j, "entry_consume", 0, 1000000) : 0) {}
+        entry_consume(j.contains("entry_consume") ? number(j, "entry_consume", 0, 1000000) : 0),
+        entry_cancel(j.contains("entry_cancel") ? number(j, "entry_cancel", 0, 1000000) : 0) {}
 };
 struct Node {
     Field field;
@@ -55,8 +56,9 @@ struct Node {
     int main_links_spent = 0;       // links of the main chain fired, popped or buried (priced)
     int main_links_fired = 0;       // of those, the ones a clear took: only these make the main "unready"
     i64 return_points = 0, return_nuisance = 0;
+    i64 cancelled = 0;              // nuisance this line's chains took off what was coming
     int return_frame = 0;
-    bool builder_fire = false;      // the builder's own fire that leaves nothing pending
+    bool builder_fire = false;     // the builder's own fire that leaves nothing pending
     i64 committed_cost = 0;         // a later entry cannot waive resources spent by the first shot
     bool fired_main = false;        // main: attack leaves fewer than max(24, half the starting cells)
     bool crush = false;            // main crush: <=2 links, 24 cells and column heights retained
@@ -303,6 +305,7 @@ public:
                     : pop + settle + falls[i] * fall;
                 advance(n, n.frame + duration - score_offset);
             }
+            n.cancelled += step.cancelled;
             i64 shot_points = 0;
             for (auto p : step.points) shot_points += p;
             // The share of the chain that went to taking something off what was coming did what a main
@@ -514,9 +517,12 @@ public:
         // The board goes into storage with the Fever entry and comes back to build the next one on: every puyo
         // popped past what the entry needed (one link of four a gauge step, the fewest it can take) is gone from it,
         // whatever else the chain offsets. Entering with the fewest is not charged; entering with many is.
+        // What the chain takes off the attack earns against that: past a sufficient return nothing else prices
+        // the rest, and a 10 chain taking 293 was played over a 13 taking 739 for twelve puyos (2026-10-31).
         if (entered) {
             const int steps = std::max(1, (7 - root_gauge + std::max(1, gain) - 1) / std::max(1, gain));
             value -= i64(std::max(0, n.popped - 4 * steps)) * w->entry_consume;
+            value += n.cancelled * w->entry_cancel;
         }
         if (entered) return {true, value + (avoid_own_fever ? -w->entry : enemy_fever ? i64(w->entry * pressure)
             : (n.fired_main || n.builder_fire ? 0 : -w->entry)), n.gauge, sent_here, kills, disrupts, n.cleared && !protected_main, disruption.kind, useful_harass, defense_state, timed_pressure, n.return_points, n.return_frame, sufficient, normal_attack};
@@ -889,12 +895,18 @@ json tactics(Field field, const json& request) {
             const auto& f = firsts[i];
             if (!values[i].alive || !f.step.chain) continue;
             const bool secured = values[i].defense.can_commit();
-            // Do not spend a weak main before the observed Fever attack has
+            // Do not spend a weak chain before the observed Fever attack has
             // arrived: waiting lets its links actually offset and gain gauge.
-            if (search.enemy_fever && f.step.main && f.step.cancelled == 0
+            if (search.enemy_fever && f.step.cancelled == 0
                     && values[i].disrupt < 0.5 && points(i) / rate <= search.seed_reply
                     && root.fixed + root.flying == 0) continue;
             const i64 send = points(i) / rate;
+            // The opponent holds more than this chain sends and nothing has reached us yet: their own chain
+            // takes it all, and a main below the trigger is spent for nothing. Their return is received, and the
+            // resources go on building until the second is large (2026-11-02: a 6 chain, 6190 points, onto 267).
+            if (!search.enemy_fever && f.step.cancelled == 0 && values[i].disrupt < 0.5
+                    && points(i) < main_points && send <= search.root_sent
+                    && root.fixed + root.flying == 0) continue;
             if (send >= incoming && secured) {
                 if (search.enemy_fever && !search.avoid_own_fever && root.gauge < 7 && f.node.gauge >= 7 && f.step.side)
                     entry_returns.push_back(i);

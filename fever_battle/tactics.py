@@ -25,20 +25,22 @@ def popped(choice):
     return sum(sum(link['groups']) for link in choice['links'])
 
 
-def least_entry(result):
-    """The choice, or when it enters Fever the entering candidate that pops the fewest puyos.
+def least_entry(result, consume=1, cancel=0):
+    """The choice, or when it enters Fever the entering candidate that spends the least for what it offsets.
 
     The board goes into storage with the entry and is what the next entry is built on: of the moves that surely
-    enter and survive, the one that spends the least of it is played, however the values of the search rank the
-    rest (a 2-chain of 10 puyos was played where one four-puyo link entered, 2026-10-25). It costs no search:
-    the candidates are already evaluated. A choice that does not enter Fever is left alone."""
+    enter and survive, the one with the lowest puyos popped (`consume` each) less nuisance taken off the attack
+    (`cancel` each) is played, however the values of the search rank the rest (a 2-chain of 10 puyos was played
+    where one four-puyo link entered, 2026-10-25; a 10 chain taking 293 where a 13 took 739, 2026-10-31). It costs
+    no search: the candidates are already evaluated. A choice that does not enter Fever is left alone."""
     choice = result['choice']
     if not choice.get('enters_fever') or choice.get('all_clear'):
         return choice               # clearing the board whole earns a seed of its own (2026-10-08): not a waste
     entering = [c for c in result.get('candidates', []) if c.get('enters_fever') and c['survives']
                 and c.get('current_survives', c['survives'])]
-    best = min(entering, key=lambda c: (popped(c), -c['value']), default=choice)
-    return best if popped(best) < popped(choice) else choice
+    spent = lambda c: popped(c)*consume - c.get('cancelled', 0)*cancel
+    best = min(entering, key=lambda c: (spent(c), -c['value']), default=choice)
+    return best if spent(best) < spent(choice) else choice
 
 
 def ready_main(result, builder, builder_fire):
@@ -56,6 +58,70 @@ def ready_main(result, builder, builder_fire):
         and c.get('current_exchange_pending') == 0), None)
 
 
+def undisturbed_build(result, choice, builder):
+    """Whether the builder's placement stands although an opponent's chain is being read.
+
+    A chain that only offsets the opponent's own tray lands nothing here. The visible search sees three pieces and
+    counts covering a trigger as links lost, so it has no reason of its own to move a build that sees further: a second
+    held at 9 links went on being kept there, ending in a 10 chain against the 14 of the same pieces unattacked
+    (ciel, 2026-10-31). Whatever the search means to send stays with the search."""
+    if builder is None or (choice['x'], choice['r']) == tuple(builder):
+        return False
+    if (choice['dropped'] or choice['cancelled'] or choice['projected_all_clear'] or choice.get('disruption_kind', 'none') != 'none'
+            or choice.get('projected_normal_attack', {}).get('pressure') or choice.get('projected_normal_attack', {}).get('finish')):
+        return False
+    placed = next((c for c in result['candidates'] if (c['x'], c['r']) == tuple(builder)), None)
+    return bool(placed and not placed['chain'] and not placed['dropped'] and placed['survives']
+                and placed.get('current_survives', placed['survives']) and placed.get('can_receive')
+                and placed.get('current_exchange_pending') == 0)
+
+
+def preserve_second_build(result, choice, builder, builder_at_target, pressure_style):
+    if (builder is None or tuple(builder) == (choice['x'], choice['r'])
+            or result.get('held_main_for_counter') or choice.get('defensive_fire')
+            or choice['cancelled'] or choice['dropped'] or choice['projected_all_clear']):
+        return False
+    attack = choice.get('projected_normal_attack') or {}
+    if attack.get('pressure') or attack.get('finish'):
+        return False
+    disruption = choice.get('disruption_kind', 'none')
+    side_clear = choice['chain'] and choice.get('attack_kind') == 'side'
+    replace_disruption = side_clear and (not pressure_style or
+                                         (builder_at_target and choice.get('main_links_lost', 0) > 0))
+    if disruption != 'none' and not replace_disruption:
+        return False
+    return any((c['x'], c['r']) == tuple(builder) and c['survives'] and c['current_survives']
+               and not c['dropped'] and not c['current_exchange_pending']
+               for c in result['candidates'])
+
+
+def early_clear(result, choice, own, enemy_events):
+    """The safe placement that pops nothing and takes no drop, where the choice is a clear that need not be made.
+
+    A pop that is not needed spends puyos that stack up the main chain and the offsets that enter Fever.
+    Two clears are not needed: one that offsets nothing before the opponent's chain has landed (the search
+    credits it with the offsets of the pieces after it, which are there to be made once the nuisance is; the
+    clears of 2026-11-02 against a chain in Fever), and one that offsets while a placement that pops nothing
+    lets no nuisance fall (what is pending is in flight or not yet due): the puyos are worth more stacked, and
+    the offset can be made when the nuisance falls. A clear that sends for a reason, returns, enters Fever or
+    clears the board stays. A stack that loses more of the main than the clear is no saving: the clear stays
+    (a one-link offset kept a 12 chain where the stack in its place left 5). None when there is nothing to put
+    in its place that survives."""
+    attack = choice.get('projected_normal_attack') or {}
+    if (not choice['chain'] or choice['dropped'] or choice.get('attack_kind') == 'main'
+            or choice.get('enters_fever') or choice['all_clear'] or choice['projected_all_clear']
+            or choice.get('projected_sufficient_return') or choice.get('disruption_kind', 'none') != 'none'
+            or attack.get('pressure') or attack.get('finish')):
+        return None
+    if not (own['confirmed'] + own['unconfirmed'] > 0
+            or any(e['type'] == 'link' and e.get('points', 0) > 0 for e in enemy_events or [])):
+        return None
+    lost = choice.get('main_links_lost', 0)
+    stacks = [c for c in result['candidates'] if not c['chain'] and not c['dropped'] and c['survives']
+              and c.get('current_survives', c['survives']) and c.get('main_links_lost', 0) <= lost]
+    return max(stacks, key=lambda c: c['value'], default=None)
+
+
 def kind(choice):
     if choice['chain']:
         return 'offset' if choice['cancelled'] else 'clear'
@@ -71,7 +137,7 @@ class Decision:
 
 def evaluate(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=None, margin=None,
            allowed=None, builder=None, defense=None, upcoming='', harass=False, pace=None, quiet=False, fever=None, enemy_hold=None,
-           invite_fever=False, avoid_own_fever=False, builder_fire=False):
+           invite_fever=False, avoid_own_fever=False, builder_fire=False, protect_second=False, builder_at_target=False):
     """Keep a builder decision distinct from an unavailable tactical search."""
     opponent, margin = enemy or {}, margin or {}
     # Generic normal harassment must not bypass the Fever turnover window.
@@ -126,7 +192,13 @@ def evaluate(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=
         return Decision('unavailable')
     pressure_style=strategy_profile({'normal_tactics':{'strategy':policy.get('strategy','mainline')}})['pressure_style']
     main = ready_main(result,builder,builder_fire) if pressure_style else None
-    result['choice'] = choice = main or least_entry(result)
+    result['choice'] = choice = main or least_entry(result, policy['weights'].get('entry_consume', 1), policy['weights'].get('entry_cancel', 0))
+    early = early_clear(result, choice, own, enemy_events) if not quiet else None
+    if early is not None:
+        result['early_clear_replaced'] = dict(x=choice['x'], r=choice['r'], chain=choice['chain'], value=choice['value'])
+        result['choice'] = choice = early
+    if protect_second and preserve_second_build(result, choice, builder, builder_at_target, pressure_style):
+        return Decision('build', forecast=result)
     reason = KINDS[kind(choice)]
     if quiet:
         # Nothing threatens: the builder places this piece unless the search sends something
@@ -159,6 +231,8 @@ def evaluate(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=
             return Decision('build', forecast=result)
     elif choice.get('projected_normal_attack', {}).get('pressure', False):
         reason = 'tactics_pressure'
+    elif undisturbed_build(result, choice, builder):
+        return Decision('build', forecast=result)
     points = choice['link_points']
     reply = dict(x=choice['x'], r=choice['r'], shape=own['queue'][0][0], reason=reason,
         decision_kind=kind(choice), fire=bool(points), chain=choice['chain'], next_chain=choice['chain'],
