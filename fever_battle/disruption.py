@@ -3,6 +3,8 @@
 Pressure surviving a next-seed return has no turnover deadline.
 No score/chain search runs here.
 """
+from .chain_to_us import LAUNCH_FRAMES
+from .timing import ChainTiming, fever_turnover_check_delay
 
 
 def coming(request):
@@ -24,8 +26,44 @@ def score_rebuild_safe(request, own):
             and sum(cell in 'RYGB' for row in enemy.get('field', ()) for cell in row) < 52)
 
 
+def jab_hold(request, reply, placement, their_end, level, margin, fall_config):
+    """Time the last link so it survives the opponent's running chain."""
+    timing = ChainTiming.for_mode('normal')
+    split = timing.split_extra_frames[max(placement['split_distances'], default=0)]
+    points = reply['link_points']
+    trajectory = timing.timeline(points, placement['fall_distances'], placement.get('fall_features'),
+                                 start_offset=split + timing.first_link_frames)
+    last_launch = trajectory['links'][-1]['score_at_min'] + LAUNCH_FRAMES['normal']
+    frame = request['frame']
+    target = their_end + margin
+    hold_until = target - last_launch
+    check_delay = fever_turnover_check_delay(level)
+    deadline = their_end + check_delay
+    rows = max(0, fall_config['spawn_height'] - placement['contact_height'])
+    # Steering can happen during the hold. Budget a full soft drop from spawn on release.
+    duration = trajectory['end_frame_max'] + 2 * rows + fall_config['fast_lock_frames']
+    room = int(rows * fall_config['fall_frames_per_row'] + fall_config['lock_limit_frames']
+               - fall_config['safety_frames'])
+    if not (0 < hold_until - frame <= room and hold_until + duration < deadline):
+        return None
+    return dict(hold_frames=hold_until - frame, hold_down_until_frame=hold_until,
+                jab_hold=dict(enemy_end_frame=their_end, target_launch_frame=target,
+                              end_frame=hold_until + duration, deadline_frame=deadline,
+                              check_delay=check_delay, duration=duration,
+                              late_nuisance=points[-1] // request['target_point']))
+
+
 def contract(request, reply, target):
     enemy = request['enemy']
+    if 'jab_hold' in reply:
+        shot = reply['jab_hold']
+        chain = request['enemy_chain']
+        return dict(kind='jab_hold', target_frame=shot['target_launch_frame'],
+                    deadline_frame=shot['deadline_frame'], duration=shot['duration'],
+                    check_delay=shot['check_delay'], hold_until_frame=reply['hold_down_until_frame'],
+                    enemy_generation=enemy['mode_generation'], enemy_seed=enemy['seed_id'],
+                    enemy_start=chain.get('start_frame', request['frame'] - chain['elapsed']),
+                    entering=False, next_seed=True)
     if reply.get('reason') == 'normal_lethal_followup':
         return dict(kind='buried_followup', enemy_generation=enemy['mode_generation'],
             enemy_field=enemy['field'], gauge_limit=reply['followup_forecast']['gauge_limit'],
@@ -128,5 +166,15 @@ def valid(reply, latest):
         return False
     if enemy['seed_id'] not in (guard['enemy_seed'], guard['enemy_seed'] + int(guard['next_seed'] or guard['entering'])):
         return False
+    if guard['kind'] == 'jab_hold':
+        chain = latest.get('enemy_chain')
+        if not enemy['remaining_frames'] or coming(latest) or (chain and (enemy['seed_id'] != guard['enemy_seed'] or
+                chain.get('start_frame', latest['frame'] - chain['elapsed']) != guard['enemy_start'])):
+            return False
+        deadline = guard['deadline_frame']
+        observed_end = enemy.get('fever_chain_end_frame') if not chain else None
+        if observed_end is not None and observed_end >= guard['enemy_start']:
+            deadline = min(deadline, observed_end + guard['check_delay'])
+        return max(latest['frame'], guard['hold_until_frame']) + guard['duration'] < deadline
     finish = latest['frame'] + guard['duration']
     return guard['target_frame'] <= finish <= guard['deadline_frame']

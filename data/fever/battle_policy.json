@@ -77,6 +77,9 @@
       "lock_limit_frames": 32,
       "safety_frames": 30
     },
+    "jab_hold": {
+      "enemy_end_margin_frames": 30
+    },
     "second_time_pressure": {
       "enabled": true,
       "fire_tolerance": 25,

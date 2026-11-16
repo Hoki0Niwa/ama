@@ -762,7 +762,8 @@ class ModeBattleEngine(BattleEngine):
         choice = forecast.get('choice', {})
         if not disruption.valid(reply, request):
             return False
-        if reply.get('disruption_timing') and choice.get('disruption_kind') == 'jab':
+        if (reply.get('disruption_timing') and not reply.get('jab_hold')
+                and choice.get('disruption_kind') == 'jab'):
             target = self._enemy_fever(enemy, self._enemy_events(request, enemy), request['target_point']) or {}
             end = target.get('their_end')
             if end is None or not end <= choice['attack_end'] <= end + target.get('disrupt_window', 26):
@@ -1093,6 +1094,11 @@ class ModeBattleEngine(BattleEngine):
         placement = dict(x=reply['x'], r=reply['r'])
         if 'color' in reply:
             placement['color'] = reply['color']
+        piece = future['queue'][0]
+        if (piece[0] in 'LJ' and len(set(piece[2:])) == 1 and
+                (reply.get('disruption_timing') or reply.get('offset_timing')
+                 or reply.get('hold_down_until_frame') is not None or reply.get('finish_proof'))):
+            placement['rotation_fixed'] = True
         active = ('confirmed',) if future['mode'] == 'fever' else ('confirmed', 'unconfirmed')
         plan = dict(match_id=request['match_id'], mode=future['mode'],
             character=future['character'], field=future['field'], queue=future['queue'],
@@ -1115,8 +1121,12 @@ class ModeBattleEngine(BattleEngine):
             self.prepare_ms[own['mode']] = (time.monotonic()-started)*1000
         elif own['mode'] in self.prepare_ms:
             self.prepare_ms[own['mode']] *= 0.95      # a quick one says nothing of the full width: let the memory fade
+        # The bridge's pre-input plan can press DOWN before it reads the held reply at spawn.
+        if reply.get('jab_hold'):
+            plan = None
         if speculative:
-            plan['speculative'] = True
+            if plan is not None:
+                plan['speculative'] = True
             return dict(prepared=True, speculative=True, normal_build_prepared=self.normal_build_used,
                 seed_search_prepared=kept and future['mode'] == 'fever',
                 normal_search_prepared=kept and future['mode'] == 'normal',
@@ -1655,6 +1665,36 @@ class ModeBattleEngine(BattleEngine):
             if all(not losing for _, losing in outcomes(own['stored_field'], count)):
                 return count
         return 0
+
+    def _jab_hold(self, request, own, enemy, reply, rate, events):
+        choice = reply.get('tactics_forecast', {}).get('choice', {})
+        chain = request.get('enemy_chain')
+        if (not reply.get('fire') or not reply.get('link_points')
+                or choice.get('disruption_kind') != 'jab' or choice.get('defensive_fire')
+                or reply.get('reason') in ('tactics_offset', 'tactics_all_clear')
+                or reply.get('next_all_clear') or reply.get('selected_move_loses')
+                or enemy['mode'] != 'fever' or enemy['remaining_frames'] <= 0
+                or not chain or chain.get('ended') or disruption.coming(request)):
+            return
+        placement = next((p for p in self.normal_placements or []
+                          if (p['x'], p['r']) == (reply['x'], reply['r'])), None)
+        if placement is None or any(self._delivered_until(request, own, enemy, 10**9)):
+            return
+        target = self._enemy_fever(enemy, events, rate) or {}
+        end = target.get('their_end')
+        if end is None:
+            return
+        # Keep the frozen analysis for search and delivery. Only the hold also uses the newest link anchor.
+        try:
+            latest_events = self._live_enemy_events(request, enemy)
+        except ValueError:
+            return  # The new link observation cannot be reconciled with the predicted chain.
+        latest_end = next((e['frame'] for e in latest_events if e['type'] == 'end'), end)
+        build = self.policy['normal_build']
+        waited = disruption.jab_hold(request, reply, placement, request['frame'] + max(end, latest_end),
+            target['enemy_seed_level'], build['jab_hold']['enemy_end_margin_frames'], build['entry_fire'])
+        if waited:
+            reply.update(waited)
 
     def _normal(self, request, own, enemy, rate):
         options = self._normal_options(request, own)
@@ -2389,6 +2429,7 @@ class ModeBattleEngine(BattleEngine):
                 reply = entry
             if self.entry_fire.status is not None and not self.lethal_pending and enemy['mode'] == 'normal':
                 reply['entry_fire_status'] = self.entry_fire.status
+            self._jab_hold(request, own, enemy, reply, rate, events)
             waited = None if self.lethal_pending or op != 'think' or entry is not None else self.gauge_wait.choose(
                 request, own, enemy, reply, self._final_seed_config(request, 'gauge_wait'), rate,
                 flights_to_us(events, enemy, rate), pace=self.pace, placements=getattr(self, 'normal_placements', None),

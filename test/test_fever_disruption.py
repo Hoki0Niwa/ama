@@ -8,7 +8,8 @@ from unittest.mock import patch
 ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT),str(ROOT/'test')]
 from fever_fixtures import NATIVE,SOLO,side,request,seed3,seed_with_small_green
-from fever_battle.mode_engine import ModeBattleEngine,authorize_mode_reply,identity
+from fever_battle.mode import ModeReferee
+from fever_battle.mode_engine import ModeBattleEngine,authorize_mode_reply,identity,preview_prepared
 from fever_battle import tactics,disruption
 
 
@@ -125,6 +126,67 @@ class DisruptionTests(unittest.TestCase):
             self.assertIsNone(disruption.contract(req,reply,dict(their_end=0,disrupt_window=26)))
             latest=deepcopy(req);latest['enemy']['seed_id']+=1
             self.assertTrue(authorize_mode_reply(req,reply,latest))
+
+    def test_recorded_jab_waits_for_the_last_counter_at_both_rates(self):
+        saved = json.loads((ROOT/'data/fever/golden/fever-jab-turnover.json').read_text())
+        req, source = saved['request'], saved['source']
+        prepared = self.engine.answer(dict(req, op='prepare_observed'))
+        self.assertTrue(prepared['prepared'])
+        self.assertIsNone(prepared.get('plan'))  # A pre-spawn DOWN would bypass the hold.
+        latest = self.engine._advanced(req, 5)
+        reply = preview_prepared(prepared['prepared_state'], latest)
+        self.assertEqual((reply['x'], reply['r'], reply['chain']), (1, 'R', 3))
+        self.assertEqual(reply['hold_down_until_frame'], 16001)
+        self.assertTrue(authorize_mode_reply(latest, reply, latest))
+        self.assertFalse(disruption.valid(reply, self.engine._advanced(req, 70)))
+        incoming = deepcopy(latest)
+        incoming['observation']['in_flight']['self']['incoming_in_flight'] = 1
+        self.assertFalse(disruption.valid(reply, incoming))
+        shot = reply['jab_hold']
+        self.assertGreater(shot['target_launch_frame'], source['enemy_end_frame'])
+        self.assertLess(shot['end_frame'], shot['deadline_frame'])
+
+        # Run the final-link exchange with a counter that absorbs the recorded early shot.
+        # Earlier links contribute zero to this check. The next seed plays a nonclear.
+        enemy_score = 14760  # The last link from the recorded trigger field.
+        enemy_end = source['enemy_end_frame']
+        final_field = ['......'] * 13 + ['R.....']
+
+        def dropped(launch, rate):
+            ref = ModeReferee(['rulue', 'paprisu'], rate)
+            ref.players[1].gauge = 7
+            ref.apply(dict(type='enter', player=1, frame=0, order=0, clock_running=False))
+            ref.apply(dict(type='incoming', player=1, frame=1, order=1, destination='normal',
+                           count=enemy_score // rate, confirmed=True, chain='held'))
+            ref.apply(dict(type='seed', player=1, frame=2, order=2, seed_id=1, seed_chain=5, field=seed3()))
+            result = dict(field=final_field, links=[dict(groups=[4], colors=1)])
+            events = [
+                dict(type='place', player=0, frame=15943, chain='jab', result=result),
+                dict(type='place', player=1, frame=15943, chain='seed', result=result),
+                dict(type='link', player=1, frame=enemy_end-43, chain='seed', link=1, points=enemy_score),
+                dict(type='link', player=0, frame=launch-24, chain='jab', link=1, points=reply['link_points'][-1]),
+                dict(type='arrive', player=0, frame=launch+24, chain='jab', link=1),
+                dict(type='arrive', player=1, frame=enemy_end, chain='seed', link=1),
+                dict(type='end', player=1, frame=enemy_end, chain='seed'),
+                dict(type='end', player=0, frame=launch+31, chain='jab'),
+                dict(type='seed', player=1, frame=enemy_end+70, seed_id=2, seed_chain=3, field=seed3()),
+                dict(type='place', player=1, frame=enemy_end+95, result=dict(field=seed3(), links=[])),
+            ]
+            for order, event in enumerate(sorted(events, key=lambda event: event['frame'])):
+                effect = ref.apply(dict(event, order=order))
+            return effect['dropped']
+
+        self.assertEqual(dropped(source['own_end_frame'] - 31, req['target_point']), 0)
+        self.assertEqual(dropped(shot['target_launch_frame'], req['target_point']), 30)
+
+        small_req = dict(req, match_id='fever-small-jab-turnover', target_point=100)
+        small = self.engine.answer(small_req)
+        choice = small['tactics_forecast']['choice']
+        self.assertEqual((choice['disruption_kind'], choice['sent']), ('jab', 15))
+        self.assertEqual(small.get('hold_down_until_frame'), reply['hold_down_until_frame'])
+        self.assertEqual(small['jab_hold']['target_launch_frame'], shot['target_launch_frame'])
+        self.assertEqual(dropped(source['own_end_frame'] - 31, small_req['target_point']), 0)
+        self.assertEqual(dropped(small['jab_hold']['target_launch_frame'], small_req['target_point']), 9)
 
     def test_real_prepare_reuses_valid_jab_and_rejects_expired_one_without_rebuilding(self):
         for elapsed,reuse in ((10,True),(80,False)):

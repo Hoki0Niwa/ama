@@ -15,6 +15,14 @@ def set_normal_check_margin(frames):
     _NORMAL_CHECK_MARGIN = integer(frames, 'nuisance_check_margin', 0, 200)
 
 
+def fever_turnover_check_delay(level):
+    """Earliest modeled nuisance check on the next seed, omitting field wait and input time."""
+    timing = json.loads((Path(__file__).resolve().parents[1] / 'data/fever/timing.json').read_text(encoding='utf-8'))
+    transition = timing['transition_structure']
+    motion = transition['fever_seed_motion_min_by_level'][str(level)]
+    return motion + transition['control_tail_frames'] + timing['deadline_boundaries']['fever_nonclear_lock_to_nuisance_check_frames']
+
+
 @dataclass(frozen=True)
 class ChainTiming:
     pop_frames: int = 55
