@@ -31,11 +31,12 @@ def validate(overrides):
         if section not in overrides:
             continue
         cfg = overrides[section]
-        if not isinstance(cfg, dict) or set(cfg) - defaults.keys():
+        allowed = defaults.keys() | ({'normal_wait'} if section == 'counter_read' else set())
+        if not isinstance(cfg, dict) or set(cfg) - allowed:
             raise ValueError(f'normal_tactics.{section} must be an object with known keys')
         for key, value in cfg.items():
             name = f'normal_tactics.{section}.{key}'
-            if type(defaults[key]) is bool:
+            if key == 'normal_wait' or type(defaults[key]) is bool:
                 if type(value) is not bool:
                     raise ValueError(f'{name} must be a boolean')
             elif key == 'min_heights':

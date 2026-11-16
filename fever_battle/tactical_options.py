@@ -25,9 +25,9 @@ def validate(request):
     if not isinstance(value, dict):
         raise ValueError('normal_tactics must be an object')
     strategy.name(request)
-    object_keys(value, {'strategy', 'invite_fever', 'avoid_own_fever', 'harass', 'weights', 'window_build', 'gauge_wait', *normal_pressure_options.DEFAULTS} | LIMITS.keys(), 'normal_tactics')
+    object_keys(value, {'strategy', 'invite_fever', 'avoid_own_fever', 'harass', 'weights', 'window_build', 'gauge_wait', 'diagnostics', *normal_pressure_options.DEFAULTS} | LIMITS.keys(), 'normal_tactics')
     normal_pressure_options.validate(value)
-    for key in ('invite_fever', 'avoid_own_fever', 'harass', 'gauge_wait'):
+    for key in ('invite_fever', 'avoid_own_fever', 'harass', 'gauge_wait', 'diagnostics'):
         if key in value and type(value[key]) is not bool:
             raise ValueError(f'normal_tactics.{key} must be a boolean')
     for key, bounds in LIMITS.items():
@@ -105,19 +105,28 @@ def harass_enabled(policy, own, enemy, quiet, second, finish, fever):
     return bool(policy['harass'] and enemy['mode'] != 'fever' and (quiet and second and finish or eligible))
 
 
-def report(policy, reply, evaluated):
+def report(policy, reply, evaluated, diagnostic=None):
     choice = reply.get('tactics_forecast', {}).get('choice', {})
     effective = {k: deepcopy(policy[k]) for k in (
         'invite_fever', 'avoid_own_fever', 'harass', *LIMITS, 'window_build', *normal_pressure_options.DEFAULTS)}
     effective['weights'] = {k: policy['weights'][k] for k in WEIGHTS if k in policy['weights']}
-    return dict(selected=reply['reason'], evaluated_switches=evaluated,
+    result = dict(selected=reply['reason'], evaluated_switches=evaluated,
                 disruption_kind=choice.get('disruption_kind', 'none'), effective=effective,
                 normal_attack=deepcopy(choice.get('normal_attack') if choice.get('chain')
                     else choice.get('projected_normal_attack')))
+    if policy.get('diagnostics', False):
+        from .normal_diagnostics import summarize
+        result['diagnostics'] = summarize(diagnostic, reply)
+    return result
+
+
+def behavioral(request):
+    """The tactics request without the reporting-only keys (diagnostics changes no decision)."""
+    return {k: v for k, v in request.get('normal_tactics', {}).items() if k != 'diagnostics'}
 
 
 def has_overrides(request):
-    value = request.get("normal_tactics", {})
+    value = behavioral(request)
     return bool({k: v for k, v in value.items() if k != "strategy"} or strategy.uses_pressure(request))
 
 

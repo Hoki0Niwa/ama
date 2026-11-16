@@ -22,6 +22,11 @@ NormalPressure::NormalPressure(const json& request, const RateSchedule& schedule
     timing = request.at("timing");
     available = enemy.value("available", false);
     if (!available) return;
+    if (options.at("counter_read").value("normal_wait",false) && enemy.contains("ready_in_min")) {
+        ready_min = number(enemy,"ready_in_min",0,120);
+        ready_max = number(enemy,"ready_in_max",ready_min,120);
+        bounded_ready = true;
+    }
     powers = enemy.at("powers").get<std::vector<int>>();
     if (powers.size() != 19) throw std::invalid_argument("normal pressure needs 19 enemy powers");
     for (const auto& text : enemy.at("queue")) {
@@ -35,6 +40,7 @@ NormalPressure::NormalPressure(const json& request, const RateSchedule& schedule
     auto field = fever::text::to_field(enemy.at("field").get<std::vector<std::string>>());
     if (!field) throw std::invalid_argument("invalid normal pressure enemy field");
     replies.push_back({*field});
+    replies.back().ready = ready_min;
     build(0);
     for (const auto& reply : replies) {
         i64 points = 0;
@@ -102,15 +108,16 @@ NormalPressure::json NormalPressure::counter(int deadline, i64 sent) const {
     bool survives = false;
     i64 capacity = 0, full_capacity = 0, defence_1 = 0;
     int counter_cost = 1000000, gauge_gain = 0;
+    for (int delay=0; delay<=ready_max-ready_min; ++delay) {
     std::vector<bool> stopped(replies.size(),false);
     for (size_t i=0;i<replies.size();++i) {
         const auto& reply = replies[i];
         if (reply.parent >= 0) {
             const auto& parent = replies[reply.parent];
-            stopped[i] = stopped[reply.parent] || (parent.depth > 0 && !parent.cleared && parent.lock >= deadline);
+            stopped[i] = stopped[reply.parent] || (parent.depth > 0 && !parent.cleared && parent.lock + delay >= deadline);
         }
         if (stopped[i]) continue;
-        const bool dropped = reply.depth > 0 && !reply.cleared && reply.lock >= deadline;
+        const bool dropped = reply.depth > 0 && !reply.cleared && reply.lock + delay >= deadline;
         if (!dropped && (reply.depth >= depth || reply.depth >= int(pieces.size())))
             complete = false; // A further piece could be played, but its color is unobserved/unsearched.
         i64 rest = enemy.value("remainder",i64(0)), by_deadline = 0, full = 0;
@@ -120,7 +127,7 @@ NormalPressure::json NormalPressure::counter(int deadline, i64 sent) const {
         i64 base_pending = enemy.value("pending",i64(0));
         for (const auto& link : reply.links) {
             const i64 total = rest + link.points;
-            const int rate = rates.at(link.frame,true);
+            const int rate = rates.at(link.frame + delay,true);
             i64 amount = total / rate; rest = total % rate;
             const i64 base_amount = base_pending ? std::max<i64>(1,amount) : amount;
             if (base_pending && base_amount > 0) base_gauge = std::min(7,base_gauge + enemy.value("gain",1));
@@ -130,7 +137,7 @@ NormalPressure::json NormalPressure::counter(int deadline, i64 sent) const {
             if (pending && amount > 0) gauge = std::min(7,gauge + enemy.value("gain",1));
             pending -= std::min(pending,amount);
             full += amount; cells += link.cells;
-            if (link.frame <= deadline) {
+            if (link.frame + delay <= deadline) {
                 by_deadline += amount;
                 if (by_deadline >= sent) counter_cost = std::min(counter_cost,cells);
             }
@@ -146,7 +153,8 @@ NormalPressure::json NormalPressure::counter(int deadline, i64 sent) const {
     }
     for (const auto index : unread) {
         const auto& node = replies[index];
-        if (!stopped[index] && !(node.depth > 0 && !node.cleared && node.lock >= deadline)) complete = false;
+        if (!stopped[index] && !(node.depth > 0 && !node.cleared && node.lock + delay >= deadline)) complete = false;
+    }
     }
     json result = {{"available",available},{"complete",complete},{"cutoff",cutoff},
         {"expanded",expanded},{"deadline",deadline},{"defence_1",defence_1},{"defence_2",capacity},
@@ -154,6 +162,8 @@ NormalPressure::json NormalPressure::counter(int deadline, i64 sent) const {
         {"gauge_gain",gauge_gain},{"entry_possible",entry || (!complete && enemy.value("gain",1) > 0)},
         {"remaining",complete ? std::max<i64>(0,sent-full_capacity) : 0},
         {"finish",complete && !entry && !survives}};
+    if (bounded_ready) result["readiness"] = {{"min",ready_min},{"max",ready_max},
+        {"evaluated_starts",ready_max-ready_min+1},{"policy","optimistic_defender_over_interval"}};
     // The search contains optimistic counter paths; these are estimates, not enemy policy predictions.
     if (cache.size() < 4096) cache[key] = result;
     return result;
@@ -163,7 +173,48 @@ NormalPressure::json NormalPressure::rate(Field remaining, int max_chain, int re
                                          int attacks, int consumed, bool quiet, i64 own_points, int own_frame, int remaining_chain) const {
     json result = {{"kind","none"},{"score",0},{"pressure",false},{"finish",false},
         {"main_loss_links",main_loss},{"consumed_cells",consumed},{"attacks",attacks}};
+    // record: write the derived limits into the reply (the decision path only; the diagnostic must not change it)
+    const auto resource_blocks = [&](bool record) {
+        const auto& cfg = options.at("pressure");
+        int colors = remaining.get_count() - remaining.data[static_cast<int>(cell::Type::GARBAGE)].get_count();
+        u8 heights[6]; remaining.get_heights(heights);
+        auto blocks = json::array();
+        const int keep=cfg.value("min_remaining_chain",0);
+        const int reserve_step=cfg.value("chain_reserve_step",0);
+        if (keep>0) {
+            if (remaining_chain<0) remaining_chain=fever::stock::evaluate(remaining,1).near_longest;
+            if (record) result["remaining_main_chain"]=remaining_chain;
+            if (remaining_chain<keep) blocks.push_back("min_remaining_chain");
+        }
+        const int allowed_chain=reserve_step>0
+            ? std::min(cfg.at("max_chain").get<int>(),1+std::max(0,colors-4*keep)/reserve_step)
+            : cfg.at("max_chain").get<int>();
+        if (record) result["allowed_chain"]=allowed_chain;
+        if (max_chain>allowed_chain && max_chain<=cfg.at("max_chain").get<int>())
+            blocks.push_back("chain_reserve");
+        if (!quiet && !allows_pending()) blocks.push_back("pending");
+        if (colors < cfg.at("min_remaining").get<int>()) blocks.push_back("min_remaining");
+        bool heights_ok = true;
+        for(int x=0;x<6;++x) heights_ok &= heights[x] >= cfg.at("min_heights")[x].get<int>();
+        if (!heights_ok) blocks.push_back("min_heights");
+        if (redundancy > cfg.at("max_redundancy").get<int>()) blocks.push_back("max_redundancy");
+        if (max_chain > cfg.at("max_chain").get<int>()) blocks.push_back("max_chain");
+        if (sent < cfg.at("min_send").get<int>()) blocks.push_back("min_send");
+        if (sent > cfg.at("max_send").get<int>()) blocks.push_back("max_send");
+        if (main_loss > (protected_main ? 0 : cfg.value("max_main_loss",84))) blocks.push_back("max_main_loss");
+        if (record) result["protected_main"]=protected_main;
+        const int cap = cfg.value("max_attacks",0);
+        if (cap && attacks + cfg.value("attacks_used",0) > cap) blocks.push_back("max_attacks");
+        return blocks;
+    };
     const auto block = [&](const std::string& reason) { result["blocked"]=reason; result["blocked_conditions"]=json::array({reason}); };
+    if (enabled() && options.value("diagnostics",false)) {
+        const auto blocks = resource_blocks(false);
+        result["diagnostic"] = {{"enemy_available",available},
+            {"pressure_enabled",options.at("pressure").at("enabled")},
+            {"resources_pass",options.at("pressure").at("enabled").get<bool>() && blocks.empty()},
+            {"resource_blocks",blocks}};
+    }
     if (!enabled()) return result;
     if (sent <= 0 || deadline < 0) { block("no_send"); return result; }
     const auto reply = counter(deadline,sent);
@@ -179,35 +230,7 @@ NormalPressure::json NormalPressure::rate(Field remaining, int max_chain, int re
         return result;
     }
     if (!cfg.at("enabled").get<bool>()) return result;
-    int colors = remaining.get_count() - remaining.data[static_cast<int>(cell::Type::GARBAGE)].get_count();
-    u8 heights[6]; remaining.get_heights(heights);
-    auto blocks = json::array();
-    const int keep=cfg.value("min_remaining_chain",0);
-    const int reserve_step=cfg.value("chain_reserve_step",0);
-    if (keep>0) {
-        if (remaining_chain<0) remaining_chain=fever::stock::evaluate(remaining,1).near_longest;
-        result["remaining_main_chain"]=remaining_chain;
-        if (remaining_chain<keep) blocks.push_back("min_remaining_chain");
-    }
-    const int allowed_chain=reserve_step>0
-        ? std::min(cfg.at("max_chain").get<int>(),1+std::max(0,colors-4*keep)/reserve_step)
-        : cfg.at("max_chain").get<int>();
-    result["allowed_chain"]=allowed_chain;
-    if (max_chain>allowed_chain && max_chain<=cfg.at("max_chain").get<int>())
-        blocks.push_back("chain_reserve");
-    if (!quiet && !allows_pending()) blocks.push_back("pending");
-    if (colors < cfg.at("min_remaining").get<int>()) blocks.push_back("min_remaining");
-    bool heights_ok = true;
-    for(int x=0;x<6;++x) heights_ok &= heights[x] >= cfg.at("min_heights")[x].get<int>();
-    if (!heights_ok) blocks.push_back("min_heights");
-    if (redundancy > cfg.at("max_redundancy").get<int>()) blocks.push_back("max_redundancy");
-    if (max_chain > cfg.at("max_chain").get<int>()) blocks.push_back("max_chain");
-    if (sent < cfg.at("min_send").get<int>()) blocks.push_back("min_send");
-    if (sent > cfg.at("max_send").get<int>()) blocks.push_back("max_send");
-    if (main_loss > (protected_main ? 0 : cfg.value("max_main_loss",84))) blocks.push_back("max_main_loss");
-    result["protected_main"]=protected_main;
-    const int cap = cfg.value("max_attacks",0);
-    if (cap && attacks + cfg.value("attacks_used",0) > cap) blocks.push_back("max_attacks");
+    auto blocks = resource_blocks(true);
     if (!blocks.empty()) { result["blocked"]=blocks[0]; result["blocked_conditions"]=blocks; return result; }
     const auto left = reply.at("remaining").get<i64>();
     if (enemy.value("experienced",false) && enemy.value("seed_chain",19) >= cfg.at("block_seed_chain").get<int>() && (!left || reply.at("entry_possible").get<bool>())) {

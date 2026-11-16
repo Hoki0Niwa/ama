@@ -752,7 +752,7 @@ class ModeBattleEngine(BattleEngine):
             gauge_gain_on_offset=request['gauge_gain_on_offset'], clock_policy=request['clock_policy'],
             margin={key: [{**e, 'frame': request['frame'] + e['frame']} for e in self.margin.get(key, [])]
                     for key in ('rate_events', 'enemy_rate_events')},
-            options=options, normal_tactics=request.get('normal_tactics', {}), second_target_chain=request.get('second_target_chain', 'legacy'), side=side,
+            options=options, normal_tactics=tactical_options.behavioral(request), second_target_chain=request.get('second_target_chain', 'legacy'), side=side,
             enemy_prediction=chain, enemy_state=enemy,
             counter_flights=counter_flights(request)), sort_keys=True)
 
@@ -1327,6 +1327,8 @@ class ModeBattleEngine(BattleEngine):
             fever, self._enemy_hold(enemy, events, rate),
             invite_fever=policy['invite_fever'], avoid_own_fever=policy['avoid_own_fever'], builder_fire=builder_fire,
             protect_second=protect_second, builder_at_target=builder_at_target)
+        if policy.get('diagnostics', False):
+            self.last_tactical_diagnostic = dict(status=decision.status, forecast=decision.forecast)
         # A position every placement loses belongs to the finish probe below.
         return decision
 
@@ -2232,6 +2234,7 @@ class ModeBattleEngine(BattleEngine):
         started = time.monotonic()
         self.last_tactical_controls = None
         self.normal_placements = None
+        self.last_tactical_diagnostic = None
         budget = request.get('decision_budget_ms')
         if budget is not None:
             integer(budget, 'decision_budget_ms', 10, 1000)
@@ -2254,6 +2257,15 @@ class ModeBattleEngine(BattleEngine):
             reply.update(decision_identity=identity(request), search_ms=0.0, search_reused=True,
                          searched_visible=seen or 2)
             reply['seed_search_reused' if own['mode'] == 'fever' else 'normal_search_reused'] = True
+            if own['mode'] == 'normal':
+                effective = tactical_options.resolve(self.policy['normal_tactics'], request, own, enemy)
+                cached = reply.get('normal_tactics', {})
+                if effective.get('diagnostics'):
+                    reply['normal_tactics'] = tactical_options.report(effective, reply,
+                        cached.get('evaluated_switches'), dict(status='reused', forecast=None))
+                elif 'diagnostics' in cached:
+                    from .normal_diagnostics import without_diagnostics
+                    reply = without_diagnostics(reply)
             return retime_cached(reply, request)
         if op == 'recover_placement':
             allowed = request.get('reachable_placements')
@@ -2467,7 +2479,7 @@ class ModeBattleEngine(BattleEngine):
             reply['disruption_timing'] = guard
         if own['mode'] == 'normal':
             effective = tactical_options.resolve(self.policy['normal_tactics'], request, own, enemy)
-            reply['normal_tactics'] = tactical_options.report(effective, reply, self.last_tactical_controls)
+            reply['normal_tactics'] = tactical_options.report(effective, reply, self.last_tactical_controls, self.last_tactical_diagnostic)
         if reply['shape'] == '0':
             reply['color'] = 'RYGB'['URDL'.index(reply['r'])]
         return reply

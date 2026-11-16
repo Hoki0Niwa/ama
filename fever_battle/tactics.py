@@ -169,6 +169,10 @@ def evaluate(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=
         request.update(harass=False, finish_buried=False)
         harass = False
         request['normal_pressure'] = {k: policy[k] for k in ('pressure', 'finish', 'counter_read')}
+        if policy.get('diagnostics', False):
+            request['normal_pressure']['diagnostics'] = True
+        from .normal_wait import ready_window
+        wait = ready_window(opponent, enemy_events, fever, policy['counter_read'].get('normal_wait', False))
         rows = opponent['field']
         request['normal_pressure_enemy'] = dict(
             available=opponent.get('mode') == 'normal' and opponent.get('phase') in (('controllable', 'placing') if policy.get('pressure',{}).get('send_weight',0)>0 else ('controllable',))
@@ -180,6 +184,10 @@ def evaluate(native, scoring, own, rate, gain, policy, enemy_events=None, enemy=
             experienced=opponent.get('mode_generation', 0) > 0,
             seed_chain=opponent.get('seed_chain', 19),
             third_height=sum(row[2] != '.' for row in rows))
+        if wait is not None:
+            # No controllable current piece is certified during this wait. Use
+            # only the two visible previews; never consume a third future piece.
+            request['normal_pressure_enemy'].update(available=True, queue=opponent['queue'][:2], **wait)
     if allowed is not None:
         request['allowed'] = allowed
     if builder is not None:
