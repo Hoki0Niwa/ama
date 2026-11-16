@@ -64,6 +64,22 @@ inline u16 pext16(u16 input, u16 mask)
         return pext16_bmi2(input, mask);
     }
 #endif
+#if defined(__GNUC__)
+    // Software path (CPUs without BMI2): drop the cleared bits one at a time, highest first. The loop runs once
+    // per cleared bit, which is none for most columns, instead of once per kept bit. Equal to the bit-by-bit
+    // version for every (input, mask) pair.
+    u16 gone = u16(~mask);
+    input &= mask;
+
+    while (gone != 0) {
+        const u32 bit = 31 - u32(__builtin_clz(u32(gone)));
+        const u16 low = u16((u32(1) << bit) - 1);
+        input = u16((input & low) | ((input >> 1) & ~low));
+        gone &= low;
+    }
+
+    return input;
+#else
     u16 result = 0;
 
     for (u16 bb = 1; mask != 0; bb += bb) {
@@ -75,5 +91,6 @@ inline u16 pext16(u16 input, u16 mask)
     }
 
     return result;
+#endif
 #endif
 };
