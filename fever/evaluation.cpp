@@ -8,12 +8,34 @@ Potential potential(Field field, const beam::eval::Weight& w, const Configs& con
     u8 heights[6]; field.get_heights(heights);
     // Fever reachability is checked with actual Pieces at the root. Do not
     // inherit the Tsu pair-only wall bound in this cheap geometric estimate.
+    // Two shortcuts that skip only trials the loop below would discard anyway (this estimate is most of the
+    // search's time): a color absent next to the key cells, and a trigger that clears with nothing above it.
+    const FieldBit occupied = field.get_mask();
+    // The one-link shortcut assumes nothing pops before the keys land.
+    const bool settled = field.row14 == 0 && field.get_mask_pop().get_mask().is_empty();
     for (int x = 0; x < 6; ++x) {
+        const int keys = std::min(3, 12-int(heights[x]));
+        if (keys <= 0) continue;
+        // With none of its puyos next to the cells the keys can take, a color cannot reach four with three keys.
+        FieldBit column;
+        for (int key = 0; key < keys; ++key) column.set_bit(x, heights[x]+key);
+        const FieldBit near = column.get_expand().get_mask_12();
         for (int c = 0; c < cell::COUNT-1; ++c) {
+            if (_mm_testz_si128(field.data[c].data, near.data)) continue;
             auto plan = field;
-            for (int key = 1; key <= std::min(3, 12-int(heights[x])); ++key) {
+            for (int key = 1; key <= keys; ++key) {
                 plan.set_cell(x, heights[x]+key-1, cell::Type(c));
                 if (plan.data[c].get_mask_group_4(x, heights[x]).get_count() < 4) continue;
+                if (settled) {
+                    // Only this group pops first. If nothing stands above what it clears (with the garbage next
+                    // to it), nothing falls and the chain is one link, which scores nothing here.
+                    FieldBit removed = plan.data[c].get_mask_group(x, heights[x]);
+                    removed.data |= removed.get_expand().data & field.data[int(cell::Type::GARBAGE)].data;
+                    const __m128i lowest = _mm_and_si128(removed.data, _mm_sub_epi16(_mm_setzero_si128(), removed.data));
+                    const __m128i above = _mm_andnot_si128(
+                        _mm_sub_epi16(_mm_slli_epi16(lowest, 1), _mm_set1_epi16(1)), _mm_set1_epi16(-1));
+                    if (_mm_testz_si128(_mm_andnot_si128(removed.data, occupied.data), above)) break;
+                }
                 auto remain = plan;
                 auto masks = remain.pop();
                 if (masks.get_size() > 1) {
